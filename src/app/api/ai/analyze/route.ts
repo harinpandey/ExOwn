@@ -2,6 +2,8 @@ import { EXOWN_AI_PROMPT } from "@/lib/exown-ai-prompt";
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`;
 
 export async function POST(req: Request) {
