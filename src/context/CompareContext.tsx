@@ -28,6 +28,9 @@ export const CompareProvider = ({ children }: { children: React.ReactNode }) => 
   const [items, setItems] = useState<CompareItem[]>([]);
 
   const toggleCompare = (item: CompareItem) => {
+    let success = false;
+    let errorMsg = "";
+
     setItems(prev => {
       // If removing
       if (prev.some(i => i.id === item.id)) {
@@ -40,24 +43,30 @@ export const CompareProvider = ({ children }: { children: React.ReactNode }) => 
         
         // Strict Category & Subcategory Match
         if (firstItem.categoryId !== item.categoryId) {
-          toast.error("Only similar products can be compared.");
+          errorMsg = "Only similar products can be compared.";
           return prev;
         }
 
         if (firstItem.subcategoryId !== item.subcategoryId) {
-          toast.error("Only products in the same subcategory can be compared.");
+          errorMsg = "Only products in the same subcategory can be compared.";
           return prev;
         }
       }
 
       if (prev.length >= 3) {
-        toast.error("You can compare up to 3 products at a time.");
+        errorMsg = "You can compare up to 3 products at a time.";
         return prev;
       }
 
-      toast.success(`${item.title} added to compare.`);
+      success = true;
       return [...prev, item];
     });
+
+    if (success) {
+      toast.success(`${item.title} added to compare.`);
+    } else if (errorMsg) {
+      toast.error(errorMsg);
+    }
   };
 
   const clearCompare = () => setItems([]);

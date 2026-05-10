@@ -291,7 +291,7 @@ export async function createProduct(data: {
         pickupLocation: data.location,
         isNegotiable: data.isNegotiable,
         isUrgent: data.isUrgent,
-        status: "PENDING", // All new listings go to moderation
+        status: "LIVE", // New listings go live immediately for now
       }
     });
 

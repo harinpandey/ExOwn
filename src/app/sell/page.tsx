@@ -107,14 +107,24 @@ export default function SellPage() {
       const { createProduct, getCategories } = await import("@/actions/product");
       const dbCategories = await getCategories();
       const dbCat = dbCategories.find(c => c.slug === selectedCategory?.slug);
-      
       if (!dbCat) throw new Error("Category not found");
+
+      // 4. Find DB Subcategory ID
+      const { getSubcategories } = await import("@/actions/product");
+      const dbSubcategories = await getSubcategories(dbCat.id);
+      const dbSub = selectedSubcategory?.id === 'other' 
+        ? null 
+        : dbSubcategories.find(s => s.slug === selectedSubcategory?.id);
+      
+      if (selectedSubcategory?.id !== 'other' && !dbSub) {
+        throw new Error(`Subcategory "${selectedSubcategory?.name}" not found in database. Please contact support.`);
+      }
 
       const productData = {
         title: selectedSubcategory?.id === 'other' ? customOtherTitle : title,
         description,
         categoryId: dbCat.id,
-        subcategoryId: selectedSubcategory?.id === 'other' ? null : selectedSubcategory?.id,
+        subcategoryId: dbSub?.id || null,
         customSubcategory: selectedSubcategory?.id === 'other' ? customOtherTitle : selectedSubcategory?.name,
         condition: finalCondition,
         conditionDetails,
@@ -131,7 +141,7 @@ export default function SellPage() {
       const res = await createProduct(productData);
       if (res.success) {
         toast.success("Listing submitted for review!", { id: loadingToast });
-        router.push("/dashboard");
+        router.push("/profile");
       } else {
         toast.error(res.error || "Failed to create listing", { id: loadingToast });
       }
@@ -447,13 +457,13 @@ export default function SellPage() {
                       </div>
 
                       <div className="space-y-4">
-                        <label className="flex items-center gap-3 p-5 bg-gray-50 dark:bg-gray-800/50 rounded-2xl cursor-pointer hover:bg-gray-100 transition-all">
-                          <input type="checkbox" checked={isNegotiable} onChange={(e) => setIsNegotiable(e.target.checked)} className="w-5 h-5 rounded border-2 border-gray-300 text-primary focus:ring-primary" />
-                          <span className="font-bold">Price is Negotiable</span>
+                        <label className="flex items-center gap-3 p-5 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-all group shadow-sm">
+                          <input type="checkbox" checked={isNegotiable} onChange={(e) => setIsNegotiable(e.target.checked)} className="w-5 h-5 rounded border-2 border-gray-300 dark:border-gray-700 text-primary focus:ring-primary" />
+                          <span className="font-bold text-gray-700 dark:text-gray-200 group-hover:text-primary transition-colors">Price is Negotiable</span>
                         </label>
-                        <label className="flex items-center gap-3 p-5 bg-gray-50 dark:bg-gray-800/50 rounded-2xl cursor-pointer hover:bg-gray-100 transition-all">
-                          <input type="checkbox" checked={isUrgent} onChange={(e) => setIsUrgent(e.target.checked)} className="w-5 h-5 rounded border-2 border-gray-300 text-red-500 focus:ring-red-500" />
-                          <span className="font-bold">Mark as Urgent 🔥</span>
+                        <label className="flex items-center gap-3 p-5 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-all group shadow-sm">
+                          <input type="checkbox" checked={isUrgent} onChange={(e) => setIsUrgent(e.target.checked)} className="w-5 h-5 rounded border-2 border-gray-300 dark:border-gray-700 text-red-500 focus:ring-red-500" />
+                          <span className="font-bold text-gray-700 dark:text-gray-200 group-hover:text-red-500 transition-colors">Mark as Urgent 🔥</span>
                         </label>
                       </div>
                     </div>

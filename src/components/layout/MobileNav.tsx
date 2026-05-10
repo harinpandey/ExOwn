@@ -1,11 +1,19 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Search, PlusCircle, MessageSquare, User } from "lucide-react";
+import { Home, Search, PlusCircle, MessageSquare, User, Moon, Sun } from "lucide-react";
+import { useTheme } from "next-themes";
 
 export default function MobileNav() {
   const pathname = usePathname();
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const navItems = [
     { label: "Home", href: "/", icon: Home },

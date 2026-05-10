@@ -12,13 +12,14 @@ export async function updateProfile(userId: string, data: {
   hostel?: string;
 }) {
   try {
-    // 1. Update User table (name, image)
-    if (data.name || data.image) {
+    // 1. Update User table (name, image, phone)
+    if (data.name || data.image || data.phone) {
       await prisma.user.update({
         where: { id: userId },
         data: {
           ...(data.name && { name: data.name }),
           ...(data.image && { image: data.image }),
+          ...(data.phone && { phone: data.phone }),
         }
       });
     }
@@ -27,14 +28,12 @@ export async function updateProfile(userId: string, data: {
     await prisma.profile.upsert({
       where: { userId },
       update: {
-        ...(data.phone && { phone: data.phone }),
         ...(data.course && { course: data.course }),
         ...(data.year && { batch: data.year }),
         ...(data.hostel && { hostel: data.hostel }),
       },
       create: {
         userId,
-        phone: data.phone,
         course: data.course,
         batch: data.year,
         hostel: data.hostel,

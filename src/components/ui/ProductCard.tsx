@@ -32,10 +32,10 @@ export default function ProductCard({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -5 }}
-      className={`group relative flex flex-col bg-white rounded-3xl border ${selected ? 'border-primary ring-2 ring-primary/20' : 'border-gray-100'} overflow-hidden hover:shadow-2xl transition-all duration-500`}
+      className={`group relative flex flex-col bg-white dark:bg-gray-900 rounded-3xl border ${selected ? 'border-primary ring-2 ring-primary/20' : 'border-gray-100 dark:border-gray-800'} overflow-hidden hover:shadow-2xl transition-all duration-500`}
     >
       {/* Image Container */}
-      <div className="relative aspect-[4/5] w-full overflow-hidden bg-gray-50">
+      <div className="relative aspect-[4/5] w-full overflow-hidden bg-gray-50 dark:bg-gray-950">
         <img 
           src={image} 
           alt={title} 
@@ -70,13 +70,14 @@ export default function ProductCard({
         </AnimatePresence>
 
         {/* Hover Quick Actions */}
-        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 z-30">
-          <button 
+        <div className="absolute inset-0 bg-black/20 dark:bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 z-30">
+          <Link 
+            href={`/product/${id}`}
             className="p-3 bg-white text-gray-800 rounded-2xl hover:bg-primary hover:text-white transition-all transform hover:scale-110 shadow-xl"
             title="Quick View"
           >
             <Eye size={20} />
-          </button>
+          </Link>
           <button 
             onClick={(e) => { 
               e.preventDefault(); 
@@ -89,6 +90,11 @@ export default function ProductCard({
             <BarChart2 size={20} />
           </button>
           <button 
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              import("react-hot-toast").then(({ toast }) => toast.success("Added to favorites!"));
+            }}
             className="p-3 bg-white text-gray-800 rounded-2xl hover:bg-red-500 hover:text-white transition-all transform hover:scale-110 shadow-xl"
             title="Save"
           >
@@ -107,9 +113,9 @@ export default function ProductCard({
       </div>
 
       {/* Content Area */}
-      <div className="p-5 flex flex-col flex-1 bg-white relative z-40">
+      <div className="p-5 flex flex-col flex-1 bg-white dark:bg-gray-900 relative z-40">
         <div className="flex items-start justify-between mb-2">
-          <h3 className="font-black text-base line-clamp-1 text-gray-800 leading-tight flex-1" title={title}>
+          <h3 className="font-black text-base line-clamp-1 text-gray-800 dark:text-gray-100 leading-tight flex-1" title={title}>
             {title}
           </h3>
           {listingType === "RENT" && (
@@ -118,11 +124,11 @@ export default function ProductCard({
         </div>
         
         <div className="flex items-baseline gap-1 mb-4">
-          <span className="text-xl font-black text-gray-900">₹{price.toLocaleString('en-IN')}</span>
+          <span className="text-xl font-black text-gray-900 dark:text-gray-50">₹{price.toLocaleString('en-IN')}</span>
           {listingType === "RENT" && <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">/ Day</span>}
         </div>
         
-        <div className="mt-auto pt-4 border-t border-gray-50 flex flex-col gap-2">
+        <div className="mt-auto pt-4 border-t border-gray-50 dark:border-gray-800 flex flex-col gap-2">
           <div className="flex items-center gap-2 text-[10px] font-bold text-gray-400">
             <MapPin size={12} className="text-gray-300" />
             <span className="truncate">{location}</span>

@@ -124,6 +124,7 @@ export default function CompleteProfilePage() {
         phone: formData.phone,
         hostel: formData.hostel,
         studentPhoto: formData.photoUrl,
+        collegeName: "LPU", // Default college
       });
 
       if (result.success) {
@@ -288,10 +289,10 @@ export default function CompleteProfilePage() {
                         name="course"
                         value={formData.course}
                         onChange={handleInputChange}
-                        className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-transparent focus:ring-2 focus:ring-primary outline-none transition-all appearance-none"
+                        className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary outline-none transition-all appearance-none"
                       >
-                        <option value="">Select Course</option>
-                        {COURSES.map(c => <option key={c} value={c}>{c}</option>)}
+                        <option value="" className="bg-white dark:bg-gray-900">Select Course</option>
+                        {COURSES.map(c => <option key={c} value={c} className="bg-white dark:bg-gray-900">{c}</option>)}
                       </select>
                     </div>
                   </div>
@@ -303,10 +304,10 @@ export default function CompleteProfilePage() {
                         name="year"
                         value={formData.year}
                         onChange={handleInputChange}
-                        className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-transparent focus:ring-2 focus:ring-primary outline-none transition-all appearance-none"
+                        className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary outline-none transition-all appearance-none"
                       >
-                        <option value="">Select Year</option>
-                        {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
+                        <option value="" className="bg-white dark:bg-gray-900">Select Year</option>
+                        {YEARS.map(y => <option key={y} value={y} className="bg-white dark:bg-gray-900">{y}</option>)}
                       </select>
                     </div>
                   </div>
@@ -374,10 +375,10 @@ export default function CompleteProfilePage() {
                       name="hostel"
                       value={formData.hostel}
                       onChange={handleInputChange}
-                      className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-transparent focus:ring-2 focus:ring-primary outline-none transition-all appearance-none"
+                      className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary outline-none transition-all appearance-none"
                     >
-                      <option value="">Select Hostel</option>
-                      {HOSTELS.map(h => <option key={h} value={h}>{h}</option>)}
+                      <option value="" className="bg-white dark:bg-gray-900">Select Hostel</option>
+                      {HOSTELS.map(h => <option key={h} value={h} className="bg-white dark:bg-gray-900">{h}</option>)}
                     </select>
                   </div>
                 </div>

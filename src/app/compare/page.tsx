@@ -9,33 +9,39 @@ import { ArrowLeft, Trash2, ShieldCheck, Tag, ShoppingCart } from "lucide-react"
 import Link from "next/link";
 
 export default function ComparePage() {
-  const { selectedIds, toggleCompare, clearCompare } = useCompare();
+  const { items, toggleCompare, clearCompare } = useCompare();
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    if (selectedIds.length === 0) {
-      router.push("/products");
+    if (items.length === 0) {
+      router.push("/search");
       return;
     }
 
     const fetchProducts = async () => {
       setLoading(true);
-      const data = await getProductsByIds(selectedIds);
-      // Sort data to match selectedIds order
-      const sorted = selectedIds.map(id => data.find(p => p.id === id)).filter(Boolean);
+      const ids = items.map(i => i.id);
+      const data = await getProductsByIds(ids);
+      // Sort data to match items order
+      const sorted = ids.map(id => data.find(p => p.id === id)).filter(Boolean);
       setProducts(sorted);
       setLoading(false);
     };
 
     fetchProducts();
-  }, [selectedIds, router]);
+  }, [items, router]);
 
-  const handleRemove = (id: string) => {
-    toggleCompare(id);
-    if (selectedIds.length <= 1) {
-      router.push("/products");
+  const handleRemove = (product: any) => {
+    toggleCompare({
+      id: product.id,
+      title: product.title,
+      categoryId: product.categoryId,
+      subcategoryId: product.subcategoryId
+    });
+    if (items.length <= 1) {
+      router.push("/search");
     }
   };
 
@@ -70,11 +76,11 @@ export default function ComparePage() {
           >
             <ArrowLeft size={16} /> Back to Search
           </button>
-          <h1 className="text-3xl font-black">Compare Products</h1>
+          <h1 className="text-3xl font-black text-gray-900 dark:text-gray-50">Compare Products</h1>
         </div>
         <button 
           onClick={clearCompare}
-          className="px-6 py-2.5 bg-red-50 text-red-600 rounded-xl font-bold hover:bg-red-100 transition-all flex items-center gap-2 text-sm"
+          className="px-6 py-2.5 bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 rounded-xl font-bold hover:bg-red-100 transition-all flex items-center gap-2 text-sm"
         >
           <Trash2 size={18} /> Clear All
         </button>
@@ -99,12 +105,12 @@ export default function ComparePage() {
                         />
                       </div>
                       <button 
-                        onClick={() => handleRemove(product.id)}
+                        onClick={() => handleRemove(product)}
                         className="absolute top-2 right-2 p-1.5 bg-white/90 dark:bg-gray-800/90 text-red-500 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
                       >
                         <X size={16} />
                       </button>
-                      <h3 className="font-bold text-lg mb-1 line-clamp-2 leading-tight">{product.title}</h3>
+                      <h3 className="font-bold text-lg mb-1 line-clamp-2 leading-tight text-gray-900 dark:text-gray-100">{product.title}</h3>
                       <p className="text-primary font-black text-xl mb-4">₹{product.price.toLocaleString()}</p>
                       <Link 
                         href={`/product/${product.id}`}
@@ -126,7 +132,7 @@ export default function ComparePage() {
                   {products.map((product) => {
                     const value = row.key.split('.').reduce((o, i) => o?.[i], product);
                     return (
-                      <td key={product.id} className="p-6 text-sm font-medium">
+                      <td key={product.id} className="p-6 text-sm font-medium text-gray-800 dark:text-gray-200">
                         {row.format ? row.format(value) : value}
                       </td>
                     );
@@ -140,7 +146,7 @@ export default function ComparePage() {
 
       <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="md:col-span-2">
-          <h2 className="text-xl font-bold mb-4">Smart Tip</h2>
+          <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-50">Smart Tip</h2>
           <div className="bg-primary/5 border border-primary/10 p-6 rounded-3xl flex gap-4">
             <div className="p-3 bg-primary/10 text-primary h-max rounded-2xl">
               <ShieldCheck size={24} />
@@ -159,7 +165,7 @@ export default function ComparePage() {
             <p className="text-gray-400 text-sm mb-6">Compare similar items to find the best value for your money.</p>
           </div>
           <Link 
-            href="/products"
+            href="/search"
             className="w-full py-3 bg-white text-gray-900 rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:bg-primary hover:text-white transition-all"
           >
             Find More Items

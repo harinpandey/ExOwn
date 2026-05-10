@@ -8,18 +8,29 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   isProfileComplete: boolean;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({ 
   user: null, 
   loading: true,
-  isProfileComplete: true
+  isProfileComplete: true,
+  logout: async () => {},
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [isProfileComplete, setIsProfileComplete] = useState(true);
+
+  const logout = async () => {
+    try {
+      const { signOut } = await import("firebase/auth");
+      await signOut(auth);
+    } catch (err) {
+      console.error("Logout error:", err);
+    }
+  };
 
   useEffect(() => {
     if (!auth) {
@@ -58,7 +69,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading, isProfileComplete }}>
+    <AuthContext.Provider value={{ user, loading, isProfileComplete, logout }}>
       {children}
     </AuthContext.Provider>
   );
