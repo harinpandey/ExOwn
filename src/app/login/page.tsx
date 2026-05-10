@@ -20,7 +20,9 @@ function isMobileOrRestrictedBrowser(): boolean {
   return /Android|iPhone|iPad|iPod|Mobile|webOS/i.test(ua);
 }
 
-export default function LoginPage() {
+import { Suspense } from "react";
+
+function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") || "/";
@@ -159,5 +161,17 @@ export default function LoginPage() {
         <ArrowRight className="rotate-180" size={16} /> Back to Home
       </Link>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    }>
+      <LoginContent />
+    </Suspense>
   );
 }

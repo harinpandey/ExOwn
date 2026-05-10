@@ -95,7 +95,7 @@ async function main() {
       create: cat,
     });
 
-    const subs = subcategoriesMap[cat.slug] || [];
+    const subs = (subcategoriesMap as any)[cat.slug] || [];
     for (const subName of subs) {
       await prisma.subcategory.upsert({
         where: { 
@@ -117,7 +117,7 @@ async function main() {
   // 4. Create fresh dummy products
   const dbCats = await prisma.category.findMany();
   const catMap = {};
-  dbCats.forEach(c => catMap[c.slug] = c.id);
+  dbCats.forEach((c: any) => (catMap as any)[c.slug] = c.id);
 
   const dummyProducts = [
     {
@@ -131,7 +131,7 @@ async function main() {
       pickupLocation: "BH-4, Block A",
       isUrgent: false,
       sellerId: seller.id,
-      categoryId: catMap["mobiles-gadgets"],
+      categoryId: (catMap as any)["mobiles-gadgets"],
       campusId: lpu.id,
       status: "LIVE",
     },
@@ -146,7 +146,7 @@ async function main() {
       pickupLocation: "BH-4, Block A",
       isUrgent: true,
       sellerId: seller.id,
-      categoryId: catMap["electronics-appliances"],
+      categoryId: (catMap as any)["electronics-appliances"],
       campusId: lpu.id,
       status: "LIVE",
     },
@@ -161,7 +161,7 @@ async function main() {
       pickupLocation: "BH-1 Cycle Stand",
       isUrgent: true,
       sellerId: seller.id,
-      categoryId: catMap["bikes-transport"],
+      categoryId: (catMap as any)["bikes-transport"],
       campusId: lpu.id,
       status: "LIVE",
     }
