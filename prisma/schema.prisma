@@ -1,0 +1,299 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String?   @unique
+  phone         String?   @unique
+  name          String?
+  image         String?
+  registrationNumber String? @unique // Private
+  studentPhoto  String?           // Private
+  role          Role      @default(USER)
+  isVerified    Boolean   @default(false)
+  isProfileCompleted Boolean @default(false)
+  collegeIdUrl  String?           // Private
+  trustScore    Int       @default(50)
+  address       String?           // Private
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  profile       Profile?
+  products      Product[]
+  messagesSent  Message[] @relation("Sender")
+  messagesRecv  Message[] @relation("Receiver")
+  reportsMade   Report[]  @relation("Reporter")
+  reportsRecv   Report[]  @relation("Reported")
+  wishlist      Wishlist[]
+}
+
+enum Role {
+  USER
+  ADMIN
+  VENDOR
+}
+
+model Profile {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  collegeName    String?
+  course         String?
+  year           String?  // 1st Year, 2nd Year, etc.
+  batch          String?
+  hostel         String?
+  bio            String?
+  rating         Float    @default(0)
+  successfulDeals Int     @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Country {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  slug      String   @unique
+  states    State[]
+  createdAt DateTime @default(now())
+}
+
+model State {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String
+  countryId String
+  country   Country  @relation(fields: [countryId], references: [id], onDelete: Cascade)
+  cities    City[]
+  createdAt DateTime @default(now())
+
+  @@unique([name, countryId])
+}
+
+model City {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String
+  stateId   String
+  state     State    @relation(fields: [stateId], references: [id], onDelete: Cascade)
+  campuses  Campus[]
+  createdAt DateTime @default(now())
+
+  @@unique([name, stateId])
+}
+
+model Campus {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String
+  cityId    String
+  city      City     @relation(fields: [cityId], references: [id], onDelete: Cascade)
+  products  Product[]
+  createdAt DateTime @default(now())
+
+  @@unique([name, cityId])
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  slug        String    @unique
+  icon        String?
+  subcategories Subcategory[]
+  products    Product[]
+  createdAt   DateTime  @default(now())
+}
+
+model Subcategory {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String
+  categoryId  String
+  category    Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  products    Product[]
+  createdAt   DateTime  @default(now())
+
+  @@unique([name, categoryId])
+}
+
+model Product {
+  id            String   @id @default(cuid())
+  title         String
+  description   String
+  price         Float
+  originalPrice Float?   // For comparison and AI analysis
+  brand         String?
+  purchaseYear  Int?
+  isNegotiable  Boolean  @default(false)
+  condition     Condition @default(GOOD)
+  conditionDetails Json?    // Category-specific answers (e.g. {battery: '80%', screen: 'no scratches'})
+  listingType   ListingType @default(SELL)
+  images        String[]
+  pickupLocation String
+  status        ProductStatus @default(PENDING)
+  isUrgent      Boolean  @default(false)
+  views         Int      @default(0)
+  wishlistCount Int      @default(0)
+  
+  sellerId      String
+  seller        User     @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  categoryId    String
+  category      Category @relation(fields: [categoryId], references: [id])
+  subcategoryId String?
+  subcategory   Subcategory? @relation(fields: [subcategoryId], references: [id])
+  campusId      String
+  campus        Campus   @relation(fields: [campusId], references: [id])
+  customSubcategory String?  // For "Other" selection
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  reports       Report[]
+  offers        Offer[]
+  wishlistedBy  Wishlist[]
+
+  @@index([sellerId])
+  @@index([categoryId])
+  @@index([subcategoryId])
+  @@index([campusId])
+  @@index([createdAt])
+}
+
+model AiRule {
+  id          String   @id @default(cuid())
+  name        String
+  rule        Json     // Stores rule logic for the engine
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum ListingType {
+  SELL
+  RENT
+}
+
+enum Condition {
+  LIKE_NEW
+  GOOD
+  FAIR
+  POOR
+}
+
+enum ProductStatus {
+  PENDING
+  LIVE
+  REJECTED
+  SOLD
+  ARCHIVED
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  content   String
+  imageUrl  String?
+  isRead    Boolean  @default(false)
+  
+  senderId  String
+  sender    User     @relation("Sender", fields: [senderId], references: [id], onDelete: Cascade)
+  receiverId String
+  receiver  User     @relation("Receiver", fields: [receiverId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now())
+}
+
+model Wishlist {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, productId])
+}
+
+model Offer {
+  id        String   @id @default(cuid())
+  price     Float
+  status    OfferStatus @default(PENDING)
+  message   String?
+  
+  buyerId   String
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now())
+}
+
+enum OfferStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  CANCELLED
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  type      String   // MESSAGE, OFFER, SYSTEM, REPORT
+  title     String
+  content   String
+  link      String?
+  isRead    Boolean  @default(false)
+  userId    String
+  createdAt DateTime @default(now())
+}
+
+model Report {
+  id          String   @id @default(cuid())
+  reason      ReportReason
+  description String?
+  status      ReportStatus @default(PENDING)
+  
+  reporterId  String
+  reporter    User     @relation("Reporter", fields: [reporterId], references: [id])
+  reportedId  String?
+  reported    User?    @relation("Reported", fields: [reportedId], references: [id])
+  productId   String?
+  product     Product? @relation(fields: [productId], references: [id])
+  
+  createdAt   DateTime @default(now())
+}
+
+enum ReportReason {
+  FAKE_LISTING
+  SPAM
+  ABUSIVE_CONTENT
+  WRONG_INFORMATION
+  SCAM
+}
+
+enum ReportStatus {
+  PENDING
+  REVIEWED
+  DISMISSED
+  ACTION_TAKEN
+}
+
+model Ad {
+  id          String   @id @default(cuid())
+  title       String
+  imageUrl    String
+  linkUrl     String
+  sponsorName String
+  placement   AdPlacement @default(HOMEPAGE)
+  isActive    Boolean  @default(true)
+  startDate   DateTime
+  endDate     DateTime
+  createdAt   DateTime @default(now())
+}
+
+enum AdPlacement {
+  HOMEPAGE
+  CATEGORY
+  SEARCH
+}
