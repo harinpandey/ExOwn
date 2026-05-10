@@ -2,7 +2,13 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { seedSubcategories } from "@/lib/seed-subs";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
+  if (process.env.NODE_ENV === "production") {
+    return NextResponse.json({ error: "Seed route disabled in production" }, { status: 403 });
+  }
+
   try {
     // 1. Create a dummy seller
     const seller = await prisma.user.upsert({
