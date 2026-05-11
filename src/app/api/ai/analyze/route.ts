@@ -7,23 +7,27 @@ export const dynamic = "force-dynamic";
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`;
 
 export async function POST(req: Request) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+
   try {
     const { productData } = await req.json();
 
     if (!process.env.GEMINI_API_KEY) {
-      return NextResponse.json({ error: "AI service not configured" }, { status: 500 });
+      console.warn("AI Warning: GEMINI_API_KEY is missing.");
+      return NextResponse.json(getFallbackResponse("AI key missing"));
     }
 
-    // Fetch Admin Rules from DB
+    // Fetch Admin Rules from DB with timeout
     let adminRules = [];
     try {
       adminRules = await prisma.aiRule.findMany({
         where: { isActive: true },
-        select: { name: true, rule: true }
+        select: { name: true, rule: true },
+        take: 10
       });
     } catch (dbError) {
-      console.error("DB Error fetching rules:", dbError);
-      // Continue without rules if DB fails
+      console.error("AI Error: DB rules fetch failed", dbError);
     }
 
     const prompt = `
@@ -51,20 +55,23 @@ export async function POST(req: Request) {
           maxOutputTokens: 1024,
           responseMimeType: "application/json" 
         }
-      })
+      }),
+      signal: controller.signal
     });
+
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("Gemini API Error:", response.status, errorText);
-      return NextResponse.json({ error: "AI Service Error" }, { status: response.status });
+      console.error("AI Error: Gemini API rejected request", response.status, errorText);
+      return NextResponse.json(getFallbackResponse("Service error"));
     }
 
     const data = await response.json();
     
     if (!data.candidates?.[0]?.content?.parts?.[0]?.text) {
-      console.error("AI Error: Missing content parts", data);
-      throw new Error("Invalid AI response");
+      console.error("AI Error: Missing response parts", data);
+      return NextResponse.json(getFallbackResponse("Invalid AI format"));
     }
 
     try {
@@ -72,10 +79,25 @@ export async function POST(req: Request) {
       return NextResponse.json(aiResult);
     } catch (parseError) {
       console.error("AI Error: JSON Parse Failed", data.candidates[0].content.parts[0].text);
-      throw parseError;
+      return NextResponse.json(getFallbackResponse("Parse failure"));
     }
   } catch (error: any) {
-    console.error("AI Analysis Global Error:", error);
-    return NextResponse.json({ error: "Failed to analyze product", details: error.message }, { status: 500 });
+    clearTimeout(timeoutId);
+    if (error.name === 'AbortError') {
+      console.error("AI Error: Request timed out after 10s");
+      return NextResponse.json(getFallbackResponse("Timeout"));
+    }
+    console.error("AI Error: Global analysis failure", error);
+    return NextResponse.json(getFallbackResponse("Generic failure"));
   }
+}
+
+function getFallbackResponse(reason: string) {
+  return { 
+    summary: "AI Analysis Temporarily Unavailable",
+    pros: [],
+    cons: [],
+    verdict: `We're experiencing high traffic or a temporary issue (${reason}). Please check manually for now.`,
+    score: 0
+  };
 }

@@ -10,16 +10,20 @@ interface Props {
   subcategoryName: string;
   onComplete: (details: any, finalCondition: string) => void;
   onOtherTitleChange?: (title: string) => void;
+  initialDetails?: any;
+  initialCondition?: string;
 }
 
 export default function CategoryConditionForm({ 
   categoryName, 
   subcategoryName, 
   onComplete,
-  onOtherTitleChange 
+  onOtherTitleChange,
+  initialDetails,
+  initialCondition 
 }: Props) {
   const [currentStep, setCurrentStep] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, any>>({});
+  const [answers, setAnswers] = useState<Record<string, any>>(initialDetails || {});
   const [otherTitle, setOtherTitle] = useState("");
 
   // Find the category and subcategory from config
@@ -41,6 +45,8 @@ export default function CategoryConditionForm({
     setOtherTitle("");
   }, [categoryName, subcategoryName]);
 
+  const [showConditionSelector, setShowConditionSelector] = useState(false);
+
   const handleAnswer = (qId: string, value: any) => {
     const newAnswers = { ...answers, [qId]: value };
     setAnswers(newAnswers);
@@ -48,16 +54,12 @@ export default function CategoryConditionForm({
     if (currentStep < questions.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
-      onComplete(newAnswers, "GOOD");
+      setShowConditionSelector(true);
     }
   };
 
-  const startQuestions = () => {
-    if (questions.length > 0) {
-      setCurrentStep(0);
-    } else {
-      onComplete({}, "GOOD");
-    }
+  const finalize = (cond: string) => {
+    onComplete(answers, cond);
   };
 
   if (isOther && !otherTitle) {
@@ -100,6 +102,34 @@ export default function CategoryConditionForm({
     );
   }
 
+  if (showConditionSelector) {
+    return (
+      <div className="p-8 text-center bg-white dark:bg-gray-900 rounded-[2.5rem] border-2 border-primary/20 shadow-xl">
+        <Check className="mx-auto text-emerald-500 mb-4" size={48} />
+        <h3 className="text-2xl font-black mb-2">Final Step: Condition</h3>
+        <p className="text-sm text-gray-500 mb-8">Overall, how would you rate the item's condition?</p>
+        
+        <div className="grid grid-cols-2 gap-4">
+          {[
+            { label: "Like New", value: "LIKE_NEW", color: "bg-emerald-500" },
+            { label: "Good", value: "GOOD", color: "bg-blue-500" },
+            { label: "Fair", value: "FAIR", color: "bg-orange-500" },
+            { label: "Poor", value: "POOR", color: "bg-red-500" }
+          ].map((c) => (
+            <button
+              key={c.value}
+              onClick={() => finalize(c.value)}
+              className="p-6 rounded-2xl border-2 border-transparent hover:border-primary bg-gray-50 dark:bg-gray-700/50 transition-all group"
+            >
+              <div className={`w-3 h-3 rounded-full ${c.color} mb-3 mx-auto`} />
+              <span className="font-black text-sm uppercase tracking-widest">{c.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   const currentQ = questions[currentStep];
 
   if (!currentQ) {
@@ -109,10 +139,10 @@ export default function CategoryConditionForm({
         <h3 className="text-xl font-black">All set!</h3>
         <p className="text-sm text-gray-500 mb-6">We've gathered the key details for your listing.</p>
         <button 
-          onClick={() => onComplete(answers, "GOOD")}
+          onClick={() => setShowConditionSelector(true)}
           className="px-8 py-3 bg-primary text-white rounded-xl font-bold"
         >
-          Finalize Listing
+          Proceed to Condition
         </button>
       </div>
     );

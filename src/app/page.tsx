@@ -5,23 +5,26 @@ import ProductCard from "@/components/ui/ProductCard";
 import { CATEGORIES } from "@/lib/constants";
 import { getTrendingProducts, getRecentlyAdded, getPopularRentals, getVerifiedSellersProducts } from "@/actions/product";
 import HeroBanner from "@/components/home/HeroBanner";
+import MarketplaceSwitcher from "@/components/home/MarketplaceSwitcher";
+import { Suspense } from "react";
+import TrendingDeals from "@/components/home/TrendingDeals";
+import PopularRentals from "@/components/home/PopularRentals";
+import RecentlyAdded from "@/components/home/RecentlyAdded";
+import VerifiedSellers from "@/components/home/VerifiedSellers";
+import RecentlyViewedSection from "@/components/home/RecentlyViewedSection";
+import { SectionSkeleton } from "@/components/ui/ProductSkeleton";
 
 export const dynamic = "force-dynamic";
 
-export default async function Home() {
-  const [trendingProducts, recentProducts, popularRentals, verifiedProducts] = await Promise.all([
-    getTrendingProducts(),
-    getRecentlyAdded(),
-    getPopularRentals(),
-    getVerifiedSellersProducts(),
-  ]);
-
+export default function Home() {
   return (
     <div className="flex flex-col gap-12 pb-24">
       {/* Hero Section */}
       <section className="container mx-auto px-4 pt-6">
         <HeroBanner />
       </section>
+
+      <MarketplaceSwitcher />
 
       {/* Categories Grid */}
       <section className="container mx-auto px-4">
@@ -62,30 +65,13 @@ export default async function Home() {
             View All <ArrowRight size={16} />
           </Link>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-          {trendingProducts.length > 0 ? (
-            trendingProducts.map((product) => (
-              <ProductCard
-                key={product.id}
-                id={product.id}
-                title={product.title}
-                price={product.price}
-                image={product.images[0] || ""}
-                location={product.pickupLocation}
-                createdAt={product.createdAt}
-                isUrgent={product.isUrgent}
-                isVerified={product.seller.isVerified}
-                categoryId={product.categoryId}
-                subcategoryId={product.subcategoryId || ""}
-              />
-            ))
-          ) : (
-            <div className="col-span-full py-12 text-center bg-gray-50 dark:bg-gray-900 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-800">
-              <p className="text-gray-500">No items found.</p>
-            </div>
-          )}
-        </div>
+        <Suspense fallback={<SectionSkeleton count={4} />}>
+          <TrendingDeals />
+        </Suspense>
       </section>
+
+      {/* Recently Viewed (Client Side Only) */}
+      <RecentlyViewedSection />
 
       {/* Popular Rentals */}
       <section className="bg-gray-50 dark:bg-gray-900/50 py-16 border-y border-gray-200 dark:border-gray-800">
@@ -101,30 +87,9 @@ export default async function Home() {
               View All <ArrowRight size={16} />
             </Link>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-            {popularRentals.length > 0 ? (
-              popularRentals.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  id={product.id}
-                  title={product.title}
-                  price={product.price}
-                  image={product.images[0] || ""}
-                  location={product.pickupLocation}
-                  createdAt={product.createdAt}
-                  isUrgent={product.isUrgent}
-                  isVerified={product.seller.isVerified}
-                  listingType={product.listingType}
-                  categoryId={product.categoryId}
-                  subcategoryId={product.subcategoryId || ""}
-                />
-              ))
-            ) : (
-              <div className="col-span-full py-12 text-center bg-white dark:bg-gray-900 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-800">
-                <p className="text-gray-500">No rentals available yet.</p>
-              </div>
-            )}
-          </div>
+          <Suspense fallback={<SectionSkeleton count={4} />}>
+            <PopularRentals />
+          </Suspense>
         </div>
       </section>
 
@@ -141,29 +106,9 @@ export default async function Home() {
             View All <ArrowRight size={16} />
           </Link>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-          {recentProducts.length > 0 ? (
-            recentProducts.map((product) => (
-              <ProductCard
-                key={product.id}
-                id={product.id}
-                title={product.title}
-                price={product.price}
-                image={product.images[0] || ""}
-                location={product.pickupLocation}
-                createdAt={product.createdAt}
-                isUrgent={product.isUrgent}
-                isVerified={product.seller.isVerified}
-                categoryId={product.categoryId}
-                subcategoryId={product.subcategoryId || ""}
-              />
-            ))
-          ) : (
-            <div className="col-span-full py-12 text-center bg-gray-50 dark:bg-gray-900 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-800">
-              <p className="text-gray-500">No items found.</p>
-            </div>
-          )}
-        </div>
+        <Suspense fallback={<SectionSkeleton count={4} />}>
+          <RecentlyAdded />
+        </Suspense>
       </section>
 
       {/* Verified Sellers */}
@@ -179,29 +124,9 @@ export default async function Home() {
             Browse Verified
           </Link>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-          {verifiedProducts.slice(0, 4).map((product) => (
-            <ProductCard
-              key={product.id}
-              id={product.id}
-              title={product.title}
-              price={product.price}
-              image={product.images[0] || ""}
-              location={product.pickupLocation}
-              createdAt={product.createdAt}
-              isUrgent={product.isUrgent}
-              isVerified={product.seller.isVerified}
-              listingType={product.listingType}
-              categoryId={product.categoryId}
-              subcategoryId={product.subcategoryId || ""}
-            />
-          ))}
-          {verifiedProducts.length === 0 && (
-            <div className="col-span-full py-12 text-center bg-gray-50 dark:bg-gray-900 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-800">
-              <p className="text-gray-500">No items from verified sellers yet.</p>
-            </div>
-          )}
-        </div>
+        <Suspense fallback={<SectionSkeleton count={4} />}>
+          <VerifiedSellers />
+        </Suspense>
       </section>
     </div>
   );

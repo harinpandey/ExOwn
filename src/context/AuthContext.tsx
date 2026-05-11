@@ -9,6 +9,7 @@ interface AuthContextType {
   loading: boolean;
   isProfileComplete: boolean;
   logout: () => Promise<void>;
+  refreshProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({ 
@@ -16,6 +17,7 @@ const AuthContext = createContext<AuthContextType>({
   loading: true,
   isProfileComplete: true,
   logout: async () => {},
+  refreshProfile: async () => {},
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
@@ -32,6 +34,36 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const syncProfile = async (firebaseUser: User) => {
+    try {
+      const { syncUser } = await import("@/actions/user");
+      const { withRetry } = await import("@/lib/prisma");
+      
+      const result = await withRetry(() => syncUser({
+        id: firebaseUser.uid,
+        email: firebaseUser.email,
+        name: firebaseUser.displayName,
+        image: firebaseUser.photoURL,
+      }));
+      
+      if (result.success && result.user) {
+        setIsProfileComplete(result.user.isProfileCompleted);
+      } else {
+        // If sync fails but we have a user, assume incomplete to be safe
+        setIsProfileComplete(false);
+      }
+    } catch (err) {
+      console.error("Failed to sync user to DB:", err);
+      setIsProfileComplete(false);
+    }
+  };
+
+  const refreshProfile = async () => {
+    if (user) {
+      await syncProfile(user);
+    }
+  };
+
   useEffect(() => {
     if (!auth) {
       setLoading(false);
@@ -39,27 +71,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      setUser(firebaseUser);
-      
-      // Sync Firebase user to our PostgreSQL database
       if (firebaseUser) {
-        try {
-          const { syncUser } = await import("@/actions/user");
-          const result = await syncUser({
-            id: firebaseUser.uid,
-            email: firebaseUser.email,
-            name: firebaseUser.displayName,
-            image: firebaseUser.photoURL,
-          });
-          
-          if (result.success && result.user) {
-            setIsProfileComplete(result.user.isProfileCompleted);
-          }
-        } catch (err) {
-          console.error("Failed to sync user to DB:", err);
-        }
+        setUser(firebaseUser);
+        await syncProfile(firebaseUser);
       } else {
-        setIsProfileComplete(true);
+        setUser(null);
+        setIsProfileComplete(true); // Default to true for non-logged in users
       }
       
       setLoading(false);
@@ -69,7 +86,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading, isProfileComplete, logout }}>
+    <AuthContext.Provider value={{ user, loading, isProfileComplete, logout, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );

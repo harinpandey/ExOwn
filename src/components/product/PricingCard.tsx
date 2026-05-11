@@ -1,12 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { MessageSquare, Tag, MapPin, Clock, Phone, ShieldCheck, BarChart2 } from "lucide-react";
+import { MessageSquare, Tag, MapPin, Clock, Phone, ShieldCheck, BarChart2, Calendar, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import { useAuth } from "@/context/AuthContext";
 import { useCompare } from "@/context/CompareContext";
 import { useRouter } from "next/navigation";
+
+import RentNowModal from "./RentNowModal";
+import RequestQuoteModal from "./RequestQuoteModal";
 
 interface PricingCardProps {
   product: any;
@@ -19,8 +22,11 @@ export default function PricingCard({ product }: PricingCardProps) {
   const [offerMode, setOfferMode] = useState(false);
   const [offerAmount, setOfferAmount] = useState(product.price.toString());
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isRentModalOpen, setIsRentModalOpen] = useState(false);
+  const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
 
   const isRental = product.listingType === "RENT";
+  const isService = product.listingType === "SERVICE";
   const isVerified = product.seller.isVerified;
 
   const handleMakeOffer = async () => {
@@ -37,7 +43,7 @@ export default function PricingCard({ product }: PricingCardProps) {
       router.push(`/chat/${product.seller.id}`);
     } catch (err) {
       console.error("Failed to send offer:", err);
-      alert("Failed to send offer. Please try again.");
+      toast.error("Failed to send offer. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -47,13 +53,23 @@ export default function PricingCard({ product }: PricingCardProps) {
     <div className="bg-white dark:bg-gray-900 rounded-3xl border border-gray-200 dark:border-gray-800 p-6 md:p-10 shadow-xl">
       <div className="flex items-center gap-2 mb-4">
         <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shadow-sm ${
-          isRental ? "bg-yellow-400 text-gray-900" : "bg-primary text-white"
+          isRental ? "bg-yellow-400 text-gray-900" : isService ? "bg-purple-500 text-white" : "bg-primary text-white"
         }`}>
-          {isRental ? "Rental" : "For Sale"}
+          {isRental ? "Rental" : isService ? "Service" : "For Sale"}
         </span>
-        {isVerified && (
+        {product.seller.isTrustedSeller && (
+          <span className="flex items-center gap-1 px-3 py-1 bg-emerald-100 text-emerald-600 rounded-full text-[10px] font-black uppercase tracking-wider">
+            <Sparkles size={12} /> Trusted Seller
+          </span>
+        )}
+        {product.seller.verificationLevel === "CAMPUS" && (
           <span className="flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-600 rounded-full text-[10px] font-black uppercase tracking-wider">
-            <ShieldCheck size={12} /> Verified Seller
+            <ShieldCheck size={12} /> Campus Verified
+          </span>
+        )}
+        {product.seller.verificationLevel === "BUSINESS" && (
+          <span className="flex items-center gap-1 px-3 py-1 bg-purple-100 text-purple-600 rounded-full text-[10px] font-black uppercase tracking-wider">
+            <ShieldCheck size={12} /> Verified Business
           </span>
         )}
       </div>
@@ -64,11 +80,12 @@ export default function PricingCard({ product }: PricingCardProps) {
       <div className="text-5xl font-black text-primary mb-8 flex items-baseline gap-1">
         ₹{product.price.toLocaleString("en-IN")}
         {isRental && <span className="text-lg text-gray-500 font-medium">/day</span>}
+        {isService && <span className="text-lg text-gray-500 font-medium"> starting</span>}
       </div>
 
       <div className="flex flex-wrap gap-2 mb-10">
         <span className="px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-xl text-sm font-bold">
-          {product.condition === "NEW" ? "Brand New" : "Used Item"}
+          {isService ? (product.serviceDetail?.experience || "Expert") : (product.condition === "NEW" ? "Brand New" : "Used Item")}
         </span>
         {product.isNegotiable && (
           <span className="px-4 py-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-xl text-sm font-bold flex items-center gap-2">
@@ -83,7 +100,7 @@ export default function PricingCard({ product }: PricingCardProps) {
             <MapPin size={24} className="text-primary" />
           </div>
           <div>
-            <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">Pickup Location</p>
+            <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">{isService ? "Service Area" : "Pickup Location"}</p>
             <p className="font-bold text-lg">{product.pickupLocation}</p>
           </div>
         </div>
@@ -91,21 +108,45 @@ export default function PricingCard({ product }: PricingCardProps) {
           <div className="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg">
             <Clock size={24} className="text-primary" />
           </div>
-          <div>
-            <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">Listed Since</p>
-            <p className="font-bold text-lg">{formatDistanceToNow(new Date(product.createdAt), { addSuffix: true })}</p>
+          <div className="flex-1">
+            <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">Response Time</p>
+            <p className="font-bold text-lg">{product.seller.profile?.avgResponseTime || "Quick Responder"}</p>
+          </div>
+          <div className="text-center px-4 border-l border-gray-100 dark:border-gray-800">
+            <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">Success</p>
+            <p className="font-black text-2xl text-primary">{product.seller.profile?.successRate || 0}%</p>
+          </div>
+          <div className="text-right pl-4 border-l border-gray-100 dark:border-gray-800">
+            <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">Trust</p>
+            <p className="font-black text-2xl text-emerald-500">{product.seller.trustScore}/100</p>
           </div>
         </div>
       </div>
 
       {!offerMode ? (
         <div className="grid grid-cols-1 gap-4">
-          <Link
-            href={!user ? `/login?redirect=/product/${product.id}` : !isProfileComplete ? "/complete-profile" : `/chat/${product.seller.id}?product=${product.id}`}
-            className="w-full py-4 bg-primary text-white rounded-2xl font-black text-xl hover:bg-primary-dark transition-all flex items-center justify-center gap-3 shadow-xl shadow-primary/20"
-          >
-            <MessageSquare size={24} /> Chat with Seller
-          </Link>
+          {isService ? (
+            <button
+              onClick={() => setIsQuoteModalOpen(true)}
+              className="w-full py-4 bg-primary text-white rounded-2xl font-black text-xl hover:bg-primary-dark transition-all flex items-center justify-center gap-3 shadow-xl shadow-primary/20"
+            >
+              <MessageSquare size={24} /> Request Quote
+            </button>
+          ) : isRental ? (
+            <button
+              onClick={() => setIsRentModalOpen(true)}
+              className="w-full py-4 bg-yellow-400 text-gray-900 rounded-2xl font-black text-xl hover:bg-yellow-500 transition-all flex items-center justify-center gap-3 shadow-xl shadow-yellow-500/20"
+            >
+              <Calendar size={24} /> Rent Now
+            </button>
+          ) : (
+            <Link
+              href={!user ? `/login?redirect=/product/${product.id}` : !isProfileComplete ? "/complete-profile" : `/chat/${product.seller.id}?product=${product.id}`}
+              className="w-full py-4 bg-primary text-white rounded-2xl font-black text-xl hover:bg-primary-dark transition-all flex items-center justify-center gap-3 shadow-xl shadow-primary/20"
+            >
+              <MessageSquare size={24} /> Chat with Seller
+            </Link>
+          )}
           
           <button 
             onClick={() => toggleCompare(product.id)}
@@ -115,17 +156,10 @@ export default function PricingCard({ product }: PricingCardProps) {
               : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-primary hover:text-primary'
             }`}
           >
-            <BarChart2 size={24} /> {isInCompare(product.id) ? "In Comparison" : "Compare Product"}
+            <BarChart2 size={24} /> {isInCompare(product.id) ? "In Comparison" : "Compare"}
           </button>
           
-          {isRental ? (
-            <a
-              href={`tel:${product.seller.phone || "0000000000"}`}
-              className="w-full py-4 bg-green-600 text-white rounded-2xl font-black text-xl hover:bg-green-700 transition-all flex items-center justify-center gap-3 shadow-xl shadow-green-500/20"
-            >
-              <Phone size={24} /> Call Now
-            </a>
-          ) : product.isNegotiable && (
+          {!isService && !isRental && (
             <button 
               onClick={() => {
                 if (!isProfileComplete) {
@@ -163,13 +197,16 @@ export default function PricingCard({ product }: PricingCardProps) {
             </button>
             <button 
               onClick={() => setOfferMode(false)}
-              className="px-6 py-4 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-black text-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-all"
+              className="px-6 py-4 bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-xl font-black text-lg hover:bg-gray-300 dark:hover:bg-gray-700 transition-all"
             >
               Cancel
             </button>
           </div>
         </div>
       )}
+
+      <RentNowModal product={product} isOpen={isRentModalOpen} onClose={() => setIsRentModalOpen(false)} />
+      <RequestQuoteModal product={product} isOpen={isQuoteModalOpen} onClose={() => setIsQuoteModalOpen(false)} />
     </div>
   );
 }

@@ -87,11 +87,41 @@ export async function sendMessage(senderId: string, receiverId: string, content:
         senderId,
         receiverId,
         content
+      },
+      include: {
+        sender: { select: { name: true } }
       }
     });
+
+    // Create Notification
+    try {
+      const { createNotification } = await import("./notification");
+      await createNotification({
+        userId: receiverId,
+        type: "MESSAGE",
+        title: "New Message",
+        content: `${message.sender.name || 'Someone'} sent you a message: "${content.substring(0, 50)}${content.length > 50 ? '...' : ''}"`,
+        link: `/chat?partner=${senderId}`
+      });
+    } catch (notifErr) {
+      console.error("Failed to create message notification:", notifErr);
+    }
+
     return { success: true, message };
   } catch (error) {
     console.error("Error sending message:", error);
     return { success: false, error: "Failed to send message" };
+  }
+}
+export async function getTotalUnreadCount(userId: string) {
+  try {
+    return await prisma.message.count({
+      where: {
+        receiverId: userId,
+        isRead: false
+      }
+    });
+  } catch (error) {
+    return 0;
   }
 }

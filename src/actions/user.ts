@@ -1,6 +1,7 @@
 "use server";
 
-import prisma from "@/lib/prisma";
+import prisma, { withRetry } from "@/lib/prisma";
+import { logActivity } from "@/lib/logger";
 
 export async function syncUser(data: {
   id: string;
@@ -9,26 +10,37 @@ export async function syncUser(data: {
   image: string | null;
 }) {
   try {
-    const user = await prisma.user.upsert({
+    const user = await withRetry(() => prisma.user.upsert({
       where: { id: data.id },
       update: {
         ...(data.email && { email: data.email }),
         ...(data.name && { name: data.name }),
         ...(data.image && { image: data.image }),
+        lastActive: new Date(),
       },
       create: {
         id: data.id,
         email: data.email,
         name: data.name,
         image: data.image,
+        lastActive: new Date(),
+        verificationLevel: "BASIC", // Explicit default
       },
       select: {
         id: true,
         isVerified: true,
         isProfileCompleted: true,
-        // registrationNumber: true, // Returning only to owner during sync is OK, but let's be careful
+        verificationLevel: true,
+        isTrustedSeller: true,
       }
+    }));
+
+    await logActivity({
+      userId: data.id,
+      actionType: "LOGIN",
+      metadata: { method: "Firebase Auth" }
     });
+
     return { success: true, user };
   } catch (error: any) {
     console.error("Error syncing user:", error);
@@ -49,9 +61,11 @@ export async function getUserProfile(userId: string, requesterId?: string) {
         image: true,
         isVerified: true,
         isProfileCompleted: true,
-        registrationNumber: isOwner, // Privacy Rule
-        studentPhoto: isOwner,      // Privacy Rule
-        address: isOwner,           // Privacy Rule
+        verificationLevel: true,
+        isTrustedSeller: true,
+        registrationNumber: isOwner, 
+        studentPhoto: isOwner,      
+        address: isOwner,           
         trustScore: true,
         createdAt: true,
         profile: {
@@ -61,9 +75,11 @@ export async function getUserProfile(userId: string, requesterId?: string) {
             year: true,
             batch: true,
             hostel: true,
+            businessType: true,
             bio: true,
             rating: true,
             successfulDeals: true,
+            avgResponseTime: true,
           }
         }
       }
@@ -89,16 +105,24 @@ export async function completeProfile(userId: string, data: {
 }) {
   try {
     // Update user with private data
-    await prisma.user.update({
+    await withRetry(() => prisma.user.update({
       where: { id: userId },
       data: {
         name: data.name,
         phone: data.phone,
-        registrationNumber: data.registrationNumber,
-        studentPhoto: data.studentPhoto,
+        registrationNumber: data.registrationNumber || null,
+        studentPhoto: data.studentPhoto || null,
         address: data.address,
         isProfileCompleted: true,
+        // If they provided student info, they might be CAMPUS level
+        verificationLevel: data.registrationNumber ? "CAMPUS" : "VERIFIED", 
       }
+    }));
+
+    await logActivity({
+      userId,
+      actionType: "PROFILE_UPDATED",
+      metadata: { verificationLevel: data.registrationNumber ? "CAMPUS" : "VERIFIED" }
     });
 
     // Update profile with public-ish data
@@ -140,6 +164,9 @@ export async function getPublicProfile(userId: string) {
         createdAt: true,
         isVerified: true,
         isProfileCompleted: true,
+        verificationLevel: true,
+        isTrustedSeller: true,
+        trustScore: true,
         _count: {
           select: { products: true }
         },
@@ -150,7 +177,9 @@ export async function getPublicProfile(userId: string) {
             year: true,
             rating: true,
             successfulDeals: true,
+            successRate: true,
             bio: true,
+            avgResponseTime: true,
           }
         }
       }

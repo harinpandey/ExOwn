@@ -6,6 +6,8 @@ import { getProductById } from "@/actions/product";
 import { notFound } from "next/navigation";
 import PricingCard from "@/components/product/PricingCard";
 import SmartBuyAssistant from "@/components/ai/SmartBuyAssistant";
+import WishlistButton from "@/components/product/WishlistButton";
+import ActivityTracker from "@/components/product/ActivityTracker";
 
 export const dynamic = "force-dynamic";
 
@@ -24,6 +26,7 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
+      <ActivityTracker productId={product.id} />
       <Link href="/search" className="inline-flex items-center gap-2 text-gray-500 hover:text-primary mb-6 transition-colors">
         <ArrowLeft size={16} /> Back to Search
       </Link>
@@ -44,9 +47,7 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
                 <div className="w-full h-full flex items-center justify-center text-gray-400">No image</div>
               )}
               <div className="absolute top-4 right-4 flex gap-2">
-                <button className="p-3 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md rounded-full text-gray-600 hover:text-red-500 transition-colors shadow-sm">
-                  <Heart size={20} />
-                </button>
+                <WishlistButton productId={product.id} />
                 <button className="p-3 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md rounded-full text-gray-600 hover:text-primary transition-colors shadow-sm">
                   <Share2 size={20} />
                 </button>

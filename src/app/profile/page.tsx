@@ -6,15 +6,22 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
-import { Package, Heart, Settings, ShieldCheck, Star, LogOut, Edit2 } from "lucide-react";
+import { Package, Heart, Settings, ShieldCheck, Star, LogOut, Edit2, CreditCard, Crown, Zap, Clock } from "lucide-react";
 import ProductCard from "@/components/ui/ProductCard";
+import UpgradePlanModal from "@/components/dashboard/UpgradePlanModal";
+import BillingHistory from "@/components/dashboard/BillingHistory";
+import { getSubscription } from "@/actions/subscription";
+import { format } from "date-fns";
 
 export default function ProfileDashboardPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const [myListings, setMyListings] = useState<any[]>([]);
   const [listingsLoading, setListingsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"listings" | "favorites" | "settings">("listings");
+  const [activeTab, setActiveTab] = useState<"listings" | "favorites" | "billing" | "settings" | "rentals" | "services">("listings");
+  const [subscription, setSubscription] = useState<any>(null);
+  const [dbUser, setDbUser] = useState<any>(null);
+  const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -24,18 +31,25 @@ export default function ProfileDashboardPage() {
 
   useEffect(() => {
     if (user) {
-      const fetchListings = async () => {
+      const fetchDashboardData = async () => {
         try {
           const { getUserListings } = await import("@/actions/product");
-          const listings = await getUserListings(user.uid);
+          const { getPublicProfile } = await import("@/actions/user");
+          const [listings, sub, profile] = await Promise.all([
+            getUserListings(user.uid),
+            getSubscription(user.uid),
+            getPublicProfile(user.uid)
+          ]);
           setMyListings(listings);
+          setSubscription(sub);
+          setDbUser(profile);
         } catch (err) {
-          console.error("Failed to fetch listings:", err);
+          console.error("Dashboard data fetch failed:", err);
         } finally {
           setListingsLoading(false);
         }
       };
-      fetchListings();
+      fetchDashboardData();
     }
   }, [user]);
 
@@ -91,23 +105,31 @@ export default function ProfileDashboardPage() {
 
             <h2 className="text-xl font-bold flex items-center justify-center gap-2">
               {displayName}
-              <ShieldCheck size={18} className="text-blue-500" />
+              {dbUser?.isVerified && <ShieldCheck size={18} className="text-blue-500" />}
+              {dbUser?.isTrustedSeller && <Star size={18} className="text-emerald-500 fill-emerald-500" />}
             </h2>
-            <p className="text-sm text-gray-500 mb-4">{user.email}</p>
+            <div className="inline-block px-3 py-1 bg-gray-100 dark:bg-gray-800 text-[10px] font-black rounded-full text-gray-500 uppercase tracking-widest mt-2 mb-4">
+              {dbUser?.verificationLevel || "BASIC"} LEVEL
+            </div>
 
-            <div className="flex justify-center gap-4 text-sm font-medium border-t border-gray-100 dark:border-gray-800 pt-4 mt-2">
+            <div className="grid grid-cols-3 gap-2 text-sm font-medium border-t border-gray-100 dark:border-gray-800 pt-4 mt-2">
               <div className="text-center">
-                <div className="text-xl font-bold text-gray-900 dark:text-white flex items-center justify-center gap-1">
-                  4.9 <Star size={16} className="text-yellow-500 fill-yellow-500" />
+                <div className="text-lg font-black text-gray-900 dark:text-white flex items-center justify-center gap-1">
+                  {dbUser?.trustScore || 0}
                 </div>
-                <div className="text-gray-500 text-xs">Rating</div>
+                <div className="text-gray-400 text-[8px] uppercase tracking-widest font-black">Trust</div>
               </div>
-              <div className="w-px bg-gray-200 dark:bg-gray-800"></div>
               <div className="text-center">
-                <div className="text-xl font-bold text-gray-900 dark:text-white">
+                <div className="text-lg font-black text-gray-900 dark:text-white">
+                  {dbUser?.profile?.successRate || 0}%
+                </div>
+                <div className="text-gray-400 text-[8px] uppercase tracking-widest font-black">Success</div>
+              </div>
+              <div className="text-center">
+                <div className="text-lg font-black text-gray-900 dark:text-white">
                   {myListings.length}
                 </div>
-                <div className="text-gray-500 text-xs">Listings</div>
+                <div className="text-gray-400 text-[8px] uppercase tracking-widest font-black">Ads</div>
               </div>
             </div>
           </div>
@@ -143,12 +165,74 @@ export default function ProfileDashboardPage() {
               </Link>
               <div className="h-px bg-gray-200 dark:bg-gray-800 my-2 mx-4"></div>
               <button
+                onClick={() => setActiveTab("rentals")}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-colors text-left ${
+                  activeTab === "rentals"
+                    ? "bg-primary/10 text-primary"
+                    : "hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300"
+                }`}
+              >
+                <Clock size={20} /> My Rentals
+              </button>
+              <button
+                onClick={() => setActiveTab("services")}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-colors text-left ${
+                  activeTab === "services"
+                    ? "bg-primary/10 text-primary"
+                    : "hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300"
+                }`}
+              >
+                <Zap size={20} /> My Services
+              </button>
+              <div className="h-px bg-gray-200 dark:bg-gray-800 my-2 mx-4"></div>
+              <button
+                onClick={() => setActiveTab("billing")}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-colors text-left ${
+                  activeTab === "billing"
+                    ? "bg-primary/10 text-primary"
+                    : "hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300"
+                }`}
+              >
+                <CreditCard size={20} /> Billing & Plans
+              </button>
+              <div className="h-px bg-gray-200 dark:bg-gray-800 my-2 mx-4"></div>
+              <button
                 onClick={handleSignOut}
                 className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/10 text-red-500 transition-colors text-left"
               >
                 <LogOut size={20} /> Sign Out
               </button>
             </nav>
+          </div>
+
+          {/* Subscription Status Card */}
+          <div className="bg-gradient-to-br from-gray-900 to-black rounded-2xl p-6 text-white shadow-xl relative overflow-hidden group">
+            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+              <Crown size={64} />
+            </div>
+            <p className="text-gray-400 text-xs font-black uppercase tracking-widest mb-1">Current Plan</p>
+            <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+              {subscription?.planType || "FREE"}
+              {subscription?.status === "ACTIVE" && <ShieldCheck size={16} className="text-emerald-400" />}
+            </h3>
+            
+            {subscription?.status === "ACTIVE" ? (
+              <div className="space-y-2 mb-6">
+                <p className="text-xs text-gray-400">Expires: {format(new Date(subscription.expiryDate), "dd MMM, yyyy")}</p>
+                <div className="w-full bg-gray-800 h-1 rounded-full overflow-hidden">
+                  <div className="bg-emerald-500 h-full w-2/3"></div>
+                </div>
+              </div>
+            ) : (
+              <p className="text-xs text-gray-400 mb-6">Limited to 5 active listings.</p>
+            )}
+
+            <button 
+              onClick={() => setIsUpgradeModalOpen(true)}
+              className="w-full py-2.5 bg-white text-black rounded-xl text-sm font-black hover:bg-primary hover:text-white transition-all"
+            >
+              {subscription?.status === "ACTIVE" ? "Manage Plan" : "Upgrade Plan"}
+            </button>
           </div>
         </div>
 
@@ -185,6 +269,7 @@ export default function ProfileDashboardPage() {
                       isVerified={product.seller.isVerified}
                       categoryId={product.categoryId}
                       subcategoryId={product.subcategoryId || ""}
+                      sellerId={product.sellerId}
                     />
                   ))}
                 </div>
@@ -220,6 +305,57 @@ export default function ProfileDashboardPage() {
             </div>
           )}
 
+          {activeTab === "rentals" && (
+            <div className="space-y-6">
+              <h3 className="text-2xl font-black italic">Rental Activity</h3>
+              <p className="text-gray-500">Manage items you have rented or put up for rent.</p>
+              <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 p-8 text-center">
+                <div className="w-16 h-16 bg-gray-50 dark:bg-gray-800 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <Clock size={32} className="text-gray-400" />
+                </div>
+                <p className="text-gray-500 font-medium">No active rentals found.</p>
+                <Link href="/search?listingType=RENT" className="mt-4 inline-block text-primary font-black text-sm hover:underline">Browse Rentals →</Link>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "services" && (
+            <div className="space-y-6">
+              <h3 className="text-2xl font-black italic">Service Inquiries</h3>
+              <p className="text-gray-500">Quotes and requests for your campus services.</p>
+              <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 p-8 text-center">
+                <div className="w-16 h-16 bg-gray-50 dark:bg-gray-800 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <Zap size={32} className="text-gray-400" />
+                </div>
+                <p className="text-gray-500 font-medium">No service inquiries yet.</p>
+                <Link href="/sell?type=SERVICE" className="mt-4 inline-block text-primary font-black text-sm hover:underline">List a Service →</Link>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "billing" && (
+            <div className="space-y-6">
+              <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm">
+                <h3 className="text-xl font-bold mb-6">Subscription Details</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-2xl">
+                    <p className="text-xs text-gray-500 mb-1">Plan</p>
+                    <p className="font-bold">{subscription?.planType || "Free Plan"}</p>
+                  </div>
+                  <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-2xl">
+                    <p className="text-xs text-gray-500 mb-1">Status</p>
+                    <p className={`font-bold ${subscription?.status === 'ACTIVE' ? 'text-emerald-500' : 'text-gray-500'}`}>
+                      {subscription?.status || "Inactive"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm">
+                <h3 className="text-xl font-bold mb-6">Billing History</h3>
+                <BillingHistory />
+              </div>
+            </div>
+          )}
           {activeTab === "settings" && (
             <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm">
               <h3 className="text-xl font-bold mb-6">Account Settings</h3>
@@ -248,6 +384,11 @@ export default function ProfileDashboardPage() {
           )}
         </div>
       </div>
+
+      <UpgradePlanModal 
+        isOpen={isUpgradeModalOpen} 
+        onClose={() => setIsUpgradeModalOpen(false)} 
+      />
     </div>
   );
 }

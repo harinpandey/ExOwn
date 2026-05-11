@@ -9,6 +9,7 @@ import CampusSelector from "@/components/ui/CampusSelector";
 import { motion, AnimatePresence } from "framer-motion";
 import { CATEGORIES, Category, Subcategory } from "@/config/categories";
 import { toast } from "react-hot-toast";
+import ListingHealthScore from "@/components/product/ListingHealthScore";
 
 export default function SellPage() {
   const { user, loading } = useAuth();
@@ -346,6 +347,9 @@ export default function SellPage() {
                   <button onClick={() => setStep(3)} className="flex items-center gap-2 text-gray-400 hover:text-primary font-bold mb-8 transition-colors">
                     <ChevronLeft size={20} /> Back
                   </button>
+                  <div className="mb-8">
+                    <ListingHealthScore product={{ title, description, price: parseFloat(price) || 0, images: imageUrls, condition: finalCondition, pickupLocation }} />
+                  </div>
                   <div className="mb-10">
                     <h1 className="text-4xl font-black tracking-tighter mb-2">Tell us more</h1>
                     <p className="text-gray-500 font-medium">Add a catchy title and detailed description.</p>
@@ -404,6 +408,9 @@ export default function SellPage() {
                   <button onClick={() => setStep(4)} className="flex items-center gap-2 text-gray-400 hover:text-primary font-bold mb-8 transition-colors">
                     <ChevronLeft size={20} /> Back
                   </button>
+                  <div className="mb-8">
+                    <ListingHealthScore product={{ title, description, price: parseFloat(price) || 0, images: imageUrls, condition: finalCondition, pickupLocation }} />
+                  </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                     <div className="space-y-8">
@@ -494,6 +501,9 @@ export default function SellPage() {
                   <button onClick={() => setStep(5)} className="flex items-center gap-2 text-gray-400 hover:text-primary font-bold mb-8 transition-colors">
                     <ChevronLeft size={20} /> Back
                   </button>
+                  <div className="mb-8">
+                    <ListingHealthScore product={{ title, description, price: parseFloat(price) || 0, images: imageUrls, condition: finalCondition, pickupLocation }} />
+                  </div>
 
                   <div className="mb-10">
                     <h1 className="text-4xl font-black tracking-tighter mb-2">Almost there!</h1>

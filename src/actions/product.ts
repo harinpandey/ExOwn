@@ -1,12 +1,13 @@
 "use server";
 
-import prisma from "@/lib/prisma";
+import prisma, { withRetry } from "@/lib/prisma";
+import { logActivity } from "@/lib/logger";
 
 export async function getTrendingProducts() {
   try {
     if (!process.env.DATABASE_URL) return [];
 
-    const products = await prisma.product.findMany({
+    const products = await withRetry(() => prisma.product.findMany({
       where: {
         status: "LIVE",
       },
@@ -19,11 +20,13 @@ export async function getTrendingProducts() {
           select: {
             name: true,
             image: true,
-            isVerified: true,
+            verificationLevel: true,
+            isTrustedSeller: true,
+            trustScore: true,
           }
         }
       }
-    });
+    }));
 
     return products;
   } catch (error) {
@@ -61,7 +64,7 @@ export async function searchProducts(opts: {
   query?: string;
   categorySlug?: string;
   condition?: string;
-  listingType?: "SELL" | "RENT";
+  listingType?: "SELL" | "RENT" | "SERVICE";
   minPrice?: number;
   maxPrice?: number;
   sortBy?: string;
@@ -70,13 +73,15 @@ export async function searchProducts(opts: {
   try {
     const { query, categorySlug, condition, listingType, minPrice, maxPrice, sortBy, campusId } = opts;
 
-    const products = await prisma.product.findMany({
+    const products = await withRetry(() => prisma.product.findMany({
       where: {
         status: "LIVE",
         ...(query && {
           OR: [
             { title: { contains: query, mode: "insensitive" } },
             { description: { contains: query, mode: "insensitive" } },
+            { category: { name: { contains: query, mode: "insensitive" } } },
+            { brand: { contains: query, mode: "insensitive" } },
           ],
         }),
         ...(categorySlug && {
@@ -88,19 +93,28 @@ export async function searchProducts(opts: {
         ...(minPrice !== undefined && { price: { gte: minPrice } }),
         ...(maxPrice !== undefined && { price: { lte: maxPrice } }),
       },
-      orderBy:
+      orderBy: [
+        ...(campusId ? [{ campusId: "asc" as const }] : []), // Simple prioritization (database specific)
         sortBy === "price_asc"
-          ? { price: "asc" }
+          ? { price: "asc" as const }
           : sortBy === "price_desc"
-          ? { price: "desc" }
-          : { createdAt: "desc" },
+          ? { price: "desc" as const }
+          : { createdAt: "desc" as const }
+      ],
       include: {
         seller: {
-          select: { name: true, image: true, isVerified: true },
+          select: { 
+            name: true, 
+            image: true, 
+            verificationLevel: true,
+            isTrustedSeller: true,
+            trustScore: true,
+            profile: { select: { avgResponseTime: true } }
+          },
         },
         category: { select: { name: true, slug: true } },
       },
-    });
+    }));
 
     return products;
   } catch (error) {
@@ -271,7 +285,7 @@ export async function createProduct(data: {
 
     // 3. Image check (Optional: check if these exact images were used before)
 
-    const product = await prisma.product.create({
+    const product = await withRetry(() => prisma.product.create({
       data: {
         title: data.title,
         description: data.description,
@@ -293,12 +307,118 @@ export async function createProduct(data: {
         isUrgent: data.isUrgent,
         status: "LIVE", // New listings go live immediately for now
       }
+    }));
+
+    await logActivity({
+      userId: data.sellerId,
+      actionType: "PRODUCT_CREATED",
+      productId: product.id,
+      metadata: { title: product.title, price: product.price }
     });
 
     return { success: true, productId: product.id };
   } catch (error: any) {
     console.error("Error creating product:", error);
     return { success: false, error: error.message || "Failed to create product" };
+  }
+}
+
+export async function updateProduct(productId: string, userId: string, data: Partial<any>) {
+  try {
+    // 1. Verify Ownership
+    const product = await prisma.product.findUnique({
+      where: { id: productId },
+      select: { sellerId: true, price: true, title: true }
+    });
+
+    if (!product) {
+      return { success: false, error: "Product not found" };
+    }
+
+    if (product.sellerId !== userId) {
+      return { success: false, error: "Unauthorized: You do not own this listing" };
+    }
+
+    // 2. Perform Update
+    const updated = await prisma.product.update({
+      where: { id: productId },
+      data: {
+        ...data,
+        updatedAt: new Date(),
+      }
+    });
+
+    await logActivity({
+      userId,
+      actionType: "PRODUCT_EDITED",
+      productId: productId,
+      metadata: { changes: Object.keys(data) }
+    });
+
+    // 3. Trigger Notification if price dropped
+    if (data.price && data.price < product.price) {
+      try {
+        const wishlistedUsers = await prisma.wishlist.findMany({
+          where: { productId },
+          select: { userId: true }
+        });
+
+        if (wishlistedUsers.length > 0) {
+          const { createNotification } = await import("./notification");
+          for (const item of wishlistedUsers) {
+            await createNotification({
+              userId: item.userId,
+              type: "PRICE_CHANGE",
+              title: "Price Drop Alert! 📉",
+              content: `Price dropped for "${product.title}"! Now ₹${data.price.toLocaleString('en-IN')} (was ₹${product.price.toLocaleString('en-IN')})`,
+              link: `/product/${productId}`
+            });
+          }
+        }
+      } catch (notifErr) {
+        console.error("Failed to trigger price change notifications:", notifErr);
+      }
+    }
+
+    return { success: true, product: updated };
+  } catch (error: any) {
+    console.error("Error updating product:", error);
+    return { success: false, error: error.message || "Failed to update product" };
+  }
+}
+
+export async function archiveProduct(productId: string, userId: string) {
+  try {
+    // 1. Verify Ownership
+    const product = await prisma.product.findUnique({
+      where: { id: productId },
+      select: { sellerId: true }
+    });
+
+    if (!product) {
+      return { success: false, error: "Product not found" };
+    }
+
+    if (product.sellerId !== userId) {
+      return { success: false, error: "Unauthorized: You do not own this listing" };
+    }
+
+    // 2. Soft Delete
+    await prisma.product.update({
+      where: { id: productId },
+      data: { status: "ARCHIVED" }
+    });
+
+    await logActivity({
+      userId,
+      actionType: "PRODUCT_ARCHIVED",
+      productId: productId
+    });
+
+    return { success: true };
+  } catch (error: any) {
+    console.error("Error archiving product:", error);
+    return { success: false, error: error.message || "Failed to archive product" };
   }
 }
 
@@ -339,5 +459,58 @@ export async function incrementProductViews(id: string) {
     });
   } catch (err) {
     console.error("Failed to increment views:", err);
+  }
+}
+export async function markProductAsSold(productId: string, userId: string) {
+  try {
+    // 1. Verify Ownership
+    const product = await prisma.product.findUnique({
+      where: { id: productId },
+      select: { sellerId: true, title: true }
+    });
+
+    if (!product || product.sellerId !== userId) {
+      return { success: false, error: "Unauthorized" };
+    }
+
+    // 2. Update Status
+    await prisma.product.update({
+      where: { id: productId },
+      data: { status: "SOLD" }
+    });
+
+    await logActivity({
+      userId,
+      actionType: "PRODUCT_MARKED_SOLD",
+      productId: productId
+    });
+
+    // 3. Notify Wishlisted Users
+    try {
+      const wishlistedUsers = await prisma.wishlist.findMany({
+        where: { productId },
+        select: { userId: true }
+      });
+
+      if (wishlistedUsers.length > 0) {
+        const { createNotification } = await import("./notification");
+        for (const item of wishlistedUsers) {
+          await createNotification({
+            userId: item.userId,
+            type: "SYSTEM",
+            title: "Item Sold Out! 💨",
+            content: `The item "${product.title}" in your wishlist has been sold.`,
+            link: `/search`
+          });
+        }
+      }
+    } catch (notifErr) {
+      console.error("Failed to trigger sold notifications:", notifErr);
+    }
+
+    return { success: true };
+  } catch (error: any) {
+    console.error("Error marking product as sold:", error);
+    return { success: false, error: error.message };
   }
 }

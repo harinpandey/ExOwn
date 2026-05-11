@@ -3,13 +3,14 @@ import ProductCard from "@/components/ui/ProductCard";
 import { searchProducts, getCategories } from "@/actions/product";
 import SortSelect from "@/components/ui/SortSelect";
 import Link from "next/link";
+import SearchSidebar from "@/components/search/SearchSidebar";
 
 export const dynamic = "force-dynamic";
 
 export default async function SearchPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; category?: string; condition?: string; sort?: string; minPrice?: string; maxPrice?: string }>;
+  searchParams: Promise<{ q?: string; category?: string; condition?: string; sort?: string; minPrice?: string; maxPrice?: string; listingType?: string }>;
 }) {
   const params = await searchParams;
   const query = params.q || "";
@@ -18,9 +19,10 @@ export default async function SearchPage({
   const sort = params.sort || "";
   const minPrice = params.minPrice ? parseFloat(params.minPrice) : undefined;
   const maxPrice = params.maxPrice ? parseFloat(params.maxPrice) : undefined;
+  const listingType = params.listingType as any;
 
   const [results, categories] = await Promise.all([
-    searchProducts({ query, categorySlug, condition, minPrice, maxPrice, sortBy: sort }),
+    searchProducts({ query, categorySlug, condition, listingType, minPrice, maxPrice, sortBy: sort }),
     getCategories(),
   ]);
 
@@ -29,129 +31,15 @@ export default async function SearchPage({
       <div className="flex flex-col md:flex-row gap-8">
 
         {/* Sidebar Filters */}
-        <aside className="w-full md:w-64 flex-shrink-0">
-          <form method="GET" action="/search">
-            <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6 sticky top-24">
-              <div className="flex items-center gap-2 mb-6 pb-4 border-b border-gray-200 dark:border-gray-800">
-                <Filter size={20} className="text-primary" />
-                <h2 className="font-bold text-lg">Filters</h2>
-              </div>
-
-              {/* Preserve search query */}
-              {query && <input type="hidden" name="q" value={query} />}
-
-              <div className="space-y-6">
-                {/* Category Filter */}
-                <div>
-                  <h3 className="font-semibold mb-3 text-sm text-gray-500 uppercase tracking-wider">Categories</h3>
-                  <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
-                    <label className="flex items-center gap-3 cursor-pointer group">
-                      <input
-                        type="radio"
-                        name="category"
-                        value=""
-                        defaultChecked={!categorySlug}
-                        className="w-4 h-4 border-gray-300 text-primary focus:ring-primary"
-                      />
-                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-primary transition-colors">
-                        All Categories
-                      </span>
-                    </label>
-                    {categories.map((c) => (
-                      <label key={c.id} className="flex items-center gap-3 cursor-pointer group">
-                        <input
-                          type="radio"
-                          name="category"
-                          value={c.slug}
-                          defaultChecked={categorySlug === c.slug}
-                          className="w-4 h-4 border-gray-300 text-primary focus:ring-primary"
-                        />
-                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-primary transition-colors">
-                          {c.name}
-                        </span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Price Filter */}
-                <div>
-                  <h3 className="font-semibold mb-3 text-sm text-gray-500 uppercase tracking-wider">Price Range</h3>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="number"
-                      name="minPrice"
-                      placeholder="Min"
-                      defaultValue={params.minPrice || ""}
-                      className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-transparent text-sm"
-                    />
-                    <span className="text-gray-500">-</span>
-                    <input
-                      type="number"
-                      name="maxPrice"
-                      placeholder="Max"
-                      defaultValue={params.maxPrice || ""}
-                      className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-transparent text-sm"
-                    />
-                  </div>
-                </div>
-
-                {/* Condition Filter */}
-                <div>
-                  <h3 className="font-semibold mb-3 text-sm text-gray-500 uppercase tracking-wider">Condition</h3>
-                  <div className="space-y-2">
-                    <label className="flex items-center gap-3 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="condition"
-                        value=""
-                        defaultChecked={!condition}
-                        className="w-4 h-4 border-gray-300 text-primary focus:ring-primary"
-                      />
-                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Any</span>
-                    </label>
-                    <label className="flex items-center gap-3 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="condition"
-                        value="NEW"
-                        defaultChecked={condition === "NEW"}
-                        className="w-4 h-4 border-gray-300 text-primary focus:ring-primary"
-                      />
-                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">New</span>
-                    </label>
-                    <label className="flex items-center gap-3 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="condition"
-                        value="USED"
-                        defaultChecked={condition === "USED"}
-                        className="w-4 h-4 border-gray-300 text-primary focus:ring-primary"
-                      />
-                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Used</span>
-                    </label>
-                  </div>
-                </div>
-
-                <button
-                  type="submit"
-                  className="w-full py-3 bg-primary text-white rounded-xl font-semibold hover:bg-primary-dark transition-colors"
-                >
-                  Apply Filters
-                </button>
-
-                {(categorySlug || condition || params.minPrice || params.maxPrice) && (
-                  <Link
-                    href={query ? `/search?q=${query}` : "/search"}
-                    className="block text-center text-sm text-gray-500 hover:text-primary transition-colors"
-                  >
-                    Clear filters
-                  </Link>
-                )}
-              </div>
-            </div>
-          </form>
-        </aside>
+        <SearchSidebar 
+          categories={categories}
+          initialCategory={categorySlug}
+          initialCondition={condition}
+          initialMinPrice={params.minPrice || ""}
+          initialMaxPrice={params.maxPrice || ""}
+          initialListingType={params.listingType || ""}
+          query={query}
+        />
 
         {/* Main Content */}
         <div className="flex-1">
@@ -204,6 +92,7 @@ export default async function SearchPage({
                   isVerified={product.seller.isVerified}
                   categoryId={product.categoryId}
                   subcategoryId={product.subcategoryId || ""}
+                  sellerId={product.sellerId}
                 />
               ))}
             </div>

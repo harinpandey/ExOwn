@@ -14,11 +14,11 @@ export default function PublicProfilePage({ params }: { params: Promise<{ id: st
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const { getUserProfile } = await import("@/actions/user");
+        const { getPublicProfile } = await import("@/actions/user");
         const { getUserListings } = await import("@/actions/product");
         
         const [userData, userListings] = await Promise.all([
-          getUserProfile(id),
+          getPublicProfile(id),
           getUserListings(id)
         ]);
         
@@ -74,11 +74,15 @@ export default function PublicProfilePage({ params }: { params: Promise<{ id: st
             
             <h2 className="text-xl font-bold flex items-center justify-center gap-2 mb-1">
               {displayName}
-              {profile.isVerified && <ShieldCheck size={18} className="text-blue-500" />}
+              {profile.isVerified && <ShieldCheck size={18} className="text-blue-500" title="Identity Verified" />}
+              {profile.isTrustedSeller && <Star size={18} className="text-emerald-500 fill-emerald-500" title="Trusted Seller" />}
             </h2>
-            <p className="text-sm text-gray-500 mb-6">
-              {profile.profile?.course || "Student"} • Batch of {profile.profile?.batch || "N/A"}
+            <p className="text-sm text-gray-500 mb-2">
+              {profile.profile?.course || "Student"} • Batch of {profile.profile?.year || "N/A"}
             </p>
+            <div className="inline-block px-3 py-1 bg-gray-100 dark:bg-gray-800 text-[10px] font-black rounded-full text-gray-500 uppercase tracking-widest mb-6">
+              {profile.verificationLevel} LEVEL
+            </div>
             
             <div className="flex flex-col gap-3 mb-6 text-left text-sm text-gray-600 dark:text-gray-400 border-t border-b border-gray-100 dark:border-gray-800 py-4">
               <div className="flex items-center gap-2">
@@ -91,17 +95,20 @@ export default function PublicProfilePage({ params }: { params: Promise<{ id: st
               </div>
             </div>
 
-            <div className="flex justify-center gap-4 text-sm font-medium">
+            <div className="grid grid-cols-3 gap-2 text-sm font-medium">
               <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900 dark:text-white flex items-center justify-center gap-1">
-                  {profile.profile?.rating || 0} <Star size={18} className="text-yellow-500 fill-yellow-500" />
+                <div className="text-xl font-black text-gray-900 dark:text-white flex items-center justify-center gap-1">
+                  {profile.profile?.rating || 0} <Star size={14} className="text-yellow-500 fill-yellow-500" />
                 </div>
-                <div className="text-gray-500 text-xs uppercase tracking-wider mt-1">Rating</div>
+                <div className="text-gray-500 text-[8px] uppercase tracking-widest mt-1 font-black">Rating</div>
               </div>
-              <div className="w-px bg-gray-200 dark:bg-gray-800"></div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900 dark:text-white">{profile.profile?.successfulDeals || 0}</div>
-                <div className="text-gray-500 text-xs uppercase tracking-wider mt-1">Deals</div>
+                <div className="text-xl font-black text-gray-900 dark:text-white">{profile.profile?.successRate || 0}%</div>
+                <div className="text-gray-500 text-[8px] uppercase tracking-widest mt-1 font-black">Success</div>
+              </div>
+              <div className="text-center">
+                <div className="text-xl font-black text-gray-900 dark:text-white text-xs">{profile.profile?.avgResponseTime || "N/A"}</div>
+                <div className="text-gray-500 text-[8px] uppercase tracking-widest mt-1 font-black">Replies</div>
               </div>
             </div>
           </div>

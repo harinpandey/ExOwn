@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { Heart, MapPin, Clock, ShieldCheck, Tag, BarChart2, Eye, Sparkles } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Heart, MapPin, Clock, ShieldCheck, Tag, BarChart2, Eye, Sparkles, X, CheckCircle2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { useCompare } from "@/context/CompareContext";
+import { useAuth } from "@/context/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 
 export interface ProductCardProps {
@@ -19,11 +21,29 @@ export interface ProductCardProps {
   condition?: string;
   categoryId: string;
   subcategoryId?: string;
+  sellerId?: string;
+  isWishlisted?: boolean;
+  seller?: {
+    verificationLevel?: string;
+    isTrustedSeller?: boolean;
+    trustScore?: number;
+  };
 }
 
 export default function ProductCard({ 
-  id, title, price, image, location, createdAt, isUrgent, isVerified, listingType, condition, categoryId, subcategoryId
+  id, title, price, image, location, createdAt, isUrgent, isVerified, listingType, condition, categoryId, subcategoryId, sellerId, isWishlisted = false
 }: ProductCardProps) {
+  const { user } = useAuth();
+  const [wishlisted, setWishlisted] = useState(isWishlisted);
+  
+  useEffect(() => {
+    if (user && !isWishlisted) {
+      import("@/actions/wishlist").then(({ isInWishlist }) => {
+        isInWishlist(user.uid, id).then(setWishlisted);
+      });
+    }
+  }, [user, id, isWishlisted]);
+
   const { toggleCompare, isInCompare } = useCompare();
   const selected = isInCompare(id);
 
@@ -90,24 +110,101 @@ export default function ProductCard({
             <BarChart2 size={20} />
           </button>
           <button 
-            onClick={(e) => {
+            onClick={async (e) => {
               e.preventDefault();
               e.stopPropagation();
-              import("react-hot-toast").then(({ toast }) => toast.success("Added to favorites!"));
+              if (!user) {
+                import("react-hot-toast").then(({ toast }) => toast.error("Please login to save items"));
+                return;
+              }
+              setWishlisted(!wishlisted);
+              const { toggleWishlist } = await import("@/actions/wishlist");
+              const res = await toggleWishlist(user.uid, id);
+              if (res.success) {
+                import("react-hot-toast").then(({ toast }) => toast.success(res.added ? "Added to wishlist" : "Removed from wishlist"));
+              } else {
+                setWishlisted(wishlisted); // Rollback
+                import("react-hot-toast").then(({ toast }) => toast.error(res.error || "Failed to update wishlist"));
+              }
             }}
-            className="p-3 bg-white text-gray-800 rounded-2xl hover:bg-red-500 hover:text-white transition-all transform hover:scale-110 shadow-xl"
-            title="Save"
+            className={`p-3 rounded-2xl transition-all transform hover:scale-110 shadow-xl ${wishlisted ? 'bg-red-500 text-white' : 'bg-white text-gray-800 hover:bg-red-500 hover:text-white'}`}
+            title={wishlisted ? "Remove from Wishlist" : "Add to Wishlist"}
           >
-            <Heart size={20} />
+            <Heart size={20} fill={wishlisted ? "currentColor" : "none"} />
           </button>
         </div>
 
-        {/* Verified Student Badge on Image */}
-        {isVerified && (
-          <div className="absolute bottom-4 left-4 z-20">
-            <span className="bg-blue-600 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-xl flex items-center gap-1.5 border border-blue-500">
-              <ShieldCheck size={12} /> VERIFIED STUDENT
+        {/* Verification Badge */}
+        <div className="absolute bottom-4 left-4 z-20 flex flex-col gap-2">
+          {seller?.isTrustedSeller && (
+            <span className="bg-emerald-600 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-xl flex items-center gap-1.5 border border-emerald-500">
+              <Sparkles size={12} /> TRUSTED SELLER
             </span>
+          )}
+          {seller?.verificationLevel === "CAMPUS" && (
+            <span className="bg-blue-600 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-xl flex items-center gap-1.5 border border-blue-500">
+              <ShieldCheck size={12} /> CAMPUS VERIFIED
+            </span>
+          )}
+          {seller?.verificationLevel === "BUSINESS" && (
+            <span className="bg-purple-600 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-xl flex items-center gap-1.5 border border-purple-500">
+              <ShieldCheck size={12} /> VERIFIED BUSINESS
+            </span>
+          )}
+          {!seller?.isTrustedSeller && (
+            <span className="bg-gray-800 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-xl flex items-center gap-1.5 border border-gray-700">
+              NEW SELLER
+            </span>
+          )}
+        </div>
+
+        {/* Owner Management Controls */}
+        {user && sellerId === user.uid && (
+          <div className="absolute bottom-4 right-4 z-50 flex gap-2">
+            <Link 
+              href={`/product/edit/${id}`}
+              className="p-2 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm text-gray-800 dark:text-white rounded-xl shadow-lg hover:bg-primary hover:text-white transition-all flex items-center gap-2 text-[10px] font-black"
+            >
+              <Tag size={14} /> EDIT
+            </Link>
+            <button 
+              onClick={async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (confirm("Mark this item as sold?")) {
+                  const { markProductAsSold } = await import("@/actions/product");
+                  const res = await markProductAsSold(id, user.uid);
+                  if (res.success) {
+                    import("react-hot-toast").then(({ toast }) => toast.success("Marked as sold"));
+                    window.location.reload();
+                  } else {
+                    import("react-hot-toast").then(({ toast }) => toast.error(res.error || "Failed to mark as sold"));
+                  }
+                }
+              }}
+              className="p-2 bg-emerald-600 text-white rounded-xl shadow-lg hover:bg-emerald-700 transition-all flex items-center gap-2 text-[10px] font-black"
+            >
+              <CheckCircle2 size={14} /> SOLD
+            </button>
+            <button 
+              onClick={async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (confirm("Are you sure you want to archive this listing? It will no longer be visible to others.")) {
+                  const { archiveProduct } = await import("@/actions/product");
+                  const res = await archiveProduct(id, user.uid);
+                  if (res.success) {
+                    import("react-hot-toast").then(({ toast }) => toast.success("Listing archived"));
+                    window.location.reload();
+                  } else {
+                    import("react-hot-toast").then(({ toast }) => toast.error(res.error || "Failed to archive"));
+                  }
+                }
+              }}
+              className="p-2 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm text-red-600 rounded-xl shadow-lg hover:bg-red-600 hover:text-white transition-all flex items-center gap-2 text-[10px] font-black"
+            >
+              <X size={14} /> ARCHIVE
+            </button>
           </div>
         )}
       </div>

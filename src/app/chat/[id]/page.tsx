@@ -27,11 +27,11 @@ export default function ChatRoomPage({ params }: { params: Promise<{ id: string 
   const fetchChatData = async () => {
     if (!user) return;
     try {
-      const { getChatHistory } = await import("@/actions/chat");
+      const { chatService } = await import("@/lib/chat-utils");
       const { getUserProfile } = await import("@/actions/user");
       
       const [history, partnerData] = await Promise.all([
-        getChatHistory(user.uid, partnerId),
+        chatService.fetchMessages(user.uid, partnerId),
         getUserProfile(partnerId)
       ]);
       
@@ -64,8 +64,8 @@ export default function ChatRoomPage({ params }: { params: Promise<{ id: string 
     setNewMessage("");
 
     try {
-      const { sendMessage } = await import("@/actions/chat");
-      await sendMessage(user.uid, partnerId, content);
+      const { chatService } = await import("@/lib/chat-utils");
+      await chatService.send(user.uid, partnerId, content);
       fetchChatData(); // Refresh immediately after sending
     } catch (err) {
       console.error("Failed to send message:", err);

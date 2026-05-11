@@ -12,10 +12,10 @@ cloudinary.config({
   api_secret: apiSecret,
 });
 
-export async function getCloudinarySignature() {
+export async function getCloudinarySignature(folder: string = "ExOwn_products") {
   const timestamp = Math.round(new Date().getTime() / 1000);
   const signature = cloudinary.utils.api_sign_request(
-    { timestamp, folder: "ExOwn_products" },
+    { timestamp, folder },
     cloudinary.config().api_secret!
   );
 

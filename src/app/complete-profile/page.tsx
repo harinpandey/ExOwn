@@ -15,7 +15,8 @@ import {
   ShieldCheck, 
   ArrowRight, 
   CheckCircle2,
-  Lock
+  Lock,
+  AlertCircle
 } from "lucide-react";
 import { completeProfile } from "@/actions/user";
 
@@ -24,7 +25,7 @@ const YEARS = ["1st Year", "2nd Year", "3rd Year", "4th Year", "Alumni"];
 const HOSTELS = ["BH1", "BH2", "BH3", "BH4", "BH5", "GH", "Apartment", "Day Scholar"];
 
 export default function CompleteProfilePage() {
-  const { user, loading, isProfileComplete } = useAuth();
+  const { user, loading, isProfileComplete, refreshProfile } = useAuth();
   const router = useRouter();
   
   const [step, setStep] = useState(1);
@@ -51,12 +52,29 @@ export default function CompleteProfilePage() {
     if (!loading && user && isProfileComplete) {
       router.push("/");
     }
-    if (user) {
-      setFormData(prev => ({
-        ...prev,
-        name: user.displayName || "",
-        photoUrl: user.photoURL || "",
-      }));
+    
+    // Pre-fill from Firebase & DB
+    if (user && !loading) {
+      const fetchData = async () => {
+        try {
+          const { getUserProfile } = await import("@/actions/user");
+          const dbProfile = await getUserProfile(user.uid, user.uid);
+          
+          setFormData(prev => ({
+            ...prev,
+            name: dbProfile?.name || user.displayName || "",
+            photoUrl: dbProfile?.image || user.photoURL || "",
+            registrationNumber: dbProfile?.registrationNumber || "",
+            phone: dbProfile?.phone || "",
+            course: dbProfile?.profile?.course || "",
+            year: dbProfile?.profile?.batch || "", // Using batch for year mapping
+            hostel: dbProfile?.profile?.hostel || "",
+          }));
+        } catch (err) {
+          console.error("Error fetching pre-fill data:", err);
+        }
+      };
+      fetchData();
     }
   }, [user, loading, isProfileComplete, router]);
 
@@ -72,7 +90,7 @@ export default function CompleteProfilePage() {
     setUploading(true);
     try {
       const { getCloudinarySignature } = await import("@/actions/cloudinary");
-      const { timestamp, signature, apiKey, cloudName } = await getCloudinarySignature();
+      const { timestamp, signature, apiKey, cloudName } = await getCloudinarySignature("ExOwn_profiles");
 
       const uploadData = new FormData();
       uploadData.append("file", file);
@@ -128,6 +146,7 @@ export default function CompleteProfilePage() {
       });
 
       if (result.success) {
+        await refreshProfile();
         setStep(4); // Success step
         setTimeout(() => router.push("/"), 2000);
       } else {

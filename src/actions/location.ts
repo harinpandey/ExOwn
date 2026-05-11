@@ -59,7 +59,7 @@ export async function requestCampusAddition(data: {
   try {
     // For now, just log the request or create a specific model if needed
     // In a real app, this would go to a 'CampusRequest' model
-    console.log("Campus Addition Request:", data);
+
     return { success: true };
   } catch (error) {
     console.error("Error requesting campus addition:", error);

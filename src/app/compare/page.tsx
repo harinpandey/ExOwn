@@ -5,7 +5,7 @@ import { getProductsByIds } from "@/actions/product";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { ArrowLeft, Trash2, ShieldCheck, Tag, ShoppingCart } from "lucide-react";
+import { ArrowLeft, Trash2, ShieldCheck, Tag, ShoppingCart, X, Ghost } from "lucide-react";
 import Link from "next/link";
 
 export default function ComparePage() {
@@ -16,18 +16,22 @@ export default function ComparePage() {
 
   useEffect(() => {
     if (items.length === 0) {
-      router.push("/search");
+      setLoading(false);
       return;
     }
 
     const fetchProducts = async () => {
       setLoading(true);
-      const ids = items.map(i => i.id);
-      const data = await getProductsByIds(ids);
-      // Sort data to match items order
-      const sorted = ids.map(id => data.find(p => p.id === id)).filter(Boolean);
-      setProducts(sorted);
-      setLoading(false);
+      try {
+        const ids = items.map(i => i.id);
+        const data = await getProductsByIds(ids);
+        const sorted = ids.map(id => data.find(p => p.id === id)).filter(Boolean);
+        setProducts(sorted);
+      } catch (err) {
+        console.error("Fetch error:", err);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchProducts();
@@ -40,15 +44,32 @@ export default function ComparePage() {
       categoryId: product.categoryId,
       subcategoryId: product.subcategoryId
     });
-    if (items.length <= 1) {
-      router.push("/search");
-    }
   };
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (items.length === 0) {
+    return (
+      <div className="min-h-[80vh] flex flex-col items-center justify-center container mx-auto px-4">
+        <div className="w-32 h-32 bg-gray-100 dark:bg-gray-900 rounded-full flex items-center justify-center mb-8">
+          <Ghost size={64} className="text-gray-300 dark:text-gray-700" />
+        </div>
+        <h1 className="text-4xl font-black mb-4 text-center">Nothing to compare yet</h1>
+        <p className="text-gray-500 text-center mb-10 max-w-md">
+          Add items to your comparison list while browsing to see their features side-by-side.
+        </p>
+        <Link 
+          href="/search"
+          className="px-10 py-4 bg-primary text-white rounded-2xl font-black text-lg shadow-xl shadow-primary/20 hover:scale-[1.02] transition-all"
+        >
+          Start Browsing
+        </Link>
       </div>
     );
   }
@@ -174,11 +195,5 @@ export default function ComparePage() {
         </div>
       </div>
     </div>
-  );
-}
-
-function X({ size }: { size: number }) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
   );
 }

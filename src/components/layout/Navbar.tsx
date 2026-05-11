@@ -19,15 +19,18 @@ import {
   LayoutDashboard,
   ShieldCheck,
   Moon,
-  Sun
+  Sun,
+  AlertCircle
 } from "lucide-react";
 import { CATEGORIES } from "@/lib/constants";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCompare } from "@/context/CompareContext";
+import { useNotifications } from "@/context/NotificationContext";
 
 export default function Navbar() {
   const { user, isProfileComplete, logout } = useAuth();
   const { items } = useCompare();
+  const { unreadCount } = useNotifications();
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -140,6 +143,15 @@ export default function Navbar() {
             </Link>
 
             <Link 
+              href="/requests" 
+              className="p-3 text-gray-500 hover:text-primary hover:bg-primary/5 rounded-2xl transition-all relative group"
+              title="Request Board"
+            >
+              <AlertCircle size={22} />
+              <span className="hidden lg:block ml-2 text-xs font-bold">Requests</span>
+            </Link>
+
+            <Link 
               href="/chat" 
               className="p-3 text-gray-500 hover:text-primary hover:bg-primary/5 rounded-2xl transition-all relative group"
               title="Messages"
@@ -152,7 +164,7 @@ export default function Navbar() {
 
           {/* Sell Button - Prominent Blue */}
           <Link 
-            href={!user ? "/login?redirect=/sell" : !isProfileComplete ? "/complete-profile" : "/sell"} 
+            href={!user ? "/login?redirect=/sell" : "/sell"} 
             className="hidden sm:flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-2xl font-black text-sm hover:bg-primary-dark transition-all shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98]"
           >
             <Plus size={20} />
@@ -214,7 +226,11 @@ export default function Navbar() {
                           <Bell size={20} />
                           Notifications
                         </div>
-                        <span className="w-5 h-5 bg-red-500 text-white text-[10px] font-black flex items-center justify-center rounded-full">3</span>
+                        {unreadCount > 0 && (
+                          <span className="w-5 h-5 bg-red-500 text-white text-[10px] font-black flex items-center justify-center rounded-full">
+                            {unreadCount}
+                          </span>
+                        )}
                       </Link>
                       <Link href="/profile" className="flex items-center gap-3 p-3 text-sm font-bold text-gray-600 dark:text-gray-400 hover:bg-primary/5 hover:text-primary rounded-xl transition-colors">
                         <ShieldCheck size={20} />
