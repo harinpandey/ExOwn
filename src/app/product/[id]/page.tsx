@@ -17,12 +17,13 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
 
   if (!product) return notFound();
 
-  const sellerName = product.seller.name || "Unknown Seller";
-  const sellerJoined = product.seller.createdAt;
-  const sellerRating = product.seller.profile?.rating ?? 0;
-  const sellerDeals = product.seller.profile?.successfulDeals ?? 0;
-  const sellerCourse = product.seller.profile?.course ?? "";
-  const sellerBatch = product.seller.profile?.batch ?? "";
+  const seller = product?.seller;
+  const sellerName = seller?.name || "New Seller";
+  const sellerJoined = seller?.createdAt || new Date();
+  const sellerRating = seller?.profile?.rating ?? 0;
+  const sellerDeals = seller?.profile?.successfulDeals ?? 0;
+  const sellerCourse = seller?.profile?.course ?? "";
+  const sellerBatch = seller?.profile?.batch ?? "";
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
@@ -84,7 +85,7 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
               Category: <span className="font-medium text-gray-700 dark:text-gray-300">{product.category.name}</span>
             </div>
             <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-800 flex items-center justify-between">
-              <ReportButton productId={product.id} reportedId={product.seller.id} />
+              <ReportButton productId={product.id} reportedId={seller?.id} />
               <span className="text-gray-500 text-sm">Ad ID: {product.id.slice(0, 8)}</span>
             </div>
           </div>
@@ -100,8 +101,8 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
 
             <div className="flex items-center gap-4 mb-6">
               <div className="w-16 h-16 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center text-white text-xl font-bold uppercase shadow-inner overflow-hidden">
-                {product.seller.image ? (
-                  <img src={product.seller.image} alt={sellerName} className="w-full h-full object-cover" />
+                {seller?.image ? (
+                  <img src={seller.image} alt={sellerName} className="w-full h-full object-cover" />
                 ) : (
                   sellerName[0]
                 )}
@@ -109,7 +110,7 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
               <div>
                 <div className="flex items-center gap-2">
                   <h4 className="font-bold text-lg">{sellerName}</h4>
-                  {product.seller.isVerified && (
+                  {seller?.isVerified && (
                     <ShieldCheck size={18} className="text-blue-500" />
                   )}
                 </div>

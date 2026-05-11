@@ -26,7 +26,7 @@ export default async function TrendingDeals() {
           location={product.pickupLocation}
           createdAt={product.createdAt}
           isUrgent={product.isUrgent}
-          isVerified={product.seller.isVerified}
+          isVerified={product.seller?.isVerified || false}
           categoryId={product.categoryId}
           subcategoryId={product.subcategoryId || ""}
           sellerId={product.sellerId}

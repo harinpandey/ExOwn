@@ -27,7 +27,9 @@ export default function PricingCard({ product }: PricingCardProps) {
 
   const isRental = product.listingType === "RENT";
   const isService = product.listingType === "SERVICE";
-  const isVerified = product.seller.isVerified;
+  
+  const seller = product?.seller;
+  const isVerified = seller?.isVerified || false;
 
   const handleMakeOffer = async () => {
     if (!user) {
@@ -57,17 +59,17 @@ export default function PricingCard({ product }: PricingCardProps) {
         }`}>
           {isRental ? "Rental" : isService ? "Service" : "For Sale"}
         </span>
-        {product.seller.isTrustedSeller && (
+        {seller?.isTrustedSeller && (
           <span className="flex items-center gap-1 px-3 py-1 bg-emerald-100 text-emerald-600 rounded-full text-[10px] font-black uppercase tracking-wider">
             <Sparkles size={12} /> Trusted Seller
           </span>
         )}
-        {product.seller.verificationLevel === "CAMPUS" && (
+        {seller?.verificationLevel === "CAMPUS" && (
           <span className="flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-600 rounded-full text-[10px] font-black uppercase tracking-wider">
             <ShieldCheck size={12} /> Campus Verified
           </span>
         )}
-        {product.seller.verificationLevel === "BUSINESS" && (
+        {seller?.verificationLevel === "BUSINESS" && (
           <span className="flex items-center gap-1 px-3 py-1 bg-purple-100 text-purple-600 rounded-full text-[10px] font-black uppercase tracking-wider">
             <ShieldCheck size={12} /> Verified Business
           </span>
@@ -110,15 +112,15 @@ export default function PricingCard({ product }: PricingCardProps) {
           </div>
           <div className="flex-1">
             <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">Response Time</p>
-            <p className="font-bold text-lg">{product.seller.profile?.avgResponseTime || "Quick Responder"}</p>
+            <p className="font-bold text-lg">{seller?.profile?.avgResponseTime || "Quick Responder"}</p>
           </div>
           <div className="text-center px-4 border-l border-gray-100 dark:border-gray-800">
             <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">Success</p>
-            <p className="font-black text-2xl text-primary">{product.seller.profile?.successRate || 0}%</p>
+            <p className="font-black text-2xl text-primary">{seller?.profile?.successRate || 0}%</p>
           </div>
           <div className="text-right pl-4 border-l border-gray-100 dark:border-gray-800">
             <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">Trust</p>
-            <p className="font-black text-2xl text-emerald-500">{product.seller.trustScore}/100</p>
+            <p className="font-black text-2xl text-emerald-500">{seller?.trustScore ?? "N/A"}/100</p>
           </div>
         </div>
       </div>
@@ -141,7 +143,7 @@ export default function PricingCard({ product }: PricingCardProps) {
             </button>
           ) : (
             <Link
-              href={!user ? `/login?redirect=/product/${product.id}` : !isProfileComplete ? "/complete-profile" : `/chat/${product.seller.id}?product=${product.id}`}
+              href={!user ? `/login?redirect=/product/${product.id}` : !isProfileComplete ? "/complete-profile" : `/chat/${seller?.id}?product=${product.id}`}
               className="w-full py-4 bg-primary text-white rounded-2xl font-black text-xl hover:bg-primary-dark transition-all flex items-center justify-center gap-3 shadow-xl shadow-primary/20"
             >
               <MessageSquare size={24} /> Chat with Seller
