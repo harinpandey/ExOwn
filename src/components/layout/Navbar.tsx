@@ -22,7 +22,8 @@ import {
   Sun,
   AlertCircle,
   MapPin,
-  Heart
+  Heart,
+  Package
 } from "lucide-react";
 import { CATEGORIES } from "@/lib/constants";
 import { motion, AnimatePresence } from "framer-motion";
