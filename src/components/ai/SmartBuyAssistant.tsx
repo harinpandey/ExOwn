@@ -55,13 +55,13 @@ export default function SmartBuyAssistant({ product }: { product: any }) {
             brand: product.brand,
             purchaseYear: product.purchaseYear,
             isNegotiable: product.isNegotiable,
-            sellerRating: product.seller.profile?.rating,
-            successfulDeals: product.seller.profile?.successfulDeals,
+            sellerRating: product.seller?.profile?.rating,
+            successfulDeals: product.seller?.profile?.successfulDeals,
             listingViews: product.views,
             listingAgeDays,
             descriptionQuality,
             photoCount,
-            isVerified: product.seller.isVerified,
+            isVerified: product.seller?.isVerified || false,
             description: product.description.slice(0, 500)
           }
         })

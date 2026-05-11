@@ -41,8 +41,8 @@ export default function PricingCard({ product }: PricingCardProps) {
     try {
       const { sendMessage } = await import("@/actions/chat");
       const message = `Hi, I'm interested in your "${product.title}". My offer is ₹${offerAmount}${isRental ? "/day" : ""}.`;
-      await sendMessage(user.uid, product.seller.id, message);
-      router.push(`/chat/${product.seller.id}`);
+      await sendMessage(user.uid, seller?.id, message);
+      router.push(`/chat/${seller?.id}`);
     } catch (err) {
       console.error("Failed to send offer:", err);
       toast.error("Failed to send offer. Please try again.");

@@ -82,7 +82,7 @@ export default async function AdminListingsPage({ searchParams }: { searchParams
               </div>
               <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">{l.title}</h3>
               <div className="flex items-center gap-4 text-xs text-gray-500 font-medium">
-                <span className="flex items-center gap-1"><User size={14} /> {l.seller.name}</span>
+                <span className="flex items-center gap-1"><User size={14} /> {l.seller?.name || "Anonymous"}</span>
                 <span>•</span>
                 <span>₹{l.price.toLocaleString()}</span>
                 <span>•</span>

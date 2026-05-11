@@ -31,7 +31,7 @@ export interface ProductCardProps {
 }
 
 export default function ProductCard({ 
-  id, title, price, image, location, createdAt, isUrgent, isVerified, listingType, condition, categoryId, subcategoryId, sellerId, isWishlisted = false
+  id, title, price, image, location, createdAt, isUrgent, isVerified, listingType, condition, categoryId, subcategoryId, sellerId, seller, isWishlisted = false
 }: ProductCardProps) {
   const { user } = useAuth();
   const [wishlisted, setWishlisted] = useState(isWishlisted);
