@@ -37,28 +37,31 @@ export async function getTrendingProducts() {
 
 export async function getCategories() {
   try {
-    return await prisma.category.findMany({
+    const categories = await withRetry(() => prisma.category.findMany({
       orderBy: {
         name: "asc",
       }
-    });
+    }));
+    return categories;
   } catch (error) {
-    console.error("Error fetching categories:", error);
+    console.error("[Action:getCategories] Error:", error);
     return [];
   }
 }
 
 export async function getSubcategories(categoryId: string) {
   try {
-    return await prisma.subcategory.findMany({
+    const subcategories = await withRetry(() => prisma.subcategory.findMany({
       where: { categoryId },
       orderBy: { name: "asc" }
-    });
+    }));
+    return subcategories;
   } catch (error) {
-    console.error("Error fetching subcategories:", error);
+    console.error("[Action:getSubcategories] Error:", error);
     return [];
   }
 }
+
 
 export async function searchProducts(opts: {
   query?: string;
@@ -125,23 +128,24 @@ export async function searchProducts(opts: {
 
 export async function getRecentlyAdded() {
   try {
-    return await prisma.product.findMany({
+    return await withRetry(() => prisma.product.findMany({
       where: { status: "LIVE" },
       take: 8,
       orderBy: { createdAt: "desc" },
       include: {
         seller: { select: { name: true, isVerified: true, image: true } }
       }
-    });
+    }));
   } catch (error) {
-    console.error("Error fetching recent products:", error);
+    console.error("[Action:getRecentlyAdded] Error:", error);
     return [];
   }
 }
 
+
 export async function getPopularRentals() {
   try {
-    return await prisma.product.findMany({
+    return await withRetry(() => prisma.product.findMany({
       where: { 
         status: "LIVE",
         listingType: "RENT"
@@ -151,16 +155,17 @@ export async function getPopularRentals() {
       include: {
         seller: { select: { name: true, isVerified: true, image: true } }
       }
-    });
+    }));
   } catch (error) {
-    console.error("Error fetching rentals:", error);
+    console.error("[Action:getPopularRentals] Error:", error);
     return [];
   }
 }
 
+
 export async function getVerifiedSellersProducts() {
   try {
-    return await prisma.product.findMany({
+    return await withRetry(() => prisma.product.findMany({
       where: { 
         status: "LIVE",
         seller: { isVerified: true }
@@ -170,16 +175,17 @@ export async function getVerifiedSellersProducts() {
       include: {
         seller: { select: { name: true, isVerified: true, image: true } }
       }
-    });
+    }));
   } catch (error) {
-    console.error("Error fetching verified products:", error);
+    console.error("[Action:getVerifiedSellersProducts] Error:", error);
     return [];
   }
 }
 
+
 export async function getProductById(id: string) {
   try {
-    return await prisma.product.findUnique({
+    return await withRetry(() => prisma.product.findUnique({
       where: { id },
       include: {
         seller: {
@@ -208,16 +214,17 @@ export async function getProductById(id: string) {
           select: { name: true }
         }
       }
-    });
+    }));
   } catch (error) {
-    console.error("Error fetching product:", error);
+    console.error("[Action:getProductById] Error:", error);
     return null;
   }
 }
 
+
 export async function getUserListings(userId: string) {
   try {
-    return await prisma.product.findMany({
+    return await withRetry(() => prisma.product.findMany({
       where: {
         sellerId: userId,
       },
@@ -233,12 +240,13 @@ export async function getUserListings(userId: string) {
           }
         }
       }
-    });
+    }));
   } catch (error) {
-    console.error("Error fetching user listings:", error);
+    console.error("[Action:getUserListings] Error:", error);
     return [];
   }
 }
+
 
 export async function createProduct(data: {
   title: string;
@@ -424,7 +432,7 @@ export async function archiveProduct(productId: string, userId: string) {
 
 export async function getProductsByIds(ids: string[]) {
   try {
-    return await prisma.product.findMany({
+    return await withRetry(() => prisma.product.findMany({
       where: {
         id: { in: ids }
       },
@@ -444,12 +452,13 @@ export async function getProductsByIds(ids: string[]) {
         },
         category: { select: { name: true } }
       }
-    });
+    }));
   } catch (error) {
-    console.error("Error fetching products by ids:", error);
+    console.error("[Action:getProductsByIds] Error:", error);
     return [];
   }
 }
+
 
 export async function incrementProductViews(id: string) {
   try {

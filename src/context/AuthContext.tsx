@@ -1,8 +1,9 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { onAuthStateChanged, User } from "firebase/auth";
+import { onAuthStateChanged, User, setPersistence, browserLocalPersistence, onIdTokenChanged } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+
 
 interface AuthContextType {
   user: User | null;
@@ -70,20 +71,37 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       return;
     }
 
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+    // 1. Set Persistence ( survive browser close )
+    setPersistence(auth, browserLocalPersistence).catch(err => {
+      console.error("Auth persistence error:", err);
+    });
+
+    // 2. Auth State Change ( handle login/logout )
+    const unsubscribeAuth = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         setUser(firebaseUser);
         await syncProfile(firebaseUser);
       } else {
         setUser(null);
-        setIsProfileComplete(true); // Default to true for non-logged in users
+        setIsProfileComplete(true); 
       }
-      
       setLoading(false);
     });
 
-    return () => unsubscribe();
+    // 3. ID Token Change ( handle token refresh )
+    const unsubscribeToken = onIdTokenChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        // Token refreshed, ensure UI state is synced
+        setUser(firebaseUser);
+      }
+    });
+
+    return () => {
+      unsubscribeAuth();
+      unsubscribeToken();
+    };
   }, []);
+
 
   return (
     <AuthContext.Provider value={{ user, loading, isProfileComplete, logout, refreshProfile }}>

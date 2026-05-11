@@ -1,10 +1,11 @@
 "use server";
 
-import prisma from "@/lib/prisma";
+import prisma, { withRetry } from "@/lib/prisma";
+
 
 export async function getConversations(userId: string) {
   try {
-    const messages = await prisma.message.findMany({
+    const messages = await withRetry(() => prisma.message.findMany({
       where: {
         OR: [
           { senderId: userId },
@@ -18,7 +19,8 @@ export async function getConversations(userId: string) {
         sender: { select: { id: true, name: true, image: true } },
         receiver: { select: { id: true, name: true, image: true } }
       }
-    });
+    }));
+
 
     // Group by conversation partner to create a unique list of conversations
     const conversationsMap = new Map();
@@ -49,7 +51,7 @@ export async function getConversations(userId: string) {
 
 export async function getChatHistory(userId: string, partnerId: string) {
   try {
-    const messages = await prisma.message.findMany({
+    const messages = await withRetry(() => prisma.message.findMany({
       where: {
         OR: [
           { senderId: userId, receiverId: partnerId },
@@ -59,10 +61,10 @@ export async function getChatHistory(userId: string, partnerId: string) {
       orderBy: {
         createdAt: "asc"
       }
-    });
+    }));
 
     // Mark messages from partner as read
-    await prisma.message.updateMany({
+    await withRetry(() => prisma.message.updateMany({
       where: {
         senderId: partnerId,
         receiverId: userId,
@@ -71,7 +73,8 @@ export async function getChatHistory(userId: string, partnerId: string) {
       data: {
         isRead: true
       }
-    });
+    }));
+
 
     return messages;
   } catch (error) {
@@ -82,7 +85,7 @@ export async function getChatHistory(userId: string, partnerId: string) {
 
 export async function sendMessage(senderId: string, receiverId: string, content: string) {
   try {
-    const message = await prisma.message.create({
+    const message = await withRetry(() => prisma.message.create({
       data: {
         senderId,
         receiverId,
@@ -91,7 +94,8 @@ export async function sendMessage(senderId: string, receiverId: string, content:
       include: {
         sender: { select: { name: true } }
       }
-    });
+    }));
+
 
     // Create Notification
     try {

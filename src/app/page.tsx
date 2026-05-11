@@ -39,7 +39,7 @@ export default function Home() {
             <Link 
               key={category.id} 
               href={`/search?category=${category.id}`}
-              className="flex flex-col items-center gap-2 p-3 rounded-2xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 hover:border-primary/20 hover:bg-primary/5 transition-all group"
+              className="flex flex-col items-center gap-2 p-3 rounded-2xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 hover:border-primary/20 hover:bg-primary/5 transition-all group active:scale-95 touch-manipulation min-h-[100px] justify-center"
             >
               <div className="w-12 h-12 flex items-center justify-center bg-gray-50 dark:bg-gray-950 rounded-xl group-hover:bg-white dark:group-hover:bg-gray-900 transition-colors">
                 <category.icon className="w-6 h-6 text-gray-400 group-hover:text-primary transition-colors" />
@@ -49,6 +49,7 @@ export default function Home() {
               </span>
             </Link>
           ))}
+
         </div>
       </section>
 

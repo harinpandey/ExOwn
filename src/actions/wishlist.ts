@@ -1,6 +1,7 @@
 "use server";
 
-import prisma from "@/lib/prisma";
+import prisma, { withRetry } from "@/lib/prisma";
+
 import { revalidatePath } from "next/cache";
 
 export async function toggleWishlist(userId: string, productId: string) {
@@ -15,31 +16,33 @@ export async function toggleWishlist(userId: string, productId: string) {
     });
 
     if (existing) {
-      await prisma.wishlist.delete({
+      await withRetry(() => prisma.wishlist.delete({
         where: { id: existing.id }
-      });
+      }));
       
       // Update wishlist count on product
-      await prisma.product.update({
+      await withRetry(() => prisma.product.update({
         where: { id: productId },
         data: { wishlistCount: { decrement: 1 } }
-      });
+      }));
+
 
       revalidatePath(`/product/${productId}`);
       return { success: true, added: false };
     } else {
-      await prisma.wishlist.create({
+      await withRetry(() => prisma.wishlist.create({
         data: {
           userId,
           productId
         }
-      });
+      }));
 
       // Update wishlist count on product
-      await prisma.product.update({
+      await withRetry(() => prisma.product.update({
         where: { id: productId },
         data: { wishlistCount: { increment: 1 } }
-      });
+      }));
+
 
       revalidatePath(`/product/${productId}`);
       return { success: true, added: true };
@@ -52,7 +55,7 @@ export async function toggleWishlist(userId: string, productId: string) {
 
 export async function getWishlist(userId: string) {
   try {
-    const wishlist = await prisma.wishlist.findMany({
+    const wishlist = await withRetry(() => prisma.wishlist.findMany({
       where: { userId },
       include: {
         product: {
@@ -68,7 +71,8 @@ export async function getWishlist(userId: string) {
         }
       },
       orderBy: { createdAt: "desc" }
-    });
+    }));
+
     return wishlist.map(w => w.product);
   } catch (error) {
     console.error("Error fetching wishlist:", error);
@@ -78,15 +82,16 @@ export async function getWishlist(userId: string) {
 
 export async function isInWishlist(userId: string, productId: string) {
   try {
-    const existing = await prisma.wishlist.findUnique({
+    const existing = await withRetry(() => prisma.wishlist.findUnique({
       where: {
         userId_productId: {
           userId,
           productId
         }
       }
-    });
+    }));
     return !!existing;
+
   } catch (error) {
     return false;
   }

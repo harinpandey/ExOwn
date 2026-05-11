@@ -42,7 +42,9 @@ export default function Navbar() {
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [location, setLocation] = useState("LPU Campus");
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const router = useRouter();
+
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,32 +65,33 @@ export default function Navbar() {
     <nav className="sticky top-0 z-50 w-full bg-white/90 dark:bg-gray-950/90 backdrop-blur-xl border-b border-gray-100 dark:border-gray-800 shadow-sm transition-colors">
       <div className="container mx-auto px-4 h-20 flex items-center justify-between gap-8">
         {/* Logo & Location */}
-        <div className="flex items-center gap-6 shrink-0">
+        <div className="flex items-center gap-2 md:gap-6 shrink-0">
           <Link href="/" className="flex items-center">
             <img 
               src="/exown-logo.png" 
               alt="ExOwn Logo" 
-              className="h-10 w-auto" 
+              className="h-8 md:h-10 w-auto" 
             />
           </Link>
 
           {/* Location Picker */}
-          <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-gray-50 dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 hover:border-primary/20 transition-all cursor-pointer group relative">
-            <MapPin size={18} className="text-gray-400 group-hover:text-primary" />
+          <div className="hidden sm:flex items-center gap-2 px-3 md:px-4 py-2 bg-gray-50 dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 hover:border-primary/20 transition-all cursor-pointer group relative">
+            <MapPin size={16} className="text-gray-400 group-hover:text-primary" />
             <select 
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              className="bg-transparent border-none outline-none text-sm font-bold text-gray-700 dark:text-gray-200 cursor-pointer appearance-none pr-4"
+              className="bg-transparent border-none outline-none text-[10px] md:text-sm font-bold text-gray-700 dark:text-gray-200 cursor-pointer appearance-none pr-4"
             >
-              <option value="LPU Campus">📍 LPU Campus</option>
+              <option value="LPU Campus">📍 LPU</option>
               <option value="Delhi">Delhi</option>
               <option value="Mumbai">Mumbai</option>
               <option value="Bangalore">Bangalore</option>
-              <option value="Chandigarh">Chandigarh</option>
+              <option value="Chandigarh">CHD</option>
             </select>
-            <ChevronDown size={14} className="text-gray-400 pointer-events-none absolute right-2" />
+            <ChevronDown size={12} className="text-gray-400 pointer-events-none absolute right-2" />
           </div>
         </div>
+
 
         <div className="hidden lg:flex flex-1 max-w-2xl">
           <form onSubmit={handleSearch} className="relative w-full flex items-center bg-gray-50 dark:bg-gray-900 rounded-2xl border-2 border-transparent focus-within:border-primary/40 focus-within:bg-white dark:focus-within:bg-gray-950 transition-all shadow-inner group">
@@ -295,11 +298,117 @@ export default function Navbar() {
           )}
 
           {/* Mobile Menu Toggle */}
-          <button className="lg:hidden p-3 text-gray-600 hover:bg-gray-100 rounded-2xl">
-            <Menu size={24} />
+          <button 
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="lg:hidden p-2 md:p-3 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-2xl min-w-[44px] min-h-[44px] flex items-center justify-center"
+          >
+            {isMobileMenuOpen ? <Plus className="rotate-45" size={24} /> : <Menu size={24} />}
           </button>
         </div>
       </div>
+
+      {/* Mobile Drawer */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <>
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60] lg:hidden"
+            />
+            <motion.div 
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="fixed top-0 right-0 bottom-0 w-[80%] max-w-sm bg-white dark:bg-gray-950 z-[70] lg:hidden shadow-2xl overflow-y-auto"
+            >
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-8">
+                  <img src="/exown-logo.png" alt="ExOwn" className="h-8" />
+                  <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 bg-gray-100 dark:bg-gray-800 rounded-xl">
+                    <Plus className="rotate-45" size={20} />
+                  </button>
+                </div>
+
+                <div className="space-y-6">
+                  {user && (
+                    <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-2xl flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-xl overflow-hidden border-2 border-primary/20">
+                        <img src={user.photoURL || "/exown-icon.png"} alt="" className="w-full h-full object-cover" />
+                      </div>
+                      <div>
+                        <p className="font-black text-sm">{user.displayName}</p>
+                        <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">{isProfileComplete ? "Verified Student" : "Complete Profile"}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-1 gap-2">
+                    <MobileMenuLink href="/compare" icon={GitCompare} label="Compare Hub" count={items.length} onClick={() => setIsMobileMenuOpen(false)} />
+                    <MobileMenuLink href="/requests" icon={AlertCircle} label="Request Board" onClick={() => setIsMobileMenuOpen(false)} />
+                    <MobileMenuLink href="/chat" icon={MessageSquare} label="My Messages" onClick={() => setIsMobileMenuOpen(false)} />
+                    <MobileMenuLink href="/notifications" icon={Bell} label="Notifications" count={unreadCount} onClick={() => setIsMobileMenuOpen(false)} />
+                  </div>
+
+                  <div className="h-px bg-gray-100 dark:bg-gray-800" />
+
+                  <div className="grid grid-cols-1 gap-2">
+                    <MobileMenuLink href="/profile" icon={LayoutDashboard} label="Dashboard" onClick={() => setIsMobileMenuOpen(false)} />
+                    <MobileMenuLink href="/settings" icon={Settings} label="Settings" onClick={() => setIsMobileMenuOpen(false)} />
+                    {user && (
+                      <button 
+                        onClick={() => { logout(); setIsMobileMenuOpen(false); }}
+                        className="flex items-center gap-4 p-4 text-sm font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-2xl transition-colors"
+                      >
+                        <LogOut size={20} />
+                        <span>Sign Out</span>
+                      </button>
+                    )}
+                  </div>
+
+                  {!user && (
+                    <Link 
+                      href="/login" 
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="block w-full py-4 bg-primary text-white text-center rounded-2xl font-black text-sm shadow-xl shadow-primary/20"
+                    >
+                      Sign In to ExOwn
+                    </Link>
+                  )}
+
+                  <div className="pt-4">
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Exchange. Own. Repeat.</p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </nav>
   );
 }
+
+function MobileMenuLink({ href, icon: Icon, label, count, onClick }: { href: string, icon: any, label: string, count?: number, onClick: () => void }) {
+  return (
+    <Link 
+      href={href} 
+      onClick={onClick}
+      className="flex items-center justify-between p-4 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl active:scale-[0.98] transition-all"
+    >
+      <div className="flex items-center gap-4">
+        <Icon size={20} className="text-gray-400" />
+        <span className="text-sm font-bold text-gray-700 dark:text-gray-200">{label}</span>
+      </div>
+      {count !== undefined && count > 0 && (
+        <span className="px-2 py-0.5 bg-primary text-white text-[10px] font-black rounded-full">
+          {count}
+        </span>
+      )}
+    </Link>
+  );
+}
+
