@@ -20,7 +20,9 @@ import {
   ShieldCheck,
   Moon,
   Sun,
-  AlertCircle
+  AlertCircle,
+  MapPin,
+  Heart
 } from "lucide-react";
 import { CATEGORIES } from "@/lib/constants";
 import { motion, AnimatePresence } from "framer-motion";
@@ -36,8 +38,9 @@ export default function Navbar() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("All Categories");
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
-  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [location, setLocation] = useState("LPU Campus");
   const router = useRouter();
 
   const handleSearch = (e: React.FormEvent) => {
@@ -58,70 +61,50 @@ export default function Navbar() {
   return (
     <nav className="sticky top-0 z-50 w-full bg-white/90 dark:bg-gray-950/90 backdrop-blur-xl border-b border-gray-100 dark:border-gray-800 shadow-sm transition-colors">
       <div className="container mx-auto px-4 h-20 flex items-center justify-between gap-8">
-        {/* Logo */}
-        <Link href="/" className="flex items-center shrink-0">
-          <img 
-            src="/exown-logo.png" 
-            alt="ExOwn Logo" 
-            className="h-10 w-auto" 
-          />
-        </Link>
+        {/* Logo & Location */}
+        <div className="flex items-center gap-6 shrink-0">
+          <Link href="/" className="flex items-center">
+            <img 
+              src="/exown-logo.png" 
+              alt="ExOwn Logo" 
+              className="h-10 w-auto" 
+            />
+          </Link>
 
-        {/* Massive Centralized Search */}
-        <div className="hidden lg:flex flex-1 max-w-3xl">
-          <form onSubmit={handleSearch} className="relative w-full flex items-center bg-gray-50 dark:bg-gray-900 rounded-2xl border-2 border-transparent focus-within:border-primary/20 focus-within:bg-white dark:focus-within:bg-gray-950 transition-all shadow-inner">
-            {/* Category Dropdown */}
-            <div className="relative shrink-0">
-              <button 
-                type="button"
-                onClick={() => setIsCategoryOpen(!isCategoryOpen)}
-                className="flex items-center gap-2 px-6 py-3 border-r border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors rounded-l-2xl text-sm font-bold text-gray-600 dark:text-gray-400"
-              >
-                <span className="truncate max-w-[120px]">{selectedCategory}</span>
-                <ChevronDown size={16} className={`transition-transform ${isCategoryOpen ? 'rotate-180' : ''}`} />
-              </button>
-              
-              <AnimatePresence>
-                {isCategoryOpen && (
-                  <motion.div 
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    className="absolute top-full left-0 mt-2 w-64 bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-800 py-3 grid grid-cols-1 overflow-hidden z-50"
-                  >
-                    <button 
-                      type="button"
-                      onClick={() => { setSelectedCategory("All Categories"); setSelectedCategoryId(""); setIsCategoryOpen(false); }}
-                      className="px-6 py-2.5 text-left text-sm font-bold text-gray-600 dark:text-gray-400 hover:bg-primary/5 hover:text-primary transition-colors border-l-4 border-transparent hover:border-primary"
-                    >
-                      All Categories
-                    </button>
-                    {CATEGORIES.map(cat => (
-                      <button 
-                        key={cat.id}
-                        type="button"
-                        onClick={() => { setSelectedCategory(cat.name); setSelectedCategoryId(cat.id); setIsCategoryOpen(false); }}
-                        className="px-6 py-2.5 text-left text-sm font-bold text-gray-600 dark:text-gray-400 hover:bg-primary/5 hover:text-primary transition-colors border-l-4 border-transparent hover:border-primary"
-                      >
-                        {cat.name}
-                      </button>
-                    ))}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+          {/* Location Picker */}
+          <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-gray-50 dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 hover:border-primary/20 transition-all cursor-pointer group relative">
+            <MapPin size={18} className="text-gray-400 group-hover:text-primary" />
+            <select 
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              className="bg-transparent border-none outline-none text-sm font-bold text-gray-700 dark:text-gray-200 cursor-pointer appearance-none pr-4"
+            >
+              <option value="LPU Campus">📍 LPU Campus</option>
+              <option value="Delhi">Delhi</option>
+              <option value="Mumbai">Mumbai</option>
+              <option value="Bangalore">Bangalore</option>
+              <option value="Chandigarh">Chandigarh</option>
+            </select>
+            <ChevronDown size={14} className="text-gray-400 pointer-events-none absolute right-2" />
+          </div>
+        </div>
 
+        <div className="hidden lg:flex flex-1 max-w-2xl">
+          <form onSubmit={handleSearch} className="relative w-full flex items-center bg-gray-50 dark:bg-gray-900 rounded-2xl border-2 border-transparent focus-within:border-primary/40 focus-within:bg-white dark:focus-within:bg-gray-950 transition-all shadow-inner group">
+            <Search size={20} className="absolute left-4 text-gray-400 group-focus-within:text-primary transition-colors" />
             <input 
               type="text" 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search laptops, books, rooms, cycles..." 
-              className="flex-1 bg-transparent px-6 py-3 outline-none text-sm font-medium text-gray-900 dark:text-gray-100 placeholder:text-gray-400"
+              className="w-full bg-transparent pl-12 pr-4 py-3 outline-none text-sm font-bold text-gray-900 dark:text-gray-100 placeholder:text-gray-400"
             />
-            
-            <button type="submit" className="mr-2 p-2.5 bg-primary text-white rounded-xl hover:bg-primary-dark transition-all shadow-lg shadow-primary/20">
-              <Search size={20} />
-            </button>
+            <div className="absolute right-2 flex items-center gap-2">
+              <span className="hidden xl:block text-[10px] font-black text-gray-300 dark:text-gray-600 bg-white dark:bg-gray-800 px-2 py-1 rounded-lg border border-gray-100 dark:border-gray-700">⌘ K</span>
+              <button type="submit" className="p-2 bg-primary text-white rounded-xl hover:bg-primary-dark transition-all shadow-lg shadow-primary/20">
+                <Search size={18} />
+              </button>
+            </div>
           </form>
         </div>
 
@@ -151,13 +134,51 @@ export default function Navbar() {
               <span className="hidden lg:block ml-2 text-xs font-bold">Requests</span>
             </Link>
 
+            <div className="relative">
+              <button 
+                onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+                className="p-3 text-gray-500 hover:text-primary hover:bg-primary/5 rounded-2xl transition-all relative group"
+                title="Notifications"
+              >
+                <Bell size={22} />
+                {unreadCount > 0 && (
+                  <span className="absolute top-2 right-2 w-5 h-5 bg-red-500 text-white text-[10px] font-black flex items-center justify-center rounded-full border-2 border-white dark:border-gray-900 animate-pulse">
+                    {unreadCount}
+                  </span>
+                )}
+                <span className="hidden lg:block ml-2 text-xs font-bold">Alerts</span>
+              </button>
+              
+              <AnimatePresence>
+                {isNotificationsOpen && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    className="absolute top-full right-0 mt-3 w-80 bg-white dark:bg-gray-900 rounded-[2rem] shadow-2xl border border-gray-100 dark:border-gray-800 p-4 z-50"
+                  >
+                    <div className="flex items-center justify-between mb-4 px-2">
+                      <h3 className="font-black text-lg">Notifications</h3>
+                      <Link href="/notifications" onClick={() => setIsNotificationsOpen(false)} className="text-xs font-bold text-primary hover:underline">View All</Link>
+                    </div>
+                    <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1">
+                      {unreadCount === 0 ? (
+                        <div className="py-8 text-center text-gray-400 text-sm font-medium">No new notifications</div>
+                      ) : (
+                        <div className="py-4 text-center text-gray-400 text-sm font-medium">You have {unreadCount} unread alerts</div>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
             <Link 
               href="/chat" 
               className="p-3 text-gray-500 hover:text-primary hover:bg-primary/5 rounded-2xl transition-all relative group"
               title="Messages"
             >
               <MessageSquare size={22} />
-              <span className="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full border-2 border-white dark:border-gray-900"></span>
               <span className="hidden lg:block ml-2 text-xs font-bold">Messages</span>
             </Link>
           </div>
@@ -217,24 +238,17 @@ export default function Navbar() {
                     </div>
 
                     <div className="space-y-1">
-                      <Link href="/dashboard" className="flex items-center gap-3 p-3 text-sm font-bold text-gray-600 dark:text-gray-400 hover:bg-primary/5 hover:text-primary rounded-xl transition-colors">
+                      <Link href="/profile" className="flex items-center gap-3 p-3 text-sm font-bold text-gray-600 dark:text-gray-400 hover:bg-primary/5 hover:text-primary rounded-xl transition-colors">
                         <LayoutDashboard size={20} />
+                        Dashboard
+                      </Link>
+                      <Link href="/profile?tab=listings" className="flex items-center gap-3 p-3 text-sm font-bold text-gray-600 dark:text-gray-400 hover:bg-primary/5 hover:text-primary rounded-xl transition-colors">
+                        <Package size={20} />
                         My Listings
                       </Link>
-                      <Link href="/notifications" className="flex items-center justify-between p-3 text-sm font-bold text-gray-600 dark:text-gray-400 hover:bg-primary/5 hover:text-primary rounded-xl transition-colors">
-                        <div className="flex items-center gap-3">
-                          <Bell size={20} />
-                          Notifications
-                        </div>
-                        {unreadCount > 0 && (
-                          <span className="w-5 h-5 bg-red-500 text-white text-[10px] font-black flex items-center justify-center rounded-full">
-                            {unreadCount}
-                          </span>
-                        )}
-                      </Link>
-                      <Link href="/profile" className="flex items-center gap-3 p-3 text-sm font-bold text-gray-600 dark:text-gray-400 hover:bg-primary/5 hover:text-primary rounded-xl transition-colors">
-                        <ShieldCheck size={20} />
-                        Profile Verification
+                      <Link href="/profile?tab=favorites" className="flex items-center gap-3 p-3 text-sm font-bold text-gray-600 dark:text-gray-400 hover:bg-primary/5 hover:text-primary rounded-xl transition-colors">
+                        <Heart size={20} />
+                        Wishlist
                       </Link>
                       <Link href="/settings" className="flex items-center gap-3 p-3 text-sm font-bold text-gray-600 dark:text-gray-400 hover:bg-primary/5 hover:text-primary rounded-xl transition-colors">
                         <Settings size={20} />

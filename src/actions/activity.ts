@@ -4,6 +4,27 @@ import prisma from "@/lib/prisma";
 
 export async function trackActivity(userId: string, type: string, entityId?: string, metadata?: any) {
   try {
+    // Increment product views if it's a VIEWED activity
+    if (type === "VIEWED" && entityId) {
+      const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+      
+      const alreadyViewed = await prisma.userActivity.findFirst({
+        where: {
+          userId,
+          type: "VIEWED",
+          entityId,
+          createdAt: { gte: twentyFourHoursAgo }
+        }
+      });
+
+      if (!alreadyViewed) {
+        await prisma.product.update({
+          where: { id: entityId },
+          data: { views: { increment: 1 } }
+        });
+      }
+    }
+
     await prisma.userActivity.create({
       data: {
         userId,

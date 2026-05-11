@@ -29,12 +29,15 @@ export default function MobileNav() {
               <Link 
                 key={item.name}
                 href={item.href}
-                className="flex flex-col items-center justify-center -mt-10"
+                className="flex flex-col items-center justify-center -mt-12"
               >
-                <div className="w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center shadow-lg shadow-primary/30 border-4 border-white dark:border-gray-950 transition-transform active:scale-90">
-                  <PlusCircle size={32} />
+                <div className="w-20 h-20 bg-primary text-white rounded-[2.5rem] flex items-center justify-center shadow-2xl shadow-primary/40 border-[6px] border-white dark:border-gray-950 transition-all hover:scale-110 active:scale-95 group">
+                  <div className="relative">
+                    <PlusCircle size={40} className="group-hover:rotate-90 transition-transform duration-300" />
+                    <div className="absolute inset-0 bg-white/20 blur-xl rounded-full scale-150 animate-pulse" />
+                  </div>
                 </div>
-                <span className={`text-[10px] font-black mt-1 uppercase tracking-tighter ${isActive ? "text-primary" : "text-gray-400"}`}>
+                <span className={`text-[11px] font-black mt-2 uppercase tracking-tighter ${isActive ? "text-primary" : "text-gray-400"}`}>
                   {item.name}
                 </span>
               </Link>

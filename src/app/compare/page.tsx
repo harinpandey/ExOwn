@@ -4,15 +4,19 @@ import { useCompare } from "@/context/CompareContext";
 import { getProductsByIds } from "@/actions/product";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
-import { ArrowLeft, Trash2, ShieldCheck, Tag, ShoppingCart, X, Ghost } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ArrowLeft, Trash2, ShieldCheck, Tag, ShoppingCart, X, Ghost, Sparkles, Brain, AlertTriangle, Trophy, BadgeIndianRupee, RefreshCw } from "lucide-react";
 import Link from "next/link";
+
 
 export default function ComparePage() {
   const { items, toggleCompare, clearCompare } = useCompare();
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiAnalysis, setAiAnalysis] = useState<any>(null);
   const router = useRouter();
+
 
   useEffect(() => {
     if (items.length === 0) {
@@ -44,7 +48,27 @@ export default function ComparePage() {
       categoryId: product.categoryId,
       subcategoryId: product.subcategoryId
     });
+    setAiAnalysis(null); // Reset analysis if items change
   };
+
+  const runAiAnalysis = async () => {
+    if (products.length < 2) return;
+    setAiLoading(true);
+    try {
+      const response = await fetch("/api/ai/compare", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productIds: products.map(p => p.id) })
+      });
+      const data = await response.json();
+      setAiAnalysis(data);
+    } catch (err) {
+      console.error("AI Analysis failed:", err);
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
 
   if (loading) {
     return (
@@ -105,6 +129,91 @@ export default function ComparePage() {
         >
           <Trash2 size={18} /> Clear All
         </button>
+      </div>
+
+      {/* AI Smart Assistant Section */}
+      <div className="mb-12">
+        <div className="bg-gradient-to-br from-primary/10 via-white to-primary/5 dark:from-primary/20 dark:via-gray-900 dark:to-gray-800 rounded-[3rem] p-1 border-4 border-primary/20 shadow-2xl relative overflow-hidden">
+          {/* Animated Background Sparkle */}
+          <div className="absolute -top-24 -right-24 w-64 h-64 bg-primary/20 blur-[100px] rounded-full animate-pulse" />
+          
+          <div className="relative p-10 flex flex-col md:flex-row items-center justify-between gap-8">
+            <div className="flex items-center gap-6">
+              <div className="p-5 bg-primary text-white rounded-[2rem] shadow-xl shadow-primary/20 animate-bounce-slow">
+                <Brain size={40} />
+              </div>
+              <div>
+                <h2 className="text-3xl font-black italic tracking-tighter uppercase mb-2">ExOwn <span className="text-primary">Smart Compare</span></h2>
+                <p className="text-gray-500 font-bold max-w-md leading-tight">Our AI analyzes value, risk, and student-friendliness across your selections.</p>
+              </div>
+            </div>
+            
+            <button 
+              onClick={runAiAnalysis}
+              disabled={aiLoading || products.length < 2}
+              className="px-12 py-6 bg-primary text-white rounded-[2.5rem] font-black text-2xl flex items-center gap-4 hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-primary/30 disabled:opacity-50 disabled:scale-100"
+            >
+              {aiLoading ? (
+                <>Analyzing... <RefreshCw size={28} className="animate-spin" /></>
+              ) : (
+                <>Analyze With AI <Sparkles size={28} /></>
+              )}
+            </button>
+          </div>
+
+          <AnimatePresence>
+            {aiAnalysis && (
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="p-10 border-t-4 border-primary/10 bg-white/50 dark:bg-gray-800/50"
+              >
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {/* Winner Card */}
+                  <div className="bg-white dark:bg-gray-900 p-8 rounded-[2.5rem] border-4 border-primary/20 shadow-xl relative group">
+                    <div className="absolute -top-4 -right-4 p-3 bg-primary text-white rounded-2xl shadow-lg">
+                      <Trophy size={20} />
+                    </div>
+                    <h4 className="text-[10px] font-black uppercase tracking-widest text-primary mb-4">Best Overall</h4>
+                    <p className="font-black text-lg leading-tight mb-3 italic">{products.find(p => p.id === aiAnalysis.winner_id)?.title || "The Winner"}</p>
+                    <p className="text-xs text-gray-500 font-bold leading-relaxed">{aiAnalysis.winner_reason}</p>
+                  </div>
+
+                  {/* Budget Pick */}
+                  <div className="bg-white dark:bg-gray-900 p-8 rounded-[2.5rem] border-4 border-emerald-500/20 shadow-xl relative">
+                    <div className="absolute -top-4 -right-4 p-3 bg-emerald-500 text-white rounded-2xl shadow-lg">
+                      <BadgeIndianRupee size={20} />
+                    </div>
+                    <h4 className="text-[10px] font-black uppercase tracking-widest text-emerald-500 mb-4">Value King</h4>
+                    <p className="font-black text-lg leading-tight mb-3 italic">{products.find(p => p.id === aiAnalysis.budget_pick_id)?.title || "Budget Choice"}</p>
+                    <p className="text-xs text-gray-500 font-bold leading-relaxed">{aiAnalysis.budget_reason}</p>
+                  </div>
+
+                  {/* Risk Alerts */}
+                  <div className="bg-white dark:bg-gray-900 p-8 rounded-[2.5rem] border-4 border-amber-500/20 shadow-xl relative lg:col-span-1">
+                    <div className="absolute -top-4 -right-4 p-3 bg-amber-500 text-white rounded-2xl shadow-lg">
+                      <AlertTriangle size={20} />
+                    </div>
+                    <h4 className="text-[10px] font-black uppercase tracking-widest text-amber-500 mb-4">Risk Awareness</h4>
+                    <ul className="space-y-2">
+                      {aiAnalysis.risk_alerts?.map((risk: string, i: number) => (
+                        <li key={i} className="text-[10px] font-bold text-gray-600 dark:text-gray-400 flex gap-2">
+                          <span className="text-amber-500">•</span> {risk}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* Summary */}
+                  <div className="bg-gray-900 text-white p-8 rounded-[2.5rem] shadow-xl relative flex flex-col justify-center">
+                    <h4 className="text-[10px] font-black uppercase tracking-widest text-primary mb-4 italic">The Bottom Line</h4>
+                    <p className="text-xs font-bold leading-relaxed italic opacity-80">{aiAnalysis.summary}</p>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
 
       <div className="bg-white dark:bg-gray-900 rounded-3xl border border-gray-200 dark:border-gray-800 overflow-hidden shadow-xl">

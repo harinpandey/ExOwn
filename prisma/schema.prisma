@@ -52,6 +52,8 @@ model User {
   quoteRequests QuoteRequest[]
   notifications Notification[]
   activityLogs  ActivityLog[]
+  exchangeOffers ExchangeOffer[]
+
 }
 
 enum VerificationLevel {
@@ -177,6 +179,11 @@ model Product {
   isSuspicious  Boolean  @default(false)
   moderationReason String?
   
+  // Exchange Mode
+  isExchangeAllowed   Boolean  @default(false)
+  exchangeCategories  String[] @default([])
+  exchangeCashAllowed Boolean  @default(false)
+  
   sellerId      String
   seller        User     @relation(fields: [sellerId], references: [id], onDelete: Cascade)
   categoryId    String
@@ -196,6 +203,8 @@ model Product {
   serviceDetail ServiceDetail?
   boosts        ListingBoost[]
   rentals       Rental[]
+  exchangeOffers ExchangeOffer[]
+
 
   @@index([sellerId])
   @@index([categoryId])
@@ -599,3 +608,35 @@ enum TransactionStatus {
   CANCELLED
   NO_RESPONSE
 }
+
+model ExchangeOffer {
+  id                String   @id @default(cuid())
+  productId         String
+  buyerId           String
+
+  offeredTitle      String
+  offeredDescription String
+  offeredImages     String[]
+
+  cashDifference    Float?
+
+  status            ExchangeStatus @default(PENDING)
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  product           Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  buyer             User @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@index([buyerId])
+}
+
+enum ExchangeStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  COUNTERED
+  COMPLETED
+}
+

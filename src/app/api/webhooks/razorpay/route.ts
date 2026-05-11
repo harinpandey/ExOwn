@@ -19,7 +19,7 @@ export async function POST(req: Request) {
       .digest("hex");
 
     if (signature !== expectedSignature) {
-      console.error("Invalid Webhook Signature");
+      logEvent("RAZORPAY_WEBHOOK_ERROR", "Invalid signature", { signature, expectedSignature });
       return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
     }
 

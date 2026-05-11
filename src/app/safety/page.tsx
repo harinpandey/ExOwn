@@ -6,7 +6,7 @@ const tips = [
   { icon: MapPin, title: "Meet in public campus areas", desc: "Always meet in well-lit, busy spots like the main canteen, library, or central square — never in isolated areas." },
   { icon: UserCheck, title: "Verify before you buy", desc: "Check the item carefully in person before handing over any money. Test electronics, check books for damage, etc." },
   { icon: AlertTriangle, title: "Never pay in advance", desc: "Do not transfer money via UPI or any other method before seeing and confirming the item is as described." },
-  { icon: ShieldCheck, title: "Stick to verified users", desc: "ExOwn verifies all users through university email. Look for the blue shield badge on seller profiles." },
+  { icon: ShieldCheck, title: "Check verification tiers", desc: "Look for verification badges (Verified/Business) on seller profiles to deal with high-trust members of the community." },
   { icon: Phone, title: "Report suspicious activity", desc: "If something feels off, use the 'Report' button on any listing. Our team reviews all reports within 24 hours." },
 ];
 
@@ -19,7 +19,7 @@ export default function SafetyPage() {
         </div>
         <h1 className="text-4xl font-extrabold mb-4">Trust & Safety</h1>
         <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-          ExOwn is designed to be the safest marketplace for students. Here's how we keep you protected — and how you can protect yourself.
+          ExOwn is designed to be the safest community marketplace. Here's how we keep you protected — and how you can protect yourself.
         </p>
       </div>
 

@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { getUnreadCount, getUserNotifications, markAsRead } from "@/actions/notification";
+import { useFcm } from "@/hooks/useFcm";
 
 interface NotificationContextType {
   notifications: any[];
@@ -19,17 +20,20 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   const [notifications, setNotifications] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
+  useFcm(); // Initialize FCM foreground listener
 
   const refreshNotifications = async () => {
     if (!user) return;
     setLoading(true);
     try {
-      const [notifs, count] = await Promise.all([
+      const { getTotalUnreadCount } = await import("@/actions/chat");
+      const [notifs, systemCount, chatCount] = await Promise.all([
         getUserNotifications(user.uid),
-        getUnreadCount(user.uid)
+        getUnreadCount(user.uid),
+        getTotalUnreadCount(user.uid)
       ]);
       setNotifications(notifs);
-      setUnreadCount(count);
+      setUnreadCount(systemCount + chatCount);
     } catch (err) {
       console.error("Failed to refresh notifications:", err);
     } finally {

@@ -200,3 +200,21 @@ export async function getPublicProfile(userId: string) {
     return null;
   }
 }
+
+export async function saveFcmToken(userId: string, token: string) {
+  try {
+    // Upsert or simple update if we had a dedicated FCM tokens table
+    // For now, we can store it in metadata or log it
+    // In a real production app, you'd have a UserDevice or FcmToken model
+    console.log(`[FCM] Saving token for user ${userId}: ${token}`);
+    
+    // Example logic if the field exists in User model:
+    // await prisma.user.update({ where: { id: userId }, data: { fcmToken: token } });
+    
+    return { success: true };
+  } catch (error) {
+    console.error("Error saving FCM token:", error);
+    return { success: false };
+  }
+}
+

@@ -8,6 +8,11 @@ import PricingCard from "@/components/product/PricingCard";
 import SmartBuyAssistant from "@/components/ai/SmartBuyAssistant";
 import WishlistButton from "@/components/product/WishlistButton";
 import ActivityTracker from "@/components/product/ActivityTracker";
+import ImageGallery from "@/components/product/ImageGallery";
+import SellerCard from "@/components/product/SellerCard";
+import ProductCard from "@/components/ui/ProductCard";
+import { incrementProductViews, getTrendingProducts } from "@/actions/product";
+import { ChevronRight } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -16,6 +21,12 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
   const product = await getProductById(id);
 
   if (!product) return notFound();
+
+  // Increment view counter (server-side)
+  await incrementProductViews(id);
+
+  // Fetch similar listings
+  const similarProducts = await getTrendingProducts(); // Placeholder for category-specific similar products
 
   const seller = product?.seller;
   const sellerName = seller?.name || "New Seller";
@@ -26,134 +37,99 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
   const sellerBatch = seller?.profile?.batch ?? "";
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl">
+    <div className="container mx-auto px-4 py-12 max-w-7xl">
       <ActivityTracker productId={product.id} />
-      <Link href="/search" className="inline-flex items-center gap-2 text-gray-500 hover:text-primary mb-6 transition-colors">
-        <ArrowLeft size={16} /> Back to Search
-      </Link>
+      
+      {/* Breadcrumbs */}
+      <nav className="flex items-center gap-2 text-xs font-bold text-gray-400 mb-8 overflow-x-auto no-scrollbar whitespace-nowrap">
+        <Link href="/" className="hover:text-primary">Home</Link>
+        <ChevronRight size={14} />
+        <Link href={`/search?category=${product.category.slug}`} className="hover:text-primary">{product.category.name}</Link>
+        <ChevronRight size={14} />
+        <span className="text-gray-600 dark:text-gray-300 truncate max-w-[200px]">{product.title}</span>
+      </nav>
 
-      <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
+      <div className="flex flex-col lg:flex-row gap-8 lg:gap-16">
         {/* Left Column: Images & Details */}
-        <div className="flex-1 space-y-8">
-          {/* Image Gallery */}
-          <div className="space-y-4">
-            <div className="aspect-[4/3] w-full rounded-2xl overflow-hidden bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-800 relative">
-              {product.images[0] ? (
-                <img
-                  src={product.images[0]}
-                  alt={product.title}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-gray-400">No image</div>
-              )}
-              <div className="absolute top-4 right-4 flex gap-2">
-                <WishlistButton productId={product.id} />
-                <button className="p-3 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md rounded-full text-gray-600 hover:text-primary transition-colors shadow-sm">
-                  <Share2 size={20} />
-                </button>
-              </div>
-
-              {product.isUrgent && (
-                <div className="absolute top-4 left-4">
-                  <span className="bg-red-500 text-white text-sm font-bold px-3 py-1.5 rounded-full shadow-md">
-                    URGENT
-                  </span>
-                </div>
-              )}
-            </div>
-
-            {/* Thumbnail Navigation */}
-            {product.images.length > 1 && (
-              <div className="flex gap-4 overflow-x-auto pb-2">
-                {product.images.map((img, idx) => (
-                  <button key={idx} className={`w-24 h-24 rounded-xl overflow-hidden border-2 flex-shrink-0 ${idx === 0 ? "border-primary" : "border-transparent opacity-70 hover:opacity-100"}`}>
-                    <img src={img} alt={`Thumbnail ${idx}`} className="w-full h-full object-cover" />
-                  </button>
-                ))}
-              </div>
-            )}
+        <div className="flex-1 space-y-12">
+          {/* Premium Image Gallery */}
+          <div className="relative group">
+            <ImageGallery images={product.images} title={product.title} />
           </div>
 
           {/* Description */}
-          <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6 md:p-8">
-            <h2 className="text-2xl font-bold mb-4">Description</h2>
-            <p className="text-gray-700 dark:text-gray-300 whitespace-pre-line leading-relaxed">
+          <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 p-8 md:p-12 shadow-xl">
+            <h2 className="text-3xl font-black mb-6 italic text-gray-900 dark:text-white leading-tight">Description</h2>
+            <p className="text-gray-700 dark:text-gray-300 whitespace-pre-line leading-relaxed text-lg font-medium">
               {product.description}
             </p>
-            <div className="mt-6 pt-4 text-sm text-gray-500">
-              Category: <span className="font-medium text-gray-700 dark:text-gray-300">{product.category.name}</span>
-            </div>
-            <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-800 flex items-center justify-between">
+            <div className="mt-10 pt-8 border-t border-gray-50 dark:border-gray-800 flex flex-wrap items-center justify-between gap-6">
               <ReportButton productId={product.id} reportedId={seller?.id} />
-              <span className="text-gray-500 text-sm">Ad ID: {product.id.slice(0, 8)}</span>
+              <div className="flex items-center gap-4">
+                <span className="text-gray-400 text-[10px] font-black uppercase tracking-[0.2em]">Ad ID: {product.id.slice(0, 8)}</span>
+                <span className="px-4 py-1.5 bg-gray-100 dark:bg-gray-800 rounded-xl text-gray-500 text-[10px] font-black uppercase tracking-widest">{product.category.name}</span>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Right Column: Pricing & Seller Info */}
-        <div className="w-full lg:w-[400px] flex flex-col gap-6">
+        <div className="w-full lg:w-[450px] flex flex-col gap-8">
           <PricingCard product={product} />
 
           {/* Seller Card */}
-          <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm">
-            <h3 className="text-lg font-bold mb-4">Seller Details</h3>
-
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-16 h-16 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center text-white text-xl font-bold uppercase shadow-inner overflow-hidden">
-                {seller?.image ? (
-                  <img src={seller.image} alt={sellerName} className="w-full h-full object-cover" />
-                ) : (
-                  sellerName[0]
-                )}
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h4 className="font-bold text-lg">{sellerName}</h4>
-                  {seller?.isVerified && (
-                    <ShieldCheck size={18} className="text-blue-500" />
-                  )}
-                </div>
-                {(sellerCourse || sellerBatch) && (
-                  <p className="text-sm text-gray-500">
-                    {sellerCourse}{sellerCourse && sellerBatch ? " • " : ""}{sellerBatch ? `Batch of ${sellerBatch}` : ""}
-                  </p>
-                )}
-                <div className="flex items-center gap-2 mt-1">
-                  <div className="flex items-center text-yellow-500 text-sm font-bold">
-                    ★ {sellerRating > 0 ? sellerRating.toFixed(1) : "New"}
-                  </div>
-                  {sellerDeals > 0 && (
-                    <>
-                      <span className="text-gray-300 dark:text-gray-700">•</span>
-                      <span className="text-sm text-gray-500">{sellerDeals} Deals</span>
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 text-center">
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Member since {sellerJoined.toLocaleDateString("en-US", { month: "long", year: "numeric" })}
-              </p>
-            </div>
-          </div>
+          <SellerCard seller={seller} productId={product.id} />
 
           {/* AI Assistant */}
           <SmartBuyAssistant product={product} />
 
           {/* Safety Tips */}
-          <div className="bg-blue-50 dark:bg-blue-900/20 rounded-2xl border border-blue-100 dark:border-blue-800/30 p-6">
-            <h3 className="font-bold text-blue-800 dark:text-blue-300 mb-3 flex items-center gap-2">
-              <ShieldCheck size={20} /> Safety Tips
+          <div className="bg-blue-50 dark:bg-blue-900/20 rounded-3xl border border-blue-100 dark:border-blue-800/30 p-8">
+            <h3 className="text-xl font-black text-blue-900 dark:text-blue-300 mb-4 flex items-center gap-2 italic">
+              <ShieldCheck size={24} /> Safety Tips
             </h3>
-            <ul className="text-sm text-blue-700 dark:text-blue-400 space-y-2 list-disc pl-5">
-              <li>Meet in a public place on campus.</li>
-              <li>Check the item thoroughly before buying.</li>
-              <li>Don't pay in advance.</li>
+            <ul className="text-sm text-blue-800 dark:text-blue-400 space-y-4 font-bold">
+              <li className="flex gap-3">
+                <span className="text-blue-500">•</span>
+                <span>Meet in a public place on campus.</span>
+              </li>
+              <li className="flex gap-3">
+                <span className="text-blue-500">•</span>
+                <span>Check the item thoroughly before buying.</span>
+              </li>
+              <li className="flex gap-3">
+                <span className="text-blue-500">•</span>
+                <span>ExOwn never handles payments directly. Don't pay in advance.</span>
+              </li>
             </ul>
           </div>
+        </div>
+      </div>
+
+      {/* Similar Listings Section */}
+      <div className="mt-24 pt-16 border-t border-gray-100 dark:border-gray-800">
+        <div className="flex items-center justify-between mb-12">
+          <div>
+            <h3 className="text-4xl font-black italic tracking-tighter text-gray-900 dark:text-white">Similar Listings</h3>
+            <p className="text-gray-400 font-black uppercase tracking-[0.3em] text-[10px] mt-2">Found in {product.category.name}</p>
+          </div>
+          <Link href={`/search?category=${product.category.slug}`} className="px-8 py-4 bg-gray-100 dark:bg-gray-800 rounded-2xl text-xs font-black uppercase tracking-[0.2em] hover:bg-primary hover:text-white transition-all shadow-sm">View All</Link>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          {similarProducts.filter(p => p.id !== product.id).slice(0, 4).map((p) => (
+            <ProductCard 
+              key={p.id}
+              id={p.id}
+              title={p.title}
+              price={p.price}
+              image={p.images[0]}
+              location={p.pickupLocation}
+              createdAt={p.createdAt}
+              listingType={p.listingType as any}
+              seller={p.seller}
+              categoryId={p.categoryId}
+            />
+          ))}
         </div>
       </div>
     </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { MessageSquare, Tag, MapPin, Clock, Phone, ShieldCheck, BarChart2, Calendar, Sparkles } from "lucide-react";
+import { MessageSquare, Tag, MapPin, Clock, Phone, ShieldCheck, BarChart2, Calendar, Sparkles, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import { useAuth } from "@/context/AuthContext";
@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 
 import RentNowModal from "./RentNowModal";
 import RequestQuoteModal from "./RequestQuoteModal";
+import ExchangeOfferModal from "./ExchangeOfferModal";
 
 interface PricingCardProps {
   product: any;
@@ -24,6 +25,8 @@ export default function PricingCard({ product }: PricingCardProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isRentModalOpen, setIsRentModalOpen] = useState(false);
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
+  const [isExchangeModalOpen, setIsExchangeModalOpen] = useState(false);
+
 
   const isRental = product.listingType === "RENT";
   const isService = product.listingType === "SERVICE";
@@ -59,6 +62,11 @@ export default function PricingCard({ product }: PricingCardProps) {
         }`}>
           {isRental ? "Rental" : isService ? "Service" : "For Sale"}
         </span>
+        {product.isExchangeAllowed && (
+          <span className="flex items-center gap-1 px-3 py-1 bg-emerald-500 text-white rounded-full text-[10px] font-black uppercase tracking-wider shadow-sm animate-pulse">
+            <RefreshCw size={12} /> Exchange Available
+          </span>
+        )}
         {seller?.isTrustedSeller && (
           <span className="flex items-center gap-1 px-3 py-1 bg-emerald-100 text-emerald-600 rounded-full text-[10px] font-black uppercase tracking-wider">
             <Sparkles size={12} /> Trusted Seller
@@ -161,6 +169,21 @@ export default function PricingCard({ product }: PricingCardProps) {
             <BarChart2 size={24} /> {isInCompare(product.id) ? "In Comparison" : "Compare"}
           </button>
           
+          {product.isExchangeAllowed && (
+             <button 
+               onClick={() => {
+                 if (!user) {
+                   router.push(`/login?redirect=/product/${product.id}`);
+                   return;
+                 }
+                 setIsExchangeModalOpen(true);
+               }}
+               className="w-full py-4 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 border-4 border-emerald-500/20 rounded-2xl font-black text-xl hover:bg-emerald-500 hover:text-white transition-all flex items-center justify-center gap-3"
+             >
+               <RefreshCw size={24} /> Propose Exchange
+             </button>
+          )}
+          
           {!isService && !isRental && (
             <button 
               onClick={() => {
@@ -209,6 +232,7 @@ export default function PricingCard({ product }: PricingCardProps) {
 
       <RentNowModal product={product} isOpen={isRentModalOpen} onClose={() => setIsRentModalOpen(false)} />
       <RequestQuoteModal product={product} isOpen={isQuoteModalOpen} onClose={() => setIsQuoteModalOpen(false)} />
+      <ExchangeOfferModal product={product} isOpen={isExchangeModalOpen} onClose={() => setIsExchangeModalOpen(false)} />
     </div>
   );
 }
