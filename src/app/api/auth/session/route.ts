@@ -14,11 +14,16 @@ export async function POST(req: NextRequest) {
 
   try {
     const { idToken } = await req.json();
+    console.log("[api/auth/session] Received POST request with idToken length:", idToken?.length);
+    
     const decoded = await verifyFirebaseToken(idToken);
 
     if (!decoded) {
+      console.error("[api/auth/session] Token verification failed, returning 401");
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
+
+    console.log("[api/auth/session] Token verified successfully for UID:", decoded.uid);
 
     const res = NextResponse.json({ success: true, uid: decoded.uid });
     res.cookies.set(SESSION_COOKIE_NAME, idToken, {

@@ -14,12 +14,30 @@ export type CurrentUser = {
 };
 
 export async function verifyFirebaseToken(token?: string | null): Promise<DecodedIdToken | null> {
-  if (!token || !adminAuth) return null;
+  if (!token) {
+    console.log("[auth] No token provided to verifyFirebaseToken");
+    return null;
+  }
+  if (!adminAuth) {
+    console.error("[auth] Firebase Admin SDK not initialized (adminAuth is null)");
+    return null;
+  }
 
   try {
-    return await adminAuth.verifyIdToken(token, true);
-  } catch (error) {
-    console.warn("[auth] Invalid Firebase token", error);
+    const decoded = await adminAuth.verifyIdToken(token, true);
+    console.log(`[auth] Token verified. UID: ${decoded.uid}, Email: ${decoded.email}, Project ID: ${decoded.aud}`);
+    
+    const adminProjectId = process.env.FIREBASE_PROJECT_ID;
+    if (decoded.aud !== adminProjectId) {
+      console.warn(`[auth] Project ID mismatch! Token: ${decoded.aud}, Admin: ${adminProjectId}`);
+    }
+    
+    return decoded;
+  } catch (error: any) {
+    console.error("[auth] Firebase token verification failed:", error.message);
+    if (error.code === 'auth/id-token-expired') {
+      console.log("[auth] Token expired");
+    }
     return null;
   }
 }
