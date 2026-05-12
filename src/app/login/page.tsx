@@ -26,7 +26,7 @@ function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") || "/";
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -58,11 +58,11 @@ function LoginContent() {
 
   // If already logged in, redirect away
   useEffect(() => {
-    if (user && !isLoading) {
+    if (user && !loading && !isLoading) {
       // Use window.location for a more robust redirect if router.push feels stuck
       router.push(redirect);
     }
-  }, [user, isLoading, redirect, router]);
+  }, [user, loading, isLoading, redirect, router]);
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
