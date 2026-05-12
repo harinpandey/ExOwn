@@ -29,7 +29,11 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
   const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;
   const decoded = await verifyFirebaseToken(token);
 
-  if (!decoded) return null;
+  if (!decoded) {
+    console.log("[auth] No decoded token found in cookie");
+    return null;
+  }
+  console.log(`[auth] Decoded token for UID: ${decoded.uid}, Email: ${decoded.email}`);
   return {
     uid: decoded.uid,
     email: decoded.email,
@@ -52,7 +56,7 @@ export async function getCurrentDbUser() {
   const user = await getCurrentUser();
   if (!user) return null;
 
-  return prisma.user.findUnique({
+  const dbUser = await prisma.user.findUnique({
     where: { id: user.uid },
     select: {
       id: true,
@@ -65,6 +69,9 @@ export async function getCurrentDbUser() {
       trustScore: true,
     },
   });
+
+  console.log(`[auth] DB user for ${user.uid}: ${dbUser ? `Found (Role: ${dbUser.role})` : "NOT FOUND"}`);
+  return dbUser;
 }
 
 export async function requireRole(roles: Role[]) {

@@ -28,12 +28,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const ensureServerSession = async (firebaseUser: User) => {
     const idToken = await firebaseUser.getIdToken();
-    await fetch("/api/auth/session", {
+    const response = await fetch("/api/auth/session", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ idToken }),
       credentials: "same-origin",
     });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error("[ensureServerSession] Failed to set session cookie:", errorData.error || response.statusText);
+      throw new Error(`Session creation failed: ${response.statusText}`);
+    }
   };
 
   const logout = async () => {
@@ -90,8 +96,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const unsubscribeAuth = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         await ensureServerSession(firebaseUser);
+        await syncProfile(firebaseUser); // Sync first to avoid race condition on /admin
         setUser(firebaseUser);
-        await syncProfile(firebaseUser);
       } else {
         await fetch("/api/auth/session", { method: "DELETE", credentials: "same-origin" }).catch(() => {});
         setUser(null);

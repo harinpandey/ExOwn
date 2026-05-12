@@ -11,17 +11,19 @@ export async function syncUser(data: {
   image: string | null;
 }) {
   try {
+    console.log(`[syncUser] Called for UID: ${data.id}, Email: ${data.email}`);
     const currentUser = await requireSameUser(data.id);
+    console.log(`[syncUser] Auth verified for UID: ${currentUser.uid}`);
 
-    const isAdmin = data.email === "exown.official@gmail.com";
-
+    const isAdmin = data.email?.toLowerCase() === "exown.official@gmail.com";
+    console.log(`[syncUser] Attempting upsert. isAdmin: ${isAdmin}`);
     const user = await withRetry(() => prisma.user.upsert({
       where: { id: data.id },
       update: {
         ...(data.email && { email: data.email }),
         ...(data.name && { name: data.name }),
         ...(data.image && { image: data.image }),
-        ...(isAdmin && { role: "ADMIN" }),
+        role: isAdmin ? "ADMIN" : "USER", // Ensure role is synced
         lastActive: new Date(),
       },
       create: {
@@ -35,12 +37,14 @@ export async function syncUser(data: {
       },
       select: {
         id: true,
+        role: true,
         isVerified: true,
         isProfileCompleted: true,
         verificationLevel: true,
         isTrustedSeller: true,
       }
     }));
+    console.log(`[syncUser] Upsert successful. Role: ${user.role}`);
 
     await logActivity({
       userId: currentUser.uid,
@@ -50,7 +54,7 @@ export async function syncUser(data: {
 
     return { success: true, user };
   } catch (error: any) {
-    console.error("Error syncing user:", error);
+    console.error("[syncUser] Error:", error);
     return { success: false, error: error.message };
   }
 }
