@@ -1,7 +1,7 @@
 "use server";
 
 import prisma, { withRetry } from "@/lib/prisma";
-import { razorpay } from "@/lib/razorpay";
+import { getRazorpay } from "@/lib/razorpay";
 import crypto from "crypto";
 import { requireSameUser } from "@/lib/auth";
 
@@ -32,6 +32,7 @@ export async function createBoostOrder(productId: string, sellerId: string, boos
     const amount = BOOST_PRICES[boostType];
     
     // 1. Create Razorpay Order
+    const razorpay = getRazorpay();
     const order = await razorpay.orders.create({
       amount: amount * 100,
       currency: "INR",

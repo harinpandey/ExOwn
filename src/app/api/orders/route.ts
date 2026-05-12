@@ -4,7 +4,7 @@ import prisma from "@/lib/prisma";
 import { getCurrentUser, requireUser } from "@/lib/auth";
 import { cartInclude } from "@/lib/commerce";
 import { enforceRateLimit } from "@/lib/rate-limit";
-import { razorpay } from "@/lib/razorpay";
+import { getRazorpay } from "@/lib/razorpay";
 import { invalidateCachePrefix } from "@/lib/cache";
 
 export const dynamic = "force-dynamic";
@@ -57,16 +57,21 @@ function verifyRazorpayPaymentSignature(orderId: string, paymentId: string, sign
 }
 
 async function fetchVerifiedPayment(paymentId: string) {
-  if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
-    throw Object.assign(new Error("Razorpay credentials are not configured"), { status: 500 });
-  }
+  try {
+    const razorpay = getRazorpay();
+    const payment = await razorpay.payments.fetch(paymentId);
+    
+    if (!payment || payment.status !== "captured") {
+      throw Object.assign(new Error("Payment is not captured"), { status: 402 });
+    }
 
-  const payment = await razorpay.payments.fetch(paymentId);
-  if (!payment || payment.status !== "captured") {
-    throw Object.assign(new Error("Payment is not captured"), { status: 402 });
+    return payment;
+  } catch (error: any) {
+    if (error.message.includes("must be defined")) {
+      throw Object.assign(new Error("Payment service unavailable"), { status: 503 });
+    }
+    throw error;
   }
-
-  return payment;
 }
 
 export async function GET(req: NextRequest) {
