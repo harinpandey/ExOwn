@@ -56,6 +56,17 @@ export default function Navbar() {
 
   useEffect(() => {
     setMounted(true);
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        const searchInput = document.querySelector('input[placeholder*="Search laptops"]') as HTMLInputElement;
+        if (searchInput) searchInput.focus();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
   return (

@@ -14,7 +14,7 @@ export default function MobileNav() {
     { name: "Search", icon: Search, href: "/search" },
     { name: "Sell", icon: PlusCircle, href: !user ? "/login?redirect=/sell" : !isProfileComplete ? "/complete-profile" : "/sell", highlight: true },
     { name: "Chat", icon: MessageSquare, href: "/chat" },
-    { name: "Profile", icon: User, href: "/dashboard" },
+    { name: "Profile", icon: User, href: "/profile" },
   ];
 
   return (
