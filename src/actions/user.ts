@@ -13,12 +13,15 @@ export async function syncUser(data: {
   try {
     const currentUser = await requireSameUser(data.id);
 
+    const isAdmin = data.email === "exown.official@gmail.com";
+
     const user = await withRetry(() => prisma.user.upsert({
       where: { id: data.id },
       update: {
         ...(data.email && { email: data.email }),
         ...(data.name && { name: data.name }),
         ...(data.image && { image: data.image }),
+        ...(isAdmin && { role: "ADMIN" }),
         lastActive: new Date(),
       },
       create: {
@@ -26,6 +29,7 @@ export async function syncUser(data: {
         email: data.email,
         name: data.name,
         image: data.image,
+        role: isAdmin ? "ADMIN" : "USER",
         lastActive: new Date(),
         verificationLevel: "BASIC", // Explicit default
       },
