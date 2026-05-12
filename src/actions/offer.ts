@@ -1,7 +1,6 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { requireSameUser } from "@/lib/auth";
 
 export async function createOffer(data: {
   productId: string;
@@ -10,8 +9,6 @@ export async function createOffer(data: {
   message?: string;
 }) {
   try {
-    await requireSameUser(data.buyerId);
-
     const product = await prisma.product.findUnique({
       where: { id: data.productId },
       select: { sellerId: true, title: true }
@@ -51,8 +48,6 @@ export async function createOffer(data: {
 
 export async function updateOfferStatus(offerId: string, userId: string, status: "ACCEPTED" | "REJECTED") {
   try {
-    await requireSameUser(userId);
-
     const offer = await prisma.offer.findUnique({
       where: { id: offerId },
       include: { 
@@ -63,7 +58,7 @@ export async function updateOfferStatus(offerId: string, userId: string, status:
     if (!offer) throw new Error("Offer not found");
     if (offer.product.sellerId !== userId) throw new Error("Unauthorized");
 
-    await prisma.offer.update({
+    const updated = await prisma.offer.update({
       where: { id: offerId },
       data: { status }
     });

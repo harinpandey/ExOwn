@@ -1,7 +1,6 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { requireSameUser } from "@/lib/auth";
 
 export async function createReport(data: {
   reporterId: string;
@@ -11,8 +10,6 @@ export async function createReport(data: {
   description?: string;
 }) {
   try {
-    await requireSameUser(data.reporterId);
-
     const report = await prisma.report.create({
       data: {
         reporterId: data.reporterId,

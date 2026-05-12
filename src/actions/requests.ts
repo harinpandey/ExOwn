@@ -2,7 +2,6 @@
 
 import prisma, { withRetry } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { requireSameUser } from "@/lib/auth";
 
 export async function createBuyingRequest(userId: string, data: {
   title: string;
@@ -12,8 +11,6 @@ export async function createBuyingRequest(userId: string, data: {
   listingType?: "SELL" | "RENT" | "SERVICE";
 }) {
   try {
-    await requireSameUser(userId);
-
     const request = await withRetry(() => prisma.buyingRequest.create({
       data: {
         userId,
@@ -59,8 +56,6 @@ export async function getBuyingRequests(limit = 20) {
 
 export async function toggleRequestStatus(requestId: string, userId: string, isActive: boolean) {
   try {
-    await requireSameUser(userId);
-
     await prisma.buyingRequest.update({
       where: { id: requestId, userId },
       data: { isActive }

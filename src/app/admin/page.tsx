@@ -3,8 +3,6 @@ import { Sparkles, Users, ShieldCheck, BarChart3, Settings, CreditCard, Package,
 
 import { getAdminStats } from "@/actions/admin";
 
-export const dynamic = "force-dynamic";
-
 export default async function AdminPage() {
   const data = await getAdminStats();
   

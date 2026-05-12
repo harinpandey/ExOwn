@@ -26,21 +26,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const [isProfileComplete, setIsProfileComplete] = useState(true);
 
-  const ensureServerSession = async (firebaseUser: User) => {
-    const idToken = await firebaseUser.getIdToken();
-    await fetch("/api/auth/session", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ idToken }),
-      credentials: "same-origin",
-    });
-  };
-
   const logout = async () => {
     try {
       const { signOut } = await import("firebase/auth");
-      await fetch("/api/auth/session", { method: "DELETE", credentials: "same-origin" });
-      if (auth) await signOut(auth);
+      await signOut(auth);
     } catch (err) {
       console.error("Logout error:", err);
     }
@@ -49,13 +38,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const syncProfile = async (firebaseUser: User) => {
     try {
       const { syncUser } = await import("@/actions/user");
+      const { withRetry } = await import("@/lib/prisma");
       
-      const result = await syncUser({
+      const result = await withRetry(() => syncUser({
         id: firebaseUser.uid,
         email: firebaseUser.email,
         name: firebaseUser.displayName,
         image: firebaseUser.photoURL,
-      });
+      }));
       
       if (result.success && result.user) {
         setIsProfileComplete(result.user.isProfileCompleted);
@@ -89,11 +79,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // 2. Auth State Change ( handle login/logout )
     const unsubscribeAuth = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        await ensureServerSession(firebaseUser);
         setUser(firebaseUser);
         await syncProfile(firebaseUser);
       } else {
-        await fetch("/api/auth/session", { method: "DELETE", credentials: "same-origin" }).catch(() => {});
         setUser(null);
         setIsProfileComplete(true); 
       }
@@ -103,7 +91,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // 3. ID Token Change ( handle token refresh )
     const unsubscribeToken = onIdTokenChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        await ensureServerSession(firebaseUser);
         // Token refreshed, ensure UI state is synced
         setUser(firebaseUser);
       }

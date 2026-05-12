@@ -44,8 +44,6 @@ model User {
   reportsMade   Report[]  @relation("Reporter")
   reportsRecv   Report[]  @relation("Reported")
   wishlist      Wishlist[]
-  cart          Cart?
-  orders        Order[]
   subscription  Subscription?
   payments      Payment[]
   activities    UserActivity[]
@@ -175,7 +173,6 @@ model Product {
   pickupLocation String
   status        ProductStatus @default(PENDING)
   isUrgent      Boolean  @default(false)
-  inventory     Int      @default(1)
   views         Int      @default(0)
   wishlistCount Int      @default(0)
   fraudScore    Int      @default(0)
@@ -202,8 +199,6 @@ model Product {
   reports       Report[]
   offers        Offer[]
   wishlistedBy  Wishlist[]
-  cartItems     CartItem[]
-  orderItems    OrderItem[]
   rentalDetail  RentalDetail?
   serviceDetail ServiceDetail?
   boosts        ListingBoost[]
@@ -217,10 +212,6 @@ model Product {
   @@index([campusId])
   @@index([createdAt])
   @@index([title])
-  @@index([status, createdAt])
-  @@index([status, price])
-  @@index([status, categoryId, createdAt])
-  @@index([status, listingType, createdAt])
 }
 
 model AiRule {
@@ -278,34 +269,6 @@ model Wishlist {
   createdAt        DateTime @default(now())
 
   @@unique([userId, productId])
-}
-
-model Cart {
-  id        String     @id @default(cuid())
-  userId    String?    @unique
-  user      User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  guestId   String?    @unique
-  subtotal  Float      @default(0)
-  items     CartItem[]
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-
-  @@index([guestId])
-}
-
-model CartItem {
-  id            String   @id @default(cuid())
-  cartId        String
-  cart          Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
-  productId     String
-  product       Product  @relation(fields: [productId], references: [id])
-  quantity      Int      @default(1)
-  priceSnapshot Float
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  @@unique([cartId, productId])
-  @@index([productId])
 }
 
 model BuyingRequest {
@@ -538,7 +501,6 @@ model Payment {
   transactionId    String?       @unique
   razorpayOrderId  String?       @unique
   webhookPayload   Json?
-  order            Order?
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
 
@@ -555,45 +517,6 @@ enum PaymentStatus {
   SUCCESS
   FAILED
   PENDING
-  REFUNDED
-}
-
-model Order {
-  id              String      @id @default(cuid())
-  userId          String
-  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  paymentId       String?     @unique
-  payment         Payment?    @relation(fields: [paymentId], references: [id], onDelete: SetNull)
-  status          OrderStatus @default(PENDING)
-  total           Float
-  shippingAddress Json
-  items           OrderItem[]
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
-
-  @@index([userId, createdAt])
-  @@index([status])
-}
-
-model OrderItem {
-  id              String   @id @default(cuid())
-  orderId         String
-  order           Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  productId       String
-  product         Product  @relation(fields: [productId], references: [id])
-  quantity        Int
-  priceAtPurchase Float
-  createdAt       DateTime @default(now())
-
-  @@unique([orderId, productId])
-  @@index([productId])
-}
-
-enum OrderStatus {
-  PENDING
-  PAID
-  CANCELLED
-  FAILED
   REFUNDED
 }
 
@@ -716,3 +639,4 @@ enum ExchangeStatus {
   COUNTERED
   COMPLETED
 }
+

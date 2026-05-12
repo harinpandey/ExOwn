@@ -15,7 +15,8 @@ import {
   ShieldCheck, 
   ArrowRight, 
   CheckCircle2,
-  Lock
+  Lock,
+  AlertCircle
 } from "lucide-react";
 import { completeProfile } from "@/actions/user";
 
@@ -151,7 +152,7 @@ export default function CompleteProfilePage() {
       } else {
         setError(result.error || "Failed to complete profile.");
       }
-    } catch {
+    } catch (err) {
       setError("An unexpected error occurred.");
     } finally {
       setIsSubmitting(false);

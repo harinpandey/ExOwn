@@ -3,7 +3,6 @@
 import prisma, { withRetry } from "@/lib/prisma";
 import { createNotification } from "./notification";
 import { logActivity } from "@/lib/logger";
-import { requireSameUser } from "@/lib/auth";
 
 export async function requestServiceQuote(data: {
   serviceDetailId: string;
@@ -11,12 +10,6 @@ export async function requestServiceQuote(data: {
   content: string;
 }) {
   try {
-    await requireSameUser(data.userId);
-
-    if (!data.content.trim()) {
-      throw new Error("Inquiry content is required");
-    }
-
     // 1. Fetch service detail to get provider info
     const service = await prisma.serviceDetail.findUnique({
       where: { id: data.serviceDetailId },
@@ -24,9 +17,6 @@ export async function requestServiceQuote(data: {
     });
 
     if (!service) throw new Error("Service not found");
-    if (service.product.sellerId === data.userId) {
-      throw new Error("You cannot request a quote from yourself");
-    }
 
     // 2. Create Quote Request
     const quote = await withRetry(() => prisma.quoteRequest.create({
@@ -63,8 +53,6 @@ export async function requestServiceQuote(data: {
 
 export async function getServiceProviderStats(userId: string) {
   try {
-    await requireSameUser(userId);
-
     return await withRetry(() => prisma.serviceDetail.findMany({
       where: { product: { sellerId: userId } },
       include: {
@@ -73,7 +61,7 @@ export async function getServiceProviderStats(userId: string) {
         }
       }
     }));
-  } catch {
+  } catch (err) {
     return [];
   }
 }

@@ -1,5 +1,7 @@
 import { getTrendingProducts } from "@/actions/product";
 import ProductCard from "@/components/ui/ProductCard";
+import { Zap, ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 export default async function TrendingDeals() {
   const trendingProducts = await getTrendingProducts();

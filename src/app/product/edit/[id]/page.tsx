@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { Upload, X, Check, ArrowRight, LayoutGrid, MapPin, Tag, Image as ImageIcon, Rocket, ChevronLeft, Loader2 } from "lucide-react";
@@ -38,7 +38,18 @@ export default function EditListingPage() {
   const [conditionDetails, setConditionDetails] = useState<any>(null);
   const [finalCondition, setFinalCondition] = useState<string>("GOOD");
 
-  const fetchProduct = useCallback(async () => {
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push(`/login?redirect=/product/edit/${id}`);
+      return;
+    }
+
+    if (user && id) {
+      fetchProduct();
+    }
+  }, [user, authLoading, id]);
+
+  const fetchProduct = async () => {
     try {
       const { getProductById } = await import("@/actions/product");
       const product = await getProductById(id as string);
@@ -81,18 +92,7 @@ export default function EditListingPage() {
       console.error("Error fetching product:", err);
       toast.error("Failed to load product details");
     }
-  }, [id, router, user?.uid]);
-
-  useEffect(() => {
-    if (!authLoading && !user) {
-      router.push(`/login?redirect=/product/edit/${id}`);
-      return;
-    }
-
-    if (user && id) {
-      fetchProduct();
-    }
-  }, [user, authLoading, id, router, fetchProduct]);
+  };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -121,7 +121,7 @@ export default function EditListingPage() {
     const loadingToast = toast.loading("Updating your listing...");
 
     try {
-      const uploadedUrls: string[] = [];
+      let uploadedUrls: string[] = [];
       
       // Upload new images if any
       if (newFiles.length > 0) {
@@ -366,13 +366,13 @@ export default function EditListingPage() {
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
                     {images.map((url, index) => (
                       <div key={`exist-${index}`} className="relative aspect-square rounded-[2rem] overflow-hidden group">
-                        <img src={url} alt={`${title} existing photo ${index + 1}`} className="w-full h-full object-cover" />
+                        <img src={url} className="w-full h-full object-cover" />
                         <button onClick={() => removeExistingImage(index)} className="absolute top-3 right-3 p-2 bg-black/50 text-white rounded-xl hover:bg-red-500 opacity-0 group-hover:opacity-100 transition-all"><X size={16} /></button>
                       </div>
                     ))}
                     {newImageUrls.map((url, index) => (
                       <div key={`new-${index}`} className="relative aspect-square rounded-[2rem] overflow-hidden group border-2 border-emerald-500">
-                        <img src={url} alt={`${title} new photo ${index + 1}`} className="w-full h-full object-cover" />
+                        <img src={url} className="w-full h-full object-cover" />
                         <button onClick={() => removeNewImage(index)} className="absolute top-3 right-3 p-2 bg-black/50 text-white rounded-xl hover:bg-red-500 opacity-0 group-hover:opacity-100 transition-all"><X size={16} /></button>
                       </div>
                     ))}

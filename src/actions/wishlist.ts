@@ -1,14 +1,11 @@
 "use server";
 
 import prisma, { withRetry } from "@/lib/prisma";
-import { requireSameUser } from "@/lib/auth";
 
 import { revalidatePath } from "next/cache";
 
 export async function toggleWishlist(userId: string, productId: string) {
   try {
-    await requireSameUser(userId);
-
     const existing = await prisma.wishlist.findUnique({
       where: {
         userId_productId: {
@@ -58,8 +55,6 @@ export async function toggleWishlist(userId: string, productId: string) {
 
 export async function getWishlist(userId: string) {
   try {
-    await requireSameUser(userId);
-
     const wishlist = await withRetry(() => prisma.wishlist.findMany({
       where: { userId },
       include: {
@@ -87,8 +82,6 @@ export async function getWishlist(userId: string) {
 
 export async function isInWishlist(userId: string, productId: string) {
   try {
-    await requireSameUser(userId);
-
     const existing = await withRetry(() => prisma.wishlist.findUnique({
       where: {
         userId_productId: {
@@ -99,7 +92,7 @@ export async function isInWishlist(userId: string, productId: string) {
     }));
     return !!existing;
 
-  } catch {
+  } catch (error) {
     return false;
   }
 }

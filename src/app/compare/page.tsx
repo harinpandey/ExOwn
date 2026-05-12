@@ -3,10 +3,9 @@
 import { useCompare } from "@/context/CompareContext";
 import { getProductsByIds } from "@/actions/product";
 import { useEffect, useState } from "react";
-import type { ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Trash2, ShieldCheck, ShoppingCart, X, Ghost, Sparkles, Brain, AlertTriangle, Trophy, BadgeIndianRupee, RefreshCw } from "lucide-react";
+import { ArrowLeft, Trash2, ShieldCheck, Tag, ShoppingCart, X, Ghost, Sparkles, Brain, AlertTriangle, Trophy, BadgeIndianRupee, RefreshCw } from "lucide-react";
 import Link from "next/link";
 
 
@@ -99,7 +98,7 @@ export default function ComparePage() {
     );
   }
 
-  const rows: Array<{ label: string; key: string; format?: (val: any) => ReactNode }> = [
+  const rows = [
     { label: "Price", key: "price", format: (val: number) => `₹${val.toLocaleString()}` },
     { label: "Original Price", key: "originalPrice", format: (val: number | null) => val ? `₹${val.toLocaleString()}` : "N/A" },
     { label: "Condition", key: "condition" },

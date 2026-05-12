@@ -3,7 +3,6 @@
 import prisma, { withRetry } from "@/lib/prisma";
 import { createNotification } from "./notification";
 import { logActivity } from "@/lib/logger";
-import { requireSameUser } from "@/lib/auth";
 
 export async function requestRental(data: {
   productId: string;
@@ -14,12 +13,6 @@ export async function requestRental(data: {
   pickupLocation: string;
 }) {
   try {
-    await requireSameUser(data.renterId);
-
-    if (data.endDate <= data.startDate) {
-      throw new Error("End date must be after start date");
-    }
-
     // 1. Fetch product to get owner info
     const product = await prisma.product.findUnique({
       where: { id: data.productId },
@@ -28,23 +21,6 @@ export async function requestRental(data: {
 
     if (!product || !product.rentalDetail) {
       throw new Error("Rental product not found");
-    }
-
-    if (product.sellerId === data.renterId) {
-      throw new Error("You cannot rent your own listing");
-    }
-
-    const conflictingRental = await prisma.rental.findFirst({
-      where: {
-        productId: data.productId,
-        status: { in: ["PENDING", "ACTIVE"] },
-        startDate: { lte: data.endDate },
-        endDate: { gte: data.startDate },
-      },
-    });
-
-    if (conflictingRental) {
-      throw new Error("This item is not available for the selected dates");
     }
 
     // 2. Create Rental Record
@@ -88,8 +64,6 @@ export async function requestRental(data: {
 
 export async function approveRental(rentalId: string, ownerId: string) {
   try {
-    await requireSameUser(ownerId);
-
     const rental = await prisma.rental.findUnique({
       where: { id: rentalId },
       include: { product: true }
@@ -129,8 +103,6 @@ export async function approveRental(rentalId: string, ownerId: string) {
 
 export async function markRentalReturned(rentalId: string, ownerId: string) {
   try {
-    await requireSameUser(ownerId);
-
     await withRetry(() => prisma.rental.update({
       where: { id: rentalId, ownerId },
       data: { status: "RETURNED" }
@@ -143,7 +115,7 @@ export async function markRentalReturned(rentalId: string, ownerId: string) {
     });
 
     return { success: true };
-  } catch {
+  } catch (err) {
     return { success: false };
   }
 }

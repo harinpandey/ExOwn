@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { X, RefreshCw, Upload, Rocket, Trash2, ShieldCheck, Info } from "lucide-react";
+import { X, RefreshCw, Upload, Rocket, Trash2, IndianRupee, ShieldCheck, Info } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface ExchangeOfferModalProps {
   product: any;

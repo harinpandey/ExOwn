@@ -1,4 +1,4 @@
-import { Users, Shield, Star, Zap } from "lucide-react";
+import { ShoppingBag, Users, Shield, Star, Zap } from "lucide-react";
 import Link from "next/link";
 
 export const metadata = { title: "About Us | ExOwn", description: "Learn about ExOwn — the student marketplace built for exchange, ownership, and circular commerce." };

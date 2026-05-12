@@ -74,16 +74,8 @@ export default function PublicProfilePage({ params }: { params: Promise<{ id: st
             
             <h2 className="text-xl font-bold flex items-center justify-center gap-2 mb-1">
               {displayName}
-              {profile.isVerified && (
-                <span title="Identity Verified">
-                  <ShieldCheck size={18} className="text-blue-500" />
-                </span>
-              )}
-              {profile.isTrustedSeller && (
-                <span title="Trusted Seller">
-                  <Star size={18} className="text-emerald-500 fill-emerald-500" />
-                </span>
-              )}
+              {profile.isVerified && <ShieldCheck size={18} className="text-blue-500" title="Identity Verified" />}
+              {profile.isTrustedSeller && <Star size={18} className="text-emerald-500 fill-emerald-500" title="Trusted Seller" />}
             </h2>
             <p className="text-sm text-gray-500 mb-2">
               {profile.profile?.course || "Student"} • Batch of {profile.profile?.year || "N/A"}

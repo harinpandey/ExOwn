@@ -2,12 +2,12 @@
 
 import { useCompare } from "@/context/CompareContext";
 import { motion, AnimatePresence } from "framer-motion";
-import { BarChart2, ArrowRight } from "lucide-react";
+import { X, BarChart2, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export default function CompareBar() {
-  const { items, clearCompare } = useCompare();
+  const { items, clearCompare, toggleCompare } = useCompare();
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {

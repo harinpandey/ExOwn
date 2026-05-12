@@ -1,18 +1,10 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { enforceRateLimit } from "@/lib/rate-limit";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
 export async function POST(req: Request) {
-  const limited = await enforceRateLimit(req, {
-    namespace: "ai",
-    limit: 30,
-    windowSeconds: 60,
-  });
-  if (limited) return limited;
-
   try {
     const { productIds } = await req.json();
 

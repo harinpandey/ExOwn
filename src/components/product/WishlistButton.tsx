@@ -43,7 +43,7 @@ export default function WishlistButton({ productId, initialWishlisted = false }:
       } else {
         toast.success(res.added ? "Added to wishlist" : "Removed from wishlist");
       }
-    } catch {
+    } catch (err) {
       setWishlisted(prev);
       toast.error("An error occurred");
     }

@@ -4,7 +4,6 @@ import prisma, { withRetry } from "@/lib/prisma";
 import { logActivity } from "@/lib/logger";
 import { createNotification } from "@/actions/notification";
 import { ExchangeStatus } from "@prisma/client";
-import { requireSameUser } from "@/lib/auth";
 
 export async function createExchangeOffer(data: {
   productId: string;
@@ -16,7 +15,6 @@ export async function createExchangeOffer(data: {
 }) {
   try {
     const { productId, buyerId, offeredTitle, offeredDescription, offeredImages, cashDifference } = data;
-    await requireSameUser(buyerId);
 
     // 1. Validation
     const product = await prisma.product.findUnique({
@@ -27,9 +25,6 @@ export async function createExchangeOffer(data: {
     if (!product) throw new Error("Product not found");
     if (product.sellerId === buyerId) throw new Error("Cannot exchange with yourself");
     if (!product.isExchangeAllowed) throw new Error("Exchange not allowed for this listing");
-    if (!offeredTitle.trim() || !offeredDescription.trim() || offeredImages.length === 0) {
-      throw new Error("Offer title, description, and at least one image are required");
-    }
 
     // 2. Create Offer
     const offer = await withRetry(() => prisma.exchangeOffer.create({
@@ -48,7 +43,7 @@ export async function createExchangeOffer(data: {
       userId: product.sellerId,
       title: "New Exchange Proposal! ♻️",
       content: `Someone wants to trade their "${offeredTitle}" for your "${product.title}".`,
-      type: "OFFER",
+      type: "EXCHANGE_OFFER",
       link: `/requests?tab=exchanges&offerId=${offer.id}`
     });
 
@@ -69,8 +64,6 @@ export async function createExchangeOffer(data: {
 
 export async function respondToExchangeOffer(userId: string, offerId: string, status: ExchangeStatus) {
   try {
-    await requireSameUser(userId);
-
     const offer = await prisma.exchangeOffer.findUnique({
       where: { id: offerId },
       include: { product: true }
@@ -98,7 +91,7 @@ export async function respondToExchangeOffer(userId: string, offerId: string, st
       userId: offer.buyerId,
       title: `Exchange Update: ${statusLabels[status]}`,
       content: `Your proposal for "${offer.product.title}" has been ${status.toLowerCase()}.`,
-      type: "OFFER",
+      type: "EXCHANGE_UPDATE",
       link: `/requests?tab=sent_exchanges`
     });
 
@@ -119,8 +112,6 @@ export async function respondToExchangeOffer(userId: string, offerId: string, st
 
 export async function getExchangeOffers(userId: string, type: "SENT" | "RECEIVED") {
   try {
-    await requireSameUser(userId);
-
     if (type === "SENT") {
       return await prisma.exchangeOffer.findMany({
         where: { buyerId: userId },

@@ -44,22 +44,14 @@ export default function SettingsPage() {
     if (!loading && !user) {
       router.push("/login?redirect=/settings");
     } else if (user) {
-      const loadProfile = async () => {
-        const { getUserProfile } = await import("@/actions/user");
-        const profile = await getUserProfile(user.uid, user.uid);
-        setFormData({
-          name: profile?.name || user.displayName || "",
-          image: profile?.image || user.photoURL || "",
-          phone: profile?.phone || "",
-          course: profile?.profile?.course || "",
-          year: profile?.profile?.batch || "",
-          hostel: profile?.profile?.hostel || "",
-          regNo: profile?.registrationNumber || "Not provided"
-        });
-      };
-
-      loadProfile().catch((err) => {
-        console.error("Failed to load settings profile:", err);
+      setFormData({
+        name: user.displayName || "",
+        image: user.photoURL || "",
+        phone: user.profile?.phone || "",
+        course: user.profile?.course || "",
+        year: user.profile?.batch || "",
+        hostel: user.profile?.hostel || "",
+        regNo: user.profile?.registrationNo || "Not provided"
       });
     }
   }, [user, loading, router]);

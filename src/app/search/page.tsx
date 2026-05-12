@@ -1,4 +1,4 @@
-import { Search as SearchIcon, SlidersHorizontal } from "lucide-react";
+import { Search as SearchIcon, SlidersHorizontal, Filter } from "lucide-react";
 import ProductCard from "@/components/ui/ProductCard";
 import { searchProducts, getCategories } from "@/actions/product";
 import SortSelect from "@/components/ui/SortSelect";
@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 export default async function SearchPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; category?: string; condition?: string; sort?: string; minPrice?: string; maxPrice?: string; listingType?: string; page?: string }>;
+  searchParams: Promise<{ q?: string; category?: string; condition?: string; sort?: string; minPrice?: string; maxPrice?: string; listingType?: string }>;
 }) {
   const params = await searchParams;
   const query = params.q || "";
@@ -20,11 +20,9 @@ export default async function SearchPage({
   const minPrice = params.minPrice ? parseFloat(params.minPrice) : undefined;
   const maxPrice = params.maxPrice ? parseFloat(params.maxPrice) : undefined;
   const listingType = params.listingType as any;
-  const page = Math.max(1, params.page ? parseInt(params.page, 10) : 1);
-  const pageSize = 24;
 
   const [results, categories] = await Promise.all([
-    searchProducts({ query, categorySlug, condition, listingType, minPrice, maxPrice, sortBy: sort, page, pageSize }),
+    searchProducts({ query, categorySlug, condition, listingType, minPrice, maxPrice, sortBy: sort }),
     getCategories(),
   ]);
 
@@ -107,32 +105,6 @@ export default async function SearchPage({
               </p>
               <Link href="/search" className="px-6 py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition-colors">
                 Clear Search
-              </Link>
-            </div>
-          )}
-
-          {results.length > 0 && (
-            <div className="flex items-center justify-between mt-10">
-              <Link
-                href={{
-                  pathname: "/search",
-                  query: { ...params, page: Math.max(1, page - 1).toString() },
-                }}
-                aria-disabled={page <= 1}
-                className={`px-5 py-3 rounded-xl font-bold text-sm border ${page <= 1 ? "pointer-events-none opacity-40" : "hover:bg-gray-50 dark:hover:bg-gray-800"}`}
-              >
-                Previous
-              </Link>
-              <span className="text-sm font-bold text-gray-500">Page {page}</span>
-              <Link
-                href={{
-                  pathname: "/search",
-                  query: { ...params, page: (page + 1).toString() },
-                }}
-                aria-disabled={results.length < pageSize}
-                className={`px-5 py-3 rounded-xl font-bold text-sm border ${results.length < pageSize ? "pointer-events-none opacity-40" : "hover:bg-gray-50 dark:hover:bg-gray-800"}`}
-              >
-                Next
               </Link>
             </div>
           )}

@@ -16,7 +16,6 @@ export function useFcm() {
 
     const initializeFcm = async () => {
       try {
-        if (!app) return;
         const messaging = getMessaging(app);
         
         // Request permission

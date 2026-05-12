@@ -1,6 +1,6 @@
 import { getAdminReports, resolveReport } from "@/actions/admin";
 import { format } from "date-fns";
-import { AlertTriangle, CheckCircle, ShieldCheck, Flag, Package, User } from "lucide-react";
+import { AlertTriangle, CheckCircle, Search, XCircle, ShieldCheck, Flag, Package, User } from "lucide-react";
 import Link from "next/link";
 import { revalidatePath } from "next/cache";
 

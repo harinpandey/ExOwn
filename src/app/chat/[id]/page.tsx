@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, use, useCallback } from "react";
+import { useState, useRef, useEffect, use } from "react";
 import Link from "next/link";
 import { ArrowLeft, Send, Image as ImageIcon, MoreVertical } from "lucide-react";
 import { format } from "date-fns";
@@ -24,7 +24,7 @@ export default function ChatRoomPage({ params }: { params: Promise<{ id: string 
     }
   }, [user, authLoading, router, partnerId]);
 
-  const fetchChatData = useCallback(async () => {
+  const fetchChatData = async () => {
     if (!user) return;
     try {
       const { chatService } = await import("@/lib/chat-utils");
@@ -42,7 +42,7 @@ export default function ChatRoomPage({ params }: { params: Promise<{ id: string 
     } finally {
       setLoading(false);
     }
-  }, [user, partnerId]);
+  };
 
   useEffect(() => {
     fetchChatData();
@@ -50,7 +50,7 @@ export default function ChatRoomPage({ params }: { params: Promise<{ id: string 
     // Simple polling for real-time-ish chat (every 3 seconds)
     const interval = setInterval(fetchChatData, 3000);
     return () => clearInterval(interval);
-  }, [fetchChatData]);
+  }, [user, partnerId]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });

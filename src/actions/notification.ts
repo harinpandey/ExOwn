@@ -1,7 +1,6 @@
 "use server";
 
 import prisma, { withRetry } from "@/lib/prisma";
-import { requireSameUser } from "@/lib/auth";
 
 export async function createNotification(data: {
   userId: string;
@@ -28,8 +27,6 @@ export async function createNotification(data: {
 
 export async function getUserNotifications(userId: string) {
   try {
-    await requireSameUser(userId);
-
     return await withRetry(() => prisma.notification.findMany({
       where: { userId },
       orderBy: { createdAt: "desc" },
@@ -43,46 +40,34 @@ export async function getUserNotifications(userId: string) {
 
 export async function getUnreadCount(userId: string) {
   try {
-    await requireSameUser(userId);
-
     return await withRetry(() => prisma.notification.count({
       where: { userId, isRead: false }
     }));
-  } catch {
+  } catch (error) {
     return 0;
   }
 }
 
 export async function markAsRead(notificationId: string) {
   try {
-    const notification = await prisma.notification.findUnique({
-      where: { id: notificationId },
-      select: { userId: true },
-    });
-
-    if (!notification) return { success: false };
-    await requireSameUser(notification.userId);
-
     await withRetry(() => prisma.notification.update({
       where: { id: notificationId },
       data: { isRead: true }
     }));
     return { success: true };
-  } catch {
+  } catch (error) {
     return { success: false };
   }
 }
 
 export async function markAllAsRead(userId: string) {
   try {
-    await requireSameUser(userId);
-
     await withRetry(() => prisma.notification.updateMany({
       where: { userId, isRead: false },
       data: { isRead: true }
     }));
     return { success: true };
-  } catch {
+  } catch (error) {
     return { success: false };
   }
 }

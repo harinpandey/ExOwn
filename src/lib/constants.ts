@@ -6,6 +6,9 @@ import {
   Shirt, 
   Gamepad2, 
   Package, 
+  Watch, 
+  Calculator, 
+  Coffee, 
   MoreHorizontal 
 } from "lucide-react";
 

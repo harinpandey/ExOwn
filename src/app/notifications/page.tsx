@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { Bell, CheckCircle2, MessageSquare, Tag, ShieldAlert, ArrowLeft } from "lucide-react";
@@ -12,13 +12,6 @@ export default function NotificationsPage() {
   const router = useRouter();
   const [notifications, setNotifications] = useState<any[]>([]);
 
-  const fetchNotifications = useCallback(async () => {
-    if (!user) return;
-    const { getUserNotifications } = await import("@/actions/notification");
-    const data = await getUserNotifications(user.uid);
-    setNotifications(data);
-  }, [user]);
-
   useEffect(() => {
     if (!loading && !user) {
       router.push("/login?redirect=/notifications");
@@ -28,7 +21,13 @@ export default function NotificationsPage() {
     if (user) {
       fetchNotifications();
     }
-  }, [user, loading, router, fetchNotifications]);
+  }, [user, loading, router]);
+
+  const fetchNotifications = async () => {
+    const { getNotifications } = await import("@/actions/notification");
+    const data = await getNotifications(user.uid);
+    setNotifications(data);
+  };
 
   const getIcon = (type: string) => {
     switch (type) {
@@ -64,7 +63,7 @@ export default function NotificationsPage() {
               <button 
                 onClick={async () => {
                   const { markAllAsRead } = await import("@/actions/notification");
-                  if (user) await markAllAsRead(user.uid);
+                  await markAllAsRead(user.uid);
                   fetchNotifications();
                 }}
                 className="text-[10px] font-black uppercase tracking-widest text-primary hover:underline"

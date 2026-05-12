@@ -18,7 +18,7 @@ async function main() {
 
   // 1. Seed Rentals
   console.log("Adding Rentals...");
-  await prisma.product.create({
+  const rent1 = await prisma.product.create({
     data: {
       title: "Geared Bicycle for Rent",
       description: "Hero Sprint 21-speed cycle. Available for daily or weekly rent.",
@@ -41,7 +41,7 @@ async function main() {
     }
   });
 
-  await prisma.product.create({
+  const rent2 = await prisma.product.create({
     data: {
       title: "Gaming Laptop (RTX 3060) - Hourly/Daily",
       description: "ASUS ROG Zephyrus. High performance gaming laptop for project work or gaming sessions.",
@@ -66,7 +66,7 @@ async function main() {
 
   // 2. Seed Services
   console.log("Adding Services...");
-  await prisma.product.create({
+  const service1 = await prisma.product.create({
     data: {
       title: "Laptop Repair & OS Installation",
       description: "Expert repair for all laptop brands. Windows/Linux installation, RAM upgrades, and deep cleaning.",
@@ -90,7 +90,7 @@ async function main() {
     }
   });
 
-  await prisma.product.create({
+  const service2 = await prisma.product.create({
     data: {
       title: "Graphic Design & UI/UX Services",
       description: "Need a logo, poster, or UI design for your project? High-quality professional designs delivered in 24h.",

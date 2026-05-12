@@ -17,6 +17,7 @@ import {
   Plus,
   LogOut,
   LayoutDashboard,
+  ShieldCheck,
   Moon,
   Sun,
   AlertCircle,
@@ -24,6 +25,7 @@ import {
   Heart,
   Package
 } from "lucide-react";
+import { CATEGORIES } from "@/lib/constants";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCompare } from "@/context/CompareContext";
 import { useNotifications } from "@/context/NotificationContext";
@@ -35,7 +37,8 @@ export default function Navbar() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const selectedCategoryId = "";
+  const [selectedCategory, setSelectedCategory] = useState("All Categories");
+  const [selectedCategoryId, setSelectedCategoryId] = useState("");
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [location, setLocation] = useState("LPU Campus");
@@ -408,3 +411,4 @@ function MobileMenuLink({ href, icon: Icon, label, count, onClick }: { href: str
     </Link>
   );
 }
+

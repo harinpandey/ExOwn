@@ -1,16 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import prisma from "@/lib/prisma";
-import { enforceRateLimit } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
-  const limited = await enforceRateLimit(req, {
-    namespace: "payments:webhook",
-    limit: 20,
-    windowSeconds: 60,
-  });
-  if (limited) return limited;
-
   try {
     const body = await req.text();
     const signature = req.headers.get("x-razorpay-signature");
@@ -45,6 +37,8 @@ export async function POST(req: NextRequest) {
       case "payment.captured": {
         const paymentData = payload.payment.entity;
         const orderId = paymentData.order_id;
+        const amount = paymentData.amount / 100; // Convert to INR
+
         // Update Payment record
         const payment = await prisma.payment.update({
           where: { razorpayOrderId: orderId },
@@ -53,11 +47,6 @@ export async function POST(req: NextRequest) {
             transactionId: paymentData.id,
             webhookPayload: event,
           },
-        });
-
-        await prisma.order.updateMany({
-          where: { paymentId: payment.id },
-          data: { status: "PAID" },
         });
 
         // Handle Subscription upgrade if applicable
@@ -85,17 +74,12 @@ export async function POST(req: NextRequest) {
         const paymentData = payload.payment.entity;
         const orderId = paymentData.order_id;
 
-        const payment = await prisma.payment.update({
+        await prisma.payment.update({
           where: { razorpayOrderId: orderId },
           data: {
             paymentStatus: "FAILED",
             webhookPayload: event,
           },
-        });
-
-        await prisma.order.updateMany({
-          where: { paymentId: payment.id },
-          data: { status: "FAILED" },
         });
 
         // Notify user about failure could be added here

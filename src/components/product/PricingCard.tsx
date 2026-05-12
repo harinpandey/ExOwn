@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { MessageSquare, Tag, MapPin, Clock, ShieldCheck, BarChart2, Calendar, Sparkles, RefreshCw } from "lucide-react";
+import { MessageSquare, Tag, MapPin, Clock, Phone, ShieldCheck, BarChart2, Calendar, Sparkles, RefreshCw } from "lucide-react";
 import Link from "next/link";
+import { formatDistanceToNow } from "date-fns";
 import { useAuth } from "@/context/AuthContext";
 import { useCompare } from "@/context/CompareContext";
 import { useRouter } from "next/navigation";
-import toast from "react-hot-toast";
 
 import RentNowModal from "./RentNowModal";
 import RequestQuoteModal from "./RequestQuoteModal";
@@ -32,6 +32,8 @@ export default function PricingCard({ product }: PricingCardProps) {
   const isService = product.listingType === "SERVICE";
   
   const seller = product?.seller;
+  const isVerified = seller?.isVerified || false;
+
   const handleMakeOffer = async () => {
     if (!user) {
       router.push(`/login?redirect=/product/${product.id}`);
@@ -157,12 +159,7 @@ export default function PricingCard({ product }: PricingCardProps) {
           )}
           
           <button 
-            onClick={() => toggleCompare({
-              id: product.id,
-              title: product.title,
-              categoryId: product.categoryId,
-              subcategoryId: product.subcategoryId || undefined,
-            })}
+            onClick={() => toggleCompare(product.id)}
             className={`w-full py-4 rounded-2xl font-black text-xl transition-all flex items-center justify-center gap-3 border-4 ${
               isInCompare(product.id)
               ? 'bg-primary/10 border-primary text-primary'
