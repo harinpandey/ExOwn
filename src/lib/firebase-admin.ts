@@ -1,6 +1,12 @@
 import * as admin from 'firebase-admin';
 
-if (!admin.apps.length) {
+const hasAdminCredentials = Boolean(
+  process.env.FIREBASE_PROJECT_ID &&
+  process.env.FIREBASE_CLIENT_EMAIL &&
+  process.env.FIREBASE_PRIVATE_KEY
+);
+
+if (!admin.apps.length && hasAdminCredentials) {
   try {
     admin.initializeApp({
       credential: admin.credential.cert({
@@ -12,7 +18,9 @@ if (!admin.apps.length) {
   } catch (error) {
     console.error('Firebase admin initialization error', error);
   }
+} else if (!admin.apps.length && process.env.NODE_ENV !== 'production') {
+  console.warn('Firebase admin is not initialized because server credentials are missing.');
 }
 
-export const adminAuth = admin.auth();
-export const adminDb = admin.firestore();
+export const adminAuth = admin.apps.length ? admin.auth() : null;
+export const adminDb = admin.apps.length ? admin.firestore() : null;

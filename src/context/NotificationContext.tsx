@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useState, ReactNode } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { getUnreadCount, getUserNotifications, markAsRead } from "@/actions/notification";
 import { useFcm } from "@/hooks/useFcm";
@@ -22,7 +22,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(false);
   useFcm(); // Initialize FCM foreground listener
 
-  const refreshNotifications = async () => {
+  const refreshNotifications = useCallback(async () => {
     if (!user) return;
     setLoading(true);
     try {
@@ -39,7 +39,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
 
   const markRead = async (id: string) => {
     await markAsRead(id);
@@ -56,7 +56,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       const interval = setInterval(refreshNotifications, 60000);
       return () => clearInterval(interval);
     }
-  }, [user]);
+  }, [user, refreshNotifications]);
 
   return (
     <NotificationContext.Provider value={{ notifications, unreadCount, refreshNotifications, markRead, loading }}>

@@ -2,6 +2,7 @@
 
 import prisma, { withRetry } from "@/lib/prisma";
 import { logActivity } from "@/lib/logger";
+import { getCurrentUser, requireSameUser } from "@/lib/auth";
 
 export async function syncUser(data: {
   id: string;
@@ -10,6 +11,8 @@ export async function syncUser(data: {
   image: string | null;
 }) {
   try {
+    const currentUser = await requireSameUser(data.id);
+
     const user = await withRetry(() => prisma.user.upsert({
       where: { id: data.id },
       update: {
@@ -36,7 +39,7 @@ export async function syncUser(data: {
     }));
 
     await logActivity({
-      userId: data.id,
+      userId: currentUser.uid,
       actionType: "LOGIN",
       metadata: { method: "Firebase Auth" }
     });
@@ -48,9 +51,10 @@ export async function syncUser(data: {
   }
 }
 
-export async function getUserProfile(userId: string, requesterId?: string) {
+export async function getUserProfile(userId: string, _requesterId?: string) {
   try {
-    const isOwner = userId === requesterId;
+    const currentUser = await getCurrentUser();
+    const isOwner = currentUser?.uid === userId;
     
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -58,6 +62,7 @@ export async function getUserProfile(userId: string, requesterId?: string) {
         id: true,
         name: true,
         email: isOwner, // Only owner sees email
+        phone: isOwner,
         image: true,
         isVerified: true,
         isProfileCompleted: true,
@@ -104,6 +109,8 @@ export async function completeProfile(userId: string, data: {
   address?: string;
 }) {
   try {
+    await requireSameUser(userId);
+
     // Update user with private data
     await withRetry(() => prisma.user.update({
       where: { id: userId },
@@ -203,6 +210,8 @@ export async function getPublicProfile(userId: string) {
 
 export async function saveFcmToken(userId: string, token: string) {
   try {
+    await requireSameUser(userId);
+
     // Upsert or simple update if we had a dedicated FCM tokens table
     // For now, we can store it in metadata or log it
     // In a real production app, you'd have a UserDevice or FcmToken model
@@ -217,4 +226,3 @@ export async function saveFcmToken(userId: string, token: string) {
     return { success: false };
   }
 }
-

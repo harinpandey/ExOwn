@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, ChevronRight, HelpCircle, AlertCircle } from "lucide-react";
-import { CATEGORIES, Category, Subcategory, Attribute } from "@/config/categories";
+import { Check, HelpCircle } from "lucide-react";
+import { CATEGORIES, Attribute } from "@/config/categories";
 
 interface Props {
   categoryName: string;
@@ -20,7 +20,7 @@ export default function CategoryConditionForm({
   onComplete,
   onOtherTitleChange,
   initialDetails,
-  initialCondition 
+  initialCondition: _initialCondition 
 }: Props) {
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, any>>(initialDetails || {});

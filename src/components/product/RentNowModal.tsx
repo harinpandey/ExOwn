@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Calendar, MapPin, ShieldCheck, X } from "lucide-react";
+import { Calendar, ShieldCheck, X } from "lucide-react";
 import { requestRental } from "@/actions/rental";
 import { useAuth } from "@/context/AuthContext";
 import toast from "react-hot-toast";

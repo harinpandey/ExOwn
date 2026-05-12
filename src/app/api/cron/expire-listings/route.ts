@@ -10,6 +10,7 @@ export async function GET(req: NextRequest) {
     }
 
     const now = new Date();
+    const expiryCutoff = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
     
     // Find active products that have passed their expiry date
     // Note: We need to ensure 'expiresAt' exists in schema. If not yet added, this will need a migration.
@@ -19,9 +20,7 @@ export async function GET(req: NextRequest) {
     const expiredProducts = await prisma.product.findMany({
       where: {
         status: "LIVE",
-        // Adding a fallback check in case expiresAt isn't in DB yet
-        // OR(expiresAt < now, (createdAt + 30 days) < now if expiresAt is null)
-        expiresAt: { lt: now }
+        createdAt: { lt: expiryCutoff },
       },
       include: {
         seller: true

@@ -37,7 +37,7 @@ export async function updateTransactionStatus(recordId: string, userId: string, 
       return { success: false, error: "Unauthorized" };
     }
 
-    const updated = await prisma.transactionRecord.update({
+    await prisma.transactionRecord.update({
       where: { id: recordId },
       data: { status }
     });

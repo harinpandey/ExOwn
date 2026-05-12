@@ -4,6 +4,7 @@ import prisma, { withRetry } from "@/lib/prisma";
 import { razorpay } from "@/lib/razorpay";
 import { logActivity } from "@/lib/logger";
 import crypto from "crypto";
+import { requireSameUser } from "@/lib/auth";
 
 const PLAN_PRICES = {
   FREE: 0,
@@ -13,6 +14,8 @@ const PLAN_PRICES = {
 
 export async function createSubscriptionOrder(userId: string, planType: "PRO_SELLER" | "CAMPUS_BUSINESS") {
   try {
+    await requireSameUser(userId);
+
     const amount = PLAN_PRICES[planType];
     
     // 1. Create Razorpay Order
@@ -67,6 +70,8 @@ export async function verifySubscriptionPayment(userId: string, data: {
   razorpay_signature: string;
 }) {
   try {
+    await requireSameUser(userId);
+
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = data;
 
     // 1. Verify Signature
@@ -131,6 +136,8 @@ export async function verifySubscriptionPayment(userId: string, data: {
 
 export async function getSubscription(userId: string) {
   try {
+    await requireSameUser(userId);
+
     return await withRetry(() => prisma.subscription.findUnique({
       where: { userId }
     }));

@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, ChevronDown, Plus, Check, Loader2 } from "lucide-react";
-import { getCountries, getStates, getCities, getCampuses, requestCampusAddition } from "@/actions/location";
+import { ChevronDown, Plus } from "lucide-react";
+import { getCountries, getStates, getCities, getCampuses } from "@/actions/location";
 
 interface Props {
   onSelect: (campusId: string) => void;

@@ -41,10 +41,6 @@ export default function SearchSidebar({
     router.push(`/search?${params.toString()}`);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    e.currentTarget.form?.requestSubmit();
-  };
-
   return (
     <aside className="w-full md:w-64 flex-shrink-0">
       <form onChange={handleUpdate} onSubmit={(e) => e.preventDefault()}>

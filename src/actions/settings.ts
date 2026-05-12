@@ -2,6 +2,7 @@
 
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { requireSameUser } from "@/lib/auth";
 
 export async function updateProfile(userId: string, data: {
   name?: string;
@@ -12,6 +13,8 @@ export async function updateProfile(userId: string, data: {
   hostel?: string;
 }) {
   try {
+    await requireSameUser(userId);
+
     // 1. Update User table (name, image, phone)
     if (data.name || data.image || data.phone) {
       await prisma.user.update({

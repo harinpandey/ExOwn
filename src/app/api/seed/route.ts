@@ -37,6 +37,27 @@ export async function GET() {
       }
     });
 
+    const country = await prisma.country.upsert({
+      where: { slug: "india" },
+      update: {},
+      create: { name: "India", slug: "india" },
+    });
+    const state = await prisma.state.upsert({
+      where: { name_countryId: { name: "Punjab", countryId: country.id } },
+      update: {},
+      create: { name: "Punjab", slug: "punjab", countryId: country.id },
+    });
+    const city = await prisma.city.upsert({
+      where: { name_stateId: { name: "Phagwara", stateId: state.id } },
+      update: {},
+      create: { name: "Phagwara", slug: "phagwara", stateId: state.id },
+    });
+    const campus = await prisma.campus.upsert({
+      where: { name_cityId: { name: "LPU Campus", cityId: city.id } },
+      update: {},
+      create: { name: "LPU Campus", slug: "lpu-campus", cityId: city.id },
+    });
+
     // 2. Seed Categories (Safe for dev)
     const categoriesData = [
       { name: "Books", slug: "books", icon: "book-open" },
@@ -92,6 +113,7 @@ export async function GET() {
             sellerId: seller.id,
             categoryId: electronicsCat.id,
             subcategoryId: fanSub.id,
+            campusId: campus.id,
           }
         });
       }

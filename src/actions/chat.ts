@@ -1,10 +1,13 @@
 "use server";
 
 import prisma, { withRetry } from "@/lib/prisma";
+import { requireSameUser } from "@/lib/auth";
 
 
 export async function getConversations(userId: string) {
   try {
+    await requireSameUser(userId);
+
     const messages = await withRetry(() => prisma.message.findMany({
       where: {
         OR: [
@@ -51,6 +54,8 @@ export async function getConversations(userId: string) {
 
 export async function getChatHistory(userId: string, partnerId: string) {
   try {
+    await requireSameUser(userId);
+
     const messages = await withRetry(() => prisma.message.findMany({
       where: {
         OR: [
@@ -85,6 +90,12 @@ export async function getChatHistory(userId: string, partnerId: string) {
 
 export async function sendMessage(senderId: string, receiverId: string, content: string) {
   try {
+    await requireSameUser(senderId);
+
+    if (!content.trim()) {
+      return { success: false, error: "Message cannot be empty" };
+    }
+
     const message = await withRetry(() => prisma.message.create({
       data: {
         senderId,
@@ -119,13 +130,15 @@ export async function sendMessage(senderId: string, receiverId: string, content:
 }
 export async function getTotalUnreadCount(userId: string) {
   try {
+    await requireSameUser(userId);
+
     return await prisma.message.count({
       where: {
         receiverId: userId,
         isRead: false
       }
     });
-  } catch (error) {
+  } catch {
     return 0;
   }
 }

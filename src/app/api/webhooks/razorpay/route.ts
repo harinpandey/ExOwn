@@ -2,12 +2,24 @@ import { NextResponse } from "next/server";
 import crypto from "crypto";
 import prisma, { withRetry } from "@/lib/prisma";
 import { logEvent } from "@/lib/server-logger";
+import { enforceRateLimit } from "@/lib/rate-limit";
 
 export async function POST(req: Request) {
+  const limited = await enforceRateLimit(req, {
+    namespace: "payments:webhook",
+    limit: 20,
+    windowSeconds: 60,
+  });
+  if (limited) return limited;
+
   try {
     const body = await req.text();
     const signature = req.headers.get("x-razorpay-signature");
     const secret = process.env.RAZORPAY_WEBHOOK_SECRET || "";
+
+    if (!secret) {
+      return NextResponse.json({ error: "Webhook secret is not configured" }, { status: 500 });
+    }
 
     if (!signature) {
       return NextResponse.json({ error: "Missing signature" }, { status: 400 });
@@ -78,6 +90,11 @@ async function handlePaymentCaptured(payment: any) {
       where: { paymentId: orderId },
       data: { status: "ACTIVE" }
     });
+
+    await tx.order.updateMany({
+      where: { paymentId: dbPayment.id },
+      data: { status: "PAID" },
+    });
     
     logEvent("RAZORPAY_WEBHOOK_SUCCESS", `Order ${orderId} successfully processed.`);
   }));
@@ -85,16 +102,30 @@ async function handlePaymentCaptured(payment: any) {
 
 async function handlePaymentFailed(payment: any) {
   const orderId = payment.order_id;
-  await withRetry(() => prisma.payment.update({
-    where: { razorpayOrderId: orderId },
-    data: { paymentStatus: "FAILED", webhookPayload: payment }
-  }));
+  await withRetry(async () => {
+    const dbPayment = await prisma.payment.update({
+      where: { razorpayOrderId: orderId },
+      data: { paymentStatus: "FAILED", webhookPayload: payment }
+    });
+
+    await prisma.order.updateMany({
+      where: { paymentId: dbPayment.id },
+      data: { status: "FAILED" },
+    });
+  });
 }
 
 async function handleRefundProcessed(refund: any) {
   const paymentId = refund.payment_id;
-  await withRetry(() => prisma.payment.update({
-    where: { transactionId: paymentId },
-    data: { paymentStatus: "REFUNDED", webhookPayload: refund }
-  }));
+  await withRetry(async () => {
+    const dbPayment = await prisma.payment.update({
+      where: { transactionId: paymentId },
+      data: { paymentStatus: "REFUNDED", webhookPayload: refund }
+    });
+
+    await prisma.order.updateMany({
+      where: { paymentId: dbPayment.id },
+      data: { status: "REFUNDED" },
+    });
+  });
 }

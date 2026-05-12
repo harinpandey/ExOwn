@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { ShoppingBag } from "lucide-react";
 
 export default function Footer() {
   return (

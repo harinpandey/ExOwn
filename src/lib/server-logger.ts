@@ -1,5 +1,3 @@
-import prisma from "./prisma";
-
 export async function logEvent(type: string, message: string, metadata?: any) {
   const timestamp = new Date().toISOString();
   const logMessage = `[${timestamp}] [${type}] ${message}`;

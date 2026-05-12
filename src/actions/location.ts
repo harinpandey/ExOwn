@@ -49,7 +49,7 @@ export async function getCampuses(cityId: string) {
   }
 }
 
-export async function requestCampusAddition(data: {
+export async function requestCampusAddition(_data: {
   country: string;
   state: string;
   city: string;

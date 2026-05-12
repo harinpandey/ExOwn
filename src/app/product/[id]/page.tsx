@@ -1,12 +1,10 @@
 import Link from "next/link";
-import { ArrowLeft, MessageSquare, Tag, MapPin, Clock, ShieldCheck, Share2, Heart } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 import ReportButton from "@/components/ui/ReportButton";
-import { formatDistanceToNow } from "date-fns";
 import { getProductById } from "@/actions/product";
 import { notFound } from "next/navigation";
 import PricingCard from "@/components/product/PricingCard";
 import SmartBuyAssistant from "@/components/ai/SmartBuyAssistant";
-import WishlistButton from "@/components/product/WishlistButton";
 import ActivityTracker from "@/components/product/ActivityTracker";
 import ImageGallery from "@/components/product/ImageGallery";
 import SellerCard from "@/components/product/SellerCard";
@@ -29,13 +27,6 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
   const similarProducts = await getTrendingProducts(); // Placeholder for category-specific similar products
 
   const seller = product?.seller;
-  const sellerName = seller?.name || "New Seller";
-  const sellerJoined = seller?.createdAt || new Date();
-  const sellerRating = seller?.profile?.rating ?? 0;
-  const sellerDeals = seller?.profile?.successfulDeals ?? 0;
-  const sellerCourse = seller?.profile?.course ?? "";
-  const sellerBatch = seller?.profile?.batch ?? "";
-
   return (
     <div className="container mx-auto px-4 py-12 max-w-7xl">
       <ActivityTracker productId={product.id} />

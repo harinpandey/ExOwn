@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma";
 import { format } from "date-fns";
-import { CreditCard, ArrowLeft, Search, Download } from "lucide-react";
+import { ArrowLeft, Search, Download } from "lucide-react";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";

@@ -1,7 +1,5 @@
 import { getVerifiedSellersProducts } from "@/actions/product";
 import ProductCard from "@/components/ui/ProductCard";
-import { ShieldCheck } from "lucide-react";
-import Link from "next/link";
 
 export default async function VerifiedSellers() {
   const verifiedProducts = await getVerifiedSellersProducts();

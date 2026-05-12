@@ -1,9 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, ShieldCheck, Zap, Star, Package } from "lucide-react";
-import CategoryCard from "@/components/ui/CategoryCard";
-import ProductCard from "@/components/ui/ProductCard";
 import { CATEGORIES } from "@/lib/constants";
-import { getTrendingProducts, getRecentlyAdded, getPopularRentals, getVerifiedSellersProducts } from "@/actions/product";
 import HeroBanner from "@/components/home/HeroBanner";
 import MarketplaceSwitcher from "@/components/home/MarketplaceSwitcher";
 import { Suspense } from "react";

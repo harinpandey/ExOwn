@@ -3,8 +3,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { format } from "date-fns";
-import { CreditCard, Download, ExternalLink } from "lucide-react";
-import prisma from "@/lib/prisma";
+import { CreditCard, Download } from "lucide-react";
 
 export default function BillingHistory() {
   const { user } = useAuth();

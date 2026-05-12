@@ -34,7 +34,7 @@ export const chatService = {
    * Future-proof hook for real-time updates.
    * For now, this just returns a cleanup function doing nothing.
    */
-  subscribeToMessages(userId: string, partnerId: string, callback: (message: any) => void) {
+  subscribeToMessages(_userId: string, _partnerId: string, _callback: (message: any) => void) {
     // Real-time subscriptions placeholder
     return () => {};
   }

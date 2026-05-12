@@ -40,7 +40,7 @@ export default function AiRulesPage() {
       });
       setNewRule({ name: "", logic: "" });
       fetchRules();
-    } catch (err) {
+    } catch {
       alert("Failed to create rule");
     } finally {
       setIsSubmitting(false);

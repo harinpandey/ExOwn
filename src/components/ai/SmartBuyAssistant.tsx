@@ -8,11 +8,7 @@ import {
   ChevronUp, 
   AlertCircle, 
   CheckCircle2, 
-  HelpCircle,
-  TrendingUp,
-  Shield,
-  Clock,
-  CircleDollarSign
+  HelpCircle
 } from "lucide-react";
 
 interface AiResult {

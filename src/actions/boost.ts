@@ -3,6 +3,7 @@
 import prisma, { withRetry } from "@/lib/prisma";
 import { razorpay } from "@/lib/razorpay";
 import crypto from "crypto";
+import { requireSameUser } from "@/lib/auth";
 
 const BOOST_PRICES = {
   THREE_DAY: 99,
@@ -18,6 +19,16 @@ const BOOST_DURATIONS = {
 
 export async function createBoostOrder(productId: string, sellerId: string, boostType: "THREE_DAY" | "SEVEN_DAY" | "THIRTY_DAY") {
   try {
+    await requireSameUser(sellerId);
+
+    const product = await prisma.product.findUnique({
+      where: { id: productId },
+      select: { sellerId: true },
+    });
+    if (!product || product.sellerId !== sellerId) {
+      throw new Error("Unauthorized");
+    }
+
     const amount = BOOST_PRICES[boostType];
     
     // 1. Create Razorpay Order

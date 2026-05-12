@@ -54,7 +54,7 @@ function LoginContent() {
       // If user already exists, ensure loading is false
       setIsLoading(false);
     }
-  }, [user, auth, redirect, router]);
+  }, [user, redirect, router]);
 
   // If already logged in, redirect away
   useEffect(() => {

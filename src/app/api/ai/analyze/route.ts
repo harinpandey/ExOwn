@@ -1,12 +1,20 @@
 import { EXOWN_AI_PROMPT } from "@/lib/exown-ai-prompt";
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { enforceRateLimit } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`;
 
 export async function POST(req: Request) {
+  const limited = await enforceRateLimit(req, {
+    namespace: "ai",
+    limit: 30,
+    windowSeconds: 60,
+  });
+  if (limited) return limited;
+
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
 
@@ -19,7 +27,7 @@ export async function POST(req: Request) {
     }
 
     // Fetch Admin Rules from DB with timeout
-    let adminRules = [];
+    let adminRules: Array<{ name: string; rule: unknown }> = [];
     try {
       adminRules = await prisma.aiRule.findMany({
         where: { isActive: true },
@@ -77,7 +85,7 @@ export async function POST(req: Request) {
     try {
       const aiResult = JSON.parse(data.candidates[0].content.parts[0].text);
       return NextResponse.json(aiResult);
-    } catch (parseError) {
+    } catch {
       console.error("AI Error: JSON Parse Failed", data.candidates[0].content.parts[0].text);
       return NextResponse.json(getFallbackResponse("Parse failure"));
     }

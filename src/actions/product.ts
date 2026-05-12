@@ -2,14 +2,17 @@
 
 import prisma, { withRetry } from "@/lib/prisma";
 import { logActivity } from "@/lib/logger";
+import { getCurrentUser, requireSameUser } from "@/lib/auth";
+import { getCached, invalidateCachePrefix } from "@/lib/cache";
 
 export async function getTrendingProducts() {
   try {
     if (!process.env.DATABASE_URL) return [];
 
-    const products = await withRetry(() => prisma.product.findMany({
+    const products = await getCached("home:trending-products", 45, () => withRetry(() => prisma.product.findMany({
       where: {
         status: "LIVE",
+        inventory: { gt: 0 },
       },
       orderBy: {
         createdAt: "desc",
@@ -20,13 +23,14 @@ export async function getTrendingProducts() {
           select: {
             name: true,
             image: true,
+            isVerified: true,
             verificationLevel: true,
             isTrustedSeller: true,
             trustScore: true,
           }
         }
       }
-    }));
+    })));
 
     return products;
   } catch (error) {
@@ -37,11 +41,11 @@ export async function getTrendingProducts() {
 
 export async function getCategories() {
   try {
-    const categories = await withRetry(() => prisma.category.findMany({
+    const categories = await getCached("home:categories", 300, () => withRetry(() => prisma.category.findMany({
       orderBy: {
         name: "asc",
       }
-    }));
+    })));
     return categories;
   } catch (error) {
     console.error("[Action:getCategories] Error:", error);
@@ -72,29 +76,51 @@ export async function searchProducts(opts: {
   maxPrice?: number;
   sortBy?: string;
   campusId?: string;
+  page?: number;
+  pageSize?: number;
 }) {
   try {
     const { query, categorySlug, condition, listingType, minPrice, maxPrice, sortBy, campusId } = opts;
+    const page = Math.max(1, opts.page || 1);
+    const pageSize = Math.min(Math.max(opts.pageSize || 24, 1), 50);
+    const andFilters: any[] = [];
 
-    const products = await withRetry(() => prisma.product.findMany({
+    if (query) {
+      andFilters.push({
+        OR: [
+          { title: { contains: query, mode: "insensitive" } },
+          { description: { contains: query, mode: "insensitive" } },
+          { category: { name: { contains: query, mode: "insensitive" } } },
+          { brand: { contains: query, mode: "insensitive" } },
+        ],
+      });
+    }
+
+    if (categorySlug) {
+      andFilters.push({
+        OR: [
+          { categoryId: categorySlug },
+          { category: { slug: categorySlug } },
+        ],
+      });
+    }
+
+    const priceFilter: Record<string, number> = {};
+    if (minPrice !== undefined) priceFilter.gte = minPrice;
+    if (maxPrice !== undefined) priceFilter.lte = maxPrice;
+    if (Object.keys(priceFilter).length > 0) {
+      andFilters.push({ price: priceFilter });
+    }
+
+    const cacheKey = `search:${JSON.stringify({ query, categorySlug, condition, listingType, minPrice, maxPrice, sortBy, campusId, page, pageSize })}`;
+    const products = await getCached(cacheKey, 30, () => withRetry(() => prisma.product.findMany({
       where: {
         status: "LIVE",
-        ...(query && {
-          OR: [
-            { title: { contains: query, mode: "insensitive" } },
-            { description: { contains: query, mode: "insensitive" } },
-            { category: { name: { contains: query, mode: "insensitive" } } },
-            { brand: { contains: query, mode: "insensitive" } },
-          ],
-        }),
-        ...(categorySlug && {
-          category: { slug: categorySlug },
-        }),
+        inventory: { gt: 0 },
         ...(campusId && { campusId }),
         ...(condition && { condition: condition as any }),
         ...(listingType && { listingType }),
-        ...(minPrice !== undefined && { price: { gte: minPrice } }),
-        ...(maxPrice !== undefined && { price: { lte: maxPrice } }),
+        ...(andFilters.length > 0 && { AND: andFilters }),
       },
       orderBy: [
         ...(campusId ? [{ campusId: "asc" as const }] : []), // Simple prioritization (database specific)
@@ -104,11 +130,26 @@ export async function searchProducts(opts: {
           ? { price: "desc" as const }
           : { createdAt: "desc" as const }
       ],
-      include: {
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+      select: {
+        id: true,
+        title: true,
+        price: true,
+        images: true,
+        pickupLocation: true,
+        createdAt: true,
+        isUrgent: true,
+        listingType: true,
+        condition: true,
+        categoryId: true,
+        subcategoryId: true,
+        sellerId: true,
         seller: {
           select: { 
             name: true, 
             image: true, 
+            isVerified: true,
             verificationLevel: true,
             isTrustedSeller: true,
             trustScore: true,
@@ -117,7 +158,7 @@ export async function searchProducts(opts: {
         },
         category: { select: { name: true, slug: true } },
       },
-    }));
+    })));
 
     return products;
   } catch (error) {
@@ -128,14 +169,14 @@ export async function searchProducts(opts: {
 
 export async function getRecentlyAdded() {
   try {
-    return await withRetry(() => prisma.product.findMany({
-      where: { status: "LIVE" },
+    return await getCached("home:recently-added", 45, () => withRetry(() => prisma.product.findMany({
+      where: { status: "LIVE", inventory: { gt: 0 } },
       take: 8,
       orderBy: { createdAt: "desc" },
       include: {
         seller: { select: { name: true, isVerified: true, image: true } }
       }
-    }));
+    })));
   } catch (error) {
     console.error("[Action:getRecentlyAdded] Error:", error);
     return [];
@@ -145,9 +186,10 @@ export async function getRecentlyAdded() {
 
 export async function getPopularRentals() {
   try {
-    return await withRetry(() => prisma.product.findMany({
+    return await getCached("home:popular-rentals", 45, () => withRetry(() => prisma.product.findMany({
       where: { 
         status: "LIVE",
+        inventory: { gt: 0 },
         listingType: "RENT"
       },
       take: 8,
@@ -155,7 +197,7 @@ export async function getPopularRentals() {
       include: {
         seller: { select: { name: true, isVerified: true, image: true } }
       }
-    }));
+    })));
   } catch (error) {
     console.error("[Action:getPopularRentals] Error:", error);
     return [];
@@ -165,9 +207,10 @@ export async function getPopularRentals() {
 
 export async function getVerifiedSellersProducts() {
   try {
-    return await withRetry(() => prisma.product.findMany({
+    return await getCached("home:verified-sellers-products", 45, () => withRetry(() => prisma.product.findMany({
       where: { 
         status: "LIVE",
+        inventory: { gt: 0 },
         seller: { isVerified: true }
       },
       take: 8,
@@ -175,7 +218,7 @@ export async function getVerifiedSellersProducts() {
       include: {
         seller: { select: { name: true, isVerified: true, image: true } }
       }
-    }));
+    })));
   } catch (error) {
     console.error("[Action:getVerifiedSellersProducts] Error:", error);
     return [];
@@ -194,14 +237,20 @@ export async function getProductById(id: string) {
             name: true,
             image: true,
             isVerified: true,
+            verificationLevel: true,
+            isTrustedSeller: true,
+            trustScore: true,
             createdAt: true,
             profile: {
               select: {
                 collegeName: true,
                 course: true,
+                batch: true,
                 year: true,
                 rating: true,
                 successfulDeals: true,
+                successRate: true,
+                avgResponseTime: true,
                 bio: true,
               }
             }
@@ -224,9 +273,13 @@ export async function getProductById(id: string) {
 
 export async function getUserListings(userId: string) {
   try {
+    const currentUser = await getCurrentUser();
+    const isOwner = currentUser?.uid === userId;
+
     return await withRetry(() => prisma.product.findMany({
       where: {
         sellerId: userId,
+        ...(isOwner ? {} : { status: "LIVE" as const }),
       },
       orderBy: {
         createdAt: "desc",
@@ -256,7 +309,8 @@ export async function createProduct(data: {
   brand?: string;
   purchaseYear?: number;
   condition: string;
-  listingType?: "SELL" | "RENT";
+  listingType?: "SELL" | "RENT" | "SERVICE";
+  inventory?: number;
   categoryId: string;
   subcategoryId?: string | null;
   customSubcategory?: string | null;
@@ -267,8 +321,13 @@ export async function createProduct(data: {
   isNegotiable: boolean;
   isUrgent: boolean;
   conditionDetails?: any;
+  isExchangeAllowed?: boolean;
+  exchangeCategories?: string[];
+  exchangeCashAllowed?: boolean;
 }) {
   try {
+    await requireSameUser(data.sellerId);
+
     // 1. Fraud Check: Duplicate Listing
     const existing = await prisma.product.findFirst({
       where: {
@@ -304,6 +363,7 @@ export async function createProduct(data: {
         condition: data.condition as any,
         conditionDetails: data.conditionDetails,
         listingType: data.listingType || "SELL",
+        inventory: data.inventory || 1,
         categoryId: data.categoryId,
         subcategoryId: data.subcategoryId,
         customSubcategory: data.customSubcategory,
@@ -313,6 +373,9 @@ export async function createProduct(data: {
         pickupLocation: data.location,
         isNegotiable: data.isNegotiable,
         isUrgent: data.isUrgent,
+        isExchangeAllowed: data.isExchangeAllowed || false,
+        exchangeCategories: data.exchangeCategories || [],
+        exchangeCashAllowed: data.exchangeCashAllowed || false,
         status: "LIVE", // New listings go live immediately for now
       }
     }));
@@ -324,6 +387,10 @@ export async function createProduct(data: {
       metadata: { title: product.title, price: product.price }
     });
 
+    invalidateCachePrefix("products:");
+    invalidateCachePrefix("search:");
+    invalidateCachePrefix("home:");
+
     return { success: true, productId: product.id };
   } catch (error: any) {
     console.error("Error creating product:", error);
@@ -333,6 +400,8 @@ export async function createProduct(data: {
 
 export async function updateProduct(productId: string, userId: string, data: Partial<any>) {
   try {
+    await requireSameUser(userId);
+
     // 1. Verify Ownership
     const product = await prisma.product.findUnique({
       where: { id: productId },
@@ -363,6 +432,10 @@ export async function updateProduct(productId: string, userId: string, data: Par
       metadata: { changes: Object.keys(data) }
     });
 
+    invalidateCachePrefix("products:");
+    invalidateCachePrefix("search:");
+    invalidateCachePrefix("home:");
+
     // 3. Trigger Notification if price dropped
     if (data.price && data.price < product.price) {
       try {
@@ -376,7 +449,7 @@ export async function updateProduct(productId: string, userId: string, data: Par
           for (const item of wishlistedUsers) {
             await createNotification({
               userId: item.userId,
-              type: "PRICE_CHANGE",
+              type: "SYSTEM",
               title: "Price Drop Alert! 📉",
               content: `Price dropped for "${product.title}"! Now ₹${data.price.toLocaleString('en-IN')} (was ₹${product.price.toLocaleString('en-IN')})`,
               link: `/product/${productId}`
@@ -397,6 +470,8 @@ export async function updateProduct(productId: string, userId: string, data: Par
 
 export async function archiveProduct(productId: string, userId: string) {
   try {
+    await requireSameUser(userId);
+
     // 1. Verify Ownership
     const product = await prisma.product.findUnique({
       where: { id: productId },
@@ -422,6 +497,10 @@ export async function archiveProduct(productId: string, userId: string) {
       actionType: "PRODUCT_ARCHIVED",
       productId: productId
     });
+
+    invalidateCachePrefix("products:");
+    invalidateCachePrefix("search:");
+    invalidateCachePrefix("home:");
 
     return { success: true };
   } catch (error: any) {
@@ -472,6 +551,8 @@ export async function incrementProductViews(id: string) {
 }
 export async function markProductAsSold(productId: string, userId: string) {
   try {
+    await requireSameUser(userId);
+
     // 1. Verify Ownership
     const product = await prisma.product.findUnique({
       where: { id: productId },
@@ -493,6 +574,10 @@ export async function markProductAsSold(productId: string, userId: string) {
       actionType: "PRODUCT_MARKED_SOLD",
       productId: productId
     });
+
+    invalidateCachePrefix("products:");
+    invalidateCachePrefix("search:");
+    invalidateCachePrefix("home:");
 
     // 3. Notify Wishlisted Users
     try {

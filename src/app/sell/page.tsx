@@ -1,13 +1,12 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { 
-  Upload, X, Check, ArrowRight, Search, ChevronLeft, 
+  Upload, X, Check, ArrowRight, ChevronLeft, 
   LayoutGrid, MapPin, Tag, Image as ImageIcon, Rocket, 
-  Sparkles, Info, ShieldCheck, AlertCircle, Trash2,
-  ChevronRight
+  Sparkles, Info, ShieldCheck, Trash2
 } from "lucide-react";
 import CategoryConditionForm from "@/components/forms/CategoryConditionForm";
 import CampusSelector from "@/components/ui/CampusSelector";
@@ -767,7 +766,7 @@ export default function SellPage() {
                <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 p-8 shadow-xl">
                  <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Ad Preview</h4>
                  <div className="aspect-[4/5] rounded-3xl overflow-hidden mb-4 bg-gray-50 dark:bg-gray-800">
-                    <img src={imageUrls[0]} className="w-full h-full object-cover" />
+                    <img src={imageUrls[0]} alt={title || "Listing preview"} className="w-full h-full object-cover" />
                  </div>
                  <p className="font-black text-xl tracking-tight line-clamp-1 truncate">{title || "Listing Title"}</p>
                  <p className="text-3xl font-black text-primary mt-1">₹{price || "0"}</p>

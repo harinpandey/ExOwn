@@ -1,6 +1,6 @@
 import { getAdminListings, updateProductStatus } from "@/actions/admin";
 import { format } from "date-fns";
-import { Package, Search, CheckCircle, XCircle, AlertTriangle, Archive, ExternalLink, User } from "lucide-react";
+import { Package, CheckCircle, XCircle, Archive, ExternalLink, User } from "lucide-react";
 import Link from "next/link";
 import { revalidatePath } from "next/cache";
 

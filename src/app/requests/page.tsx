@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, MessageSquare, Tag, Search, Filter, AlertCircle } from "lucide-react";
+import { Plus, MessageSquare, Search, AlertCircle } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { getBuyingRequests, createBuyingRequest } from "@/actions/requests";
 import { formatDistanceToNow } from "date-fns";
