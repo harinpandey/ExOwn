@@ -2,11 +2,9 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { Heart, MapPin, Clock, ShieldCheck, Tag, BarChart2, Eye, Sparkles, X, CheckCircle2 } from "lucide-react";
+import { Heart, MapPin, ShieldCheck, Sparkles, Tag, CheckCircle2, Trash2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
-import { useCompare } from "@/context/CompareContext";
 import { useAuth } from "@/context/AuthContext";
-import { motion, AnimatePresence } from "framer-motion";
 
 export interface ProductCardProps {
   id: string;
@@ -31,10 +29,11 @@ export interface ProductCardProps {
 }
 
 export default function ProductCard({ 
-  id, title, price, image, location, createdAt, isUrgent, listingType, condition, categoryId, subcategoryId, sellerId, seller, isWishlisted = false
+  id, title, price, image, location, createdAt, isUrgent, listingType, condition, categoryId: _categoryId, subcategoryId: _subcategoryId, sellerId, seller, isWishlisted = false
 }: ProductCardProps) {
   const { user } = useAuth();
   const [wishlisted, setWishlisted] = useState(isWishlisted);
+  const [isMutating, setIsMutating] = useState(false);
   
   useEffect(() => {
     if (user && !isWishlisted) {
@@ -44,211 +43,196 @@ export default function ProductCard({
     }
   }, [user, id, isWishlisted]);
 
-  const { toggleCompare, isInCompare } = useCompare();
-  const selected = isInCompare(id);
+  const handleWishlistToggle = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!user) {
+      import("react-hot-toast").then(({ toast }) => toast.error("Please login to save items"));
+      return;
+    }
+    const previousState = wishlisted;
+    setWishlisted(!wishlisted);
+    try {
+      const { toggleWishlist } = await import("@/actions/wishlist");
+      const res = await toggleWishlist(user.uid, id);
+      if (res.success) {
+        import("react-hot-toast").then(({ toast }) => 
+          toast.success(res.added ? "Added to wishlist" : "Removed from wishlist")
+        );
+      } else {
+        setWishlisted(previousState);
+        import("react-hot-toast").then(({ toast }) => toast.error(res.error || "Failed to update wishlist"));
+      }
+    } catch {
+      setWishlisted(previousState);
+    }
+  };
+
+  const handleMarkSold = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!user || isMutating) return;
+    if (confirm("Mark this item as sold?")) {
+      setIsMutating(true);
+      const { markProductAsSold } = await import("@/actions/product");
+      const res = await markProductAsSold(id, user.uid);
+      if (res.success) {
+        import("react-hot-toast").then(({ toast }) => toast.success("Marked as sold"));
+        window.location.reload();
+      } else {
+        import("react-hot-toast").then(({ toast }) => toast.error(res.error || "Failed to mark as sold"));
+        setIsMutating(false);
+      }
+    }
+  };
+
+  const handleArchive = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!user || isMutating) return;
+    if (confirm("Archive this listing? It will no longer be visible to others.")) {
+      setIsMutating(true);
+      const { archiveProduct } = await import("@/actions/product");
+      const res = await archiveProduct(id, user.uid);
+      if (res.success) {
+        import("react-hot-toast").then(({ toast }) => toast.success("Listing archived"));
+        window.location.reload();
+      } else {
+        import("react-hot-toast").then(({ toast }) => toast.error(res.error || "Failed to archive"));
+        setIsMutating(false);
+      }
+    }
+  };
+
+  // Determine single best trust badge
+  const renderTrustBadge = () => {
+    if (seller?.isTrustedSeller) {
+      return (
+        <span className="flex items-center gap-1 text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
+          <Sparkles size={12} /> Trusted
+        </span>
+      );
+    }
+    if (seller?.verificationLevel === "CAMPUS") {
+      return (
+        <span className="flex items-center gap-1 text-[10px] font-bold text-blue-600 dark:text-blue-400">
+          <ShieldCheck size={12} /> Campus Verified
+        </span>
+      );
+    }
+    if (seller?.verificationLevel === "BUSINESS") {
+      return (
+        <span className="flex items-center gap-1 text-[10px] font-bold text-purple-600 dark:text-purple-400">
+          <ShieldCheck size={12} /> Business Verified
+        </span>
+      );
+    }
+    return null;
+  };
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -5 }}
-      className={`group relative flex flex-col bg-white dark:bg-gray-900 rounded-3xl border ${selected ? 'border-primary ring-2 ring-primary/20' : 'border-gray-100 dark:border-gray-800'} overflow-hidden hover:shadow-2xl transition-all duration-500`}
-    >
-      {/* Image Container */}
-      <div className="relative aspect-[4/5] w-full overflow-hidden bg-gray-50 dark:bg-gray-950">
+    <div className="group relative flex flex-col bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 overflow-hidden hover:shadow-lg transition-all duration-300">
+      
+      {/* Aspect Ratio 4:3 Image Container */}
+      <div className="relative aspect-[4/3] w-full overflow-hidden bg-gray-50 dark:bg-gray-950">
         <img 
-          src={image} 
+          src={image || "/placeholder-product.png"} 
           alt={title} 
-          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+          loading="lazy"
+          className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
         />
         
-        {/* Overlay Badges */}
-        <div className="absolute top-4 left-4 flex flex-col gap-2 z-20">
+        {/* Overlay badges (minimal) */}
+        <div className="absolute top-2.5 left-2.5 flex flex-col gap-1 z-20">
           {isUrgent && (
-            <span className="bg-red-500 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-lg backdrop-blur-sm">
-              URGENT
+            <span className="bg-red-500 text-white text-[9px] font-extrabold px-2 py-0.5 rounded-full shadow-sm">
+              Urgent
             </span>
           )}
           {condition && (
-            <span className="bg-white/90 text-gray-800 text-[10px] font-black px-3 py-1 rounded-full shadow-lg backdrop-blur-sm border border-gray-100">
+            <span className="bg-white/90 dark:bg-gray-900/90 text-gray-800 dark:text-gray-200 text-[9px] font-extrabold px-2 py-0.5 rounded-full border border-gray-100 dark:border-gray-800 shadow-sm">
               {condition}
             </span>
           )}
         </div>
 
-        {/* AI Badge - ONLY ON HOVER */}
-        <AnimatePresence>
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.8 }}
-            whileHover={{ opacity: 1, scale: 1 }}
-            className="absolute top-4 right-4 z-20 opacity-0 group-hover:opacity-100 transition-opacity"
-          >
-            <span className="bg-emerald-500 text-white text-[10px] font-black px-3 py-1.5 rounded-full shadow-xl flex items-center gap-1.5 border border-emerald-400">
-              <Sparkles size={12} /> AI RECOMMENDED
-            </span>
-          </motion.div>
-        </AnimatePresence>
+        {/* Wishlist Heart Icon (Top-Right, Always Visible) */}
+        <button 
+          onClick={handleWishlistToggle}
+          className="absolute top-2.5 right-2.5 p-2 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md text-gray-700 dark:text-gray-300 rounded-full hover:scale-105 transition-transform shadow-sm z-35"
+          aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
+        >
+          <Heart size={16} fill={wishlisted ? "#ef4444" : "none"} className={wishlisted ? "text-red-500" : ""} />
+        </button>
 
-        {/* Hover Quick Actions */}
-        <div className="absolute inset-0 bg-black/20 dark:bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 z-30">
-          <Link 
-            href={`/product/${id}`}
-            className="p-3 bg-white text-gray-800 rounded-2xl hover:bg-primary hover:text-white transition-all transform hover:scale-110 shadow-xl"
-            title="Quick View"
-          >
-            <Eye size={20} />
-          </Link>
-          <button 
-            onClick={(e) => { 
-              e.preventDefault(); 
-              e.stopPropagation(); 
-              toggleCompare({ id, title, categoryId, subcategoryId }); 
-            }}
-            className={`p-3 rounded-2xl transition-all transform hover:scale-110 shadow-xl ${selected ? 'bg-primary text-white' : 'bg-white text-gray-800 hover:bg-primary hover:text-white'}`}
-            title="Compare"
-          >
-            <BarChart2 size={20} />
-          </button>
-          <button 
-            onClick={async (e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              if (!user) {
-                import("react-hot-toast").then(({ toast }) => toast.error("Please login to save items"));
-                return;
-              }
-              setWishlisted(!wishlisted);
-              const { toggleWishlist } = await import("@/actions/wishlist");
-              const res = await toggleWishlist(user.uid, id);
-              if (res.success) {
-                import("react-hot-toast").then(({ toast }) => toast.success(res.added ? "Added to wishlist" : "Removed from wishlist"));
-              } else {
-                setWishlisted(wishlisted); // Rollback
-                import("react-hot-toast").then(({ toast }) => toast.error(res.error || "Failed to update wishlist"));
-              }
-            }}
-            className={`p-3 rounded-2xl transition-all transform hover:scale-110 shadow-xl ${wishlisted ? 'bg-red-500 text-white' : 'bg-white text-gray-800 hover:bg-red-500 hover:text-white'}`}
-            title={wishlisted ? "Remove from Wishlist" : "Add to Wishlist"}
-          >
-            <Heart size={20} fill={wishlisted ? "currentColor" : "none"} />
-          </button>
-        </div>
-
-        {/* Verification Badge */}
-        <div className="absolute bottom-4 left-4 z-20 flex flex-col gap-2">
-          {seller?.isTrustedSeller && (
-            <span className="bg-emerald-600 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-xl flex items-center gap-1.5 border border-emerald-500">
-              <Sparkles size={12} /> TRUSTED SELLER
-            </span>
-          )}
-          {seller?.verificationLevel === "CAMPUS" && (
-            <span className="bg-blue-600 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-xl flex items-center gap-1.5 border border-blue-500">
-              <ShieldCheck size={12} /> CAMPUS VERIFIED
-            </span>
-          )}
-          {seller?.verificationLevel === "BUSINESS" && (
-            <span className="bg-purple-600 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-xl flex items-center gap-1.5 border border-purple-500">
-              <ShieldCheck size={12} /> VERIFIED BUSINESS
-            </span>
-          )}
-          {!seller?.isTrustedSeller && (
-            <span className="bg-gray-800 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-xl flex items-center gap-1.5 border border-gray-700">
-              NEW SELLER
-            </span>
-          )}
-        </div>
-
-        {/* Owner Management Controls */}
+        {/* Seller management quick actions (only if logged in and seller) */}
         {user && sellerId === user.uid && (
-          <div className="absolute bottom-4 right-4 z-50 flex gap-2">
+          <div className="absolute bottom-2.5 right-2.5 z-40 flex gap-1">
             <Link 
               href={`/product/edit/${id}`}
-              className="p-2 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm text-gray-800 dark:text-white rounded-xl shadow-lg hover:bg-primary hover:text-white transition-all flex items-center gap-2 text-[10px] font-black"
+              className="p-1.5 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md text-gray-850 dark:text-gray-100 rounded-lg shadow-sm hover:text-primary transition-all text-[9px] font-extrabold flex items-center gap-1"
             >
-              <Tag size={14} /> EDIT
+              <Tag size={12} /> Edit
             </Link>
             <button 
-              onClick={async (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                if (confirm("Mark this item as sold?")) {
-                  const { markProductAsSold } = await import("@/actions/product");
-                  const res = await markProductAsSold(id, user.uid);
-                  if (res.success) {
-                    import("react-hot-toast").then(({ toast }) => toast.success("Marked as sold"));
-                    window.location.reload();
-                  } else {
-                    import("react-hot-toast").then(({ toast }) => toast.error(res.error || "Failed to mark as sold"));
-                  }
-                }
-              }}
-              className="p-2 bg-emerald-600 text-white rounded-xl shadow-lg hover:bg-emerald-700 transition-all flex items-center gap-2 text-[10px] font-black"
+              onClick={handleMarkSold}
+              className="p-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-sm transition-colors text-[9px] font-extrabold flex items-center gap-1"
             >
-              <CheckCircle2 size={14} /> SOLD
+              <CheckCircle2 size={12} /> Sold
             </button>
             <button 
-              onClick={async (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                if (confirm("Are you sure you want to archive this listing? It will no longer be visible to others.")) {
-                  const { archiveProduct } = await import("@/actions/product");
-                  const res = await archiveProduct(id, user.uid);
-                  if (res.success) {
-                    import("react-hot-toast").then(({ toast }) => toast.success("Listing archived"));
-                    window.location.reload();
-                  } else {
-                    import("react-hot-toast").then(({ toast }) => toast.error(res.error || "Failed to archive"));
-                  }
-                }
-              }}
-              className="p-2 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm text-red-600 rounded-xl shadow-lg hover:bg-red-600 hover:text-white transition-all flex items-center gap-2 text-[10px] font-black"
+              onClick={handleArchive}
+              className="p-1.5 bg-red-650 hover:bg-red-750 text-white rounded-lg shadow-sm transition-colors text-[9px] font-extrabold flex items-center gap-1"
             >
-              <X size={14} /> ARCHIVE
+              <Trash2 size={12} /> Archive
             </button>
           </div>
         )}
       </div>
 
-      {/* Content Area */}
-      <div className="p-5 flex flex-col flex-1 bg-white dark:bg-gray-900 relative z-40">
-        <div className="flex items-start justify-between mb-2">
-          <h3 className="font-black text-base line-clamp-1 text-gray-800 dark:text-gray-100 leading-tight flex-1" title={title}>
+      {/* Info Content Area */}
+      <div className="p-4 flex flex-col flex-1 bg-white dark:bg-gray-900 relative z-30">
+        
+        {/* Row 1: Title & Type badge */}
+        <div className="flex items-start justify-between gap-2 mb-1">
+          <h3 className="font-semibold text-sm-safe text-gray-800 dark:text-gray-200 line-clamp-1 leading-tight flex-1" title={title}>
             {title}
           </h3>
-          {listingType === "RENT" && (
-            <span className="ml-2 bg-amber-100 text-amber-700 text-[9px] font-black px-2 py-0.5 rounded-md">RENT</span>
+          {listingType && listingType !== "SELL" && (
+            <span className="shrink-0 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 text-[9px] font-extrabold px-1.5 py-0.5 rounded-md uppercase">
+              {listingType}
+            </span>
           )}
         </div>
-        
-        <div className="flex items-baseline gap-1 mb-4">
-          <span className="text-xl font-black text-gray-900 dark:text-gray-50">₹{price.toLocaleString('en-IN')}</span>
-          {listingType === "RENT" && <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">/ Day</span>}
+
+        {/* Row 2: Price / Duration */}
+        <div className="flex items-baseline gap-1 mb-2.5">
+          <span className="text-base font-extrabold text-gray-950 dark:text-gray-50">
+            ₹{price.toLocaleString('en-IN')}
+          </span>
+          {listingType === "RENT" && (
+            <span className="text-[10px] text-gray-400 font-semibold lowercase">/ day</span>
+          )}
         </div>
-        
-        <div className="mt-auto pt-4 border-t border-gray-50 dark:border-gray-800 flex flex-col gap-2">
-          <div className="flex items-center gap-2 text-[10px] font-bold text-gray-400">
-            <MapPin size={12} className="text-gray-300" />
+
+        {/* Row 3: Trust & Location Metas */}
+        <div className="mt-auto pt-2.5 border-t border-gray-50 dark:border-gray-800/80 flex items-center justify-between text-[10px] font-semibold text-gray-400">
+          <div className="flex items-center gap-1 text-gray-450 truncate max-w-[120px]">
+            <MapPin size={12} className="text-gray-300 dark:text-gray-600" />
             <span className="truncate">{location}</span>
           </div>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-[10px] font-bold text-gray-400">
-              <Clock size={12} className="text-gray-300" />
-              <span>{formatDistanceToNow(new Date(createdAt), { addSuffix: true })}</span>
-            </div>
-            <Link 
-              href={`/product/${id}`}
-              className="text-[10px] font-black text-primary uppercase tracking-widest hover:underline"
-            >
-              View Details
-            </Link>
-          </div>
+          {renderTrustBadge() || (
+            <span className="text-gray-400 dark:text-gray-550 text-[10px]">
+              {formatDistanceToNow(new Date(createdAt), { addSuffix: false })} ago
+            </span>
+          )}
         </div>
       </div>
-      
-      {/* Invisible Link Wrapper for entire card */}
+
+      {/* Fully clickable card layer */}
       <Link href={`/product/${id}`} className="absolute inset-0 z-10">
-        <span className="sr-only">View {title}</span>
+        <span className="sr-only">View Details for {title}</span>
       </Link>
-    </motion.div>
+    </div>
   );
 }

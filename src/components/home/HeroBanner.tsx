@@ -1,122 +1,77 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-
-const BANNERS = [
-  {
-    title: "Sell Your Old Books",
-    subtitle: "Turn your old textbooks into cash. Fastest way to clear your room.",
-    cta: "Start Selling",
-    href: "/sell",
-    bg: "from-blue-600 to-emerald-600",
-    image: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?q=80&w=1000&auto=format&fit=crop"
-  },
-  {
-    title: "Rent Bikes On Campus",
-    subtitle: "Need a ride to the library? Rent cycles from fellow students.",
-    cta: "Browse Cycles",
-    href: "/search?category=cycles",
-    bg: "from-green-600 to-emerald-700",
-    image: "https://images.unsplash.com/photo-1485965120184-e220f721d03e?q=80&w=1000&auto=format&fit=crop"
-  },
-  {
-    title: "Buy Hostel Essentials",
-    subtitle: "Bed sheets, study tables, and more at student prices.",
-    cta: "View Essentials",
-    href: "/search?category=hostel",
-    bg: "from-purple-600 to-violet-700",
-    image: "https://images.unsplash.com/photo-1505843490538-5133c6c7d0e1?q=80&w=1000&auto=format&fit=crop"
-  }
-];
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Search, ArrowRight, ShieldCheck, Sparkles } from "lucide-react";
+import Link from "next/link";
+import { useAuth } from "@/context/AuthContext";
 
 export default function HeroBanner() {
-  const [current, setCurrent] = useState(0);
+  const [query, setQuery] = useState("");
+  const router = useRouter();
+  const { user } = useAuth();
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrent((prev) => (prev + 1) % BANNERS.length);
-    }, 5000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const next = () => setCurrent((prev) => (prev + 1) % BANNERS.length);
-  const prev = () => setCurrent((prev) => (prev - 1 + BANNERS.length) % BANNERS.length);
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!query.trim()) return;
+    router.push(`/search?q=${encodeURIComponent(query)}`);
+  };
 
   return (
-    <div className="relative w-full h-[220px] md:h-[280px] overflow-hidden rounded-2xl md:rounded-3xl shadow-xl group">
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={current}
-          initial={{ opacity: 0, scale: 1.05 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.7 }}
-          className={`absolute inset-0 bg-gradient-to-br ${BANNERS[current].bg} flex items-center`}
-        >
-          <div className="absolute inset-0 opacity-20">
-            <img 
-              src={BANNERS[current].image} 
-              alt="" 
-              className="w-full h-full object-cover"
-            />
-          </div>
-          <div className="relative z-10 px-10 md:px-20 max-w-2xl text-white">
-            <motion.h2 
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="text-2xl md:text-4xl font-black mb-2 leading-tight"
-            >
-              {BANNERS[current].title}
-            </motion.h2>
-            <motion.p 
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="text-sm md:text-lg text-white/80 mb-6 font-medium max-w-md"
-            >
-              {BANNERS[current].subtitle}
-            </motion.p>
-            <motion.a
-              href={BANNERS[current].href}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="inline-block px-8 py-2.5 bg-white text-gray-900 rounded-2xl font-black text-sm hover:scale-105 transition-transform shadow-lg"
-            >
-              {BANNERS[current].cta}
-            </motion.a>
-          </div>
-        </motion.div>
-      </AnimatePresence>
+    <div className="relative w-full overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 via-indigo-950 to-gray-950 text-white py-12 md:py-20 px-6 md:px-12 shadow-xl border border-gray-800">
+      {/* Background patterns */}
+      <div className="absolute inset-0 opacity-10 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.3),rgba(255,255,255,0))]" />
+      
+      <div className="relative z-10 max-w-3xl mx-auto text-center flex flex-col items-center">
+        {/* Trust pill */}
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-xs font-semibold text-indigo-200 border border-white/10 mb-6 animate-pulse">
+          <ShieldCheck size={14} className="text-emerald-400" />
+          <span>100% Student-Verified Campus Marketplace</span>
+        </div>
 
-      {/* Controls */}
-      <button 
-        onClick={prev}
-        className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-white/20 hover:bg-white/40 backdrop-blur-md rounded-full text-white transition-colors opacity-0 group-hover:opacity-100 hidden md:block"
-      >
-        <ChevronLeft size={24} />
-      </button>
-      <button 
-        onClick={next}
-        className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-white/20 hover:bg-white/40 backdrop-blur-md rounded-full text-white transition-colors opacity-0 group-hover:opacity-100 hidden md:block"
-      >
-        <ChevronRight size={24} />
-      </button>
+        <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-4 leading-tight">
+          Buy, Sell & Exchange <br className="hidden sm:inline" />
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-200 to-emerald-400">
+            on Your Campus
+          </span>
+        </h1>
+        
+        <p className="text-sm md:text-base text-gray-300 max-w-lg mb-8 font-medium">
+          The trusted peer-to-peer student marketplace. Trade second-hand goods, rent cycles, or request services safely within your community.
+        </p>
 
-      {/* Dots */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
-        {BANNERS.map((_, i) => (
-          <button
-            key={i}
-            onClick={() => setCurrent(i)}
-            className={`w-2.5 h-2.5 rounded-full transition-all ${
-              current === i ? "bg-white w-8" : "bg-white/50"
-            }`}
+        {/* Large Centered Search Bar */}
+        <form onSubmit={handleSearch} className="w-full max-w-xl relative flex items-center bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-1.5 focus-within:border-white/40 focus-within:bg-white/15 transition-all shadow-lg mb-6 group">
+          <Search className="text-gray-300 ml-3" size={20} />
+          <input 
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="What are you looking for today?"
+            className="flex-1 bg-transparent border-none outline-none text-white placeholder-gray-400 px-3 py-3 text-sm md:text-base"
           />
-        ))}
+          <button type="submit" className="bg-primary hover:bg-primary-dark text-white px-5 py-2.5 rounded-xl font-bold text-xs md:text-sm transition-colors shadow-md">
+            Search
+          </button>
+        </form>
+
+        {/* Quick Links / CTAs */}
+        <div className="flex flex-wrap items-center justify-center gap-4">
+          <Link 
+            href={!user ? "/login?redirect=/sell" : "/sell"}
+            className="inline-flex items-center gap-2 px-5 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold text-xs md:text-sm transition-all shadow-md shadow-emerald-950/20"
+          >
+            <Sparkles size={16} />
+            Start Selling
+          </Link>
+          <Link 
+            href="/search"
+            className="inline-flex items-center gap-1.5 px-5 py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl font-bold text-xs md:text-sm border border-white/10 transition-colors"
+          >
+            Explore Listings
+            <ArrowRight size={16} />
+          </Link>
+        </div>
       </div>
     </div>
   );
