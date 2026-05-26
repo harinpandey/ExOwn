@@ -1,7 +1,8 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { requireSameUser } from "@/lib/auth";
+import { requireSameUser, requireAdmin } from "@/lib/auth";
+import { sanitizeString } from "@/lib/validation";
 
 export async function createReport(data: {
   reporterId: string;
@@ -13,13 +14,15 @@ export async function createReport(data: {
   try {
     await requireSameUser(data.reporterId);
 
+    const cleanDescription = data.description ? sanitizeString(data.description) : undefined;
+
     const report = await prisma.report.create({
       data: {
         reporterId: data.reporterId,
         productId: data.productId,
         reportedId: data.reportedId,
         reason: data.reason,
-        description: data.description,
+        description: cleanDescription,
       }
     });
 
@@ -34,6 +37,8 @@ export async function createReport(data: {
 
 export async function getReports() {
   try {
+    await requireAdmin();
+
     return await prisma.report.findMany({
       orderBy: { createdAt: "desc" },
       include: {

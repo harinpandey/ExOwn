@@ -2,6 +2,7 @@
 
 import prisma from "@/lib/prisma";
 import { requireSameUser } from "@/lib/auth";
+import { sanitizeString, validateRange, validateLength } from "@/lib/validation";
 
 export async function createOffer(data: {
   productId: string;
@@ -11,6 +12,16 @@ export async function createOffer(data: {
 }) {
   try {
     await requireSameUser(data.buyerId);
+
+    const price = Number(data.price);
+    if (!validateRange(price, 1, 1000000)) {
+      throw new Error("Offer price must be between ₹1 and ₹1,000,000.");
+    }
+
+    const message = data.message ? sanitizeString(data.message) : undefined;
+    if (message && !validateLength(message, 1, 500)) {
+      throw new Error("Message must be under 500 characters.");
+    }
 
     const product = await prisma.product.findUnique({
       where: { id: data.productId },
@@ -23,8 +34,8 @@ export async function createOffer(data: {
       data: {
         productId: data.productId,
         buyerId: data.buyerId,
-        price: data.price,
-        message: data.message,
+        price,
+        message,
       }
     });
 

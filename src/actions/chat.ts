@@ -2,6 +2,7 @@
 
 import prisma, { withRetry } from "@/lib/prisma";
 import { requireSameUser } from "@/lib/auth";
+import { sanitizeString } from "@/lib/validation";
 
 
 export async function getConversations(userId: string) {
@@ -92,7 +93,8 @@ export async function sendMessage(senderId: string, receiverId: string, content:
   try {
     await requireSameUser(senderId);
 
-    if (!content.trim()) {
+    const cleanContent = sanitizeString(content);
+    if (!cleanContent.trim()) {
       return { success: false, error: "Message cannot be empty" };
     }
 
@@ -100,7 +102,7 @@ export async function sendMessage(senderId: string, receiverId: string, content:
       data: {
         senderId,
         receiverId,
-        content
+        content: cleanContent
       },
       include: {
         sender: { select: { name: true } }

@@ -4,6 +4,7 @@ import prisma, { withRetry } from "@/lib/prisma";
 import { logActivity } from "@/lib/logger";
 import { getCurrentUser, requireSameUser } from "@/lib/auth";
 import { getCached, invalidateCachePrefix } from "@/lib/cache";
+import { sanitizeString, validateLength, validateRange } from "@/lib/validation";
 
 export async function getTrendingProducts() {
   try {
@@ -328,12 +329,52 @@ export async function createProduct(data: {
   try {
     await requireSameUser(data.sellerId);
 
-    // 1. Fraud Check: Duplicate Listing
+    // 1. Sanitize & Validate Inputs
+    const title = sanitizeString(data.title);
+    const description = sanitizeString(data.description);
+    const brand = data.brand ? sanitizeString(data.brand) : undefined;
+    const customSubcategory = data.customSubcategory ? sanitizeString(data.customSubcategory) : null;
+    const pickupLocation = sanitizeString(data.location);
+    const price = Number(data.price);
+    const originalPrice = data.originalPrice !== undefined && data.originalPrice !== null ? Number(data.originalPrice) : undefined;
+
+    if (!validateLength(title, 3, 100)) {
+      return { success: false, error: "Title must be between 3 and 100 characters." };
+    }
+    if (!validateLength(description, 10, 2000)) {
+      return { success: false, error: "Description must be between 10 and 2000 characters." };
+    }
+    if (!validateRange(price, 1, 1000000)) {
+      return { success: false, error: "Price must be between ₹1 and ₹1,000,000." };
+    }
+    if (originalPrice !== undefined) {
+      if (!validateRange(originalPrice, 0, 1000000)) {
+        return { success: false, error: "Original price must be between ₹0 and ₹1,000,000." };
+      }
+    }
+    if (brand && !validateLength(brand, 1, 50)) {
+      return { success: false, error: "Brand must be under 50 characters." };
+    }
+    if (customSubcategory && !validateLength(customSubcategory, 1, 100)) {
+      return { success: false, error: "Custom subcategory must be under 100 characters." };
+    }
+    if (!validateLength(pickupLocation, 2, 200)) {
+      return { success: false, error: "Pickup location must be between 2 and 200 characters." };
+    }
+    if (Array.isArray(data.images)) {
+      for (const img of data.images) {
+        if (typeof img !== 'string' || !img.startsWith("http")) {
+          return { success: false, error: "Invalid image URL format." };
+        }
+      }
+    }
+
+    // 2. Fraud Check: Duplicate Listing
     const existing = await prisma.product.findFirst({
       where: {
         sellerId: data.sellerId,
-        title: { equals: data.title, mode: 'insensitive' },
-        price: data.price,
+        title: { equals: title, mode: 'insensitive' },
+        price: price,
         status: { in: ['LIVE', 'PENDING'] }
       }
     });
@@ -342,23 +383,13 @@ export async function createProduct(data: {
       return { success: false, error: "You already have a similar active listing. Please edit the existing one." };
     }
 
-    // 2. Fraud Check: Price Anomaly (Simple check for now)
-    if (data.price <= 0) {
-      return { success: false, error: "Price must be greater than zero." };
-    }
-    if (data.price > 1000000) {
-      return { success: false, error: "Price seems unrealistic. Please contact support if this is intentional." };
-    }
-
-    // 3. Image check (Optional: check if these exact images were used before)
-
     const product = await withRetry(() => prisma.product.create({
       data: {
-        title: data.title,
-        description: data.description,
-        price: data.price,
-        originalPrice: data.originalPrice,
-        brand: data.brand,
+        title,
+        description,
+        price,
+        originalPrice,
+        brand,
         purchaseYear: data.purchaseYear,
         condition: data.condition as any,
         conditionDetails: data.conditionDetails,
@@ -366,15 +397,15 @@ export async function createProduct(data: {
         inventory: data.inventory || 1,
         categoryId: data.categoryId,
         subcategoryId: data.subcategoryId,
-        customSubcategory: data.customSubcategory,
+        customSubcategory,
         sellerId: data.sellerId,
         campusId: data.campusId,
         images: data.images,
-        pickupLocation: data.location,
+        pickupLocation,
         isNegotiable: data.isNegotiable,
         isUrgent: data.isUrgent,
         isExchangeAllowed: data.isExchangeAllowed || false,
-        exchangeCategories: data.exchangeCategories || [],
+        exchangeCategories: Array.isArray(data.exchangeCategories) ? data.exchangeCategories.map(c => sanitizeString(c)) : [],
         exchangeCashAllowed: data.exchangeCashAllowed || false,
         status: "LIVE", // New listings go live immediately for now
       }
@@ -416,11 +447,106 @@ export async function updateProduct(productId: string, userId: string, data: Par
       return { success: false, error: "Unauthorized: You do not own this listing" };
     }
 
-    // 2. Perform Update
+    // 2. Filter & Validate/Sanitize Fields
+    const allowedKeys = [
+      "title",
+      "description",
+      "price",
+      "originalPrice",
+      "brand",
+      "purchaseYear",
+      "condition",
+      "conditionDetails",
+      "listingType",
+      "images",
+      "pickupLocation",
+      "isNegotiable",
+      "isUrgent",
+      "isExchangeAllowed",
+      "exchangeCategories",
+      "exchangeCashAllowed",
+      "inventory",
+      "campusId",
+      "categoryId",
+      "subcategoryId",
+      "customSubcategory",
+    ];
+
+    const filteredData: Partial<any> = {};
+    for (const key of allowedKeys) {
+      if (data[key] !== undefined) {
+        filteredData[key] = data[key];
+      }
+    }
+
+    if (filteredData.title !== undefined) {
+      filteredData.title = sanitizeString(filteredData.title);
+      if (!validateLength(filteredData.title, 3, 100)) {
+        return { success: false, error: "Title must be between 3 and 100 characters." };
+      }
+    }
+
+    if (filteredData.description !== undefined) {
+      filteredData.description = sanitizeString(filteredData.description);
+      if (!validateLength(filteredData.description, 10, 2000)) {
+        return { success: false, error: "Description must be between 10 and 2000 characters." };
+      }
+    }
+
+    if (filteredData.price !== undefined) {
+      const priceVal = Number(filteredData.price);
+      if (!validateRange(priceVal, 1, 1000000)) {
+        return { success: false, error: "Price must be between ₹1 and ₹1,000,000." };
+      }
+      filteredData.price = priceVal;
+    }
+
+    if (filteredData.originalPrice !== undefined && filteredData.originalPrice !== null) {
+      const origPriceVal = Number(filteredData.originalPrice);
+      if (!validateRange(origPriceVal, 0, 1000000)) {
+        return { success: false, error: "Original price must be between ₹0 and ₹1,000,000." };
+      }
+      filteredData.originalPrice = origPriceVal;
+    }
+
+    if (filteredData.brand) {
+      filteredData.brand = sanitizeString(filteredData.brand);
+      if (!validateLength(filteredData.brand, 1, 50)) {
+        return { success: false, error: "Brand must be under 50 characters." };
+      }
+    }
+
+    if (filteredData.pickupLocation !== undefined) {
+      filteredData.pickupLocation = sanitizeString(filteredData.pickupLocation);
+      if (!validateLength(filteredData.pickupLocation, 2, 200)) {
+        return { success: false, error: "Pickup location must be between 2 and 200 characters." };
+      }
+    }
+
+    if (filteredData.customSubcategory) {
+      filteredData.customSubcategory = sanitizeString(filteredData.customSubcategory);
+      if (!validateLength(filteredData.customSubcategory, 1, 100)) {
+        return { success: false, error: "Custom subcategory must be under 100 characters." };
+      }
+    }
+
+    if (Array.isArray(filteredData.exchangeCategories)) {
+      filteredData.exchangeCategories = filteredData.exchangeCategories.map((c: string) => sanitizeString(c));
+    }
+
+    if (Array.isArray(filteredData.images)) {
+      for (const img of filteredData.images) {
+        if (typeof img !== 'string' || !img.startsWith("http")) {
+          return { success: false, error: "Invalid image URL format." };
+        }
+      }
+    }
+
+    // 3. Perform Update
     const updated = await prisma.product.update({
       where: { id: productId },
       data: {
-        ...data,
+        ...filteredData,
         updatedAt: new Date(),
       }
     });
@@ -429,7 +555,7 @@ export async function updateProduct(productId: string, userId: string, data: Par
       userId,
       actionType: "PRODUCT_EDITED",
       productId: productId,
-      metadata: { changes: Object.keys(data) }
+      metadata: { changes: Object.keys(filteredData) }
     });
 
     invalidateCachePrefix("products:");

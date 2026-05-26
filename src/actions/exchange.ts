@@ -5,6 +5,7 @@ import { logActivity } from "@/lib/logger";
 import { createNotification } from "@/actions/notification";
 import { ExchangeStatus } from "@prisma/client";
 import { requireSameUser } from "@/lib/auth";
+import { sanitizeString, validateLength } from "@/lib/validation";
 
 export async function createExchangeOffer(data: {
   productId: string;
@@ -18,7 +19,25 @@ export async function createExchangeOffer(data: {
     const { productId, buyerId, offeredTitle, offeredDescription, offeredImages, cashDifference } = data;
     await requireSameUser(buyerId);
 
-    // 1. Validation
+    // 1. Validation & Sanitization
+    const title = sanitizeString(offeredTitle);
+    const description = sanitizeString(offeredDescription);
+
+    if (!validateLength(title, 3, 100)) {
+      throw new Error("Title must be between 3 and 100 characters.");
+    }
+    if (!validateLength(description, 10, 1000)) {
+      throw new Error("Description must be between 10 and 1000 characters.");
+    }
+    if (!offeredImages || offeredImages.length === 0) {
+      throw new Error("At least one image is required");
+    }
+    for (const img of offeredImages) {
+      if (typeof img !== 'string' || !img.startsWith("http")) {
+        throw new Error("Invalid image URL format.");
+      }
+    }
+
     const product = await prisma.product.findUnique({
       where: { id: productId },
       select: { sellerId: true, isExchangeAllowed: true, title: true }
@@ -27,17 +46,14 @@ export async function createExchangeOffer(data: {
     if (!product) throw new Error("Product not found");
     if (product.sellerId === buyerId) throw new Error("Cannot exchange with yourself");
     if (!product.isExchangeAllowed) throw new Error("Exchange not allowed for this listing");
-    if (!offeredTitle.trim() || !offeredDescription.trim() || offeredImages.length === 0) {
-      throw new Error("Offer title, description, and at least one image are required");
-    }
 
     // 2. Create Offer
     const offer = await withRetry(() => prisma.exchangeOffer.create({
       data: {
         productId,
         buyerId,
-        offeredTitle,
-        offeredDescription,
+        offeredTitle: title,
+        offeredDescription: description,
         offeredImages,
         cashDifference,
       }
@@ -47,7 +63,7 @@ export async function createExchangeOffer(data: {
     await createNotification({
       userId: product.sellerId,
       title: "New Exchange Proposal! ♻️",
-      content: `Someone wants to trade their "${offeredTitle}" for your "${product.title}".`,
+      content: `Someone wants to trade their "${title}" for your "${product.title}".`,
       type: "OFFER",
       link: `/requests?tab=exchanges&offerId=${offer.id}`
     });

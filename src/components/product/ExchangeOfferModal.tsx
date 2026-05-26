@@ -60,7 +60,7 @@ export default function ExchangeOfferModal({ product, isOpen, onClose }: Exchang
     try {
       // 1. Upload Images to Cloudinary
       const { getCloudinarySignature } = await import("@/actions/cloudinary");
-      const { timestamp, signature, apiKey, cloudName } = await getCloudinarySignature();
+      const { timestamp, signature, apiKey, cloudName, allowed_formats } = await getCloudinarySignature("ExOwn_exchange_offers");
       
       const uploadedImageUrls: string[] = [];
       for (const file of images) {
@@ -70,6 +70,9 @@ export default function ExchangeOfferModal({ product, isOpen, onClose }: Exchang
         formData.append("timestamp", timestamp.toString());
         formData.append("signature", signature);
         formData.append("folder", "ExOwn_exchange_offers");
+        if (allowed_formats) {
+          formData.append("allowed_formats", allowed_formats);
+        }
         
         const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
           method: "POST",

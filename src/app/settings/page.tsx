@@ -75,13 +75,16 @@ export default function SettingsPage() {
 
     setIsSaving(true);
     try {
-      const { timestamp, signature, apiKey, cloudName } = await getCloudinarySignature();
+      const { timestamp, signature, apiKey, cloudName, allowed_formats } = await getCloudinarySignature("ExOwn_profiles");
       const uploadData = new FormData();
       uploadData.append("file", file);
       uploadData.append("api_key", apiKey);
       uploadData.append("timestamp", timestamp.toString());
       uploadData.append("signature", signature);
       uploadData.append("folder", "ExOwn_profiles");
+      if (allowed_formats) {
+        uploadData.append("allowed_formats", allowed_formats);
+      }
 
       const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
         method: "POST",

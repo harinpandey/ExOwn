@@ -126,7 +126,7 @@ export default function EditListingPage() {
       // Upload new images if any
       if (newFiles.length > 0) {
         const { getCloudinarySignature } = await import("@/actions/cloudinary");
-        const { timestamp, signature, apiKey, cloudName } = await getCloudinarySignature();
+        const { timestamp, signature, apiKey, cloudName, allowed_formats } = await getCloudinarySignature();
         
         for (const file of newFiles) {
           const formData = new FormData();
@@ -135,6 +135,9 @@ export default function EditListingPage() {
           formData.append("timestamp", timestamp.toString());
           formData.append("signature", signature);
           formData.append("folder", "ExOwn_products");
+          if (allowed_formats) {
+            formData.append("allowed_formats", allowed_formats);
+          }
           
           const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
             method: "POST",

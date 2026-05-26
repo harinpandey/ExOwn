@@ -17,8 +17,11 @@ export async function getCloudinarySignature(folder: string = "ExOwn_products") 
   await requireUser();
 
   const timestamp = Math.round(new Date().getTime() / 1000);
+  const allowed_formats = "jpg,jpeg,png,webp";
+
+  // Force secure parameters inside the cryptographic signature
   const signature = cloudinary.utils.api_sign_request(
-    { timestamp, folder },
+    { timestamp, folder, allowed_formats },
     cloudinary.config().api_secret!
   );
 
@@ -26,6 +29,7 @@ export async function getCloudinarySignature(folder: string = "ExOwn_products") 
     timestamp,
     signature,
     apiKey: cloudinary.config().api_key || "",
-    cloudName: cloudinary.config().cloud_name || ""
+    cloudName: cloudinary.config().cloud_name || "",
+    allowed_formats
   };
 }
