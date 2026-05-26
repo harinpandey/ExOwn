@@ -12,8 +12,6 @@ import {
   Plus, 
   LogOut, 
   LayoutDashboard, 
-  Moon, 
-  Sun, 
   MapPin, 
   Heart, 
   Package, 
@@ -101,7 +99,7 @@ export default function Navbar() {
               className="w-full bg-transparent pl-9 pr-16 py-2 outline-none text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400"
             />
             <div className="absolute right-1.5 flex items-center gap-1.5">
-              <span className="hidden lg:block text-[10px] font-medium text-gray-400 dark:text-gray-500 bg-white dark:bg-gray-850 px-1.5 py-0.5 rounded border border-gray-150 dark:border-gray-850">⌘K</span>
+              <span className="hidden lg:block text-[10px] font-medium text-gray-400 dark:text-gray-500 bg-white dark:bg-gray-800 px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-700">⌘K</span>
               <button type="submit" className="p-1.5 bg-primary hover:bg-primary-dark text-white rounded-lg transition-colors">
                 <Search size={14} />
               </button>
@@ -188,9 +186,9 @@ export default function Navbar() {
                   setIsProfileOpen(!isProfileOpen);
                   setIsNotificationsOpen(false);
                 }}
-                className="flex items-center gap-1 p-1 rounded-xl bg-gray-50 dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-850 transition-colors border border-transparent focus:border-primary/10"
+                className="flex items-center gap-1 p-1 rounded-xl bg-gray-50 dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors border border-transparent focus:border-primary/10"
               >
-                <div className="w-7 h-7 rounded-lg bg-gray-200 dark:bg-gray-850 flex items-center justify-center overflow-hidden border border-gray-200 dark:border-gray-800 shadow-sm">
+                <div className="w-7 h-7 rounded-lg bg-gray-200 dark:bg-gray-800 flex items-center justify-center overflow-hidden border border-gray-200 dark:border-gray-800 shadow-sm">
                   {user.photoURL ? (
                     <img src={user.photoURL} alt="Profile" className="w-full h-full object-cover" />
                   ) : (
@@ -208,8 +206,8 @@ export default function Navbar() {
                     exit={{ opacity: 0, y: 8, scale: 0.98 }}
                     className="absolute top-full right-0 mt-2 w-64 bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-800 p-2.5 z-50 overflow-hidden"
                   >
-                    <div className="p-3 bg-gray-50 dark:bg-gray-850 rounded-xl mb-2 flex items-center gap-2.5">
-                      <div className="w-9 h-9 rounded-lg bg-gray-250 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 overflow-hidden shrink-0">
+                    <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-xl mb-2 flex items-center gap-2.5">
+                      <div className="w-9 h-9 rounded-lg bg-gray-200 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 overflow-hidden shrink-0">
                         {user.photoURL ? (
                           <img src={user.photoURL} alt="" className="w-full h-full object-cover" />
                         ) : (
@@ -251,18 +249,44 @@ export default function Navbar() {
                       </Link>
                       
                       {mounted && (
-                        <button 
-                          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                          className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-gray-600 dark:text-gray-400 hover:bg-primary/5 hover:text-primary rounded-lg transition-colors"
-                        >
-                          <div className="flex items-center gap-2.5">
-                            {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
-                            <span>{theme === "dark" ? "Light Mode" : "Dark Mode"}</span>
+                        <div className="px-3 py-2 text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">
+                          <div className="mb-2">Theme Mode</div>
+                          <div className="grid grid-cols-3 gap-1 bg-gray-50 dark:bg-gray-950 p-1 rounded-xl border border-gray-100 dark:border-gray-800 normal-case">
+                            <button
+                              type="button"
+                              onClick={() => setTheme("light")}
+                              className={`py-1 px-1.5 rounded-lg text-center text-xs transition-all cursor-pointer ${
+                                theme === "light" 
+                                  ? "bg-white dark:bg-gray-800 text-primary shadow-sm font-bold" 
+                                  : "text-gray-500 hover:text-gray-900 dark:hover:text-gray-100 font-semibold"
+                              }`}
+                            >
+                              Light
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setTheme("dark")}
+                              className={`py-1 px-1.5 rounded-lg text-center text-xs transition-all cursor-pointer ${
+                                theme === "dark" 
+                                  ? "bg-white dark:bg-gray-800 text-primary shadow-sm font-bold" 
+                                  : "text-gray-500 hover:text-gray-900 dark:hover:text-gray-100 font-semibold"
+                              }`}
+                            >
+                              Dark
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setTheme("system")}
+                              className={`py-1 px-1.5 rounded-lg text-center text-xs transition-all cursor-pointer ${
+                                theme === "system" 
+                                  ? "bg-white dark:bg-gray-800 text-primary shadow-sm font-bold" 
+                                  : "text-gray-500 hover:text-gray-900 dark:hover:text-gray-100 font-semibold"
+                              }`}
+                            >
+                              System
+                            </button>
                           </div>
-                          <div className={`w-7 h-3.5 rounded-full p-0.5 transition-colors ${theme === "dark" ? 'bg-primary' : 'bg-gray-250'}`}>
-                            <div className={`w-2.5 h-2.5 bg-white rounded-full transition-transform ${theme === "dark" ? 'translate-x-3' : 'translate-x-0'}`} />
-                          </div>
-                        </button>
+                        </div>
                       )}
 
                       <div className="h-px bg-gray-100 dark:bg-gray-800 my-1.5" />

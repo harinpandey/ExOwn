@@ -34,7 +34,7 @@ export default function MobileNav() {
                 size={18} 
                 className={`transition-colors duration-200 ${isActive ? "text-primary" : "text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300"}`} 
               />
-              <span className={`text-[9px] font-bold mt-1 tracking-tight transition-colors duration-200 ${isActive ? "text-primary" : "text-gray-450 dark:text-gray-500"}`}>
+              <span className={`text-[9px] font-bold mt-1 tracking-tight transition-colors duration-200 ${isActive ? "text-primary" : "text-gray-500 dark:text-gray-500"}`}>
                 {item.name}
               </span>
               

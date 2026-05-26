@@ -170,7 +170,7 @@ export default function ProductCard({
           <div className="absolute bottom-2.5 right-2.5 z-40 flex gap-1">
             <Link 
               href={`/product/edit/${id}`}
-              className="p-1.5 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md text-gray-850 dark:text-gray-100 rounded-lg shadow-sm hover:text-primary transition-all text-[9px] font-extrabold flex items-center gap-1"
+              className="p-1.5 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md text-gray-800 dark:text-gray-100 rounded-lg shadow-sm hover:text-primary transition-all text-[9px] font-extrabold flex items-center gap-1"
             >
               <Tag size={12} /> Edit
             </Link>
@@ -182,7 +182,7 @@ export default function ProductCard({
             </button>
             <button 
               onClick={handleArchive}
-              className="p-1.5 bg-red-650 hover:bg-red-750 text-white rounded-lg shadow-sm transition-colors text-[9px] font-extrabold flex items-center gap-1"
+              className="p-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg shadow-sm transition-colors text-[9px] font-extrabold flex items-center gap-1"
             >
               <Trash2 size={12} /> Archive
             </button>
@@ -217,12 +217,12 @@ export default function ProductCard({
 
         {/* Row 3: Trust & Location Metas */}
         <div className="mt-auto pt-2.5 border-t border-gray-50 dark:border-gray-800/80 flex items-center justify-between text-[10px] font-semibold text-gray-400">
-          <div className="flex items-center gap-1 text-gray-450 truncate max-w-[120px]">
+          <div className="flex items-center gap-1 text-gray-500 truncate max-w-[120px]">
             <MapPin size={12} className="text-gray-300 dark:text-gray-600" />
             <span className="truncate">{location}</span>
           </div>
           {renderTrustBadge() || (
-            <span className="text-gray-400 dark:text-gray-550 text-[10px]">
+            <span className="text-gray-400 dark:text-gray-500 text-[10px]">
               {formatDistanceToNow(new Date(createdAt), { addSuffix: false })} ago
             </span>
           )}

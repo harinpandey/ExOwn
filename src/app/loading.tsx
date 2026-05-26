@@ -4,7 +4,7 @@ export default function RootLoading() {
   return (
     <div className="container mx-auto px-4 py-8 space-y-12">
       {/* Hero Banner Skeleton */}
-      <div className="relative w-full rounded-3xl skeleton-shimmer py-16 md:py-24 border border-gray-100 dark:border-gray-850 flex flex-col items-center justify-center text-center px-6">
+      <div className="relative w-full rounded-3xl skeleton-shimmer py-16 md:py-24 border border-gray-100 dark:border-gray-800 flex flex-col items-center justify-center text-center px-6">
         <div className="h-6 bg-white/20 dark:bg-white/5 rounded-full w-48 mb-6" />
         <div className="h-10 bg-white/20 dark:bg-white/5 rounded-xl w-3/4 max-w-lg mb-4 animate-pulse" />
         <div className="h-4 bg-white/20 dark:bg-white/5 rounded-lg w-1/2 max-w-sm mb-8" />

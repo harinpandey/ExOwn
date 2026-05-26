@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import CinematicLoader from "@/components/ui/CinematicLoader";
 
 export default function ClientLayoutWrapper({ children }: { children: React.ReactNode }) {
@@ -9,29 +9,38 @@ export default function ClientLayoutWrapper({ children }: { children: React.Reac
 
   useEffect(() => {
     setIsMounted(true);
-    const hasVisited = sessionStorage.getItem("exown_welcome_loaded");
-    if (!hasVisited) {
-      setShowLoader(true);
+    try {
+      const hasVisited = sessionStorage.getItem("exown_welcome_loaded");
+      if (!hasVisited) {
+        setShowLoader(true);
+      }
+    } catch {
+      // sessionStorage unavailable (SSR, incognito restrictions)
     }
   }, []);
 
-  const handleComplete = () => {
-    sessionStorage.setItem("exown_welcome_loaded", "true");
+  const handleComplete = useCallback(() => {
+    try {
+      sessionStorage.setItem("exown_welcome_loaded", "true");
+    } catch {
+      // sessionStorage unavailable
+    }
     setShowLoader(false);
-  };
+  }, []);
 
   if (!isMounted) {
-    return <div className="opacity-0">{children}</div>;
+    // During SSR / first paint — render children invisible to avoid layout shift
+    return <div style={{ opacity: 0 }}>{children}</div>;
   }
 
   return (
     <>
       {showLoader && <CinematicLoader onComplete={handleComplete} />}
-      <div 
+      <div
         className={
-          showLoader 
-            ? "opacity-0 h-screen overflow-hidden" 
-            : "opacity-100 transition-opacity duration-500 ease-out"
+          showLoader
+            ? "opacity-0 pointer-events-none overflow-hidden max-h-screen"
+            : "animate-[pageFadeIn_500ms_ease-out_both]"
         }
       >
         {children}

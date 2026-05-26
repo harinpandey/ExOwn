@@ -32,7 +32,7 @@ export default function Home() {
               href={`/search?category=${category.id}`}
               className="flex flex-col items-center gap-2 p-3 rounded-2xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 hover:border-primary/20 hover:bg-primary/5 transition-all group active:scale-95 touch-manipulation min-h-[90px] justify-center"
             >
-              <div className="w-10 h-10 flex items-center justify-center bg-gray-50 dark:bg-gray-955 rounded-xl group-hover:bg-white dark:group-hover:bg-gray-900 transition-colors">
+              <div className="w-10 h-10 flex items-center justify-center bg-gray-50 dark:bg-gray-950 rounded-xl group-hover:bg-white dark:group-hover:bg-gray-900 transition-colors">
                 <category.icon className="w-5 h-5 text-gray-400 group-hover:text-primary transition-colors" />
               </div>
               <span className="text-[10px] font-black text-center text-gray-500 dark:text-gray-400 group-hover:text-primary transition-colors uppercase tracking-tight line-clamp-1">

@@ -18,7 +18,7 @@ export default function HeroBanner() {
   };
 
   return (
-    <div className="relative w-full overflow-hidden rounded-3xl bg-gradient-to-br from-gray-905 via-indigo-955 to-gray-955 text-white py-12 md:py-20 px-6 md:px-12 shadow-xl border border-gray-800">
+    <div className="relative w-full overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 via-indigo-950 to-gray-950 text-white py-12 md:py-20 px-6 md:px-12 shadow-xl border border-gray-800">
       {/* Background patterns & Ambient Mesh Gradients */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.15),rgba(0,0,0,0))]" />
       
