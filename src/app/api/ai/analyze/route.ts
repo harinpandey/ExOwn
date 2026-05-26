@@ -5,8 +5,6 @@ import { enforceRateLimit } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`;
-
 export async function POST(req: Request) {
   const limited = await enforceRateLimit(req, {
     namespace: "ai",
@@ -21,10 +19,13 @@ export async function POST(req: Request) {
   try {
     const { productData } = await req.json();
 
-    if (!process.env.GEMINI_API_KEY) {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
       console.warn("AI Warning: GEMINI_API_KEY is missing.");
       return NextResponse.json(getFallbackResponse("AI key missing"));
     }
+
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
     // Fetch Admin Rules from DB with timeout
     let adminRules: Array<{ name: string; rule: unknown }> = [];
@@ -51,7 +52,7 @@ export async function POST(req: Request) {
       Ensure "pros" and "cons" are ALWAYS arrays of strings, even if empty.
     `;
 
-    const response = await fetch(GEMINI_URL, {
+    const response = await fetch(geminiUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

@@ -94,24 +94,35 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     // 2. Auth State Change ( handle login/logout )
     const unsubscribeAuth = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        await ensureServerSession(firebaseUser);
-        await syncProfile(firebaseUser); // Sync first to avoid race condition on /admin
-        setUser(firebaseUser);
-      } else {
-        await fetch("/api/auth/session", { method: "DELETE", credentials: "same-origin" }).catch(() => {});
+      try {
+        if (firebaseUser) {
+          await ensureServerSession(firebaseUser);
+          await syncProfile(firebaseUser); // Sync first to avoid race condition on /admin
+          setUser(firebaseUser);
+        } else {
+          await fetch("/api/auth/session", { method: "DELETE", credentials: "same-origin" }).catch(() => {});
+          setUser(null);
+          setIsProfileComplete(true); 
+        }
+      } catch (err) {
+        console.error("Auth status sync failed:", err);
+        // In case of error (e.g. backend offline or missing credentials), don't block the UI
         setUser(null);
-        setIsProfileComplete(true); 
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     // 3. ID Token Change ( handle token refresh )
     const unsubscribeToken = onIdTokenChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        await ensureServerSession(firebaseUser);
-        // Token refreshed, ensure UI state is synced
-        setUser(firebaseUser);
+      try {
+        if (firebaseUser) {
+          await ensureServerSession(firebaseUser);
+          // Token refreshed, ensure UI state is synced
+          setUser(firebaseUser);
+        }
+      } catch (err) {
+        console.error("Token sync failed:", err);
       }
     });
 

@@ -3,8 +3,6 @@ import prisma from "@/lib/prisma";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { enforceRateLimit } from "@/lib/rate-limit";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
-
 export async function POST(req: Request) {
   const limited = await enforceRateLimit(req, {
     namespace: "ai",
@@ -14,6 +12,11 @@ export async function POST(req: Request) {
   if (limited) return limited;
 
   try {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      return NextResponse.json({ error: "Gemini API key is not configured" }, { status: 500 });
+    }
+    const genAI = new GoogleGenerativeAI(apiKey);
     const { productIds } = await req.json();
 
     if (!productIds || productIds.length < 2) {
