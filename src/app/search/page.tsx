@@ -4,6 +4,7 @@ import { searchProducts, getCategories } from "@/actions/product";
 import SortSelect from "@/components/ui/SortSelect";
 import Link from "next/link";
 import SearchSidebar from "@/components/search/SearchSidebar";
+import EmptyState from "@/components/ui/EmptyState";
 
 export const dynamic = "force-dynamic";
 
@@ -99,16 +100,12 @@ export default async function SearchPage({
               ))}
             </div>
           ) : (
-            <div className="text-center py-20 border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-2xl">
-              <SearchIcon size={48} className="mx-auto text-gray-300 mb-4" />
-              <h3 className="text-xl font-semibold mb-2">No results found</h3>
-              <p className="text-gray-500 mb-6">
-                {query ? `No items matching "${query}"` : "No items available with these filters"}
-              </p>
-              <Link href="/search" className="px-6 py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition-colors">
-                Clear Search
-              </Link>
-            </div>
+            <EmptyState
+              title="No results found"
+              description={query ? `We couldn't find any items matching "${query}". Try refining your search query or filters.` : "No items are currently available matching these filters."}
+              actionLabel="Clear Search"
+              actionHref="/search"
+            />
           )}
 
           {results.length > 0 && (

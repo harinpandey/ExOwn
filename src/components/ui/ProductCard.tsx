@@ -131,7 +131,7 @@ export default function ProductCard({
   };
 
   return (
-    <div className="group relative flex flex-col bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 overflow-hidden hover:shadow-lg transition-all duration-300">
+    <div className="group relative flex flex-col bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 overflow-hidden premium-card">
       
       {/* Aspect Ratio 4:3 Image Container */}
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-gray-50 dark:bg-gray-950">
@@ -139,7 +139,7 @@ export default function ProductCard({
           src={image || "/placeholder-product.png"} 
           alt={title} 
           loading="lazy"
-          className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
+          className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
         />
         
         {/* Overlay badges (minimal) */}
@@ -159,10 +159,10 @@ export default function ProductCard({
         {/* Wishlist Heart Icon (Top-Right, Always Visible) */}
         <button 
           onClick={handleWishlistToggle}
-          className="absolute top-2.5 right-2.5 p-2 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md text-gray-700 dark:text-gray-300 rounded-full hover:scale-105 transition-transform shadow-sm z-35"
+          className="absolute top-2.5 right-2.5 p-2 bg-white/20 dark:bg-black/25 border border-white/20 dark:border-white/10 backdrop-blur-md text-gray-800 dark:text-gray-200 rounded-full hover:scale-110 active:scale-95 transition-all shadow-inner z-30"
           aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
         >
-          <Heart size={16} fill={wishlisted ? "#ef4444" : "none"} className={wishlisted ? "text-red-500" : ""} />
+          <Heart size={15} fill={wishlisted ? "#ef4444" : "none"} className={wishlisted ? "text-red-500" : ""} />
         </button>
 
         {/* Seller management quick actions (only if logged in and seller) */}

@@ -30,6 +30,7 @@ export const metadata: Metadata = {
 
 import { Toaster } from "react-hot-toast";
 import { ThemeProvider } from "@/components/theme-provider";
+import ClientLayoutWrapper from "@/components/layout/ClientLayoutWrapper";
 
 export default function RootLayout({
   children,
@@ -49,13 +50,15 @@ export default function RootLayout({
             <NotificationProvider>
               <CompareProvider>
                 <Toaster position="top-center" reverseOrder={false} />
-                <Navbar />
-                <main className="flex-1 pb-16 md:pb-0">
-                  {children}
-                </main>
-                <Footer />
-                <MobileNav />
-                <CompareBar />
+                <ClientLayoutWrapper>
+                  <Navbar />
+                  <main className="flex-1 pb-16 md:pb-0 page-transition">
+                    {children}
+                  </main>
+                  <Footer />
+                  <MobileNav />
+                  <CompareBar />
+                </ClientLayoutWrapper>
               </CompareProvider>
             </NotificationProvider>
           </AuthProvider>
