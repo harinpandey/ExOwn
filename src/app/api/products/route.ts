@@ -70,6 +70,17 @@ function stringValue(value: unknown) {
   return typeof value === "string" ? value.trim() : "";
 }
 
+const LISTING_TYPES = new Set(["SELL", "RENT", "SERVICE"]);
+const CONDITIONS = new Set(["LIKE_NEW", "GOOD", "FAIR", "POOR"]);
+
+function isValidListingType(value: string) {
+  return !value || LISTING_TYPES.has(value);
+}
+
+function isValidCondition(value: string) {
+  return !value || CONDITIONS.has(value);
+}
+
 export async function GET(req: NextRequest) {
   const limited = await enforceRateLimit(req, {
     namespace: "search",
@@ -89,9 +100,22 @@ export async function GET(req: NextRequest) {
   const maxPrice = numberParam(searchParams.get("maxPrice"));
   const sort = (searchParams.get("sort") || "newest").trim();
 
+  if (!isValidListingType(listingType)) {
+    return NextResponse.json({ success: false, error: "Invalid listingType" }, { status: 400 });
+  }
+
+  if (!isValidCondition(condition)) {
+    return NextResponse.json({ success: false, error: "Invalid condition" }, { status: 400 });
+  }
+
+  if ((minPrice !== undefined && minPrice < 0) || (maxPrice !== undefined && maxPrice < 0)) {
+    return NextResponse.json({ success: false, error: "Price filters must be non-negative" }, { status: 400 });
+  }
+
   const cacheKey = `products:${searchParams.toString() || "default"}`;
 
-  const payload = await getCached(cacheKey, 30, async () => {
+  try {
+    const payload = await getCached(cacheKey, 30, async () => {
     const andFilters: any[] = [];
 
     if (search) {
@@ -157,9 +181,13 @@ export async function GET(req: NextRequest) {
         totalPages: Math.ceil(total / pageSize),
       },
     };
-  });
+    });
 
-  return NextResponse.json({ success: true, ...payload });
+    return NextResponse.json({ success: true, ...payload });
+  } catch (error) {
+    console.error("[api/products] Fetch failed", error);
+    return NextResponse.json({ success: false, error: "Product service unavailable" }, { status: 503 });
+  }
 }
 
 export async function POST(req: NextRequest) {
@@ -186,16 +214,39 @@ export async function POST(req: NextRequest) {
     const pickupLocation = stringValue(body.pickupLocation || body.location);
     const price = Number(body.price);
     const inventory = positiveInt(body.inventory, 1, 10_000);
+    const listingType = stringValue(body.listingType) || "SELL";
+    const condition = stringValue(body.condition) || "GOOD";
 
     if (!title || !description || !categoryId || !campusId || !pickupLocation) {
       return NextResponse.json({ success: false, error: "Missing required product fields" }, { status: 400 });
     }
 
-    if (!Number.isFinite(price) || price <= 0) {
-      return NextResponse.json({ success: false, error: "Price must be greater than zero" }, { status: 400 });
+    if (title.length < 3 || title.length > 100) {
+      return NextResponse.json({ success: false, error: "Title must be between 3 and 100 characters" }, { status: 400 });
     }
 
-    if (!Array.isArray(body.images) || body.images.length === 0 || body.images.some((image: unknown) => typeof image !== "string")) {
+    if (description.length < 10 || description.length > 2000) {
+      return NextResponse.json({ success: false, error: "Description must be between 10 and 2000 characters" }, { status: 400 });
+    }
+
+    if (!Number.isFinite(price) || price <= 0 || price > 1_000_000) {
+      return NextResponse.json({ success: false, error: "Price must be between 1 and 1,000,000" }, { status: 400 });
+    }
+
+    if (!isValidListingType(listingType)) {
+      return NextResponse.json({ success: false, error: "Invalid listingType" }, { status: 400 });
+    }
+
+    if (!isValidCondition(condition)) {
+      return NextResponse.json({ success: false, error: "Invalid condition" }, { status: 400 });
+    }
+
+    if (
+      !Array.isArray(body.images) ||
+      body.images.length === 0 ||
+      body.images.length > 10 ||
+      body.images.some((image: unknown) => typeof image !== "string" || !/^https:\/\//i.test(image))
+    ) {
       return NextResponse.json({ success: false, error: "At least one product image is required" }, { status: 400 });
     }
 
@@ -221,9 +272,9 @@ export async function POST(req: NextRequest) {
         originalPrice: body.originalPrice ? Number(body.originalPrice) : undefined,
         brand: stringValue(body.brand) || undefined,
         purchaseYear: body.purchaseYear ? Number(body.purchaseYear) : undefined,
-        condition: (stringValue(body.condition) || "GOOD") as any,
+        condition: condition as any,
         conditionDetails: body.conditionDetails,
-        listingType: (stringValue(body.listingType) || "SELL") as any,
+        listingType: listingType as any,
         images: body.images,
         pickupLocation,
         inventory,

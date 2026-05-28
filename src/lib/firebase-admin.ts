@@ -1,10 +1,16 @@
 import * as admin from 'firebase-admin';
 
+const privateKey = process.env.FIREBASE_PRIVATE_KEY || process.env.FIREBASE_PRIVATE_KEYS;
+
 const hasAdminCredentials = Boolean(
   process.env.FIREBASE_PROJECT_ID &&
   process.env.FIREBASE_CLIENT_EMAIL &&
-  process.env.FIREBASE_PRIVATE_KEY
+  privateKey
 );
+
+function normalizePrivateKey(key?: string) {
+  return key?.replace(/^"|"$/g, "").replace(/\\n/g, "\n");
+}
 
 if (!admin.apps.length && hasAdminCredentials) {
   try {
@@ -13,7 +19,7 @@ if (!admin.apps.length && hasAdminCredentials) {
       credential: admin.credential.cert({
         projectId: process.env.FIREBASE_PROJECT_ID,
         clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-        privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+        privateKey: normalizePrivateKey(privateKey),
       }),
     });
     console.log("[firebase-admin] Firebase Admin initialized successfully.");
@@ -24,8 +30,9 @@ if (!admin.apps.length && hasAdminCredentials) {
   console.warn('[firebase-admin] Firebase admin is not initialized.');
   if (!process.env.FIREBASE_PROJECT_ID) console.warn(' - FIREBASE_PROJECT_ID is missing');
   if (!process.env.FIREBASE_CLIENT_EMAIL) console.warn(' - FIREBASE_CLIENT_EMAIL is missing');
-  if (!process.env.FIREBASE_PRIVATE_KEY) console.warn(' - FIREBASE_PRIVATE_KEY is missing');
+  if (!privateKey) console.warn(' - FIREBASE_PRIVATE_KEY is missing');
 }
 
 export const adminAuth = admin.apps.length ? admin.auth() : null;
 export const adminDb = admin.apps.length ? admin.firestore() : null;
+export const adminMessaging = admin.apps.length ? admin.messaging() : null;

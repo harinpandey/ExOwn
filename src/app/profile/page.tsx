@@ -4,8 +4,6 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { signOut } from "firebase/auth";
-import { auth } from "@/lib/firebase";
 import { Package, Heart, Settings, ShieldCheck, Star, LogOut, Edit2, CreditCard, Crown, Zap, Clock } from "lucide-react";
 import ProductCard from "@/components/ui/ProductCard";
 import UpgradePlanModal from "@/components/dashboard/UpgradePlanModal";
@@ -14,7 +12,7 @@ import { getSubscription } from "@/actions/subscription";
 import { format } from "date-fns";
 
 export default function ProfileDashboardPage() {
-  const { user, loading } = useAuth();
+  const { user, loading, logout } = useAuth();
   const router = useRouter();
   const [myListings, setMyListings] = useState<any[]>([]);
   const [listingsLoading, setListingsLoading] = useState(true);
@@ -55,10 +53,8 @@ export default function ProfileDashboardPage() {
 
   const handleSignOut = async () => {
     try {
-      if (auth) {
-        await signOut(auth);
-        router.push("/");
-      }
+      await logout();
+      router.push("/");
     } catch (err) {
       console.error("Sign out error:", err);
     }

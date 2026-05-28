@@ -92,10 +92,13 @@ export default async function SearchPage({
                   location={product.pickupLocation}
                   createdAt={product.createdAt}
                   isUrgent={product.isUrgent}
+                  listingType={product.listingType as any}
+                  condition={product.condition}
                   isVerified={product.seller?.isVerified || false}
                   categoryId={product.categoryId}
                   subcategoryId={product.subcategoryId || ""}
                   sellerId={product.sellerId}
+                  seller={product.seller as any}
                 />
               ))}
             </div>

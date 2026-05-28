@@ -13,6 +13,38 @@ export type CurrentUser = {
   email?: string;
 };
 
+function hasValidAudience(decoded: DecodedIdToken) {
+  const adminProjectId = process.env.FIREBASE_PROJECT_ID;
+  if (adminProjectId && decoded.aud !== adminProjectId) {
+    console.error(`[auth:security] Token audience mismatch. Token: ${decoded.aud}, Expected: ${adminProjectId}`);
+    return false;
+  }
+  return true;
+}
+
+export async function verifyFirebaseIdToken(token?: string | null): Promise<DecodedIdToken | null> {
+  if (!token) {
+    console.log("[auth] No token provided to verifyFirebaseIdToken");
+    return null;
+  }
+  if (!adminAuth) {
+    console.error("[auth] Firebase Admin SDK not initialized (adminAuth is null)");
+    return null;
+  }
+
+  try {
+    const decoded = await adminAuth.verifyIdToken(token, true);
+    console.log(`[auth] ID token verified. UID: ${decoded.uid}, Email: ${decoded.email}, Project ID: ${decoded.aud}`);
+    return hasValidAudience(decoded) ? decoded : null;
+  } catch (error: any) {
+    console.error("[auth:security] Firebase token verification failed:", error.message);
+    if (error.code === 'auth/id-token-expired') {
+      console.log("[auth] Token expired");
+    }
+    return null;
+  }
+}
+
 export async function verifyFirebaseToken(token?: string | null): Promise<DecodedIdToken | null> {
   if (!token) {
     console.log("[auth] No token provided to verifyFirebaseToken");
@@ -24,22 +56,12 @@ export async function verifyFirebaseToken(token?: string | null): Promise<Decode
   }
 
   try {
-    const decoded = await adminAuth.verifyIdToken(token, true);
-    console.log(`[auth] Token verified. UID: ${decoded.uid}, Email: ${decoded.email}, Project ID: ${decoded.aud}`);
-    
-    const adminProjectId = process.env.FIREBASE_PROJECT_ID;
-    if (adminProjectId && decoded.aud !== adminProjectId) {
-      console.error(`[auth:security] Token audience mismatch! Token: ${decoded.aud}, Expected: ${adminProjectId}. Potential spoofing/forgery attempt.`);
-      return null;
-    }
-    
-    return decoded;
-  } catch (error: any) {
-    console.error("[auth:security] Firebase token verification failed:", error.message);
-    if (error.code === 'auth/id-token-expired') {
-      console.log("[auth] Token expired");
-    }
-    return null;
+    const decoded = await adminAuth.verifySessionCookie(token, true);
+    console.log(`[auth] Session cookie verified. UID: ${decoded.uid}, Email: ${decoded.email}, Project ID: ${decoded.aud}`);
+    return hasValidAudience(decoded) ? decoded : null;
+  } catch (sessionError: any) {
+    console.warn("[auth] Session cookie verification failed, trying ID token fallback:", sessionError.message);
+    return verifyFirebaseIdToken(token);
   }
 }
 

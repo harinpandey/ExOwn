@@ -2,6 +2,8 @@ import prisma from "@/lib/prisma";
 import { format } from "date-fns";
 import { Shield, User, Package, CreditCard, AlertCircle, Search } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminActivityPage() {
   const logs = await prisma.activityLog.findMany({
     include: {

@@ -6,6 +6,12 @@ import { requireUser } from "@/lib/auth";
 const cloudinaryUrl = process.env.CLOUDINARY_URL || "";
 const [apiKey, rest] = cloudinaryUrl.replace("cloudinary://", "").split(":");
 const [apiSecret, cloudName] = (rest || "").split("@");
+const ALLOWED_FOLDERS = new Set([
+  "ExOwn_products",
+  "ExOwn_profiles",
+  "ExOwn_exchange_offers",
+  "ExOwn_reviews",
+]);
 
 cloudinary.config({
   cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || cloudName,
@@ -15,6 +21,14 @@ cloudinary.config({
 
 export async function getCloudinarySignature(folder: string = "ExOwn_products") {
   await requireUser();
+
+  if (!ALLOWED_FOLDERS.has(folder)) {
+    throw new Error("Upload folder is not allowed.");
+  }
+
+  if (!cloudinary.config().api_key || !cloudinary.config().api_secret || !cloudinary.config().cloud_name) {
+    throw new Error("Cloudinary is not configured.");
+  }
 
   const timestamp = Math.round(new Date().getTime() / 1000);
   const allowed_formats = "jpg,jpeg,png,webp";

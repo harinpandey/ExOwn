@@ -65,6 +65,10 @@ export default function SellPage() {
         return isValidType && isValidSize;
       });
 
+      if (validFiles.length !== newFiles.length) {
+        toast.error("Only JPG, PNG, or WEBP images up to 5MB are allowed");
+      }
+
       if (images.length + validFiles.length > 10) {
         toast.error("Maximum 10 images allowed");
         return;

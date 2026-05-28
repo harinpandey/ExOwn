@@ -26,12 +26,24 @@ export default function ExchangeOfferModal({ product, isOpen, onClose }: Exchang
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const newFiles = Array.from(e.target.files);
-      if (images.length + newFiles.length > 5) {
+      const validFiles = newFiles.filter((file) => {
+        const isValidType = ["image/jpeg", "image/png", "image/webp"].includes(file.type);
+        const isValidSize = file.size <= 5 * 1024 * 1024;
+        return isValidType && isValidSize;
+      });
+
+      if (validFiles.length !== newFiles.length) {
+        toast.error("Only JPG, PNG, or WEBP images up to 5MB are allowed");
+      }
+
+      if (images.length + validFiles.length > 5) {
         toast.error("Max 5 images for offer");
         return;
       }
-      setImages(prev => [...prev, ...newFiles]);
-      const newUrls = newFiles.map(file => URL.createObjectURL(file));
+      if (validFiles.length === 0) return;
+
+      setImages(prev => [...prev, ...validFiles]);
+      const newUrls = validFiles.map(file => URL.createObjectURL(file));
       setImageUrls(prev => [...prev, ...newUrls]);
     }
   };
@@ -203,7 +215,7 @@ export default function ExchangeOfferModal({ product, isOpen, onClose }: Exchang
                 <label className="aspect-square rounded-2xl border-4 border-dashed border-gray-200 dark:border-gray-800 flex flex-col items-center justify-center cursor-pointer hover:border-primary/40 hover:bg-primary/5 transition-all group">
                    <Upload size={32} className="text-gray-300 group-hover:text-primary transition-colors" />
                    <span className="text-[8px] font-black uppercase tracking-[0.2em] text-gray-400 mt-2">Add Photo</span>
-                   <input type="file" className="hidden" accept="image/*" multiple onChange={handleImageChange} />
+                   <input type="file" className="hidden" accept="image/jpeg,image/png,image/webp" multiple onChange={handleImageChange} />
                 </label>
               )}
             </div>

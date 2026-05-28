@@ -97,8 +97,25 @@ export default function EditListingPage() {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files);
-      setNewFiles(prev => [...prev, ...files]);
-      const urls = files.map(file => URL.createObjectURL(file));
+      const validFiles = files.filter((file) => {
+        const isValidType = ["image/jpeg", "image/png", "image/webp"].includes(file.type);
+        const isValidSize = file.size <= 5 * 1024 * 1024;
+        return isValidType && isValidSize;
+      });
+
+      if (validFiles.length !== files.length) {
+        toast.error("Only JPG, PNG, or WEBP images up to 5MB are allowed");
+      }
+
+      if (images.length + newFiles.length + validFiles.length > 10) {
+        toast.error("Maximum 10 images allowed");
+        return;
+      }
+
+      if (validFiles.length === 0) return;
+
+      setNewFiles(prev => [...prev, ...validFiles]);
+      const urls = validFiles.map(file => URL.createObjectURL(file));
       setNewImageUrls(prev => [...prev, ...urls]);
     }
   };
@@ -382,7 +399,7 @@ export default function EditListingPage() {
                     {(images.length + newFiles.length) < 10 && (
                       <label className="aspect-square rounded-[2rem] border-4 border-dashed border-gray-100 dark:border-gray-800 flex flex-col items-center justify-center cursor-pointer hover:border-primary text-gray-400">
                         <Upload size={32} />
-                        <input type="file" multiple className="hidden" onChange={handleImageChange} />
+                        <input type="file" multiple accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleImageChange} />
                       </label>
                     )}
                   </div>

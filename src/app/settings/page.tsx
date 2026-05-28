@@ -68,8 +68,8 @@ export default function SettingsPage() {
     if (!e.target.files?.[0]) return;
     
     const file = e.target.files[0];
-    if (file.size > 5 * 1024 * 1024) {
-      alert("Image too large (Max 5MB)");
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type) || file.size > 5 * 1024 * 1024) {
+      alert("Please upload a JPG, PNG, or WEBP image up to 5MB.");
       return;
     }
 

@@ -1,17 +1,24 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Search, PlusSquare, MessageSquare, User } from "lucide-react";
+import { Home, Search, PlusSquare, MessageSquare, User, Key } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
 export default function MobileNav() {
   const pathname = usePathname();
+  const [listingType, setListingType] = useState("");
   const { user, isProfileComplete } = useAuth();
+
+  useEffect(() => {
+    setListingType(new URLSearchParams(window.location.search).get("listingType") || "");
+  }, [pathname]);
 
   const navItems = [
     { name: "Home", icon: Home, href: "/" },
     { name: "Search", icon: Search, href: "/search" },
+    { name: "Rent", icon: Key, href: "/search?listingType=RENT" },
     { name: "Sell", icon: PlusSquare, href: !user ? "/login?redirect=/sell" : !isProfileComplete ? "/complete-profile" : "/sell" },
     { name: "Chat", icon: MessageSquare, href: "/chat" },
     { name: "Profile", icon: User, href: "/profile" },
@@ -21,7 +28,13 @@ export default function MobileNav() {
     <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/90 dark:bg-gray-950/90 backdrop-blur-md border-t border-gray-100 dark:border-gray-900 pb-safe pt-1.5 shadow-lg">
       <div className="flex items-center justify-around max-w-md mx-auto px-2">
         {navItems.map((item) => {
-          const isActive = pathname === item.href;
+          const isRentTab = item.name === "Rent";
+          const isSearchTab = item.name === "Search";
+          const isActive = isRentTab
+            ? pathname === "/search" && listingType === "RENT"
+            : isSearchTab
+              ? pathname === "/search" && listingType !== "RENT"
+              : pathname === item.href;
           const Icon = item.icon;
 
           return (

@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { 
   signInWithPopup, 
   signInWithRedirect, 
   getRedirectResult,
-  GoogleAuthProvider 
+  GoogleAuthProvider,
+  type User as FirebaseUser,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useAuth } from "@/context/AuthContext";
@@ -30,6 +31,21 @@ function LoginContent() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const createServerSession = useCallback(async (firebaseUser: FirebaseUser) => {
+    const idToken = await firebaseUser.getIdToken(true);
+    const response = await fetch("/api/auth/session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ idToken }),
+      credentials: "same-origin",
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || "Could not create a secure session.");
+    }
+  }, []);
+
   // Handle redirect result after mobile sign-in returns
   useEffect(() => {
     if (!auth) return;
@@ -40,7 +56,7 @@ function LoginContent() {
       getRedirectResult(auth)
         .then((result) => {
           if (result?.user) {
-            router.push(redirect);
+            return createServerSession(result.user).then(() => router.push(redirect));
           }
         })
         .catch((err) => {
@@ -54,7 +70,7 @@ function LoginContent() {
       // If user already exists, ensure loading is false
       setIsLoading(false);
     }
-  }, [user, redirect, router]);
+  }, [user, redirect, router, createServerSession]);
 
   // If already logged in, redirect away
   useEffect(() => {
@@ -83,7 +99,8 @@ function LoginContent() {
       } else {
         // Desktop: use popup for better UX
         try {
-          await signInWithPopup(auth, provider);
+          const result = await signInWithPopup(auth, provider);
+          await createServerSession(result.user);
           router.push(redirect);
         } catch (popupErr: any) {
           // Popup blocked — fall back to redirect

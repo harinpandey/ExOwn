@@ -87,6 +87,13 @@ export default function Navbar() {
           </div>
         </div>
 
+        {/* Navigation Links */}
+        <div className="hidden lg:flex items-center gap-5 text-xs font-black uppercase tracking-wider text-gray-500 dark:text-gray-400 shrink-0">
+          <Link href="/search" className="hover:text-primary transition-colors">Buy</Link>
+          <Link href="/search?listingType=RENT" className="hover:text-primary transition-colors">Rent</Link>
+          <Link href="/search?category=properties" className="hover:text-primary transition-colors">Hostels</Link>
+        </div>
+
         {/* Center: Search (Desktop) */}
         <div className="hidden md:flex flex-1 max-w-xl">
           <form onSubmit={handleSearch} className="relative w-full flex items-center bg-gray-50 dark:bg-gray-900 rounded-xl border border-transparent focus-within:border-primary/20 focus-within:bg-white dark:focus-within:bg-gray-950 transition-all group">
@@ -129,8 +136,19 @@ export default function Navbar() {
             </Link>
           )}
 
+          {user && (
+            <Link
+              href="/chat"
+              className="hidden sm:flex items-center gap-1.5 px-3 py-2 text-gray-500 hover:text-primary rounded-xl hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors text-xs font-semibold"
+              title="Chat"
+            >
+              <MessageSquare size={18} />
+              <span className="hidden lg:inline">Chat</span>
+            </Link>
+          )}
+
           {/* Notifications Dropdown */}
-          <div className="relative">
+          {user && <div className="relative">
             <button 
               onClick={() => {
                 setIsNotificationsOpen(!isNotificationsOpen);
@@ -167,7 +185,7 @@ export default function Navbar() {
                 </motion.div>
               )}
             </AnimatePresence>
-          </div>
+          </div>}
 
           {/* Sell CTA Button (Desktop) */}
           <Link 
@@ -176,6 +194,14 @@ export default function Navbar() {
           >
             <Plus size={16} />
             <span>Sell</span>
+          </Link>
+
+          {/* Rent CTA Button (Desktop) */}
+          <Link
+            href="/search?listingType=RENT"
+            className="hidden sm:flex items-center gap-1.5 px-4 py-2 border border-primary text-primary hover:bg-primary/5 rounded-xl font-semibold text-xs transition-all shadow-sm hover:scale-[1.01] active:scale-[0.99]"
+          >
+            <span>Rent</span>
           </Link>
 
           {/* Profile Dropdown */}

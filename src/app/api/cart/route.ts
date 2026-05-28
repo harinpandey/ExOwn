@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import {
   type CartIdentity,
   cartInclude,
+  findCart,
   getCartIdentity,
   getOrCreateCart,
   recalculateCartSubtotal,
@@ -23,6 +24,18 @@ async function cartJson(identity: CartIdentity, cart: any, status = 200) {
   const response = NextResponse.json({ success: true, data: serializeCart(cart) }, { status });
   setGuestCartCookie(response, identity);
   return response;
+}
+
+function emptyGuestCart(guestId: string) {
+  return {
+    id: null,
+    userId: null,
+    guestId,
+    subtotal: 0,
+    createdAt: null,
+    updatedAt: null,
+    items: [],
+  };
 }
 
 async function findOwnedCartItem(cartId: string, body: any) {
@@ -55,6 +68,16 @@ export async function GET(req: NextRequest) {
   if (limited) return limited;
 
   const identity = await getCartIdentity(req);
+  if (identity.type === "guest") {
+    const cart = identity.newGuestId ? null : await findCart(identity);
+    const response = NextResponse.json({
+      success: true,
+      data: cart ? serializeCart(cart) : emptyGuestCart(identity.guestId),
+    });
+    setGuestCartCookie(response, identity);
+    return response;
+  }
+
   const cart = await getOrCreateCart(identity);
   const response = NextResponse.json({ success: true, data: serializeCart(cart) });
   setGuestCartCookie(response, identity);
