@@ -2,7 +2,18 @@
 
 import prisma, { withRetry } from "@/lib/prisma";
 import { logActivity } from "@/lib/logger";
-import { getCurrentUser, requireSameUser } from "@/lib/auth";
+import { getCurrentUser, requireSameFirebaseUser, requireSameUser } from "@/lib/auth";
+import { sanitizeString, validateLength, validatePhone } from "@/lib/validation";
+
+function isConfiguredAdminEmail(email?: string | null) {
+  if (!email) return false;
+  const configured = (process.env.ADMIN_EMAILS || "exown.official@gmail.com")
+    .split(",")
+    .map((item) => item.trim().toLowerCase())
+    .filter(Boolean);
+
+  return configured.includes(email.toLowerCase());
+}
 
 export async function syncUser(data: {
   id: string;
@@ -12,25 +23,28 @@ export async function syncUser(data: {
 }) {
   try {
     console.log(`[syncUser] Called for UID: ${data.id}, Email: ${data.email}`);
-    const currentUser = await requireSameUser(data.id);
+    const currentUser = await requireSameFirebaseUser(data.id);
     console.log(`[syncUser] Auth verified for UID: ${currentUser.uid}`);
 
-    const isAdmin = data.email?.toLowerCase() === "exown.official@gmail.com";
+    const email = currentUser.email || data.email;
+    const name = sanitizeString(currentUser.name || data.name || "");
+    const image = currentUser.picture || data.image;
+    const isAdmin = isConfiguredAdminEmail(email);
     console.log(`[syncUser] Attempting upsert. isAdmin: ${isAdmin}`);
     const user = await withRetry(() => prisma.user.upsert({
       where: { id: data.id },
       update: {
-        ...(data.email && { email: data.email }),
-        ...(data.name && { name: data.name }),
-        ...(data.image && { image: data.image }),
-        role: isAdmin ? "ADMIN" : "USER", // Ensure role is synced
+        ...(email && { email }),
+        ...(name && { name }),
+        ...(image && { image }),
+        ...(isAdmin && { role: "ADMIN" as const }),
         lastActive: new Date(),
       },
       create: {
         id: data.id,
-        email: data.email,
-        name: data.name,
-        image: data.image,
+        email,
+        name: name || null,
+        image,
         role: isAdmin ? "ADMIN" : "USER",
         lastActive: new Date(),
         verificationLevel: "BASIC", // Explicit default
@@ -119,42 +133,111 @@ export async function completeProfile(userId: string, data: {
   try {
     await requireSameUser(userId);
 
-    // Update user with private data
-    await withRetry(() => prisma.user.update({
+    const name = sanitizeString(data.name);
+    const phone = data.phone.trim();
+    const registrationNumber = data.registrationNumber ? sanitizeString(data.registrationNumber) : "";
+    const studentPhoto = data.studentPhoto?.trim() || "";
+    const course = sanitizeString(data.course);
+    const batch = sanitizeString(data.batch);
+    const collegeName = sanitizeString(data.collegeName);
+    const hostel = data.hostel ? sanitizeString(data.hostel) : undefined;
+    const address = data.address ? sanitizeString(data.address) : undefined;
+
+    if (!validateLength(name, 2, 80)) {
+      return { success: false, error: "Name must be between 2 and 80 characters." };
+    }
+    if (!validatePhone(phone)) {
+      return { success: false, error: "Invalid phone number format." };
+    }
+    if (registrationNumber && !validateLength(registrationNumber, 3, 80)) {
+      return { success: false, error: "Registration number must be between 3 and 80 characters." };
+    }
+    if (studentPhoto && !studentPhoto.startsWith("https://")) {
+      return { success: false, error: "Student photo must be a secure uploaded image URL." };
+    }
+    if (!validateLength(course, 2, 100)) {
+      return { success: false, error: "Course must be between 2 and 100 characters." };
+    }
+    if (!validateLength(batch, 2, 20)) {
+      return { success: false, error: "Batch must be between 2 and 20 characters." };
+    }
+    if (!validateLength(collegeName, 2, 150)) {
+      return { success: false, error: "College name must be between 2 and 150 characters." };
+    }
+
+    const existingUser = await prisma.user.findUnique({
       where: { id: userId },
-      data: {
-        name: data.name,
-        phone: data.phone,
-        registrationNumber: data.registrationNumber || null,
-        studentPhoto: data.studentPhoto || null,
-        address: data.address,
-        isProfileCompleted: true,
-        // If they provided student info, they might be CAMPUS level
-        verificationLevel: data.registrationNumber ? "CAMPUS" : "VERIFIED", 
+      select: { verificationLevel: true },
+    });
+
+    // Update user with private data
+    await withRetry(() => prisma.$transaction(async (tx) => {
+      await tx.user.update({
+        where: { id: userId },
+        data: {
+          name,
+          phone,
+          registrationNumber: registrationNumber || null,
+          studentPhoto: studentPhoto || null,
+          address,
+          isProfileCompleted: true,
+          verificationLevel: existingUser?.verificationLevel || "BASIC",
+        }
+      });
+
+      if (registrationNumber || studentPhoto) {
+        const pendingRequest = await tx.verificationRequest.findFirst({
+          where: {
+            userId,
+            status: "PENDING",
+          },
+          select: { id: true },
+        });
+
+        if (!pendingRequest) {
+          await tx.verificationRequest.create({
+            data: {
+              userId,
+              level: "CAMPUS",
+              documentType: studentPhoto ? "STUDENT_ID" : "OTHER",
+              documentUrl: studentPhoto || null,
+              registrationNumber: registrationNumber || null,
+              status: "PENDING",
+              metadata: {
+                source: "complete-profile",
+                collegeName,
+                course,
+                batch,
+              },
+            },
+          });
+        }
       }
+
+      await tx.profile.upsert({
+        where: { userId },
+        update: {
+          course,
+          batch,
+          hostel,
+          collegeName,
+        },
+        create: {
+          userId,
+          course,
+          batch,
+          hostel,
+          collegeName,
+        }
+      });
     }));
 
     await logActivity({
       userId,
       actionType: "PROFILE_UPDATED",
-      metadata: { verificationLevel: data.registrationNumber ? "CAMPUS" : "VERIFIED" }
-    });
-
-    // Update profile with public-ish data
-    await prisma.profile.upsert({
-      where: { userId },
-      update: {
-        course: data.course,
-        batch: data.batch,
-        hostel: data.hostel,
-        collegeName: data.collegeName,
-      },
-      create: {
-        userId,
-        course: data.course,
-        batch: data.batch,
-        hostel: data.hostel,
-        collegeName: data.collegeName,
+      metadata: {
+        verificationLevel: existingUser?.verificationLevel || "BASIC",
+        verificationRequestCreated: Boolean(registrationNumber || studentPhoto),
       }
     });
 
@@ -220,17 +303,29 @@ export async function saveFcmToken(userId: string, token: string) {
   try {
     await requireSameUser(userId);
 
-    // Upsert or simple update if we had a dedicated FCM tokens table
-    // For now, we can store it in metadata or log it
-    // In a real production app, you'd have a UserDevice or FcmToken model
-    console.log(`[FCM] Saving token for user ${userId}: ${token}`);
-    
-    // Example logic if the field exists in User model:
-    // await prisma.user.update({ where: { id: userId }, data: { fcmToken: token } });
+    const cleanToken = token.trim();
+    if (cleanToken.length < 20 || cleanToken.length > 4096) {
+      return { success: false, error: "Invalid notification token" };
+    }
+
+    await withRetry(() => prisma.userDevice.upsert({
+      where: { token: cleanToken },
+      update: {
+        userId,
+        platform: "web",
+        lastSeenAt: new Date(),
+      },
+      create: {
+        userId,
+        token: cleanToken,
+        platform: "web",
+        lastSeenAt: new Date(),
+      },
+    }));
     
     return { success: true };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error saving FCM token:", error);
-    return { success: false };
+    return { success: false, error: error.message || "Failed to save notification token" };
   }
 }

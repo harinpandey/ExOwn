@@ -6,6 +6,9 @@ import { getCurrentUser, requireSameUser } from "@/lib/auth";
 import { getCached, invalidateCachePrefix } from "@/lib/cache";
 import { sanitizeString, validateLength, validateRange } from "@/lib/validation";
 
+const LISTING_TYPES = new Set(["SELL", "RENT", "SERVICE"]);
+const CONDITIONS = new Set(["LIKE_NEW", "GOOD", "FAIR", "POOR"]);
+
 export async function getTrendingProducts() {
   try {
     if (!process.env.DATABASE_URL) return [];
@@ -361,13 +364,39 @@ export async function createProduct(data: {
     if (!validateLength(pickupLocation, 2, 200)) {
       return { success: false, error: "Pickup location must be between 2 and 200 characters." };
     }
+    if (!LISTING_TYPES.has(data.listingType || "SELL")) {
+      return { success: false, error: "Invalid listing type." };
+    }
+    if (!CONDITIONS.has(data.condition)) {
+      return { success: false, error: "Invalid condition." };
+    }
     if (Array.isArray(data.images)) {
       for (const img of data.images) {
-        if (typeof img !== 'string' || !img.startsWith("http")) {
+        if (typeof img !== 'string' || !img.startsWith("https://")) {
           return { success: false, error: "Invalid image URL format." };
         }
       }
     }
+
+    if (!Array.isArray(data.images) || data.images.length === 0 || data.images.length > 10) {
+      return { success: false, error: "Add between 1 and 10 listing images." };
+    }
+
+    const seller = await prisma.user.findUnique({
+      where: { id: data.sellerId },
+      select: {
+        isProfileCompleted: true,
+        isVerified: true,
+        verificationLevel: true,
+        isTrustedSeller: true,
+      },
+    });
+
+    if (!seller?.isProfileCompleted) {
+      return { success: false, error: "Complete your profile before publishing a listing." };
+    }
+
+    const listingStatus = seller.isVerified || seller.isTrustedSeller || seller.verificationLevel !== "BASIC" ? "LIVE" : "PENDING";
 
     // 2. Fraud Check: Duplicate Listing
     const existing = await prisma.product.findFirst({
@@ -407,7 +436,7 @@ export async function createProduct(data: {
         isExchangeAllowed: data.isExchangeAllowed || false,
         exchangeCategories: Array.isArray(data.exchangeCategories) ? data.exchangeCategories.map(c => sanitizeString(c)) : [],
         exchangeCashAllowed: data.exchangeCashAllowed || false,
-        status: "LIVE", // New listings go live immediately for now
+        status: listingStatus,
       }
     }));
 
@@ -422,7 +451,7 @@ export async function createProduct(data: {
     invalidateCachePrefix("search:");
     invalidateCachePrefix("home:");
 
-    return { success: true, productId: product.id };
+    return { success: true, productId: product.id, status: product.status };
   } catch (error: any) {
     console.error("Error creating product:", error);
     return { success: false, error: error.message || "Failed to create product" };

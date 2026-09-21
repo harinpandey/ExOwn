@@ -239,6 +239,22 @@ export async function POST(req: NextRequest) {
         }
       }
 
+      await tx.transactionRecord.createMany({
+        data: cart.items.map((item) => ({
+          buyerId: currentUser.uid,
+          sellerId: item.product.sellerId,
+          productId: item.productId,
+          orderId: createdOrder.id,
+          type: "SALE",
+          source: "ORDER",
+          amount: item.product.price * item.quantity,
+          metadata: {
+            orderItemQuantity: item.quantity,
+            paymentId: payment.id,
+          },
+        })),
+      });
+
       await tx.cartItem.deleteMany({ where: { cartId: cart.id } });
       await tx.cart.update({ where: { id: cart.id }, data: { subtotal: 0 } });
 

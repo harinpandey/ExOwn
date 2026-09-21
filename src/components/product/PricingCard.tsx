@@ -40,9 +40,29 @@ export default function PricingCard({ product }: PricingCardProps) {
 
     setIsSubmitting(true);
     try {
+      const amount = Number(offerAmount);
+      if (!Number.isFinite(amount) || amount <= 0) {
+        toast.error("Enter a valid offer amount.");
+        return;
+      }
+
+      const { createOffer } = await import("@/actions/offer");
+      const offerResult = await createOffer({
+        productId: product.id,
+        buyerId: user.uid,
+        price: amount,
+        message: `I'm interested in your "${product.title}". My offer is ₹${amount}${isRental ? "/day" : ""}.`,
+      });
+
+      if (!offerResult.success) {
+        toast.error(offerResult.error || "Failed to submit offer.");
+        return;
+      }
+
       const { sendMessage } = await import("@/actions/chat");
       const message = `Hi, I'm interested in your "${product.title}". My offer is ₹${offerAmount}${isRental ? "/day" : ""}.`;
       await sendMessage(user.uid, seller?.id, message);
+      toast.success("Offer submitted.");
       router.push(`/chat/${seller?.id}`);
     } catch (err) {
       console.error("Failed to send offer:", err);

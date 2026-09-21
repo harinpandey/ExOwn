@@ -5,7 +5,7 @@ import { logActivity } from "@/lib/logger";
 import { createNotification } from "@/actions/notification";
 import { ExchangeStatus } from "@prisma/client";
 import { requireSameUser } from "@/lib/auth";
-import { sanitizeString, validateLength } from "@/lib/validation";
+import { sanitizeString, validateLength, validateRange } from "@/lib/validation";
 
 export async function createExchangeOffer(data: {
   productId: string;
@@ -32,19 +32,28 @@ export async function createExchangeOffer(data: {
     if (!offeredImages || offeredImages.length === 0) {
       throw new Error("At least one image is required");
     }
+    if (offeredImages.length > 5) {
+      throw new Error("You can upload up to 5 exchange images");
+    }
     for (const img of offeredImages) {
       if (typeof img !== 'string' || !img.startsWith("http")) {
         throw new Error("Invalid image URL format.");
       }
     }
 
+    const cleanCashDifference = cashDifference === undefined || cashDifference === null ? undefined : Number(cashDifference);
+    if (cleanCashDifference !== undefined && !validateRange(cleanCashDifference, 0, 1000000)) {
+      throw new Error("Cash difference must be between ₹0 and ₹1,000,000.");
+    }
+
     const product = await prisma.product.findUnique({
       where: { id: productId },
-      select: { sellerId: true, isExchangeAllowed: true, title: true }
+      select: { sellerId: true, isExchangeAllowed: true, title: true, status: true, inventory: true }
     });
 
     if (!product) throw new Error("Product not found");
     if (product.sellerId === buyerId) throw new Error("Cannot exchange with yourself");
+    if (product.status !== "LIVE" || product.inventory < 1) throw new Error("This listing is no longer available");
     if (!product.isExchangeAllowed) throw new Error("Exchange not allowed for this listing");
 
     // 2. Create Offer
@@ -55,7 +64,7 @@ export async function createExchangeOffer(data: {
         offeredTitle: title,
         offeredDescription: description,
         offeredImages,
-        cashDifference,
+        cashDifference: cleanCashDifference,
       }
     }));
 
@@ -95,10 +104,59 @@ export async function respondToExchangeOffer(userId: string, offerId: string, st
     if (!offer) throw new Error("Offer not found");
     if (offer.product.sellerId !== userId) throw new Error("Unauthorized");
 
+    const allowedTransitions: Record<ExchangeStatus, ExchangeStatus[]> = {
+      PENDING: ["ACCEPTED", "REJECTED", "COUNTERED"],
+      ACCEPTED: ["COMPLETED"],
+      COUNTERED: ["ACCEPTED", "REJECTED"],
+      REJECTED: [],
+      COMPLETED: [],
+    };
+
+    if (!allowedTransitions[offer.status].includes(status)) {
+      throw new Error("Invalid exchange status transition");
+    }
+
     // 1. Update Status
-    await withRetry(() => prisma.exchangeOffer.update({
-      where: { id: offerId },
-      data: { status }
+    await withRetry(() => prisma.$transaction(async (tx) => {
+      await tx.exchangeOffer.update({
+        where: { id: offerId },
+        data: { status }
+      });
+
+      if (status === "ACCEPTED") {
+        await tx.transactionRecord.upsert({
+          where: { exchangeOfferId: offerId },
+          update: {
+            buyerId: offer.buyerId,
+            sellerId: userId,
+            productId: offer.productId,
+            type: "EXCHANGE",
+            source: "EXCHANGE",
+            amount: offer.cashDifference,
+          },
+          create: {
+            buyerId: offer.buyerId,
+            sellerId: userId,
+            productId: offer.productId,
+            exchangeOfferId: offerId,
+            type: "EXCHANGE",
+            source: "EXCHANGE",
+            amount: offer.cashDifference,
+          },
+        });
+      }
+
+      if (status === "COMPLETED") {
+        await tx.transactionRecord.updateMany({
+          where: { exchangeOfferId: offerId },
+          data: {
+            status: "COMPLETED",
+            confirmedBySeller: true,
+            completedAt: new Date(),
+            reportWindowEndsAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+          },
+        });
+      }
     }));
 
     // 2. Notify Buyer

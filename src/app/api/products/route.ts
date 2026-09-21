@@ -250,6 +250,22 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: "At least one product image is required" }, { status: 400 });
     }
 
+    const seller = await prisma.user.findUnique({
+      where: { id: sellerId },
+      select: {
+        isProfileCompleted: true,
+        isVerified: true,
+        verificationLevel: true,
+        isTrustedSeller: true,
+      },
+    });
+
+    if (!seller?.isProfileCompleted) {
+      return NextResponse.json({ success: false, error: "Complete your profile before publishing a listing" }, { status: 403 });
+    }
+
+    const listingStatus = seller.isVerified || seller.isTrustedSeller || seller.verificationLevel !== "BASIC" ? "LIVE" : "PENDING";
+
     const duplicate = await prisma.product.findFirst({
       where: {
         sellerId,
@@ -288,7 +304,7 @@ export async function POST(req: NextRequest) {
         subcategoryId: stringValue(body.subcategoryId) || undefined,
         campusId,
         customSubcategory: stringValue(body.customSubcategory) || undefined,
-        status: "LIVE",
+        status: listingStatus,
       },
       select: PRODUCT_SELECT,
     }));

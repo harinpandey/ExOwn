@@ -25,10 +25,29 @@ export async function createOffer(data: {
 
     const product = await prisma.product.findUnique({
       where: { id: data.productId },
-      select: { sellerId: true, title: true }
+      select: { sellerId: true, title: true, status: true, inventory: true }
     });
 
     if (!product) throw new Error("Product not found");
+    if (product.status !== "LIVE" || product.inventory < 1) {
+      throw new Error("This listing is no longer available");
+    }
+    if (product.sellerId === data.buyerId) {
+      throw new Error("You cannot make an offer on your own listing");
+    }
+
+    const existingPendingOffer = await prisma.offer.findFirst({
+      where: {
+        productId: data.productId,
+        buyerId: data.buyerId,
+        status: "PENDING",
+      },
+      select: { id: true },
+    });
+
+    if (existingPendingOffer) {
+      throw new Error("You already have a pending offer for this listing");
+    }
 
     const offer = await prisma.offer.create({
       data: {
@@ -45,8 +64,8 @@ export async function createOffer(data: {
       await createNotification({
         userId: product.sellerId,
         type: "OFFER",
-        title: "New Offer Received! 💰",
-        content: `You received an offer of ₹${data.price.toLocaleString('en-IN')} for "${product.title}"`,
+        title: "New Offer Received",
+        content: `You received an offer of ₹${price.toLocaleString('en-IN')} for "${product.title}"`,
         link: `/profile?tab=listings` // Or a dedicated offers page
       });
     } catch (notifErr) {
@@ -67,16 +86,54 @@ export async function updateOfferStatus(offerId: string, userId: string, status:
     const offer = await prisma.offer.findUnique({
       where: { id: offerId },
       include: { 
-        product: { select: { sellerId: true, title: true } }
+        product: { select: { sellerId: true, title: true, status: true, inventory: true } }
       }
     });
 
     if (!offer) throw new Error("Offer not found");
     if (offer.product.sellerId !== userId) throw new Error("Unauthorized");
+    if (offer.status !== "PENDING") throw new Error("Offer is already resolved");
+    if (offer.product.status !== "LIVE" || offer.product.inventory < 1) {
+      throw new Error("This listing is no longer available");
+    }
 
-    await prisma.offer.update({
-      where: { id: offerId },
-      data: { status }
+    await prisma.$transaction(async (tx) => {
+      await tx.offer.update({
+        where: { id: offerId },
+        data: { status }
+      });
+
+      if (status === "ACCEPTED") {
+        await tx.offer.updateMany({
+          where: {
+            productId: offer.productId,
+            id: { not: offerId },
+            status: "PENDING",
+          },
+          data: { status: "REJECTED" },
+        });
+
+        await tx.transactionRecord.upsert({
+          where: { offerId },
+          update: {
+            buyerId: offer.buyerId,
+            sellerId: userId,
+            productId: offer.productId,
+            type: "SALE",
+            source: "OFFER",
+            amount: offer.price,
+          },
+          create: {
+            buyerId: offer.buyerId,
+            sellerId: userId,
+            productId: offer.productId,
+            offerId,
+            type: "SALE",
+            source: "OFFER",
+            amount: offer.price,
+          },
+        });
+      }
     });
 
     // Notify buyer
@@ -85,7 +142,7 @@ export async function updateOfferStatus(offerId: string, userId: string, status:
       await createNotification({
         userId: offer.buyerId,
         type: "OFFER",
-        title: status === "ACCEPTED" ? "Offer Accepted! 🎉" : "Offer Rejected",
+        title: status === "ACCEPTED" ? "Offer Accepted" : "Offer Rejected",
         content: `Your offer for "${offer.product.title}" has been ${status.toLowerCase()}.`,
         link: `/product/${offer.productId}`
       });

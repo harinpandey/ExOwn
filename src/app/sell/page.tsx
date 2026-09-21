@@ -154,7 +154,7 @@ export default function SellPage() {
       
       const res = await createProduct(productData);
       if (res.success) {
-        toast.success("Listing is now LIVE!", { id: loadingToast });
+        toast.success(res.status === "LIVE" ? "Listing is now LIVE!" : "Listing submitted for review.", { id: loadingToast });
         router.push("/profile");
       } else {
         toast.error(res.error || "Failed to create listing", { id: loadingToast });

@@ -32,7 +32,9 @@ model User {
   activityLogs       ActivityLog[]
   buyingRequests     BuyingRequest[]
   cart               Cart?
+  devices            UserDevice[]
   exchangeOffers     ExchangeOffer[]
+  housingListings    HousingListing[]
   messagesRecv       Message[]         @relation("Receiver")
   messagesSent       Message[]         @relation("Sender")
   notifications      Notification[]
@@ -45,8 +47,14 @@ model User {
   rentals            Rental[]          @relation("Renter")
   reportsRecv        Report[]          @relation("Reported")
   reportsMade        Report[]          @relation("Reporter")
+  roommateInterestsSent RoommateInterest[] @relation("RoommateInterestSender")
+  roommateProfile    RoommateProfile?
   subscription       Subscription?
   activities         UserActivity[]
+  transactionsAsBuyer  TransactionRecord[] @relation("TransactionBuyer")
+  transactionsAsSeller TransactionRecord[] @relation("TransactionSeller")
+  verificationRequests VerificationRequest[] @relation("VerificationRequester")
+  verificationReviews  VerificationRequest[] @relation("VerificationReviewer")
   wishlist           Wishlist[]
 }
 
@@ -108,7 +116,9 @@ model Campus {
   cityId    String
   createdAt DateTime  @default(now())
   city      City      @relation(fields: [cityId], references: [id], onDelete: Cascade)
+  housingListings HousingListing[]
   products  Product[]
+  roommateProfiles RoommateProfile[]
 
   @@unique([name, cityId])
 }
@@ -180,6 +190,7 @@ model Product {
   rentalDetail        RentalDetail?
   reports             Report[]
   serviceDetail       ServiceDetail?
+  transactions        TransactionRecord[]
   wishlistedBy        Wishlist[]
 
   @@index([sellerId])
@@ -213,6 +224,45 @@ model Message {
   createdAt  DateTime @default(now())
   receiver   User     @relation("Receiver", fields: [receiverId], references: [id], onDelete: Cascade)
   sender     User     @relation("Sender", fields: [senderId], references: [id], onDelete: Cascade)
+}
+
+model UserDevice {
+  id         String   @id @default(cuid())
+  userId     String
+  token      String   @unique
+  platform   String?
+  browser    String?
+  deviceId   String?
+  lastSeenAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([lastSeenAt])
+}
+
+model VerificationRequest {
+  id                 String                   @id @default(cuid())
+  userId             String
+  level              VerificationLevel        @default(CAMPUS)
+  documentType       VerificationDocumentType
+  documentUrl        String?
+  universityEmail    String?
+  registrationNumber String?
+  status             VerificationStatus       @default(PENDING)
+  reviewerId         String?
+  reviewedAt         DateTime?
+  rejectionReason    String?
+  metadata           Json?
+  createdAt          DateTime                 @default(now())
+  updatedAt          DateTime                 @updatedAt
+  reviewer           User?                    @relation("VerificationReviewer", fields: [reviewerId], references: [id], onDelete: SetNull)
+  user               User                     @relation("VerificationRequester", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@index([status, createdAt])
+  @@index([reviewerId])
 }
 
 model Wishlist {
@@ -281,6 +331,10 @@ model Offer {
   productId String
   createdAt DateTime    @default(now())
   product   Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  transactionRecord TransactionRecord?
+
+  @@index([buyerId])
+  @@index([productId, status])
 }
 
 model Report {
@@ -295,6 +349,81 @@ model Report {
   product     Product?     @relation(fields: [productId], references: [id])
   reported    User?        @relation("Reported", fields: [reportedId], references: [id])
   reporter    User         @relation("Reporter", fields: [reporterId], references: [id])
+}
+
+model HousingListing {
+  id                String            @id @default(cuid())
+  ownerId           String
+  campusId          String
+  title             String
+  description       String
+  type              HousingType
+  status            HousingStatus     @default(PENDING)
+  monthlyRent       Float
+  securityDeposit   Float?
+  utilitiesIncluded Boolean           @default(false)
+  availableFrom     DateTime?
+  address           String
+  locality          String?
+  roomCount         Int?
+  bathroomCount     Int?
+  maxOccupants      Int?
+  currentOccupants  Int               @default(0)
+  amenities         String[]          @default([])
+  rules             String[]          @default([])
+  preferredGender   GenderPreference?
+  images            String[]          @default([])
+  isVerifiedByAdmin Boolean           @default(false)
+  moderationReason  String?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  campus            Campus            @relation(fields: [campusId], references: [id])
+  owner             User              @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  @@index([ownerId])
+  @@index([campusId, status, monthlyRent])
+  @@index([status, createdAt])
+}
+
+model RoommateProfile {
+  id              String               @id @default(cuid())
+  userId          String               @unique
+  campusId        String
+  status          RoommateStatus       @default(DRAFT)
+  bio             String
+  budgetMin       Float?
+  budgetMax       Float?
+  preferredGender GenderPreference     @default(NO_PREFERENCE)
+  roomType        RoomTypePreference   @default(ANY)
+  moveInFrom      DateTime?
+  leaseMonths     Int?
+  lifestyle       Json?
+  interests       String[]             @default([])
+  images          String[]             @default([])
+  visibility      RoommateVisibility   @default(CAMPUS)
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+  campus          Campus               @relation(fields: [campusId], references: [id])
+  user            User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  receivedInterests RoommateInterest[]
+
+  @@index([campusId, status])
+  @@index([status, updatedAt])
+}
+
+model RoommateInterest {
+  id                String                  @id @default(cuid())
+  senderId          String
+  receiverProfileId String
+  message           String?
+  status            RoommateInterestStatus  @default(PENDING)
+  createdAt         DateTime                @default(now())
+  updatedAt         DateTime                @updatedAt
+  receiverProfile   RoommateProfile         @relation(fields: [receiverProfileId], references: [id], onDelete: Cascade)
+  sender            User                    @relation("RoommateInterestSender", fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@unique([senderId, receiverProfileId])
+  @@index([receiverProfileId, status])
 }
 
 model Ad {
@@ -341,6 +470,7 @@ model Rental {
   product           Product      @relation(fields: [productId], references: [id])
   rentalDetail      RentalDetail @relation(fields: [rentalDetailId], references: [id])
   renter            User         @relation("Renter", fields: [renterId], references: [id])
+  transactionRecord TransactionRecord?
 
   @@index([productId])
   @@index([renterId])
@@ -433,6 +563,7 @@ model Order {
   payment         Payment?    @relation(fields: [paymentId], references: [id])
   user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   items           OrderItem[]
+  transactionRecords TransactionRecord[]
 
   @@index([userId, createdAt])
   @@index([status])
@@ -501,18 +632,39 @@ model ActivityLog {
 }
 
 model TransactionRecord {
-  id        String            @id @default(cuid())
-  buyerId   String
-  sellerId  String
-  productId String?
-  type      TransactionType
-  status    TransactionStatus @default(PENDING)
-  metadata  Json?
-  createdAt DateTime          @default(now())
-  updatedAt DateTime          @updatedAt
+  id                 String            @id @default(cuid())
+  buyerId            String
+  sellerId           String
+  productId          String?
+  orderId            String?
+  rentalId           String?           @unique
+  offerId            String?           @unique
+  exchangeOfferId    String?           @unique
+  source             TransactionSource @default(DIRECT)
+  type               TransactionType
+  status             TransactionStatus @default(PENDING)
+  amount             Float?
+  confirmedByBuyer   Boolean           @default(false)
+  confirmedBySeller  Boolean           @default(false)
+  reportWindowEndsAt DateTime?
+  completedAt        DateTime?
+  cancelledAt        DateTime?
+  metadata           Json?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  buyer              User              @relation("TransactionBuyer", fields: [buyerId], references: [id], onDelete: Cascade)
+  exchangeOffer      ExchangeOffer?    @relation(fields: [exchangeOfferId], references: [id], onDelete: SetNull)
+  offer              Offer?            @relation(fields: [offerId], references: [id], onDelete: SetNull)
+  order              Order?            @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  product            Product?          @relation(fields: [productId], references: [id], onDelete: SetNull)
+  rental             Rental?           @relation(fields: [rentalId], references: [id], onDelete: SetNull)
+  seller             User              @relation("TransactionSeller", fields: [sellerId], references: [id], onDelete: Cascade)
 
   @@index([buyerId])
   @@index([sellerId])
+  @@index([productId])
+  @@index([orderId])
+  @@index([source, status])
 }
 
 model ExchangeOffer {
@@ -528,6 +680,7 @@ model ExchangeOffer {
   updatedAt          DateTime       @updatedAt
   buyer              User           @relation(fields: [buyerId], references: [id], onDelete: Cascade)
   product            Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  transactionRecord  TransactionRecord?
 
   @@index([productId])
   @@index([buyerId])
@@ -560,10 +713,13 @@ enum Condition {
 }
 
 enum ProductStatus {
+  DRAFT
   PENDING
   LIVE
+  RESERVED
   REJECTED
   SOLD
+  EXPIRED
   ARCHIVED
 }
 
@@ -618,6 +774,10 @@ enum NotificationType {
   SERVICE_QUOTE
   PAYMENT_SUCCESS
   SUBSCRIPTION_EXPIRY
+  TRANSACTION_UPDATE
+  VERIFICATION_STATUS
+  HOUSING_INQUIRY
+  ROOMMATE_MATCH
 }
 
 enum SubscriptionStatus {
@@ -670,6 +830,7 @@ enum TransactionType {
   SALE
   RENT
   SERVICE
+  EXCHANGE
 }
 
 enum TransactionStatus {
@@ -677,6 +838,16 @@ enum TransactionStatus {
   COMPLETED
   CANCELLED
   NO_RESPONSE
+  DISPUTED
+}
+
+enum TransactionSource {
+  DIRECT
+  ORDER
+  OFFER
+  RENTAL
+  EXCHANGE
+  SERVICE_QUOTE
 }
 
 enum ExchangeStatus {
@@ -685,4 +856,74 @@ enum ExchangeStatus {
   REJECTED
   COUNTERED
   COMPLETED
+}
+
+enum VerificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  EXPIRED
+}
+
+enum VerificationDocumentType {
+  STUDENT_ID
+  UNIVERSITY_EMAIL
+  ADMISSION_LETTER
+  HOSTEL_ID
+  OTHER
+}
+
+enum HousingType {
+  PG
+  HOSTEL_TRANSFER
+  ROOM
+  FLAT
+  SHARED_ROOM
+  STUDIO
+  OTHER
+}
+
+enum HousingStatus {
+  DRAFT
+  PENDING
+  LIVE
+  PAUSED
+  FILLED
+  REJECTED
+  ARCHIVED
+}
+
+enum GenderPreference {
+  ANY
+  MALE
+  FEMALE
+  NON_BINARY
+  NO_PREFERENCE
+}
+
+enum RoomTypePreference {
+  PRIVATE
+  SHARED
+  ANY
+}
+
+enum RoommateStatus {
+  DRAFT
+  LIVE
+  PAUSED
+  MATCHED
+  ARCHIVED
+}
+
+enum RoommateVisibility {
+  CAMPUS
+  MATCHES_ONLY
+  PRIVATE
+}
+
+enum RoommateInterestStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  CANCELLED
 }

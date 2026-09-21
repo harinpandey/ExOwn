@@ -3,6 +3,7 @@
 import prisma, { withRetry } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { requireSameUser } from "@/lib/auth";
+import { sanitizeString, validateLength, validateRange } from "@/lib/validation";
 
 export async function createBuyingRequest(userId: string, data: {
   title: string;
@@ -14,13 +15,28 @@ export async function createBuyingRequest(userId: string, data: {
   try {
     await requireSameUser(userId);
 
+    const title = sanitizeString(data.title);
+    const description = sanitizeString(data.description);
+    const category = data.category ? sanitizeString(data.category) : undefined;
+    const budget = data.budget === undefined ? undefined : Number(data.budget);
+
+    if (!validateLength(title, 3, 120)) {
+      return { success: false, error: "Request title must be between 3 and 120 characters." };
+    }
+    if (!validateLength(description, 10, 1500)) {
+      return { success: false, error: "Request description must be between 10 and 1500 characters." };
+    }
+    if (budget !== undefined && !validateRange(budget, 1, 1000000)) {
+      return { success: false, error: "Budget must be between ₹1 and ₹1,000,000." };
+    }
+
     const request = await withRetry(() => prisma.buyingRequest.create({
       data: {
         userId,
-        title: data.title,
-        description: data.description,
-        budget: data.budget,
-        category: data.category,
+        title,
+        description,
+        budget,
+        category,
         listingType: data.listingType || "SELL",
       }
     }));

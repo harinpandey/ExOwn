@@ -11,6 +11,8 @@ export const SESSION_COOKIE_NAME = "__exown_session";
 export type CurrentUser = {
   uid: string;
   email?: string;
+  name?: string;
+  picture?: string;
 };
 
 function hasValidAudience(decoded: DecodedIdToken) {
@@ -78,15 +80,31 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
   return {
     uid: decoded.uid,
     email: decoded.email,
+    name: decoded.name,
+    picture: decoded.picture,
   };
 }
 
-export async function requireUser(): Promise<CurrentUser> {
+export async function requireFirebaseUser(): Promise<CurrentUser> {
   const user = await getCurrentUser();
   if (!user) {
-    console.warn("[auth:security] Anonymous access denied to protected endpoint.");
+    console.warn("[auth:security] Anonymous access denied to authenticated endpoint.");
     throw new Error("Unauthorized");
   }
+  return user;
+}
+
+export async function requireSameFirebaseUser(userId: string): Promise<CurrentUser> {
+  const user = await requireFirebaseUser();
+  if (user.uid !== userId) {
+    console.error(`[auth:security] Privilege escalation blocked. Firebase user ${user.uid} tried to act as ${userId}`);
+    throw new Error("Unauthorized");
+  }
+  return user;
+}
+
+export async function requireUser(): Promise<CurrentUser> {
+  const user = await requireFirebaseUser();
 
   // Hardening: Query DB user status to enforce active, non-suspended account status
   const dbUser = await prisma.user.findUnique({
