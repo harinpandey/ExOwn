@@ -7,7 +7,7 @@ import { sanitizeString, validateLength, validatePhone } from "@/lib/validation"
 
 function isConfiguredAdminEmail(email?: string | null) {
   if (!email) return false;
-  const configured = (process.env.ADMIN_EMAILS || "exown.official@gmail.com")
+  const configured = (process.env.ADMIN_EMAILS || "")
     .split(",")
     .map((item) => item.trim().toLowerCase())
     .filter(Boolean);

@@ -35,7 +35,7 @@ ExOwn is a premium, student-centric marketplace designed specifically for univer
 ### 2. Installation
 ```bash
 # Clone the repository
-git clone https://github.com/harinpandey/ExOwn.git
+git clone https://github.com/your-company/exown.git
 
 # Install dependencies
 npm install
@@ -44,12 +44,31 @@ npm install
 ### 3. Environment Setup
 Create a `.env` file in the root directory and add your credentials:
 ```env
-DATABASE_URL="your-neon-url"
-DIRECT_URL="your-neon-direct-url"
+DATABASE_URL="your-company-neon-url"
+DIRECT_URL="your-company-neon-direct-url"
 
-NEXT_PUBLIC_FIREBASE_API_KEY="your-key"
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN="your-domain"
-NEXT_PUBLIC_FIREBASE_PROJECT_ID="your-id"
+NEXT_PUBLIC_FIREBASE_API_KEY="your-company-firebase-web-api-key"
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN="your-company-firebase-auth-domain"
+NEXT_PUBLIC_FIREBASE_PROJECT_ID="your-company-firebase-project-id"
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET="your-company-firebase-storage-bucket"
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID="your-company-firebase-sender-id"
+NEXT_PUBLIC_FIREBASE_APP_ID="your-company-firebase-app-id"
+NEXT_PUBLIC_FIREBASE_VAPID_KEY="your-company-firebase-vapid-key"
+
+FIREBASE_PROJECT_ID="your-company-firebase-project-id"
+FIREBASE_CLIENT_EMAIL="your-company-firebase-admin-service-account-email"
+FIREBASE_PRIVATE_KEY="your-company-firebase-admin-private-key"
+
+CLOUDINARY_URL="your-company-cloudinary-url"
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME="your-company-cloudinary-cloud-name"
+
+RAZORPAY_KEY_ID="your-company-razorpay-key-id"
+RAZORPAY_KEY_SECRET="your-company-razorpay-key-secret"
+RAZORPAY_WEBHOOK_SECRET="your-company-razorpay-webhook-secret"
+NEXT_PUBLIC_RAZORPAY_KEY_ID="your-company-razorpay-key-id"
+
+GEMINI_API_KEY="your-company-gemini-api-key"
+ADMIN_EMAILS="admin@your-company-domain.com"
 ```
 
 ### 4. Database Setup
