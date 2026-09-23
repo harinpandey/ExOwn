@@ -51,7 +51,7 @@ import { useLocation } from "@/context/LocationContext";
 
 export default function Navbar() {
   const { user, logout } = useAuth();
-  const { notifications, unreadCount, markRead } = useNotifications();
+  const { notifications, unreadCount, markRead, markAllRead } = useNotifications();
   const { selectedCampus, setSelectedCampus } = useLocation();
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -184,67 +184,98 @@ export default function Navbar() {
           )}
 
           {/* Notifications Dropdown Popup */}
-          {user && (
-            <div className="relative" ref={notifRef}>
-              <button
-                type="button"
-                onClick={() => {
-                  setIsNotificationsOpen((v) => !v);
-                  setIsProfileOpen(false);
-                }}
-                className="tap-target relative rounded-xl text-gray-700 transition hover:bg-gray-100 hover:text-primary dark:text-white/65 dark:hover:bg-white/[0.06]"
-                aria-label="Open notifications"
-              >
-                <Bell size={20} />
-                {unreadCount > 0 && (
-                  <span className="absolute right-1.5 top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-black text-white ring-2 ring-white dark:ring-[#07090d]">
-                    {unreadCount > 9 ? "9+" : unreadCount}
-                  </span>
-                )}
-              </button>
+          <div className="relative" ref={notifRef}>
+            <button
+              type="button"
+              onClick={() => {
+                setIsNotificationsOpen((v) => !v);
+                setIsProfileOpen(false);
+              }}
+              className="tap-target relative rounded-xl text-gray-700 transition hover:bg-gray-100 hover:text-primary dark:text-white/65 dark:hover:bg-white/[0.06]"
+              aria-label="Open notifications"
+            >
+              <Bell size={20} />
+              {unreadCount > 0 && (
+                <span className="absolute right-1.5 top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-black text-white ring-2 ring-white dark:ring-[#07090d]">
+                  {unreadCount > 9 ? "9+" : unreadCount}
+                </span>
+              )}
+            </button>
 
-              <AnimatePresence>
-                {isNotificationsOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 8, scale: 0.98 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 8, scale: 0.98 }}
-                    className="absolute right-0 top-full mt-3 w-80 rounded-2xl border border-gray-200 bg-white p-4 shadow-2xl dark:border-white/10 dark:bg-[#10141b]"
-                  >
-                    <div className="mb-3 flex items-center justify-between border-b border-gray-100 pb-2 dark:border-white/10">
+            <AnimatePresence>
+              {isNotificationsOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 8, scale: 0.98 }}
+                  className="absolute right-0 top-full mt-3 w-80 rounded-2xl border border-gray-200 bg-white p-4 shadow-2xl dark:border-white/10 dark:bg-[#10141b]"
+                >
+                  <div className="mb-3 flex items-center justify-between border-b border-gray-100 pb-2 dark:border-white/10">
+                    <div className="flex items-center gap-2">
                       <h3 className="text-sm font-black text-gray-900 dark:text-white">Notifications</h3>
-                      <Link href="/notifications" onClick={() => setIsNotificationsOpen(false)} className="text-xs font-bold text-primary">
-                        View all &rarr;
-                      </Link>
-                    </div>
-
-                    <div className="max-h-64 space-y-2 overflow-y-auto pr-1">
-                      {notifications.length === 0 ? (
-                        <div className="rounded-xl bg-gray-50 px-4 py-6 text-center text-xs font-semibold text-gray-500 dark:bg-white/[0.03] dark:text-white/50">
-                          You&apos;re all caught up! No new notifications.
-                        </div>
-                      ) : (
-                        notifications.slice(0, 4).map((n) => (
-                          <div
-                            key={n.id}
-                            onClick={() => markRead(n.id)}
-                            className={`cursor-pointer rounded-xl p-3 text-xs transition ${
-                              n.read
-                                ? "bg-gray-50 text-gray-600 dark:bg-white/[0.02] dark:text-white/60"
-                                : "border border-primary/20 bg-primary/5 text-gray-900 font-bold dark:bg-primary/10 dark:text-white"
-                            }`}
-                          >
-                            <p className="font-bold">{n.title}</p>
-                            <p className="mt-0.5 text-[11px] font-normal text-gray-500 dark:text-white/50">{n.message}</p>
-                          </div>
-                        ))
+                      {unreadCount > 0 && (
+                        <span className="rounded-full bg-blue-500/10 px-2 py-0.5 text-[10px] font-bold text-blue-600 dark:bg-blue-400/10 dark:text-blue-400">
+                          {unreadCount} new
+                        </span>
                       )}
                     </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          )}
+                    <Link href="/notifications" onClick={() => setIsNotificationsOpen(false)} className="text-xs font-bold text-primary hover:underline">
+                      View all &rarr;
+                    </Link>
+                  </div>
+
+                  <div className="max-h-64 space-y-2 overflow-y-auto pr-1">
+                    {notifications.length === 0 ? (
+                      <div className="rounded-xl bg-gray-50 px-4 py-6 text-center text-xs font-semibold text-gray-500 dark:bg-white/[0.03] dark:text-white/50">
+                        You&apos;re all caught up! No notifications.
+                      </div>
+                    ) : (
+                      notifications.slice(0, 4).map((n: any) => (
+                        <div
+                          key={n.id}
+                          onClick={() => markRead(n.id)}
+                          className={`group relative cursor-pointer rounded-xl p-3 text-xs transition ${
+                            n.isRead || n.read
+                              ? "bg-gray-50 text-gray-600 dark:bg-white/[0.02] dark:text-white/60"
+                              : "border border-primary/20 bg-blue-50/60 text-gray-900 font-bold dark:bg-primary/10 dark:text-white"
+                          }`}
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <p className="font-bold line-clamp-1">{n.title}</p>
+                            {!n.isRead && !n.read && (
+                              <span className="h-2 w-2 shrink-0 rounded-full bg-blue-600" />
+                            )}
+                          </div>
+                          <p className="mt-0.5 text-[11px] font-normal text-gray-500 line-clamp-2 dark:text-white/50">
+                            {n.content || n.message}
+                          </p>
+                        </div>
+                      ))
+                    )}
+                  </div>
+
+                  {notifications.length > 0 && (
+                    <div className="mt-3 border-t border-gray-100 pt-2 dark:border-white/10 flex justify-between items-center text-[11px]">
+                      <button
+                        type="button"
+                        onClick={() => markAllRead()}
+                        className="font-bold text-gray-500 hover:text-primary dark:text-white/60"
+                      >
+                        Mark all as read
+                      </button>
+                      <Link
+                        href="/notifications"
+                        onClick={() => setIsNotificationsOpen(false)}
+                        className="font-bold text-primary hover:underline"
+                      >
+                        Manage notifications
+                      </Link>
+                    </div>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
 
           {/* Sell Button */}
           <Link
