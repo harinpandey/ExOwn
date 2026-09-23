@@ -30,14 +30,15 @@ if (!admin.apps.length && hasAdminCredentials) {
       }),
     });
     console.log("[firebase-admin] Firebase Admin initialized successfully.");
-  } catch (error: any) {
-    console.error('[firebase-admin] Firebase admin initialization error:', error.message);
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : String(error);
+    console.error("[firebase-admin] Firebase admin initialization error:", msg);
   }
 } else if (!admin.apps.length) {
-  console.warn('[firebase-admin] Firebase admin is not initialized.');
-  if (!process.env.FIREBASE_PROJECT_ID) console.warn(' - FIREBASE_PROJECT_ID is missing');
-  if (!process.env.FIREBASE_CLIENT_EMAIL) console.warn(' - FIREBASE_CLIENT_EMAIL is missing');
-  if (!privateKey) console.warn(' - FIREBASE_PRIVATE_KEY is missing');
+  console.warn("[firebase-admin] Firebase admin is not initialized.");
+  if (!process.env.FIREBASE_PROJECT_ID) console.warn(" - FIREBASE_PROJECT_ID is missing");
+  if (!process.env.FIREBASE_CLIENT_EMAIL) console.warn(" - FIREBASE_CLIENT_EMAIL is missing");
+  if (!privateKey) console.warn(" - FIREBASE_PRIVATE_KEY is missing");
 }
 
 export const adminAuth = admin.apps.length ? admin.auth() : null;
