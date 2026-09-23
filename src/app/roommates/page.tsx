@@ -231,7 +231,9 @@ export default function RoommatesPage() {
                         <div className="flex items-center gap-1.5">
                           <h3 className="font-extrabold text-sm text-gray-900 dark:text-white">{p.user?.name || "Campus Student"}</h3>
                           {p.user?.isVerified && (
-                            <ShieldCheck size={15} className="text-purple-500 shrink-0" title="Verified Student ID" />
+                            <span title="Verified Student ID" className="inline-flex items-center">
+                              <ShieldCheck size={15} className="text-purple-500 shrink-0" />
+                            </span>
                           )}
                         </div>
                         <span className="text-[11px] font-semibold text-gray-500 dark:text-white/50">{p.campus?.name}</span>

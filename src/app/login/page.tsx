@@ -26,7 +26,8 @@ import { Suspense } from "react";
 function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirect = searchParams.get("redirect") || "/";
+  const rawRedirect = searchParams.get("redirect") || "/";
+  const redirect = rawRedirect.startsWith("/login") ? "/" : rawRedirect;
   const { user, loading } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -54,9 +55,17 @@ function LoginContent() {
     if (!user) {
       setIsLoading(true);
       getRedirectResult(auth)
-        .then((result) => {
+        .then(async (result) => {
           if (result?.user) {
-            return createServerSession(result.user).then(() => router.push(redirect));
+            await createServerSession(result.user);
+            const { syncUser } = await import("@/actions/user");
+            await syncUser({
+              id: result.user.uid,
+              email: result.user.email,
+              name: result.user.displayName,
+              image: result.user.photoURL,
+            });
+            window.location.href = redirect;
           }
         })
         .catch((err) => {
@@ -76,9 +85,13 @@ function LoginContent() {
   useEffect(() => {
     if (user && !loading && !isLoading) {
       // Use window.location for a more robust redirect if router.push feels stuck
-      router.push(redirect);
+      createServerSession(user)
+        .catch((err) => console.warn("Session refresh error during redirect:", err))
+        .finally(() => {
+          window.location.href = redirect;
+        });
     }
-  }, [user, loading, isLoading, redirect, router]);
+  }, [user, loading, isLoading, redirect, createServerSession]);
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true);

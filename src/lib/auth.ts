@@ -16,7 +16,7 @@ export type CurrentUser = {
 };
 
 function hasValidAudience(decoded: DecodedIdToken) {
-  const adminProjectId = process.env.FIREBASE_PROJECT_ID;
+  const adminProjectId = process.env.FIREBASE_PROJECT_ID?.trim().replace(/^"|"$/g, "");
   if (adminProjectId && decoded.aud !== adminProjectId) {
     console.error(`[auth:security] Token audience mismatch. Token: ${decoded.aud}, Expected: ${adminProjectId}`);
     return false;
@@ -173,7 +173,7 @@ export async function getCurrentDbUser() {
   const user = await getCurrentUser();
   if (!user) return null;
 
-  const dbUser = await prisma.user.findUnique({
+  let dbUser = await prisma.user.findUnique({
     where: { id: user.uid },
     select: {
       id: true,
@@ -186,6 +186,53 @@ export async function getCurrentDbUser() {
       trustScore: true,
     },
   });
+
+  if (!dbUser) {
+    console.log(`[auth] DB user for UID ${user.uid} not in DB yet. Auto-creating record.`);
+    try {
+      const isConfiguredAdmin = (process.env.ADMIN_EMAILS || "")
+        .split(",")
+        .map((e) => e.trim().toLowerCase())
+        .includes((user.email || "").toLowerCase());
+
+      dbUser = await prisma.user.create({
+        data: {
+          id: user.uid,
+          email: user.email || null,
+          name: user.name || null,
+          image: user.picture || null,
+          role: isConfiguredAdmin ? "ADMIN" : "USER",
+          verificationLevel: "BASIC",
+          lastActive: new Date(),
+        },
+        select: {
+          id: true,
+          email: true,
+          role: true,
+          isSuspended: true,
+          isProfileCompleted: true,
+          verificationLevel: true,
+          isTrustedSeller: true,
+          trustScore: true,
+        },
+      });
+    } catch (err) {
+      console.warn("[auth] Auto-creation fallback hit concurrency or issue in getCurrentDbUser:", err);
+      dbUser = await prisma.user.findUnique({
+        where: { id: user.uid },
+        select: {
+          id: true,
+          email: true,
+          role: true,
+          isSuspended: true,
+          isProfileCompleted: true,
+          verificationLevel: true,
+          isTrustedSeller: true,
+          trustScore: true,
+        },
+      });
+    }
+  }
 
   console.log(`[auth] DB user for ${user.uid}: ${dbUser ? `Found (Role: ${dbUser.role})` : "NOT FOUND"}`);
   return dbUser;

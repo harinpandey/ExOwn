@@ -1,24 +1,31 @@
 import * as admin from 'firebase-admin';
 
+const projectId = process.env.FIREBASE_PROJECT_ID?.trim().replace(/^"|"$/g, "");
+const clientEmail = process.env.FIREBASE_CLIENT_EMAIL?.trim().replace(/^"|"$/g, "");
 const privateKey = process.env.FIREBASE_PRIVATE_KEY || process.env.FIREBASE_PRIVATE_KEYS;
 
 const hasAdminCredentials = Boolean(
-  process.env.FIREBASE_PROJECT_ID &&
-  process.env.FIREBASE_CLIENT_EMAIL &&
+  projectId &&
+  clientEmail &&
   privateKey
 );
 
 function normalizePrivateKey(key?: string) {
-  return key?.replace(/^"|"$/g, "").replace(/\\n/g, "\n");
+  if (!key) return undefined;
+  let cleaned = key.trim();
+  if ((cleaned.startsWith('"') && cleaned.endsWith('"')) || (cleaned.startsWith("'") && cleaned.endsWith("'"))) {
+    cleaned = cleaned.slice(1, -1);
+  }
+  return cleaned.replace(/\\n/g, "\n").replace(/\\r/g, "");
 }
 
 if (!admin.apps.length && hasAdminCredentials) {
   try {
-    console.log("[firebase-admin] Initializing Firebase Admin for project:", process.env.FIREBASE_PROJECT_ID);
+    console.log("[firebase-admin] Initializing Firebase Admin for project:", projectId);
     admin.initializeApp({
       credential: admin.credential.cert({
-        projectId: process.env.FIREBASE_PROJECT_ID,
-        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+        projectId: projectId!,
+        clientEmail: clientEmail!,
         privateKey: normalizePrivateKey(privateKey),
       }),
     });
