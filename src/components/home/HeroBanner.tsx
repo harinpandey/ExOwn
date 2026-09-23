@@ -181,6 +181,23 @@ export default function HeroBanner() {
                 }`}
               >
                 <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,255,255,0.15),transparent_70%)]" />
+                {/* 3D Decorative Composition (Marketplace Items: Laptop, Phone, Books, Headphones, Cycle, Housing) */}
+                <div className="pointer-events-none absolute right-4 bottom-2 top-2 z-5 hidden w-1/2 items-center justify-end overflow-hidden sm:flex opacity-40 dark:opacity-50">
+                  <div className="relative h-64 w-64 animate-pulse duration-1000">
+                    <div className="absolute top-2 right-4 flex h-16 w-24 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-md shadow-2xl ring-1 ring-white/30 transform rotate-6 transition-transform">
+                      <Laptop size={32} className="text-white drop-shadow" />
+                    </div>
+                    <div className="absolute bottom-6 right-16 flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-500/30 backdrop-blur-md shadow-2xl ring-1 ring-white/30 transform -rotate-12">
+                      <Headphones size={24} className="text-cyan-300 drop-shadow" />
+                    </div>
+                    <div className="absolute top-20 right-28 flex h-12 w-20 items-center justify-center rounded-2xl bg-amber-400/30 backdrop-blur-md shadow-2xl ring-1 ring-white/30 transform rotate-12">
+                      <BookOpen size={22} className="text-amber-200 drop-shadow" />
+                    </div>
+                    <div className="absolute bottom-16 right-2 flex h-12 w-12 items-center justify-center rounded-2xl bg-purple-500/30 backdrop-blur-md shadow-2xl ring-1 ring-white/30 transform -rotate-6">
+                      <Building2 size={22} className="text-purple-200 drop-shadow" />
+                    </div>
+                  </div>
+                </div>
                 <div className="absolute right-6 bottom-4 text-[120px] sm:text-[180px] font-black opacity-10 leading-none select-none">
                   ExOwn
                 </div>

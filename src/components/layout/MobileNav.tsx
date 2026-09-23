@@ -36,7 +36,8 @@ export default function MobileNav() {
     { label: "Sell Item", href: sellHref, icon: PackagePlus },
     { label: "Rent Item", href: `${sellHref}${sellHref.includes("?") ? "&" : "?"}intent=rent`, icon: KeyRound },
     { label: "Exchange", href: `${sellHref}${sellHref.includes("?") ? "&" : "?"}intent=exchange`, icon: RefreshCw },
-    { label: "Post Housing", href: "/search?category=properties", icon: House },
+    { label: "Find Student Housing", href: "/housing", icon: House },
+    { label: "Roommate Finder", href: "/roommates", icon: User },
     { label: "Offer Service", href: `${sellHref}${sellHref.includes("?") ? "&" : "?"}intent=service`, icon: BriefcaseBusiness },
   ];
 

@@ -8,6 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "next-themes";
 import {
   Bell,
+  Building2,
   ChevronDown,
   GitCompare,
   Heart,
@@ -26,6 +27,7 @@ import {
   Sun,
   User,
   UserPlus,
+  Users,
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useNotifications } from "@/context/NotificationContext";
@@ -171,6 +173,24 @@ export default function Navbar() {
               {theme === "dark" ? <Sun size={18} className="text-yellow-400" /> : <Moon size={18} className="text-indigo-600" />}
             </button>
           )}
+
+          {/* Housing Link */}
+          <Link
+            href="/housing"
+            className="hidden items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-bold text-gray-700 transition hover:bg-gray-100 hover:text-primary dark:text-white/65 dark:hover:bg-white/[0.06] dark:hover:text-primary md:flex"
+          >
+            <Building2 size={17} />
+            <span className="hidden lg:inline">Housing</span>
+          </Link>
+
+          {/* Roommates Link */}
+          <Link
+            href="/roommates"
+            className="hidden items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-bold text-gray-700 transition hover:bg-gray-100 hover:text-primary dark:text-white/65 dark:hover:bg-white/[0.06] dark:hover:text-primary md:flex"
+          >
+            <Users size={17} />
+            <span className="hidden lg:inline">Roommates</span>
+          </Link>
 
           {/* Chat Link */}
           {user && (

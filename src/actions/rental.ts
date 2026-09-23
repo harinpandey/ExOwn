@@ -37,10 +37,10 @@ export async function requestRental(data: {
       throw new Error("Pickup location must be between 2 and 200 characters");
     }
 
-    // 1. Fetch product to get owner info
+    // Fetch product to get owner info
     const product = await prisma.product.findUnique({
       where: { id: data.productId },
-      include: { rentalDetail: true }
+      include: { rentalDetail: true },
     });
 
     if (!product || !product.rentalDetail) {
@@ -60,35 +60,49 @@ export async function requestRental(data: {
       throw new Error("Invalid security deposit configured for this rental");
     }
 
-    const conflictingRental = await prisma.rental.findFirst({
-      where: {
-        productId: data.productId,
-        status: { in: ["PENDING", "ACTIVE"] },
-        startDate: { lte: endDate },
-        endDate: { gte: startDate },
-      },
-    });
+    // Atomic Date Collision Check & Creation inside Interactive Prisma Transaction
+    const rental = await withRetry(() =>
+      prisma.$transaction(
+        async (tx) => {
+          // Check for overlapping active or pending rentals
+          // Collision formula: existing.startDate <= request.endDate AND existing.endDate >= request.startDate
+          const conflictingRental = await tx.rental.findFirst({
+            where: {
+              productId: data.productId,
+              status: { in: ["PENDING", "ACTIVE"] },
+              startDate: { lte: endDate },
+              endDate: { gte: startDate },
+            },
+          });
 
-    if (conflictingRental) {
-      throw new Error("This item is not available for the selected dates");
-    }
+          if (conflictingRental) {
+            throw new Error(
+              "Rental conflict detected: This item is already reserved or rented for the requested date period."
+            );
+          }
 
-    // 2. Create Rental Record
-    const rental = await withRetry(() => prisma.rental.create({
-      data: {
-        productId: data.productId,
-        renterId: data.renterId,
-        ownerId: product.sellerId,
-        rentalDetailId: product.rentalDetail!.id,
-        startDate,
-        endDate,
-        securityDeposit,
-        pickupLocation,
-        status: "PENDING",
-      }
-    }));
+          // Create the rental record atomically
+          return await tx.rental.create({
+            data: {
+              productId: data.productId,
+              renterId: data.renterId,
+              ownerId: product.sellerId,
+              rentalDetailId: product.rentalDetail!.id,
+              startDate,
+              endDate,
+              securityDeposit,
+              pickupLocation,
+              status: "PENDING",
+            },
+          });
+        },
+        {
+          isolationLevel: "Serializable",
+        }
+      )
+    );
 
-    // 3. Notify Owner
+    // Notify Owner
     await createNotification({
       userId: product.sellerId,
       type: "RENTAL_REQUEST",
@@ -118,7 +132,7 @@ export async function approveRental(rentalId: string, ownerId: string) {
 
     const rental = await prisma.rental.findUnique({
       where: { id: rentalId },
-      include: { product: true }
+      include: { product: true },
     });
 
     if (!rental || rental.ownerId !== ownerId) {
@@ -134,34 +148,39 @@ export async function approveRental(rentalId: string, ownerId: string) {
     }
 
     // 1. Update Status
-    await withRetry(() => prisma.$transaction(async (tx) => {
-      await tx.rental.update({
-        where: { id: rentalId },
-        data: { status: "ACTIVE" }
-      });
+    await withRetry(() =>
+      prisma.$transaction(async (tx) => {
+        await tx.rental.update({
+          where: { id: rentalId },
+          data: { status: "ACTIVE" },
+        });
 
-      const rentalDays = Math.max(1, Math.ceil((rental.endDate.getTime() - rental.startDate.getTime()) / (1000 * 60 * 60 * 24)));
-      await tx.transactionRecord.upsert({
-        where: { rentalId },
-        update: {
-          buyerId: rental.renterId,
-          sellerId: ownerId,
-          productId: rental.productId,
-          type: "RENT",
-          source: "RENTAL",
-          amount: rental.product.price * rentalDays,
-        },
-        create: {
-          buyerId: rental.renterId,
-          sellerId: ownerId,
-          productId: rental.productId,
-          rentalId,
-          type: "RENT",
-          source: "RENTAL",
-          amount: rental.product.price * rentalDays,
-        },
-      });
-    }));
+        const rentalDays = Math.max(
+          1,
+          Math.ceil((rental.endDate.getTime() - rental.startDate.getTime()) / (1000 * 60 * 60 * 24))
+        );
+        await tx.transactionRecord.upsert({
+          where: { rentalId },
+          update: {
+            buyerId: rental.renterId,
+            sellerId: ownerId,
+            productId: rental.productId,
+            type: "RENT",
+            source: "RENTAL",
+            amount: rental.product.price * rentalDays,
+          },
+          create: {
+            buyerId: rental.renterId,
+            sellerId: ownerId,
+            productId: rental.productId,
+            rentalId,
+            type: "RENT",
+            source: "RENTAL",
+            amount: rental.product.price * rentalDays,
+          },
+        });
+      })
+    );
 
     // 2. Notify Renter
     await createNotification({
@@ -202,15 +221,17 @@ export async function markRentalReturned(rentalId: string, ownerId: string) {
       throw new Error("Only active rentals can be marked returned");
     }
 
-    await withRetry(() => prisma.rental.update({
-      where: { id: rentalId },
-      data: { status: "RETURNED" }
-    }));
+    await withRetry(() =>
+      prisma.rental.update({
+        where: { id: rentalId },
+        data: { status: "RETURNED" },
+      })
+    );
 
     await logActivity({
       userId: ownerId,
       actionType: "RENTAL_RETURNED",
-      rentalId: rentalId
+      rentalId: rentalId,
     });
 
     return { success: true };
