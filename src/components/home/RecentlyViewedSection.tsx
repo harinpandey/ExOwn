@@ -28,14 +28,14 @@ export default function RecentlyViewedSection() {
 
   return (
     <section className="container mx-auto px-4 py-8">
-      <div className="flex items-center justify-between mb-8">
+      <div className="mb-8 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="p-2 bg-purple-100 dark:bg-purple-950/30 rounded-lg text-purple-600 dark:text-purple-400">
+          <div className="rounded-lg bg-primary/15 p-2 text-primary">
             <History size={20} />
           </div>
-          <h2 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-50">Recently Viewed</h2>
+          <h2 className="text-2xl font-black tracking-tight text-white">Recently Viewed</h2>
         </div>
-        <Link href="/search?filter=recent_views" className="text-primary font-semibold flex items-center gap-1 hover:underline">
+        <Link href="/search?filter=recent_views" className="flex items-center gap-1 text-sm font-black text-primary hover:underline">
           View History <ArrowRight size={16} />
         </Link>
       </div>
@@ -43,7 +43,7 @@ export default function RecentlyViewedSection() {
       {loading ? (
         <SectionSkeleton count={4} />
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {products.map((product) => (
             <ProductCard
               key={product.id}
@@ -59,6 +59,7 @@ export default function RecentlyViewedSection() {
               categoryId={product.categoryId}
               subcategoryId={product.subcategoryId || ""}
               sellerId={product.sellerId}
+              seller={product.seller}
             />
           ))}
         </div>

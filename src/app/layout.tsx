@@ -7,6 +7,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import MobileNav from "@/components/layout/MobileNav";
 import CompareBar from "@/components/layout/CompareBar";
+import AnnouncementBar from "@/components/layout/AnnouncementBar";
 import { NotificationProvider } from "@/context/NotificationContext";
 
 const geistSans = Geist({
@@ -32,6 +33,8 @@ import { Toaster } from "react-hot-toast";
 import { ThemeProvider } from "@/components/theme-provider";
 import ClientLayoutWrapper from "@/components/layout/ClientLayoutWrapper";
 
+import { LocationProvider } from "@/context/LocationContext";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -39,27 +42,30 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`} suppressHydrationWarning>
-      <body className="min-h-full flex flex-col bg-background text-foreground transition-colors duration-300">
+      <body className="min-h-full flex flex-col bg-background text-foreground transition-colors duration-300 exown-shell">
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
+          defaultTheme="dark"
           enableSystem
         >
           <AuthProvider>
-            <NotificationProvider>
-              <CompareProvider>
-                <Toaster position="top-center" reverseOrder={false} />
-                <ClientLayoutWrapper>
-                  <Navbar />
-                  <main className="flex-1 pb-16 md:pb-0 page-transition">
-                    {children}
-                  </main>
-                  <Footer />
-                  <MobileNav />
-                  <CompareBar />
-                </ClientLayoutWrapper>
-              </CompareProvider>
-            </NotificationProvider>
+            <LocationProvider>
+              <NotificationProvider>
+                <CompareProvider>
+                  <Toaster position="top-center" reverseOrder={false} />
+                  <ClientLayoutWrapper>
+                    <AnnouncementBar />
+                    <Navbar />
+                    <main className="flex-1 pb-16 md:pb-0 page-transition">
+                      {children}
+                    </main>
+                    <Footer />
+                    <MobileNav />
+                    <CompareBar />
+                  </ClientLayoutWrapper>
+                </CompareProvider>
+              </NotificationProvider>
+            </LocationProvider>
           </AuthProvider>
         </ThemeProvider>
         <script src="https://checkout.razorpay.com/v1/checkout.js" async></script>

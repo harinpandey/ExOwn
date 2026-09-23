@@ -12,11 +12,21 @@ import ProductCard from "@/components/ui/ProductCard";
 import { incrementProductViews, getTrendingProducts } from "@/actions/product";
 import { ChevronRight } from "lucide-react";
 
+import { DEMO_TRENDING, DEMO_RECENT, DEMO_RENTALS, DEMO_VERIFIED } from "@/lib/demoData";
+
 export const dynamic = "force-dynamic";
 
 export default async function ProductDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const product = await getProductById(id);
+  let product = await getProductById(id);
+
+  if (!product) {
+    const allDemo = [...DEMO_TRENDING, ...DEMO_RECENT, ...DEMO_RENTALS, ...DEMO_VERIFIED];
+    const foundDemo = allDemo.find(p => p.id === id);
+    if (foundDemo) {
+      product = foundDemo as any;
+    }
+  }
 
   if (!product) return notFound();
 

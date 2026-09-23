@@ -1,9 +1,18 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useState, useEffect } from "react";
-import { Heart, MapPin, ShieldCheck, Sparkles, Tag, CheckCircle2, Trash2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import {
+  CheckCircle2,
+  Clock3,
+  Heart,
+  MapPin,
+  ShieldCheck,
+  Sparkles,
+  Tag,
+  Trash2,
+} from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
 export interface ProductCardProps {
@@ -22,19 +31,38 @@ export interface ProductCardProps {
   sellerId?: string;
   isWishlisted?: boolean;
   seller?: {
-    verificationLevel?: string;
-    isTrustedSeller?: boolean;
-    trustScore?: number;
-  };
+    name?: string | null;
+    image?: string | null;
+    isVerified?: boolean | null;
+    verificationLevel?: string | null;
+    isTrustedSeller?: boolean | null;
+    trustScore?: number | null;
+    rating?: number | null;
+    successfulDeals?: number | null;
+  } | null;
 }
 
-export default function ProductCard({ 
-  id, title, price, image, location, createdAt, isUrgent, listingType, condition, categoryId: _categoryId, subcategoryId: _subcategoryId, sellerId, seller, isWishlisted = false
+export default function ProductCard({
+  id,
+  title,
+  price,
+  image,
+  location,
+  createdAt,
+  isUrgent,
+  isVerified,
+  listingType,
+  condition,
+  categoryId: _categoryId,
+  subcategoryId: _subcategoryId,
+  sellerId,
+  seller,
+  isWishlisted = false,
 }: ProductCardProps) {
   const { user } = useAuth();
   const [wishlisted, setWishlisted] = useState(isWishlisted);
   const [isMutating, setIsMutating] = useState(false);
-  
+
   useEffect(() => {
     if (user && !isWishlisted) {
       import("@/actions/wishlist").then(({ isInWishlist }) => {
@@ -50,21 +78,21 @@ export default function ProductCard({
       import("react-hot-toast").then(({ toast }) => toast.error("Please login to save items"));
       return;
     }
+
     const previousState = wishlisted;
     setWishlisted(!wishlisted);
     try {
       const { toggleWishlist } = await import("@/actions/wishlist");
       const res = await toggleWishlist(user.uid, id);
       if (res.success) {
-        import("react-hot-toast").then(({ toast }) => 
-          toast.success(res.added ? "Added to wishlist" : "Removed from wishlist")
-        );
+        import("react-hot-toast").then(({ toast }) => toast.success(res.added ? "Saved" : "Removed"));
       } else {
         setWishlisted(previousState);
         import("react-hot-toast").then(({ toast }) => toast.error(res.error || "Failed to update wishlist"));
       }
     } catch {
       setWishlisted(previousState);
+      import("react-hot-toast").then(({ toast }) => toast.error("Failed to update wishlist"));
     }
   };
 
@@ -104,135 +132,123 @@ export default function ProductCard({
     }
   };
 
-  // Determine single best trust badge
-  const renderTrustBadge = () => {
-    if (seller?.isTrustedSeller) {
-      return (
-        <span className="flex items-center gap-1 text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
-          <Sparkles size={12} /> Trusted
-        </span>
-      );
-    }
-    if (seller?.verificationLevel === "CAMPUS") {
-      return (
-        <span className="flex items-center gap-1 text-[10px] font-bold text-blue-600 dark:text-blue-400">
-          <ShieldCheck size={12} /> Campus Verified
-        </span>
-      );
-    }
-    if (seller?.verificationLevel === "BUSINESS") {
-      return (
-        <span className="flex items-center gap-1 text-[10px] font-bold text-purple-600 dark:text-purple-400">
-          <ShieldCheck size={12} /> Business Verified
-        </span>
-      );
-    }
-    return null;
-  };
+  const freshness = formatDistanceToNow(new Date(createdAt), { addSuffix: true });
+  const trustLabel = getTrustLabel(seller, isVerified);
+  const typeLabel = listingType === "RENT" ? "Rent" : listingType === "SERVICE" ? "Service" : "Buy";
 
   return (
-    <div className="group relative flex flex-col bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 overflow-hidden premium-card">
-      
-      {/* Aspect Ratio 4:3 Image Container */}
-      <div className="relative aspect-[4/3] w-full overflow-hidden bg-gray-50 dark:bg-gray-950">
-        <img 
-          src={image || "/placeholder-product.png"} 
-          alt={title} 
+    <article className="premium-card group relative flex min-h-full flex-col overflow-hidden rounded-xl border border-gray-200 bg-white text-gray-900 shadow-md transition-all dark:border-white/10 dark:bg-[#10141b] dark:text-white">
+      <div className="relative aspect-[4/3] w-full overflow-hidden bg-gray-100 dark:bg-[#0c1017]">
+        <img
+          src={image || "/exown-icon.png"}
+          alt={title}
           loading="lazy"
-          className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
+          className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.035]"
         />
-        
-        {/* Overlay badges (minimal) */}
-        <div className="absolute top-2.5 left-2.5 flex flex-col gap-1 z-20">
+        <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/55 to-transparent" />
+
+        <div className="absolute left-2.5 top-2.5 z-20 flex flex-wrap gap-1.5">
+          <span className="rounded-md border border-white/15 bg-black/50 px-2 py-1 text-[10px] font-black uppercase tracking-wide text-white backdrop-blur">
+            {typeLabel}
+          </span>
           {isUrgent && (
-            <span className="bg-red-500 text-white text-[9px] font-extrabold px-2 py-0.5 rounded-full shadow-sm">
+            <span className="rounded-md bg-red-500 px-2 py-1 text-[10px] font-black uppercase tracking-wide text-white">
               Urgent
-            </span>
-          )}
-          {condition && (
-            <span className="bg-white/90 dark:bg-gray-900/90 text-gray-800 dark:text-gray-200 text-[9px] font-extrabold px-2 py-0.5 rounded-full border border-gray-100 dark:border-gray-800 shadow-sm">
-              {condition}
             </span>
           )}
         </div>
 
-        {/* Wishlist Heart Icon (Top-Right, Always Visible) */}
-        <button 
+        <button
+          type="button"
           onClick={handleWishlistToggle}
-          className="absolute top-2.5 right-2.5 p-2 bg-white/20 dark:bg-black/25 border border-white/20 dark:border-white/10 backdrop-blur-md text-gray-800 dark:text-gray-200 rounded-full hover:scale-110 active:scale-95 transition-all shadow-inner z-30"
-          aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
+          aria-label={wishlisted ? "Remove from wishlist" : "Save listing"}
+          aria-pressed={wishlisted}
+          className="absolute right-2.5 top-2.5 z-30 flex h-9 w-9 items-center justify-center rounded-lg border border-white/15 bg-black/45 text-white backdrop-blur transition hover:border-red-300 hover:text-red-300 active:scale-95"
         >
-          <Heart size={15} fill={wishlisted ? "#ef4444" : "none"} className={wishlisted ? "text-red-500" : ""} />
+          <Heart size={17} fill={wishlisted ? "currentColor" : "none"} className={wishlisted ? "text-red-400" : ""} />
         </button>
 
-        {/* Seller management quick actions (only if logged in and seller) */}
+        {condition && (
+          <span className="absolute bottom-2.5 left-2.5 z-20 rounded-md border border-white/15 bg-white/90 px-2 py-1 text-[10px] font-black uppercase tracking-wide text-gray-900">
+            {condition.replace("_", " ")}
+          </span>
+        )}
+
         {user && sellerId === user.uid && (
           <div className="absolute bottom-2.5 right-2.5 z-40 flex gap-1">
-            <Link 
+            <Link
               href={`/product/edit/${id}`}
-              className="p-1.5 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md text-gray-800 dark:text-gray-100 rounded-lg shadow-sm hover:text-primary transition-all text-[9px] font-extrabold flex items-center gap-1"
+              className="flex items-center gap-1 rounded-md bg-white px-2 py-1.5 text-[10px] font-black text-gray-900 shadow transition hover:text-primary"
             >
-              <Tag size={12} /> Edit
+              <Tag size={12} />
+              Edit
             </Link>
-            <button 
+            <button
+              type="button"
               onClick={handleMarkSold}
-              className="p-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-sm transition-colors text-[9px] font-extrabold flex items-center gap-1"
+              className="flex items-center gap-1 rounded-md bg-emerald-600 px-2 py-1.5 text-[10px] font-black text-white shadow transition hover:bg-emerald-700"
             >
-              <CheckCircle2 size={12} /> Sold
+              <CheckCircle2 size={12} />
+              Sold
             </button>
-            <button 
+            <button
+              type="button"
               onClick={handleArchive}
-              className="p-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg shadow-sm transition-colors text-[9px] font-extrabold flex items-center gap-1"
+              className="flex items-center gap-1 rounded-md bg-red-600 px-2 py-1.5 text-[10px] font-black text-white shadow transition hover:bg-red-700"
             >
-              <Trash2 size={12} /> Archive
+              <Trash2 size={12} />
+              Archive
             </button>
           </div>
         )}
       </div>
 
-      {/* Info Content Area */}
-      <div className="p-4 flex flex-col flex-1 bg-white dark:bg-gray-900 relative z-30">
-        
-        {/* Row 1: Title & Type badge */}
-        <div className="flex items-start justify-between gap-2 mb-1">
-          <h3 className="font-semibold text-sm-safe text-gray-800 dark:text-gray-200 line-clamp-1 leading-tight flex-1" title={title}>
-            {title}
-          </h3>
-          {listingType && listingType !== "SELL" && (
-            <span className="shrink-0 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 text-[9px] font-extrabold px-1.5 py-0.5 rounded-md uppercase">
-              {listingType}
-            </span>
-          )}
-        </div>
+      <div className="flex flex-1 flex-col p-4">
+        <h3 className="line-clamp-2 min-h-[2.5rem] text-sm font-black leading-5 text-gray-900 dark:text-white" title={title}>
+          {title}
+        </h3>
 
-        {/* Row 2: Price / Duration */}
-        <div className="flex items-baseline gap-1 mb-2.5">
-          <span className="text-base font-extrabold text-gray-950 dark:text-gray-50">
-            ₹{price.toLocaleString('en-IN')}
-          </span>
-          {listingType === "RENT" && (
-            <span className="text-[10px] text-gray-400 font-semibold lowercase">/ day</span>
-          )}
-        </div>
-
-        {/* Row 3: Trust & Location Metas */}
-        <div className="mt-auto pt-2.5 border-t border-gray-50 dark:border-gray-800/80 flex items-center justify-between text-[10px] font-semibold text-gray-400">
-          <div className="flex items-center gap-1 text-gray-500 truncate max-w-[120px]">
-            <MapPin size={12} className="text-gray-300 dark:text-gray-600" />
-            <span className="truncate">{location}</span>
+        <div className="mt-2 flex items-end justify-between gap-3">
+          <div>
+            <p className="text-xl font-black tracking-tight text-primary dark:text-[var(--accent)]">₹{price.toLocaleString("en-IN")}</p>
+            {listingType === "RENT" && <p className="text-[11px] font-bold text-gray-500 dark:text-white/45">per day</p>}
           </div>
-          {renderTrustBadge() || (
-            <span className="text-gray-400 dark:text-gray-500 text-[10px]">
-              {formatDistanceToNow(new Date(createdAt), { addSuffix: false })} ago
+          {trustLabel && (
+            <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-primary/10 px-2 py-1 text-[10px] font-black text-primary">
+              {trustLabel.icon}
+              {trustLabel.label}
             </span>
           )}
+        </div>
+
+        <div className="mt-4 grid gap-2 border-t border-gray-100 pt-3 text-[11px] font-semibold text-gray-500 dark:border-white/10 dark:text-white/52">
+          <div className="flex min-w-0 items-center gap-1.5">
+            <MapPin size={13} className="shrink-0 text-gray-400 dark:text-white/32" />
+            <span className="truncate">{location || "Campus pickup"}</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Clock3 size={13} className="text-gray-400 dark:text-white/32" />
+            <span>{freshness}</span>
+          </div>
         </div>
       </div>
 
-      {/* Fully clickable card layer */}
-      <Link href={`/product/${id}`} className="absolute inset-0 z-10">
-        <span className="sr-only">View Details for {title}</span>
+      <Link href={`/product/${id}`} className="absolute inset-0 z-10" tabIndex={-1} aria-hidden>
+        <span className="sr-only">View details for {title}</span>
       </Link>
-    </div>
+    </article>
   );
+}
+
+function getTrustLabel(seller: ProductCardProps["seller"], isVerified?: boolean) {
+  if (seller?.isTrustedSeller) {
+    return { label: "Trusted", icon: <Sparkles size={12} aria-hidden="true" /> };
+  }
+  if (seller?.verificationLevel === "CAMPUS" || isVerified) {
+    return { label: "Verified", icon: <ShieldCheck size={12} aria-hidden="true" /> };
+  }
+  if (seller?.verificationLevel === "BUSINESS") {
+    return { label: "Business", icon: <ShieldCheck size={12} aria-hidden="true" /> };
+  }
+  return null;
 }

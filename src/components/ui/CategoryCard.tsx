@@ -12,12 +12,12 @@ export default function CategoryCard({ id, name, icon: Icon, color }: CategoryCa
   return (
     <Link 
       href={`/search?category=${id}`}
-      className="flex flex-col items-center gap-3 p-4 rounded-2xl hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors group cursor-pointer"
+      className="group flex min-h-[112px] flex-col items-center justify-center gap-3 rounded-xl border border-white/10 bg-[#10141b] p-4 text-center transition hover:-translate-y-0.5 hover:border-primary/40"
     >
-      <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110 group-hover:shadow-md ${color}`}>
-        <Icon size={32} />
+      <div className={`flex h-12 w-12 items-center justify-center rounded-lg transition group-hover:scale-105 ${color}`}>
+        <Icon size={24} />
       </div>
-      <span className="text-sm font-medium text-center text-gray-700 dark:text-gray-300 group-hover:text-primary transition-colors">
+      <span className="text-xs font-black leading-tight text-white/72 transition group-hover:text-primary">
         {name}
       </span>
     </Link>
