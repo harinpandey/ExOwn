@@ -101,7 +101,14 @@ function LoginContent() {
         try {
           const result = await signInWithPopup(auth, provider);
           await createServerSession(result.user);
-          router.push(redirect);
+          const { syncUser } = await import("@/actions/user");
+          await syncUser({
+            id: result.user.uid,
+            email: result.user.email,
+            name: result.user.displayName,
+            image: result.user.photoURL,
+          });
+          window.location.href = redirect;
         } catch (popupErr: any) {
           // Popup blocked — fall back to redirect
           if (

@@ -106,15 +106,37 @@ export async function requireSameFirebaseUser(userId: string): Promise<CurrentUs
 export async function requireUser(): Promise<CurrentUser> {
   const user = await requireFirebaseUser();
 
-  // Hardening: Query DB user status to enforce active, non-suspended account status
-  const dbUser = await prisma.user.findUnique({
+  // Query DB user status; auto-create user record if newly registered via Firebase
+  let dbUser = await prisma.user.findUnique({
     where: { id: user.uid },
     select: { isSuspended: true }
   });
 
   if (!dbUser) {
-    console.warn(`[auth:security] Authenticated token holds UID ${user.uid} which is not found in database.`);
-    throw new Error("Unauthorized");
+    console.log(`[auth:security] Authenticated Firebase UID ${user.uid} not in DB yet. Auto-syncing user record.`);
+    try {
+      const isConfiguredAdmin = (process.env.ADMIN_EMAILS || "")
+        .split(",")
+        .map(e => e.trim().toLowerCase())
+        .includes((user.email || "").toLowerCase());
+
+      const created = await prisma.user.create({
+        data: {
+          id: user.uid,
+          email: user.email || null,
+          name: user.name || null,
+          image: user.picture || null,
+          role: isConfiguredAdmin ? "ADMIN" : "USER",
+          verificationLevel: "BASIC",
+          lastActive: new Date(),
+        },
+        select: { isSuspended: true }
+      });
+      dbUser = created;
+    } catch (err) {
+      console.warn("[auth:security] Auto-creation fallback hit concurrency or issue:", err);
+      dbUser = { isSuspended: false };
+    }
   }
 
   if (dbUser.isSuspended) {
