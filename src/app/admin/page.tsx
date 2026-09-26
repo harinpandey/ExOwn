@@ -22,6 +22,7 @@ export default async function AdminPage() {
     { name: "AI Rule Engine", description: "Fine-tune scoring and buy recommendations.", href: "/admin/ai-rules", icon: Sparkles },
     { name: "Reports & Disputes", description: "Handle user complaints and scam reports.", href: "/admin/reports", icon: AlertCircle },
     { name: "Global Settings", description: "Platform fees, maintenance mode, and SEO.", href: "/admin/settings", icon: Settings },
+    { name: "ExOwn Moments Manager", description: "Contextual, funny & personalized in-app notification engine.", href: "/admin/moments", icon: Sparkles },
     { name: "Global Activity Audit", description: "Real-time audit trail of all platform actions and fraud signals.", href: "/admin/activity", icon: ShieldCheck },
   ];
 

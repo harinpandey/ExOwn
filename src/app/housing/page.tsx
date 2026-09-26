@@ -19,9 +19,11 @@ import {
 } from "lucide-react";
 import { getHousingListings } from "@/actions/housing";
 import { useLocation } from "@/context/LocationContext";
+import { useMoments } from "@/context/MomentsContext";
 
 export default function HousingPage() {
   const { selectedCampus, campusObj } = useLocation();
+  const { triggerEvent } = useMoments();
   const [listings, setListings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -47,6 +49,13 @@ export default function HousingPage() {
     }
     loadHousing();
   }, [selectedCampus, selectedType, maxRent, genderPref]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      triggerEvent("HOUSING_MATCH", { campusName: campusObj?.name, customCtaHref: "/housing" });
+    }, 4500);
+    return () => clearTimeout(timer);
+  }, [campusObj, triggerEvent]);
 
   const toggleAmenity = (amenity: string) => {
     setSelectedAmenities((prev) =>

@@ -39,7 +39,12 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
   const seller = product?.seller;
   return (
     <div className="container mx-auto px-4 py-12 max-w-7xl">
-      <ActivityTracker productId={product.id} />
+      <ActivityTracker
+        productId={product.id}
+        title={product.title}
+        price={product.price}
+        image={product.images?.[0]}
+      />
       
       {/* Breadcrumbs */}
       <nav className="flex items-center gap-2 text-xs font-bold text-gray-400 mb-8 overflow-x-auto no-scrollbar whitespace-nowrap">

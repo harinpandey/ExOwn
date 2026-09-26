@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { useMoments } from "@/context/MomentsContext";
 import { 
   Upload, X, Check, ArrowRight, ChevronLeft, 
   LayoutGrid, MapPin, Tag, Image as ImageIcon, Rocket, 
@@ -19,6 +20,7 @@ import * as LucideIcons from "lucide-react";
 export default function SellPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const { triggerEvent } = useMoments();
   
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -55,6 +57,13 @@ export default function SellPage() {
       router.push("/login?redirect=/sell");
     }
   }, [user, loading, router]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      triggerEvent("HELPFUL_ADVICE", { customCtaHref: "/sell" });
+    }, 5500);
+    return () => clearTimeout(timer);
+  }, [triggerEvent]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {

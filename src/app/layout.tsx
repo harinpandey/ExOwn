@@ -9,6 +9,7 @@ import MobileNav from "@/components/layout/MobileNav";
 import CompareBar from "@/components/layout/CompareBar";
 import AnnouncementBar from "@/components/layout/AnnouncementBar";
 import { NotificationProvider } from "@/context/NotificationContext";
+import { MomentsProvider } from "@/context/MomentsContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -51,19 +52,21 @@ export default function RootLayout({
           <AuthProvider>
             <LocationProvider>
               <NotificationProvider>
-                <CompareProvider>
-                  <Toaster position="top-center" reverseOrder={false} />
-                  <ClientLayoutWrapper>
-                    <AnnouncementBar />
-                    <Navbar />
-                    <main className="flex-1 pb-16 md:pb-0 page-transition">
-                      {children}
-                    </main>
-                    <Footer />
-                    <MobileNav />
-                    <CompareBar />
-                  </ClientLayoutWrapper>
-                </CompareProvider>
+                <MomentsProvider>
+                  <CompareProvider>
+                    <Toaster position="top-center" reverseOrder={false} />
+                    <ClientLayoutWrapper>
+                      <AnnouncementBar />
+                      <Navbar />
+                      <main className="flex-1 pb-16 md:pb-0 page-transition">
+                        {children}
+                      </main>
+                      <Footer />
+                      <MobileNav />
+                      <CompareBar />
+                    </ClientLayoutWrapper>
+                  </CompareProvider>
+                </MomentsProvider>
               </NotificationProvider>
             </LocationProvider>
           </AuthProvider>

@@ -14,6 +14,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { useMoments } from "@/context/MomentsContext";
 
 export interface ProductCardProps {
   id: string;
@@ -60,6 +61,7 @@ export default function ProductCard({
   isWishlisted = false,
 }: ProductCardProps) {
   const { user } = useAuth();
+  const { trackWishlistAdd } = useMoments();
   const [wishlisted, setWishlisted] = useState(isWishlisted);
   const [isMutating, setIsMutating] = useState(false);
 
@@ -86,6 +88,9 @@ export default function ProductCard({
       const res = await toggleWishlist(user.uid, id);
       if (res.success) {
         import("react-hot-toast").then(({ toast }) => toast.success(res.added ? "Saved" : "Removed"));
+        if (res.added) {
+          trackWishlistAdd(id, title, image);
+        }
       } else {
         setWishlisted(previousState);
         import("react-hot-toast").then(({ toast }) => toast.error(res.error || "Failed to update wishlist"));

@@ -5,6 +5,7 @@ import SortSelect from "@/components/ui/SortSelect";
 import Link from "next/link";
 import SearchSidebar from "@/components/search/SearchSidebar";
 import EmptyState from "@/components/ui/EmptyState";
+import SearchMomentsTrigger from "@/components/search/SearchMomentsTrigger";
 import { DEMO_TRENDING, DEMO_RECENT, DEMO_RENTALS, DEMO_VERIFIED, DemoProduct } from "@/lib/demoData";
 
 export const dynamic = "force-dynamic";
@@ -85,6 +86,7 @@ export default async function SearchPage({
 
   return (
     <div className="container mx-auto px-4 py-8 text-gray-900 transition-colors dark:text-white">
+      <SearchMomentsTrigger query={query} category={categorySlug} listingType={listingType} />
       <div className="flex flex-col gap-8 md:flex-row">
 
         {/* Sidebar Filters */}

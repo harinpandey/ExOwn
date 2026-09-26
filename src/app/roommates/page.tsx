@@ -15,11 +15,13 @@ import {
 import { getRoommateProfiles, sendRoommateInterest } from "@/actions/roommate";
 import { useLocation } from "@/context/LocationContext";
 import { useAuth } from "@/context/AuthContext";
+import { useMoments } from "@/context/MomentsContext";
 import toast from "react-hot-toast";
 
 export default function RoommatesPage() {
   const { selectedCampus, campusObj } = useLocation();
   const { user } = useAuth();
+  const { triggerEvent } = useMoments();
   const [profiles, setProfiles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -44,6 +46,13 @@ export default function RoommatesPage() {
     }
     loadProfiles();
   }, [selectedCampus, maxBudget, genderPref, roomTypePref]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      triggerEvent("ROOMMATE_MATCH", { campusName: campusObj?.name, customCtaHref: "/roommates" });
+    }, 4500);
+    return () => clearTimeout(timer);
+  }, [campusObj, triggerEvent]);
 
   const handleConnect = async (profileId: string, receiverId: string) => {
     if (!user) {
