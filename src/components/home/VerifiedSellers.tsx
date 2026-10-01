@@ -3,7 +3,12 @@ import ProductCard from "@/components/ui/ProductCard";
 import { DEMO_VERIFIED } from "@/lib/demoData";
 
 export default async function VerifiedSellers() {
-  const dbProducts = await getVerifiedSellersProducts();
+  let dbProducts: any[] = [];
+  try {
+    dbProducts = await getVerifiedSellersProducts();
+  } catch (err) {
+    console.error("[VerifiedSellers] DB fetch failed, using demo data:", err);
+  }
   const products = dbProducts.length > 0 ? dbProducts : DEMO_VERIFIED;
 
   return (

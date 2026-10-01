@@ -3,7 +3,12 @@ import ProductCard from "@/components/ui/ProductCard";
 import { DEMO_RENTALS } from "@/lib/demoData";
 
 export default async function PopularRentals() {
-  const dbProducts = await getPopularRentals();
+  let dbProducts: any[] = [];
+  try {
+    dbProducts = await getPopularRentals();
+  } catch (err) {
+    console.error("[PopularRentals] DB fetch failed, using demo data:", err);
+  }
   const products = dbProducts.length > 0 ? dbProducts : DEMO_RENTALS;
 
   return (

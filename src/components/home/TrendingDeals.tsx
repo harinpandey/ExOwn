@@ -3,7 +3,12 @@ import ProductCard from "@/components/ui/ProductCard";
 import { DEMO_TRENDING } from "@/lib/demoData";
 
 export default async function TrendingDeals() {
-  const dbProducts = await getTrendingProducts();
+  let dbProducts: any[] = [];
+  try {
+    dbProducts = await getTrendingProducts();
+  } catch (err) {
+    console.error("[TrendingDeals] DB fetch failed, using demo data:", err);
+  }
   const products = dbProducts.length > 0 ? dbProducts : DEMO_TRENDING;
 
   return (

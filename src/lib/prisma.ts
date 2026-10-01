@@ -3,7 +3,6 @@ import { PrismaClient } from '@prisma/client'
 const prismaClientSingleton = () => {
   return new PrismaClient({
     log: [
-      { level: 'query', emit: 'event' },
       { level: 'error', emit: 'stdout' },
       { level: 'warn', emit: 'stdout' },
     ],
@@ -15,19 +14,29 @@ declare const globalThis: {
   prismaGlobal: ReturnType<typeof prismaClientSingleton>;
 } & typeof global;
 
+// Cache across all environments — critical for serverless (Vercel) to prevent
+// new PrismaClient on every invocation which exhausts Neon's connection pool.
 const prisma = globalThis.prismaGlobal ?? prismaClientSingleton()
+globalThis.prismaGlobal = prisma
 
 // Helper for connection retries
-export async function withRetry<T>(fn: () => Promise<T>, retries = 3, delay = 1000): Promise<T> {
+export async function withRetry<T>(fn: () => Promise<T>, retries = 3, delay = 500): Promise<T> {
   let lastError: any;
   for (let i = 0; i < retries; i++) {
     try {
       return await fn();
     } catch (error: any) {
       lastError = error;
-      // If it's a P1001 (Can't reach DB) or P2024 (Connection timeout), retry
-      if (error.code === 'P1001' || error.code === 'P2024' || error.message?.includes('timeout')) {
-        console.warn(`Database connection attempt ${i + 1} failed. Retrying in ${delay}ms...`);
+      // Retry on connection errors: P1001, P2024, pool closed, or timeout
+      const msg = error?.message ?? '';
+      if (
+        error.code === 'P1001' ||
+        error.code === 'P2024' ||
+        msg.includes('timeout') ||
+        msg.includes('Closed') ||
+        msg.includes('connection')
+      ) {
+        console.warn(`[prisma] Attempt ${i + 1} failed (${error.code ?? 'unknown'}). Retrying in ${delay}ms...`);
         await new Promise(resolve => setTimeout(resolve, delay));
         delay *= 2; // Exponential backoff
         continue;
@@ -39,5 +48,3 @@ export async function withRetry<T>(fn: () => Promise<T>, retries = 3, delay = 10
 }
 
 export default prisma
-
-if (process.env.NODE_ENV !== 'production') globalThis.prismaGlobal = prisma

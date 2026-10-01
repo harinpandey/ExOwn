@@ -46,10 +46,16 @@ export default async function SearchPage({
     params.maxPrice && `Max: ₹${params.maxPrice}`,
   ].filter(Boolean);
 
-  const [dbResults, categories] = await Promise.all([
-    searchProducts({ query, categorySlug, condition, listingType, minPrice, maxPrice, sortBy: sort, page, pageSize }),
-    getCategories(),
-  ]);
+  let dbResults: any[] = [];
+  let categories: any[] = [];
+  try {
+    [dbResults, categories] = await Promise.all([
+      searchProducts({ query, categorySlug, condition, listingType, minPrice, maxPrice, sortBy: sort, page, pageSize }),
+      getCategories(),
+    ]);
+  } catch (err) {
+    console.error("[SearchPage] DB fetch failed, falling back to demo data:", err);
+  }
 
   let results: any[] = dbResults;
 

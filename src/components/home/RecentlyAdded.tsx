@@ -3,7 +3,12 @@ import ProductCard from "@/components/ui/ProductCard";
 import { DEMO_RECENT } from "@/lib/demoData";
 
 export default async function RecentlyAdded() {
-  const dbProducts = await getRecentlyAdded();
+  let dbProducts: any[] = [];
+  try {
+    dbProducts = await getRecentlyAdded();
+  } catch (err) {
+    console.error("[RecentlyAdded] DB fetch failed, using demo data:", err);
+  }
   const products = dbProducts.length > 0 ? dbProducts : DEMO_RECENT;
 
   return (

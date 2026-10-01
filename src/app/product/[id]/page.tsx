@@ -18,7 +18,12 @@ export const dynamic = "force-dynamic";
 
 export default async function ProductDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  let product = await getProductById(id);
+  let product: any = null;
+  try {
+    product = await getProductById(id);
+  } catch (err) {
+    console.error("[ProductPage] getProductById failed:", err);
+  }
 
   if (!product) {
     const allDemo = [...DEMO_TRENDING, ...DEMO_RECENT, ...DEMO_RENTALS, ...DEMO_VERIFIED];
@@ -30,11 +35,16 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
 
   if (!product) return notFound();
 
-  // Increment view counter (server-side)
-  await incrementProductViews(id);
+  // Increment view counter (server-side, fire-and-forget — do not let failure crash page)
+  incrementProductViews(id).catch(() => {});
 
   // Fetch similar listings
-  const similarProducts = await getTrendingProducts(); // Placeholder for category-specific similar products
+  let similarProducts: any[] = [];
+  try {
+    similarProducts = await getTrendingProducts();
+  } catch {
+    // Non-critical — silently degrade to empty similar products
+  }
 
   const seller = product?.seller;
   return (
