@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from "react";
+import { createContext, useContext, useEffect, useState, ReactNode, useCallback, useRef } from "react";
 import { AnimatePresence } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
 import { useLocation } from "@/context/LocationContext";
@@ -23,6 +23,7 @@ import { recordMomentAnalytics, getActiveAdminMoments } from "@/actions/moments"
 import ExOwnMomentCard from "@/components/moments/ExOwnMomentCard";
 
 interface TriggerContextParams {
+  campusName?: string;
   itemTitle?: string;
   itemPrice?: number;
   itemOldPrice?: number;
@@ -50,9 +51,11 @@ const MomentsContext = createContext<MomentsContextType | undefined>(undefined);
 
 export function MomentsProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
-  const { currentCampus } = useLocation();
-  const { refreshNotifications } = useNotifications();
+  const { campusObj, selectedCampus } = useLocation();
+  const currentCampusName = campusObj?.name || selectedCampus;
+  const { notifications, refreshNotifications } = useNotifications();
   const [currentMoment, setCurrentMoment] = useState<ActiveMoment | null>(null);
+  const lastProcessedNotifIdRef = useRef<string | null>(null);
 
   const dismissMoment = useCallback(() => {
     if (currentMoment) {
@@ -114,7 +117,7 @@ export function MomentsProvider({ children }: { children: ReactNode }) {
         category,
         {
           ...params,
-          campusName: currentCampus?.name,
+          campusName: params.campusName || currentCampusName,
           userId: user?.uid,
         },
         force
@@ -124,17 +127,17 @@ export function MomentsProvider({ children }: { children: ReactNode }) {
         showMoment(moment);
       }
     },
-    [currentCampus, user, showMoment]
+    [currentCampusName, user, showMoment]
   );
 
   const trackProductView = useCallback(
     (productId: string, title: string, price: number, image?: string) => {
-      const moment = recordProductView(productId, title, price, image, currentCampus?.name);
+      const moment = recordProductView(productId, title, price, image, currentCampusName);
       if (moment) {
         showMoment(moment);
       }
     },
-    [currentCampus, showMoment]
+    [currentCampusName, showMoment]
   );
 
   const trackWishlistAdd = useCallback(
@@ -165,7 +168,7 @@ export function MomentsProvider({ children }: { children: ReactNode }) {
         const adminMoments = await getActiveAdminMoments();
         if (adminMoments && adminMoments.length > 0) {
           const valid = adminMoments.find((m) => {
-            if (m.targetCampus && m.targetCampus !== currentCampus?.name) return false;
+            if (m.targetCampus && m.targetCampus !== currentCampusName) return false;
             return canShowMoment(m.category, m.priority, false);
           });
 
@@ -192,14 +195,57 @@ export function MomentsProvider({ children }: { children: ReactNode }) {
       }
 
       // 2. Check temporal weekend trigger
-      const temporal = checkTemporalMoment(currentCampus?.name);
+      const temporal = checkTemporalMoment(currentCampusName);
       if (temporal) {
         showMoment(temporal);
       }
     }, 4500); // polite delay after page load
 
     return () => clearTimeout(timer);
-  }, [currentCampus, showMoment]);
+  }, [currentCampusName, showMoment]);
+
+  // Transactional Notification Bridge: When new offer / deal notification arrives, trigger an ExOwn Moment
+  useEffect(() => {
+    if (!notifications || notifications.length === 0) return;
+    const latest = notifications[0];
+    if (!latest || latest.isRead || latest.id === lastProcessedNotifIdRef.current) return;
+    lastProcessedNotifIdRef.current = latest.id;
+
+    if (latest.type === "OFFER") {
+      const isAccepted = latest.title.toLowerCase().includes("accepted") || latest.content.toLowerCase().includes("accepted");
+      if (isAccepted) {
+        triggerEvent(
+          "OFFER_ACCEPTED",
+          {
+            itemTitle: latest.content.match(/"([^"]+)"/)?.[1] || "listing",
+            isTransactional: true,
+            customCtaHref: latest.link || "/profile?tab=listings",
+          },
+          true
+        );
+      } else {
+        triggerEvent(
+          "OFFER_RECEIVED",
+          {
+            itemTitle: latest.content.match(/"([^"]+)"/)?.[1] || "listing",
+            isTransactional: true,
+            customCtaHref: latest.link || "/profile?tab=listings",
+          },
+          true
+        );
+      }
+    } else if (latest.type === "RENTAL_APPROVED") {
+      triggerEvent(
+        "OFFER_ACCEPTED",
+        {
+          itemTitle: "Rental Request",
+          isTransactional: true,
+          customCtaHref: latest.link || "/search?listingType=RENT",
+        },
+        true
+      );
+    }
+  }, [notifications, triggerEvent]);
 
   return (
     <MomentsContext.Provider
