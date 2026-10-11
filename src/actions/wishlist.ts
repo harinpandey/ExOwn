@@ -7,12 +7,12 @@ import { revalidatePath } from "next/cache";
 
 export async function toggleWishlist(userId: string, productId: string) {
   try {
-    await requireSameUser(userId);
+    const authUser = await requireSameUser(userId);
 
     const existing = await prisma.wishlist.findUnique({
       where: {
         userId_productId: {
-          userId,
+          userId: authUser.uid,
           productId
         }
       }
@@ -35,7 +35,7 @@ export async function toggleWishlist(userId: string, productId: string) {
     } else {
       await withRetry(() => prisma.wishlist.create({
         data: {
-          userId,
+          userId: authUser.uid,
           productId
         }
       }));
@@ -58,10 +58,10 @@ export async function toggleWishlist(userId: string, productId: string) {
 
 export async function getWishlist(userId: string) {
   try {
-    await requireSameUser(userId);
+    const authUser = await requireSameUser(userId);
 
     const wishlist = await withRetry(() => prisma.wishlist.findMany({
-      where: { userId },
+      where: { userId: authUser.uid },
       include: {
         product: {
           include: {
@@ -87,12 +87,12 @@ export async function getWishlist(userId: string) {
 
 export async function isInWishlist(userId: string, productId: string) {
   try {
-    await requireSameUser(userId);
+    const authUser = await requireSameUser(userId);
 
     const existing = await withRetry(() => prisma.wishlist.findUnique({
       where: {
         userId_productId: {
-          userId,
+          userId: authUser.uid,
           productId
         }
       }
