@@ -34,55 +34,55 @@ import { useAuth } from "@/context/AuthContext";
 const heroSlides = [
   {
     id: 1,
-    badge: "🔥 BIG CAMPUS SALE",
-    badgeColor: "bg-red-500 text-white",
-    title: "UP TO 60% OFF LAPTOPS & TECH",
-    subtitle: "Refurbished MacBooks, i7 Gaming Laptops & Accessories from graduating seniors.",
-    cta: "Shop Tech Deals",
+    badge: "💻 TECH & GADGETS",
+    badgeColor: "bg-blue-600 text-white",
+    title: "PRE-OWNED TECH FROM PEERS",
+    subtitle: "Buy MacBooks, laptops, monitors & engineering gear directly from verified seniors.",
+    cta: "Browse Tech",
     href: "/search?category=computers-laptops",
     gradient: "from-blue-600 via-indigo-700 to-purple-900",
     accentGlow: "rgba(59, 130, 246, 0.4)",
     image: "/exown-logo.png",
-    tag: "ENDS IN 2 DAYS",
+    tag: "CAMPUS VERIFIED",
   },
   {
     id: 2,
     badge: "⚡ HOSTEL RENTALS",
     badgeColor: "bg-amber-400 text-black",
-    title: "FRIDGES, CYCLES & TVS FROM ₹99/DAY",
-    subtitle: "Rent semester essentials without heavy upfront buying costs. Direct student handoff.",
+    title: "RENT SEMESTER ESSENTIALS",
+    subtitle: "Rent coolers, cycles, appliances & mini-fridges on semester terms without buying outright.",
     cta: "Explore Rentals",
     href: "/search?listingType=RENT",
     gradient: "from-amber-600 via-orange-600 to-red-800",
     accentGlow: "rgba(245, 158, 11, 0.4)",
     image: "/exown-icon.png",
-    tag: "ZERO DEPOSIT DEALS",
+    tag: "STUDENT-TO-STUDENT",
   },
   {
     id: 3,
     badge: "🏠 CAMPUS HOUSING & ROOMMATES",
     badgeColor: "bg-emerald-500 text-white",
-    title: "FIND FLATMATES & PGS — 0% BROKERAGE",
-    subtitle: "Browse verified hostel rooms, PGs, and compatible roommates near your campus.",
+    title: "CAMPUS LIVING MADE TRANSPARENT",
+    subtitle: "Find verified PGs, student flats, and compatible batchmates near your university.",
     cta: "Browse Housing",
     href: "/search?category=properties",
     gradient: "from-emerald-600 via-teal-700 to-cyan-900",
-    accentGlow: "rgba(16, 185, 129, 0.4)",
+    accentGlow: "rgba(168, 85, 247, 0.4)",
     image: "/exown-icon.png",
-    tag: "VERIFIED USERS ONLY",
+    tag: "NO BROKERAGE",
   },
   {
     id: 4,
     badge: "📚 BOOK & NOTES EXCHANGE",
     badgeColor: "bg-purple-500 text-white",
-    title: "SWAP TEXTBOOKS & SEMESTER NOTES",
-    subtitle: "Exchange engineering, medical & law books with batchmates at zero cost.",
-    cta: "Exchange Now",
+    title: "CIRCULAR STUDY MATERIAL",
+    subtitle: "Pass down semester textbooks, lab kits, calculators & notes to incoming batches.",
+    cta: "Explore Exchange",
     href: "/search?exchange=true",
     gradient: "from-purple-600 via-fuchsia-700 to-pink-900",
     accentGlow: "rgba(168, 85, 247, 0.4)",
     image: "/exown-logo.png",
-    tag: "SWAP & SAVE",
+    tag: "BUY, SELL & SWAP",
   },
 ];
 
@@ -291,11 +291,11 @@ export default function HeroBanner() {
                 <Sparkles size={16} className="text-yellow-400 animate-pulse" />
               </div>
               <div>
-                <p className="text-xs font-black text-yellow-300 uppercase tracking-wide">Refurbished Deals</p>
+                <p className="text-xs font-black text-yellow-300 uppercase tracking-wide">Campus Verified</p>
                 <h3 className="text-lg font-black leading-tight text-white group-hover:text-primary transition">
-                  MacBooks & Laptops
+                  Laptops & Electronics
                 </h3>
-                <p className="mt-1 text-[11px] font-bold text-white/60">From ₹12,999 • Verified battery health</p>
+                <p className="mt-1 text-[11px] font-bold text-white/60">Peer-tested devices with transparent specs</p>
               </div>
               <span className="inline-flex items-center gap-1 text-xs font-black text-primary">
                 Shop Now <ChevronRight size={14} />

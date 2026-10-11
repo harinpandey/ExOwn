@@ -30,40 +30,90 @@ export async function syncUser(data: {
     const name = sanitizeString(currentUser.name || data.name || "");
     const image = currentUser.picture || data.image;
     const isAdmin = isConfiguredAdminEmail(email);
-    console.log(`[syncUser] Attempting upsert. isAdmin: ${isAdmin}`);
-    const user = await withRetry(() => prisma.user.upsert({
+    console.log(`[syncUser] Attempting user sync. isAdmin: ${isAdmin}`);
+
+    // Check if user already exists by ID or by email
+    let existingUser = await prisma.user.findUnique({
       where: { id: data.id },
-      update: {
-        ...(email && { email }),
-        ...(name && { name }),
-        ...(image && { image }),
-        ...(isAdmin && { role: "ADMIN" as const }),
-        lastActive: new Date(),
-      },
-      create: {
-        id: data.id,
-        email,
-        name: name || null,
-        image,
-        role: isAdmin ? "ADMIN" : "USER",
-        lastActive: new Date(),
-        verificationLevel: "BASIC", // Explicit default
-      },
-      select: {
-        id: true,
-        role: true,
-        isVerified: true,
-        isProfileCompleted: true,
-        verificationLevel: true,
-        isTrustedSeller: true,
+      select: { id: true, role: true, isVerified: true, isProfileCompleted: true, verificationLevel: true, isTrustedSeller: true },
+    });
+
+    if (!existingUser && email && currentUser.emailVerified !== false) {
+      existingUser = await prisma.user.findUnique({
+        where: { email },
+        select: { id: true, role: true, isVerified: true, isProfileCompleted: true, verificationLevel: true, isTrustedSeller: true },
+      });
+      if (existingUser) {
+        console.log(`[syncUser] Found existing DB user ${existingUser.id} by email ${email}`);
       }
-    }));
-    console.log(`[syncUser] Upsert successful. Role: ${user.role}`);
+    }
+
+    let user: any;
+    if (existingUser) {
+      user = await withRetry(() => prisma.user.update({
+        where: { id: existingUser.id },
+        data: {
+          ...(email && { email }),
+          ...(name && { name }),
+          ...(image && { image }),
+          ...(isAdmin && { role: "ADMIN" as const }),
+          lastActive: new Date(),
+        },
+        select: {
+          id: true,
+          role: true,
+          isVerified: true,
+          isProfileCompleted: true,
+          verificationLevel: true,
+          isTrustedSeller: true,
+        },
+      }));
+      try {
+        user = await withRetry(() => prisma.user.create({
+          data: {
+            id: data.id,
+            email,
+            name: name || null,
+            image,
+            role: isAdmin ? "ADMIN" : "USER",
+            lastActive: new Date(),
+            verificationLevel: "BASIC",
+          },
+          select: {
+            id: true,
+            role: true,
+            isVerified: true,
+            isProfileCompleted: true,
+            verificationLevel: true,
+            isTrustedSeller: true,
+          },
+        }));
+      } catch (createError: any) {
+        if (createError.code === "P2002" && email) {
+          user = await prisma.user.findUnique({
+            where: { email },
+            select: {
+              id: true,
+              role: true,
+              isVerified: true,
+              isProfileCompleted: true,
+              verificationLevel: true,
+              isTrustedSeller: true,
+            },
+          });
+        }
+        if (!user) {
+          throw createError;
+        }
+      }
+    }
+
+    console.log(`[syncUser] User sync successful for DB ID: ${user.id}, Role: ${user.role}`);
 
     await logActivity({
-      userId: currentUser.uid,
+      userId: user.id,
       actionType: "LOGIN",
-      metadata: { method: "Firebase Auth" }
+      metadata: { method: "Firebase Auth", firebaseUid: currentUser.uid }
     });
 
     return { success: true, user };

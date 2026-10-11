@@ -373,13 +373,19 @@ export default function HousingPage() {
                         </div>
                       </div>
 
-                      <a
-                        href={`tel:${item.owner?.phone || "+919876543210"}`}
-                        className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition shadow-md shadow-blue-600/20"
-                      >
-                        <Phone size={13} />
-                        Contact Owner
-                      </a>
+                      {item.owner?.phone ? (
+                        <a
+                          href={`tel:${item.owner.phone}`}
+                          className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition shadow-md shadow-blue-600/20"
+                        >
+                          <Phone size={13} />
+                          Call Owner
+                        </a>
+                      ) : (
+                        <span className="flex items-center gap-1.5 px-3 py-2 bg-gray-100 dark:bg-white/10 text-gray-500 dark:text-white/60 rounded-xl text-xs font-bold">
+                          Contact via Chat
+                        </span>
+                      )}
                     </div>
                   </article>
                 ))}

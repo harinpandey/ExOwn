@@ -762,7 +762,7 @@ export default function SellPage() {
                      step === 2 ? "Buyers on campus are 80% more likely to buy if they know they can pick it up between classes." :
                      step === 3 ? "Detailed specs reduce 'Is this available?' chats and increase 'When can I meet?' requests." :
                      step === 4 ? "Keep your first sentence punchy. Most users decide in the first 3 seconds of reading." :
-                     step === 5 ? "Items priced at ₹999 sell 40% faster than items priced at ₹1,000. Circular psychology works!" :
+                     step === 5 ? "Set a realistic price based on current item condition, and clearly state if you are open to reasonable offers." :
                      "High-quality, well-lit photos increase trust. Take photos of any minor defects to avoid cancellations."}
                   </motion.p>
                </AnimatePresence>

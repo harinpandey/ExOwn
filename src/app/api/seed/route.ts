@@ -5,8 +5,15 @@ import { seedSubcategories } from "@/lib/seed-subs";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  if (process.env.NODE_ENV === "production") {
-    return NextResponse.json({ error: "Seed route disabled in production" }, { status: 403 });
+  if (process.env.NODE_ENV === "production" || process.env.VERCEL_ENV === "production") {
+    return NextResponse.json({ error: "Seed route is permanently disabled in production environments." }, { status: 403 });
+  }
+
+  // Also enforce an explicit development confirmation secret if set, or disable unless explicitly enabled
+  if (process.env.ENABLE_DEV_SEED !== "true") {
+    return NextResponse.json({
+      error: "Dev seeding is disabled by default. Set ENABLE_DEV_SEED=true in development environment to run."
+    }, { status: 403 });
   }
 
   try {

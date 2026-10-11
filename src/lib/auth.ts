@@ -10,7 +10,9 @@ export const SESSION_COOKIE_NAME = "__exown_session";
 
 export type CurrentUser = {
   uid: string;
+  firebaseUid?: string;
   email?: string;
+  emailVerified?: boolean;
   name?: string;
   picture?: string;
 };
@@ -77,9 +79,11 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
     return null;
   }
   console.log(`[auth] Decoded token for UID: ${decoded.uid}, Email: ${decoded.email}`);
+  const normalizedEmail = decoded.email ? decoded.email.trim().toLowerCase() : undefined;
   return {
     uid: decoded.uid,
-    email: decoded.email,
+    email: normalizedEmail,
+    emailVerified: Boolean(decoded.email_verified),
     name: decoded.name,
     picture: decoded.picture,
   };
@@ -106,12 +110,25 @@ export async function requireSameFirebaseUser(userId: string): Promise<CurrentUs
 export async function requireUser(): Promise<CurrentUser> {
   const user = await requireFirebaseUser();
 
-  // Query DB user status; auto-create user record if newly registered via Firebase
+  // 1. Query DB user by Firebase UID first
   let dbUser = await prisma.user.findUnique({
     where: { id: user.uid },
-    select: { isSuspended: true }
+    select: { id: true, isSuspended: true }
   });
 
+  // 2. If not found by UID, check if user exists by email (mapping existing ExOwn user)
+  // SECURITY: Only allow email-based resolution when email is verified by Firebase
+  if (!dbUser && user.email && user.emailVerified !== false) {
+    dbUser = await prisma.user.findUnique({
+      where: { email: user.email },
+      select: { id: true, isSuspended: true }
+    });
+    if (dbUser) {
+      console.log(`[auth:security] Resolved existing DB user ${dbUser.id} by email ${user.email} for Firebase UID ${user.uid}`);
+    }
+  }
+
+  // 3. If genuinely new user, create new user record with race condition safety
   if (!dbUser) {
     console.log(`[auth:security] Authenticated Firebase UID ${user.uid} not in DB yet. Auto-syncing user record.`);
     try {
@@ -130,21 +147,35 @@ export async function requireUser(): Promise<CurrentUser> {
           verificationLevel: "BASIC",
           lastActive: new Date(),
         },
-        select: { isSuspended: true }
+        select: { id: true, isSuspended: true }
       });
       dbUser = created;
-    } catch (err) {
-      console.warn("[auth:security] Auto-creation fallback hit concurrency or issue:", err);
-      dbUser = { isSuspended: false };
+    } catch (err: any) {
+      // Handle race condition or unique constraint (e.g. concurrent creation or email collision P2002)
+      if (err.code === "P2002" && user.email) {
+        dbUser = await prisma.user.findUnique({
+          where: { email: user.email },
+          select: { id: true, isSuspended: true }
+        });
+      }
+      if (!dbUser) {
+        console.error("[auth:security] Failed to establish database user record for Firebase UID:", user.uid, err);
+        throw new Error("Authentication failed: User record could not be established");
+      }
     }
   }
 
   if (dbUser.isSuspended) {
-    console.error(`[auth:security] Suspended user ${user.uid} blocked from accessing endpoint.`);
+    console.error(`[auth:security] Suspended user ${dbUser.id} blocked from accessing endpoint.`);
     throw new Error("Forbidden: Account is suspended");
   }
 
-  return user;
+  // Return CurrentUser with the resolved database User.id (preserves original user.uid as firebaseUid)
+  return {
+    ...user,
+    uid: dbUser.id,
+    firebaseUid: user.uid,
+  };
 }
 
 export async function requireAuth(): Promise<CurrentUser> {
@@ -153,8 +184,8 @@ export async function requireAuth(): Promise<CurrentUser> {
 
 export async function requireOwnership(ownerId: string, errorMsg = "Unauthorized ownership check"): Promise<CurrentUser> {
   const user = await requireUser();
-  if (user.uid !== ownerId) {
-    console.error(`[auth:security] Ownership validation failed. User ${user.uid} does not own resource owned by ${ownerId}.`);
+  if (user.uid !== ownerId && user.firebaseUid !== ownerId) {
+    console.error(`[auth:security] Ownership validation failed. User ${user.uid} (Firebase: ${user.firebaseUid}) does not own resource owned by ${ownerId}.`);
     throw new Error(errorMsg);
   }
   return user;
@@ -162,8 +193,8 @@ export async function requireOwnership(ownerId: string, errorMsg = "Unauthorized
 
 export async function requireSameUser(userId: string): Promise<CurrentUser> {
   const user = await requireUser();
-  if (user.uid !== userId) {
-    console.error(`[auth:security] Privilege escalation blocked. User ${user.uid} tried to manipulate resources belonging to ${userId}`);
+  if (user.uid !== userId && user.firebaseUid !== userId) {
+    console.error(`[auth:security] Privilege escalation blocked. User ${user.uid} (Firebase: ${user.firebaseUid}) tried to manipulate resources belonging to ${userId}`);
     throw new Error("Unauthorized");
   }
   return user;
@@ -186,6 +217,26 @@ export async function getCurrentDbUser() {
       trustScore: true,
     },
   });
+
+  // SECURITY: Only allow email-based resolution when email is verified by Firebase
+  if (!dbUser && user.email && user.emailVerified !== false) {
+    dbUser = await prisma.user.findUnique({
+      where: { email: user.email },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        isSuspended: true,
+        isProfileCompleted: true,
+        verificationLevel: true,
+        isTrustedSeller: true,
+        trustScore: true,
+      },
+    });
+    if (dbUser) {
+      console.log(`[auth] Resolved existing DB user ${dbUser.id} by email ${user.email} in getCurrentDbUser`);
+    }
+  }
 
   if (!dbUser) {
     console.log(`[auth] DB user for UID ${user.uid} not in DB yet. Auto-creating record.`);
@@ -216,25 +267,30 @@ export async function getCurrentDbUser() {
           trustScore: true,
         },
       });
-    } catch (err) {
-      console.warn("[auth] Auto-creation fallback hit concurrency or issue in getCurrentDbUser:", err);
-      dbUser = await prisma.user.findUnique({
-        where: { id: user.uid },
-        select: {
-          id: true,
-          email: true,
-          role: true,
-          isSuspended: true,
-          isProfileCompleted: true,
-          verificationLevel: true,
-          isTrustedSeller: true,
-          trustScore: true,
-        },
-      });
+    } catch (err: any) {
+      if (err.code === "P2002" && user.email) {
+        dbUser = await prisma.user.findUnique({
+          where: { email: user.email },
+          select: {
+            id: true,
+            email: true,
+            role: true,
+            isSuspended: true,
+            isProfileCompleted: true,
+            verificationLevel: true,
+            isTrustedSeller: true,
+            trustScore: true,
+          },
+        });
+      }
+      if (!dbUser) {
+        console.error("[auth:security] Failed to establish database user record in getCurrentDbUser:", err);
+        return null;
+      }
     }
   }
 
-  console.log(`[auth] DB user for ${user.uid}: ${dbUser ? `Found (Role: ${dbUser.role})` : "NOT FOUND"}`);
+  console.log(`[auth] DB user for ${user.uid}: ${dbUser ? `Found (ID: ${dbUser.id}, Role: ${dbUser.role})` : "NOT FOUND"}`);
   return dbUser;
 }
 
