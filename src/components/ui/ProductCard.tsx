@@ -31,6 +31,7 @@ export interface ProductCardProps {
   subcategoryId?: string;
   sellerId?: string;
   isWishlisted?: boolean;
+  onWishlistToggle?: (productId: string, added: boolean) => void;
   seller?: {
     name?: string | null;
     image?: string | null;
@@ -59,6 +60,7 @@ export default function ProductCard({
   sellerId,
   seller,
   isWishlisted = false,
+  onWishlistToggle,
 }: ProductCardProps) {
   const { user } = useAuth();
   const { trackWishlistAdd } = useMoments();
@@ -91,6 +93,7 @@ export default function ProductCard({
         if (res.added) {
           trackWishlistAdd(id, title, image);
         }
+        onWishlistToggle?.(id, !!res.added);
       } else {
         setWishlisted(previousState);
         import("react-hot-toast").then(({ toast }) => toast.error(res.error || "Failed to update wishlist"));

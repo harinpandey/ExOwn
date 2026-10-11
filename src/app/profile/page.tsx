@@ -3,12 +3,13 @@
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { Package, Heart, Settings, ShieldCheck, Star, LogOut, Edit2, CreditCard, Crown, Zap, Clock } from "lucide-react";
+import { useEffect, useState, useCallback } from "react";
+import { Package, Heart, Settings, ShieldCheck, Star, LogOut, Edit2, CreditCard, Crown, Zap, Clock, RefreshCw, AlertCircle } from "lucide-react";
 import ProductCard from "@/components/ui/ProductCard";
 import UpgradePlanModal from "@/components/dashboard/UpgradePlanModal";
 import BillingHistory from "@/components/dashboard/BillingHistory";
 import { getSubscription } from "@/actions/subscription";
+import { getWishlist } from "@/actions/wishlist";
 import { format } from "date-fns";
 
 export default function ProfileDashboardPage() {
@@ -16,6 +17,9 @@ export default function ProfileDashboardPage() {
   const router = useRouter();
   const [myListings, setMyListings] = useState<any[]>([]);
   const [listingsLoading, setListingsLoading] = useState(true);
+  const [favorites, setFavorites] = useState<any[]>([]);
+  const [favoritesLoading, setFavoritesLoading] = useState(false);
+  const [favoritesError, setFavoritesError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"listings" | "favorites" | "billing" | "settings" | "rentals" | "services">("listings");
   const [subscription, setSubscription] = useState<any>(null);
   const [dbUser, setDbUser] = useState<any>(null);
@@ -50,6 +54,34 @@ export default function ProfileDashboardPage() {
       fetchDashboardData();
     }
   }, [user]);
+
+  const fetchFavorites = useCallback(async () => {
+    if (!user) return;
+    setFavoritesLoading(true);
+    setFavoritesError(null);
+    try {
+      const items = await getWishlist(user.uid);
+      setFavorites(items || []);
+    } catch (err) {
+      console.error("Favorites fetch failed:", err);
+      setFavoritesError("Could not load your saved items. Please try again.");
+      import("react-hot-toast").then(({ toast }) => toast.error("Could not load saved items."));
+    } finally {
+      setFavoritesLoading(false);
+    }
+  }, [user]);
+
+  const handleWishlistChange = useCallback((productId: string, added: boolean) => {
+    if (!added) {
+      setFavorites((prev) => prev.filter((p) => p.id !== productId));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (activeTab === "favorites" && user) {
+      fetchFavorites();
+    }
+  }, [activeTab, user, fetchFavorites]);
 
   const handleSignOut = async () => {
     try {
@@ -289,15 +321,66 @@ export default function ProfileDashboardPage() {
 
           {activeTab === "favorites" && (
             <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm">
-              <h3 className="text-xl font-bold mb-6">Saved Items</h3>
-              <div className="text-center py-12 border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-xl">
-                <Heart size={48} className="mx-auto text-gray-300 mb-4" />
-                <h4 className="text-lg font-semibold mb-2">No saved items</h4>
-                <p className="text-gray-500 mb-6">Items you heart will appear here.</p>
-                <Link href="/search" className="px-6 py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition-colors inline-block">
-                  Browse Items
-                </Link>
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-bold">Saved Items {favorites.length > 0 && `(${favorites.length})`}</h3>
+                <button
+                  onClick={fetchFavorites}
+                  disabled={favoritesLoading}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition text-gray-700 dark:text-gray-300 disabled:opacity-50"
+                  title="Refresh saved items"
+                >
+                  <RefreshCw size={13} className={favoritesLoading ? "animate-spin" : ""} />
+                  Refresh
+                </button>
               </div>
+
+              {favoritesLoading ? (
+                <div className="flex justify-center py-12">
+                  <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                </div>
+              ) : favoritesError ? (
+                <div className="text-center py-12 border-2 border-dashed border-red-200 dark:border-red-900/40 rounded-xl bg-red-50/50 dark:bg-red-950/10">
+                  <AlertCircle size={48} className="mx-auto text-red-400 mb-4" />
+                  <h4 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">Could not load saved items</h4>
+                  <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-sm mx-auto text-sm">{favoritesError}</p>
+                  <button
+                    onClick={fetchFavorites}
+                    className="px-6 py-2.5 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition-colors inline-flex items-center gap-2 text-sm shadow-sm"
+                  >
+                    <RefreshCw size={14} /> Try Again
+                  </button>
+                </div>
+              ) : favorites.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  {favorites.map((product) => (
+                    <ProductCard
+                      key={product.id}
+                      id={product.id}
+                      title={product.title}
+                      price={product.price}
+                      image={product.images?.[0] || ""}
+                      location={product.pickupLocation}
+                      createdAt={product.createdAt}
+                      isUrgent={product.isUrgent}
+                      isVerified={product.seller?.isVerified || false}
+                      categoryId={product.categoryId}
+                      subcategoryId={product.subcategoryId || ""}
+                      sellerId={product.sellerId}
+                      isWishlisted={true}
+                      onWishlistToggle={handleWishlistChange}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12 border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-xl">
+                  <Heart size={48} className="mx-auto text-gray-300 mb-4" />
+                  <h4 className="text-lg font-semibold mb-2">No saved items</h4>
+                  <p className="text-gray-500 mb-6">Items you heart will appear here.</p>
+                  <Link href="/search" className="px-6 py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition-colors inline-block">
+                    Browse Items
+                  </Link>
+                </div>
+              )}
             </div>
           )}
 
