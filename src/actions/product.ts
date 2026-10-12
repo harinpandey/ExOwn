@@ -81,11 +81,13 @@ export async function searchProducts(opts: {
   maxPrice?: number;
   sortBy?: string;
   campusId?: string;
+  exchange?: boolean;
+  movingOut?: boolean;
   page?: number;
   pageSize?: number;
 }) {
   try {
-    const { query, categorySlug, condition, listingType, minPrice, maxPrice, sortBy, campusId } = opts;
+    const { query, categorySlug, condition, listingType, minPrice, maxPrice, sortBy, campusId, exchange, movingOut } = opts;
     const page = Math.max(1, opts.page || 1);
     const pageSize = Math.min(Math.max(opts.pageSize || 24, 1), 50);
     const andFilters: any[] = [];
@@ -110,6 +112,16 @@ export async function searchProducts(opts: {
       });
     }
 
+    if (exchange) {
+      andFilters.push({ isExchangeAllowed: true });
+    }
+
+    if (movingOut) {
+      // NOTE: Temporary V1 compatibility mapping. ExOwn V1 leverages existing 'isUrgent'
+      // boolean flag for moving out deals without altering database schema.
+      andFilters.push({ isUrgent: true });
+    }
+
     const priceFilter: Record<string, number> = {};
     if (minPrice !== undefined) priceFilter.gte = minPrice;
     if (maxPrice !== undefined) priceFilter.lte = maxPrice;
@@ -117,7 +129,7 @@ export async function searchProducts(opts: {
       andFilters.push({ price: priceFilter });
     }
 
-    const cacheKey = `search:${JSON.stringify({ query, categorySlug, condition, listingType, minPrice, maxPrice, sortBy, campusId, page, pageSize })}`;
+    const cacheKey = `search:${JSON.stringify({ query, categorySlug, condition, listingType, minPrice, maxPrice, sortBy, campusId, exchange, movingOut, page, pageSize })}`;
     const products = await getCached(cacheKey, 30, () => withRetry(() => prisma.product.findMany({
       where: {
         status: "LIVE",

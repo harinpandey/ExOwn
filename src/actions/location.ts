@@ -66,3 +66,34 @@ export async function requestCampusAddition(_data: {
     return { success: false };
   }
 }
+
+/**
+ * Safely resolves a campus identifier (ID, slug, or campus name)
+ * to a verified database Campus record.
+ * Returns null if not found. Does not hardcode fallbacks.
+ */
+export async function resolveCampus(identifier?: string | null) {
+  if (!identifier || typeof identifier !== "string") return null;
+  const trimmed = identifier.trim();
+  if (!trimmed) return null;
+
+  try {
+    return await prisma.campus.findFirst({
+      where: {
+        OR: [
+          { id: trimmed },
+          { slug: { equals: trimmed, mode: "insensitive" } },
+          { name: { equals: trimmed, mode: "insensitive" } }
+        ]
+      },
+      select: {
+        id: true,
+        name: true,
+        slug: true
+      }
+    });
+  } catch (error) {
+    console.error("[Action:resolveCampus] Error:", error);
+    return null;
+  }
+}

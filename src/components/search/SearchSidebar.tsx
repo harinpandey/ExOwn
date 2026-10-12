@@ -11,6 +11,8 @@ interface SearchSidebarProps {
   initialMinPrice: string;
   initialMaxPrice: string;
   initialListingType: string;
+  initialExchange?: boolean;
+  initialMovingOut?: boolean;
   query: string;
 }
 
@@ -21,29 +23,37 @@ export default function SearchSidebar({
   initialMinPrice, 
   initialMaxPrice,
   initialListingType,
+  initialExchange = false,
+  initialMovingOut = false,
   query 
 }: SearchSidebarProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const handleUpdate = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const params = new URLSearchParams(searchParams.toString());
     
+    // Managed fields from sidebar form
+    const sidebarKeys = ["category", "minPrice", "maxPrice", "listingType", "condition", "exchange", "movingOut"];
+    sidebarKeys.forEach((k) => params.delete(k));
+
     formData.forEach((value, key) => {
-      if (value) {
-        params.set(key, value as string);
-      } else {
-        params.delete(key);
+      if (value && typeof value === "string" && value.trim() !== "") {
+        params.set(key, value.trim());
       }
     });
+
+    // Reset page to 1 on applying filters
+    params.delete("page");
 
     router.push(`/search?${params.toString()}`);
   };
 
   return (
     <aside className="w-full md:w-64 flex-shrink-0">
-      <form onChange={handleUpdate} onSubmit={(e) => e.preventDefault()}>
+      <form onSubmit={handleSubmit}>
         <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6 sticky top-24">
           <div className="flex items-center gap-2 mb-6 pb-4 border-b border-gray-200 dark:border-gray-800">
             <Filter size={20} className="text-primary" />
@@ -132,6 +142,37 @@ export default function SearchSidebar({
               </div>
             </div>
 
+            {/* Special Filters */}
+            <div>
+              <h3 className="font-semibold mb-3 text-sm text-gray-500 uppercase tracking-wider">Special Deals</h3>
+              <div className="space-y-3">
+                <label className="flex items-center gap-3 cursor-pointer group">
+                  <input
+                    type="checkbox"
+                    name="exchange"
+                    value="true"
+                    defaultChecked={initialExchange}
+                    className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
+                  />
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-primary transition-colors">
+                    Exchange Only
+                  </span>
+                </label>
+                <label className="flex items-center gap-3 cursor-pointer group">
+                  <input
+                    type="checkbox"
+                    name="movingOut"
+                    value="true"
+                    defaultChecked={initialMovingOut}
+                    className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
+                  />
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-primary transition-colors">
+                    Moving Out Deals
+                  </span>
+                </label>
+              </div>
+            </div>
+
             {/* Condition Filter */}
             <div>
               <h3 className="font-semibold mb-3 text-sm text-gray-500 uppercase tracking-wider">Condition</h3>
@@ -160,7 +201,7 @@ export default function SearchSidebar({
               Apply Filters
             </button>
 
-            {(initialCategory || initialCondition || initialMinPrice || initialMaxPrice) && (
+            {(initialCategory || initialCondition || initialMinPrice || initialMaxPrice || initialListingType || initialExchange || initialMovingOut) && (
               <Link
                 href={query ? `/search?q=${query}` : "/search"}
                 className="block text-center text-sm text-gray-500 hover:text-primary transition-colors"
