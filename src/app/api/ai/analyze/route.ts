@@ -2,6 +2,10 @@ import { EXOWN_AI_PROMPT } from "@/lib/exown-ai-prompt";
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { enforceRateLimit } from "@/lib/rate-limit";
+import {
+  getCanonicalFallback,
+  validateSmartBuyResponse,
+} from "@/types/smart-buy";
 
 export const dynamic = "force-dynamic";
 
@@ -22,91 +26,84 @@ export async function POST(req: Request) {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       console.warn("AI Warning: GEMINI_API_KEY is missing.");
-      return NextResponse.json(getFallbackResponse("AI key missing"));
+      return NextResponse.json(getCanonicalFallback("AI service key unconfigured"));
     }
 
     const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
-    // Fetch Admin Rules from DB with timeout
+    // Fetch Admin Rules from DB with safety fallback
     let adminRules: Array<{ name: string; rule: unknown }> = [];
     try {
       adminRules = await prisma.aiRule.findMany({
         where: { isActive: true },
         select: { name: true, rule: true },
-        take: 10
+        take: 10,
       });
     } catch (dbError) {
       console.error("AI Error: DB rules fetch failed", dbError);
     }
 
     const prompt = `
-      ${EXOWN_AI_PROMPT}
-      
-      ADMIN DEFINED RULES (PRIORITIZE THESE):
-      ${JSON.stringify(adminRules, null, 2)}
-      
-      PRODUCT DATA:
-      ${JSON.stringify(productData, null, 2)}
-      
-      CRITICAL: Respond ONLY with a valid JSON object. 
-      Ensure "pros" and "cons" are ALWAYS arrays of strings, even if empty.
-    `;
+${EXOWN_AI_PROMPT}
+
+ADMIN DEFINED RULES (PRIORITIZE THESE):
+${JSON.stringify(adminRules, null, 2)}
+
+PRODUCT DATA TO EVALUATE:
+${JSON.stringify(productData, null, 2)}
+
+CRITICAL: Respond ONLY with a valid JSON object matching the strict contract.
+`;
 
     const response = await fetch(geminiUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        contents: [{
-          parts: [{ text: prompt }]
-        }],
-        generationConfig: { 
-          temperature: 0.2, 
+        contents: [
+          {
+            parts: [{ text: prompt }],
+          },
+        ],
+        generationConfig: {
+          temperature: 0.1,
           maxOutputTokens: 1024,
-          responseMimeType: "application/json" 
-        }
+          responseMimeType: "application/json",
+        },
       }),
-      signal: controller.signal
+      signal: controller.signal,
     });
 
     clearTimeout(timeoutId);
 
     if (!response.ok) {
-      const errorText = await response.text();
+      const errorText = await response.text().catch(() => "");
       console.error("AI Error: Gemini API rejected request", response.status, errorText);
-      return NextResponse.json(getFallbackResponse("Service error"));
+      return NextResponse.json(getCanonicalFallback("Upstream service error"));
     }
 
     const data = await response.json();
-    
-    if (!data.candidates?.[0]?.content?.parts?.[0]?.text) {
-      console.error("AI Error: Missing response parts", data);
-      return NextResponse.json(getFallbackResponse("Invalid AI format"));
+
+    const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!rawText) {
+      console.error("AI Error: Missing response candidate text", data);
+      return NextResponse.json(getCanonicalFallback("Empty AI response"));
     }
 
     try {
-      const aiResult = JSON.parse(data.candidates[0].content.parts[0].text);
-      return NextResponse.json(aiResult);
-    } catch {
-      console.error("AI Error: JSON Parse Failed", data.candidates[0].content.parts[0].text);
-      return NextResponse.json(getFallbackResponse("Parse failure"));
+      const parsed = JSON.parse(rawText);
+      const validated = validateSmartBuyResponse(parsed);
+      return NextResponse.json(validated);
+    } catch (jsonErr) {
+      console.error("AI Error: Failed to parse Gemini JSON:", jsonErr, rawText);
+      return NextResponse.json(getCanonicalFallback("Malformed AI format"));
     }
   } catch (error: any) {
     clearTimeout(timeoutId);
-    if (error.name === 'AbortError') {
+    if (error.name === "AbortError") {
       console.error("AI Error: Request timed out after 10s");
-      return NextResponse.json(getFallbackResponse("Timeout"));
+      return NextResponse.json(getCanonicalFallback("Analysis timed out"));
     }
     console.error("AI Error: Global analysis failure", error);
-    return NextResponse.json(getFallbackResponse("Generic failure"));
+    return NextResponse.json(getCanonicalFallback("Service temporarily unavailable"));
   }
-}
-
-function getFallbackResponse(reason: string) {
-  return { 
-    summary: "AI Analysis Temporarily Unavailable",
-    pros: [],
-    cons: [],
-    verdict: `We're experiencing high traffic or a temporary issue (${reason}). Please check manually for now.`,
-    score: 0
-  };
 }
