@@ -37,6 +37,7 @@ export default async function SearchPage({
   searchParams: Promise<{
     q?: string;
     category?: string;
+    subcategory?: string;
     condition?: string;
     sort?: string;
     minPrice?: string;
@@ -51,6 +52,7 @@ export default async function SearchPage({
   const params = await searchParams;
   const rawQuery = params.q || "";
   const categorySlug = params.category || "";
+  const subcategorySlug = params.subcategory || "";
   const sort = params.sort || "";
   const rawCampus = params.campus || "";
   const page = Math.max(1, params.page ? parseInt(params.page, 10) : 1);
@@ -86,6 +88,7 @@ export default async function SearchPage({
   const activeFilters = [
     rawCampus && { label: `Campus: ${campusLabel}`, param: "campus" },
     categorySlug && { label: `Category: ${categorySlug}`, param: "category" },
+    subcategorySlug && { label: `Subcategory: ${subcategorySlug}`, param: "subcategory" },
     condition && { label: `Condition: ${condition.replace("_", " ")}`, param: "condition" },
     listingType && { label: `Type: ${listingType}`, param: "listingType" },
     isExchange && { label: "Exchange Only", param: "exchange" },
@@ -102,6 +105,7 @@ export default async function SearchPage({
         query: effectiveQuery,
         tokens: searchTokens,
         categorySlug,
+        subcategorySlug,
         condition,
         listingType,
         minPrice,

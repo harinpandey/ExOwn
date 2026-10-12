@@ -60,7 +60,7 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
         {product.category?.slug && (
           <>
             <Link
-              href={`/search?category=${product.category.slug}`}
+              href={`/category/${product.category.slug}`}
               className="hover:text-primary transition-colors"
             >
               {product.category.name}

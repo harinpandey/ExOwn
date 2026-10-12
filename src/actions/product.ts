@@ -73,10 +73,44 @@ export async function getSubcategories(categoryId: string) {
 }
 
 
+export async function getCategoryBySlug(slug: string, campusId?: string) {
+  try {
+    const category = await withRetry(() => prisma.category.findUnique({
+      where: { slug },
+      include: {
+        subcategories: {
+          orderBy: { name: "asc" },
+        },
+      },
+    }));
+
+    if (!category) return null;
+
+    // Get live products count for this category scoped to campus if provided
+    const liveCount = await withRetry(() => prisma.product.count({
+      where: {
+        categoryId: category.id,
+        status: "LIVE",
+        inventory: { gt: 0 },
+        ...(campusId && { campusId }),
+      },
+    }));
+
+    return {
+      ...category,
+      liveCount,
+    };
+  } catch (error) {
+    console.error("[Action:getCategoryBySlug] Error:", error);
+    return null;
+  }
+}
+
 export async function searchProducts(opts: {
   query?: string;
   tokens?: string[];
   categorySlug?: string;
+  subcategorySlug?: string;
   condition?: string;
   listingType?: "SELL" | "RENT" | "SERVICE";
   minPrice?: number;
@@ -89,7 +123,7 @@ export async function searchProducts(opts: {
   pageSize?: number;
 }) {
   try {
-    const { query, tokens, categorySlug, condition, listingType, minPrice, maxPrice, sortBy, campusId, exchange, movingOut } = opts;
+    const { query, tokens, categorySlug, subcategorySlug, condition, listingType, minPrice, maxPrice, sortBy, campusId, exchange, movingOut } = opts;
     const page = Math.max(1, opts.page || 1);
     const pageSize = Math.min(Math.max(opts.pageSize || 24, 1), 50);
     const andFilters: any[] = [];
@@ -134,6 +168,16 @@ export async function searchProducts(opts: {
       });
     }
 
+    if (subcategorySlug) {
+      andFilters.push({
+        OR: [
+          { subcategoryId: subcategorySlug },
+          { subcategory: { slug: subcategorySlug } },
+          { customSubcategory: { contains: subcategorySlug, mode: "insensitive" } },
+        ],
+      });
+    }
+
     if (exchange) {
       andFilters.push({ isExchangeAllowed: true });
     }
@@ -154,7 +198,7 @@ export async function searchProducts(opts: {
     const isRelevanceSearch = !sortBy && (query || searchTokens.length > 0);
     const candidateLimit = isRelevanceSearch ? Math.min(100, Math.max(page * pageSize * 2, pageSize * 2)) : pageSize;
 
-    const cacheKey = `search:${JSON.stringify({ query, tokens: searchTokens, categorySlug, condition, listingType, minPrice, maxPrice, sortBy, campusId, exchange, movingOut, page, pageSize })}`;
+    const cacheKey = `search:${JSON.stringify({ query, tokens: searchTokens, categorySlug, subcategorySlug, condition, listingType, minPrice, maxPrice, sortBy, campusId, exchange, movingOut, page, pageSize })}`;
     const products = await getCached(cacheKey, 30, () => withRetry(() => prisma.product.findMany({
       where: {
         status: "LIVE",

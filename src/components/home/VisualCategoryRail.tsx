@@ -127,7 +127,7 @@ export default function VisualCategoryRail() {
           return (
             <Link
               key={cat.id}
-              href={`/search?category=${cat.slug}`}
+              href={`/category/${cat.slug}`}
               className="group relative flex min-w-[76px] flex-col items-center justify-center gap-2 rounded-2xl border border-gray-200/80 bg-white p-2.5 text-center shadow-xs transition hover:border-primary/50 hover:bg-gray-50/80 hover:shadow-md dark:border-white/10 dark:bg-[#10141b] dark:hover:border-primary/50 dark:hover:bg-white/[0.04] sm:min-w-0 active:scale-95"
             >
               {/* 2.5D visual container */}
