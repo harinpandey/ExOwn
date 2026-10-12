@@ -362,7 +362,9 @@ export async function getProductById(id: string) {
         },
         campus: {
           select: { name: true }
-        }
+        },
+        rentalDetail: true,
+        serviceDetail: true,
       }
     }));
   } catch (error) {
