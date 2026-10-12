@@ -5,11 +5,10 @@ import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import {
   CheckCircle2,
-  Clock3,
   Heart,
+  ImageIcon,
   MapPin,
   ShieldCheck,
-  Sparkles,
   Tag,
   Trash2,
 } from "lucide-react";
@@ -66,6 +65,8 @@ export default function ProductCard({
   const { trackWishlistAdd } = useMoments();
   const [wishlisted, setWishlisted] = useState(isWishlisted);
   const [isMutating, setIsMutating] = useState(false);
+  const [imgError, setImgError] = useState(false);
+  const [imgLoading, setImgLoading] = useState(true);
 
   useEffect(() => {
     if (user && !isWishlisted) {
@@ -140,107 +141,151 @@ export default function ProductCard({
     }
   };
 
-  const freshness = formatDistanceToNow(new Date(createdAt), { addSuffix: true });
-  const trustLabel = getTrustLabel(seller, isVerified);
-  const typeLabel = listingType === "RENT" ? "Rent" : listingType === "SERVICE" ? "Service" : "Buy";
+  const singleBadge = getSingleBadge({
+    listingType,
+    isUrgent,
+    seller,
+    isVerified,
+  });
+
+  const formattedCondition = formatCondition(condition);
+  const formattedLocation = location?.trim() || "Campus";
+  const formattedPrice = typeof price === "number" ? price.toLocaleString("en-IN") : "0";
+  const displayImage = image?.trim();
 
   return (
-    <article className="premium-card group relative flex min-h-full flex-col overflow-hidden rounded-xl border border-gray-200 bg-white text-gray-900 shadow-md transition-all dark:border-white/10 dark:bg-[#10141b] dark:text-white">
-      <div className="relative aspect-[4/3] w-full overflow-hidden bg-gray-100 dark:bg-[#0c1017]">
-        <img
-          src={image || "/exown-icon.png"}
-          alt={title}
-          loading="lazy"
-          className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.035]"
-        />
-        <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/55 to-transparent" />
+    <article className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition hover:shadow-md dark:border-white/10 dark:bg-[#10141b]">
+      {/* 1. Media Section with Consistent Aspect Ratio */}
+      <div className="relative aspect-[4/3] w-full overflow-hidden bg-gray-100 dark:bg-zinc-900">
+        {displayImage && !imgError ? (
+          <>
+            {imgLoading && (
+              <div className="absolute inset-0 animate-pulse bg-gray-200 dark:bg-zinc-800" />
+            )}
+            <img
+              src={displayImage}
+              alt={title}
+              loading="lazy"
+              onLoad={() => setImgLoading(false)}
+              onError={() => {
+                setImgLoading(false);
+                setImgError(true);
+              }}
+              className={`h-full w-full object-cover transition-transform duration-300 group-hover:scale-105 ${
+                imgLoading ? "opacity-0" : "opacity-100"
+              }`}
+            />
+          </>
+        ) : (
+          <div className="flex h-full w-full flex-col items-center justify-center gap-1.5 bg-gray-100 text-gray-400 dark:bg-zinc-900 dark:text-zinc-600">
+            <ImageIcon size={28} strokeWidth={1.5} />
+            <span className="text-[11px] font-medium tracking-wide">No image available</span>
+          </div>
+        )}
 
-        <div className="absolute left-2.5 top-2.5 z-20 flex flex-wrap gap-1.5">
-          <span className="rounded-md border border-white/15 bg-black/50 px-2 py-1 text-[10px] font-black uppercase tracking-wide text-white backdrop-blur">
-            {typeLabel}
-          </span>
-          {isUrgent && (
-            <span className="rounded-md bg-red-500 px-2 py-1 text-[10px] font-black uppercase tracking-wide text-white">
-              Urgent
+        {/* At Most ONE Meaningful Badge (Top-Left) */}
+        {singleBadge && (
+          <div className="absolute left-2.5 top-2.5 z-20">
+            <span
+              className={`inline-flex items-center gap-1 rounded-md px-2 py-1 text-[10px] font-bold uppercase tracking-wider shadow-sm backdrop-blur-sm ${singleBadge.className}`}
+            >
+              {singleBadge.icon}
+              {singleBadge.label}
             </span>
-          )}
-        </div>
+          </div>
+        )}
 
+        {/* Wishlist Button (Top-Right) */}
         <button
           type="button"
           onClick={handleWishlistToggle}
-          aria-label={wishlisted ? "Remove from wishlist" : "Save listing"}
+          aria-label={wishlisted ? "Remove from saved" : "Save listing"}
           aria-pressed={wishlisted}
-          className="absolute right-2.5 top-2.5 z-30 flex h-9 w-9 items-center justify-center rounded-lg border border-white/15 bg-black/45 text-white backdrop-blur transition hover:border-red-300 hover:text-red-300 active:scale-95"
+          className="absolute right-2.5 top-2.5 z-30 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-gray-700 shadow-sm backdrop-blur-sm transition hover:bg-white hover:text-red-500 active:scale-95 dark:bg-black/60 dark:text-gray-200 dark:hover:text-red-400"
         >
-          <Heart size={17} fill={wishlisted ? "currentColor" : "none"} className={wishlisted ? "text-red-400" : ""} />
+          <Heart
+            size={16}
+            fill={wishlisted ? "currentColor" : "none"}
+            className={wishlisted ? "text-red-500" : "text-gray-700 dark:text-gray-200"}
+          />
         </button>
 
-        {condition && (
-          <span className="absolute bottom-2.5 left-2.5 z-20 rounded-md border border-white/15 bg-white/90 px-2 py-1 text-[10px] font-black uppercase tracking-wide text-gray-900">
-            {condition.replace("_", " ")}
-          </span>
-        )}
-
+        {/* Listing Owner Action Bar */}
         {user && sellerId === user.uid && (
-          <div className="absolute bottom-2.5 right-2.5 z-40 flex gap-1">
+          <div className="absolute bottom-2.5 right-2.5 z-40 flex items-center gap-1">
             <Link
               href={`/product/edit/${id}`}
-              className="flex items-center gap-1 rounded-md bg-white px-2 py-1.5 text-[10px] font-black text-gray-900 shadow transition hover:text-primary"
+              className="flex items-center gap-1 rounded-md bg-white/95 px-2 py-1 text-[10px] font-bold text-gray-800 shadow transition hover:bg-white hover:text-primary dark:bg-zinc-800 dark:text-zinc-200"
             >
-              <Tag size={12} />
+              <Tag size={11} />
               Edit
             </Link>
             <button
               type="button"
               onClick={handleMarkSold}
-              className="flex items-center gap-1 rounded-md bg-emerald-600 px-2 py-1.5 text-[10px] font-black text-white shadow transition hover:bg-emerald-700"
+              className="flex items-center gap-1 rounded-md bg-emerald-600 px-2 py-1 text-[10px] font-bold text-white shadow transition hover:bg-emerald-700"
             >
-              <CheckCircle2 size={12} />
+              <CheckCircle2 size={11} />
               Sold
             </button>
             <button
               type="button"
               onClick={handleArchive}
-              className="flex items-center gap-1 rounded-md bg-red-600 px-2 py-1.5 text-[10px] font-black text-white shadow transition hover:bg-red-700"
+              className="flex items-center gap-1 rounded-md bg-rose-600 px-2 py-1 text-[10px] font-bold text-white shadow transition hover:bg-rose-700"
             >
-              <Trash2 size={12} />
+              <Trash2 size={11} />
               Archive
             </button>
           </div>
         )}
       </div>
 
-      <div className="flex flex-1 flex-col p-4">
-        <h3 className="line-clamp-2 min-h-[2.5rem] text-sm font-black leading-5 text-gray-900 dark:text-white" title={title}>
+      {/* 2. Card Content & Metadata */}
+      <div className="flex flex-1 flex-col p-3.5 sm:p-4">
+        {/* Product Title */}
+        <h3
+          className="line-clamp-2 min-h-[2.5rem] text-sm font-semibold leading-tight text-gray-900 group-hover:text-primary dark:text-gray-100"
+          title={title}
+        >
           {title}
         </h3>
 
-        <div className="mt-2 flex items-end justify-between gap-3">
-          <div>
-            <p className="text-xl font-black tracking-tight text-primary dark:text-[var(--accent)]">₹{price.toLocaleString("en-IN")}</p>
-            {listingType === "RENT" && <p className="text-[11px] font-bold text-gray-500 dark:text-white/45">per day</p>}
+        {/* Price & Rent indicator */}
+        <div className="mt-2 flex items-baseline justify-between gap-2">
+          <div className="flex items-baseline gap-1">
+            <span className="text-lg font-bold tracking-tight text-gray-900 dark:text-white">
+              ₹{formattedPrice}
+            </span>
+            {listingType === "RENT" && (
+              <span className="text-[11px] font-medium text-gray-500 dark:text-gray-400">
+                /day
+              </span>
+            )}
           </div>
-          {trustLabel && (
-            <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-primary/10 px-2 py-1 text-[10px] font-black text-primary">
-              {trustLabel.icon}
-              {trustLabel.label}
+
+          {/* Condition Tag */}
+          {formattedCondition && (
+            <span className="rounded bg-gray-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-gray-600 dark:bg-white/10 dark:text-gray-300">
+              {formattedCondition}
             </span>
           )}
         </div>
 
-        <div className="mt-4 grid gap-2 border-t border-gray-100 pt-3 text-[11px] font-semibold text-gray-500 dark:border-white/10 dark:text-white/52">
-          <div className="flex min-w-0 items-center gap-1.5">
-            <MapPin size={13} className="shrink-0 text-gray-400 dark:text-white/32" />
-            <span className="truncate">{location || "Campus pickup"}</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <Clock3 size={13} className="text-gray-400 dark:text-white/32" />
-            <span>{freshness}</span>
+        {/* Location & Time Footer */}
+        <div className="mt-auto pt-3 border-t border-gray-100 text-[11px] text-gray-500 dark:border-white/10 dark:text-gray-400">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex min-w-0 items-center gap-1">
+              <MapPin size={12} className="shrink-0 text-gray-400 dark:text-gray-500" />
+              <span className="truncate">{formattedLocation}</span>
+            </div>
+            <span className="shrink-0 text-[10px] text-gray-400 dark:text-gray-500">
+              {formatDistanceToNow(new Date(createdAt), { addSuffix: true })}
+            </span>
           </div>
         </div>
       </div>
 
+      {/* Primary Link Overlay */}
       <Link href={`/product/${id}`} className="absolute inset-0 z-10" tabIndex={-1} aria-hidden>
         <span className="sr-only">View details for {title}</span>
       </Link>
@@ -248,15 +293,75 @@ export default function ProductCard({
   );
 }
 
-function getTrustLabel(seller: ProductCardProps["seller"], isVerified?: boolean) {
-  if (seller?.isTrustedSeller) {
-    return { label: "Trusted", icon: <Sparkles size={12} aria-hidden="true" /> };
+/**
+ * Ensures AT MOST ONE meaningful badge is displayed per card,
+ * prioritized by real transaction model, urgent listing need, or genuine seller verification.
+ */
+function getSingleBadge({
+  listingType,
+  isUrgent,
+  seller,
+  isVerified,
+}: {
+  listingType?: "SELL" | "RENT" | "SERVICE";
+  isUrgent?: boolean;
+  seller?: ProductCardProps["seller"];
+  isVerified?: boolean;
+}): { label: string; icon?: React.ReactNode; className: string } | null {
+  // 1. Transaction Type (Rent or Service differentiate from standard sale)
+  if (listingType === "RENT") {
+    return {
+      label: "For Rent",
+      className: "bg-blue-600/90 text-white",
+    };
   }
-  if (seller?.verificationLevel === "CAMPUS" || isVerified) {
-    return { label: "Verified", icon: <ShieldCheck size={12} aria-hidden="true" /> };
+  if (listingType === "SERVICE") {
+    return {
+      label: "Service",
+      className: "bg-purple-600/90 text-white",
+    };
   }
-  if (seller?.verificationLevel === "BUSINESS") {
-    return { label: "Business", icon: <ShieldCheck size={12} aria-hidden="true" /> };
+
+  // 2. Urgent / Moving Out flag
+  if (isUrgent) {
+    return {
+      label: "Moving Out",
+      className: "bg-amber-600/90 text-white",
+    };
   }
+
+  // 3. Genuine Seller Verification (Only when backed by real verification data)
+  const isRealVerified =
+    seller?.isVerified === true ||
+    isVerified === true ||
+    seller?.verificationLevel === "CAMPUS" ||
+    seller?.verificationLevel === "VERIFIED";
+
+  if (isRealVerified) {
+    return {
+      label: "Verified",
+      icon: <ShieldCheck size={11} className="shrink-0" />,
+      className: "bg-emerald-600/90 text-white",
+    };
+  }
+
   return null;
+}
+
+function formatCondition(condition?: string): string | null {
+  if (!condition) return null;
+  switch (condition.toUpperCase()) {
+    case "NEW":
+      return "Brand New";
+    case "LIKE_NEW":
+      return "Like New";
+    case "GOOD":
+      return "Good";
+    case "FAIR":
+      return "Fair";
+    case "POOR":
+      return "Poor";
+    default:
+      return condition.replace("_", " ");
+  }
 }
