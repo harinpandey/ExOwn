@@ -127,7 +127,7 @@ export async function getUserProfile(userId: string, _requesterId?: string) {
   try {
     const currentUser = await getCurrentUser();
     const isOwner = currentUser?.uid === userId;
-    
+
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: {
@@ -140,9 +140,9 @@ export async function getUserProfile(userId: string, _requesterId?: string) {
         isProfileCompleted: true,
         verificationLevel: true,
         isTrustedSeller: true,
-        registrationNumber: isOwner, 
-        studentPhoto: isOwner,      
-        address: isOwner,           
+        registrationNumber: isOwner,
+        studentPhoto: isOwner,
+        address: isOwner,
         trustScore: true,
         createdAt: true,
         profile: {
@@ -289,25 +289,22 @@ export async function getPublicProfile(userId: string) {
         isProfileCompleted: true,
         verificationLevel: true,
         isTrustedSeller: true,
-        trustScore: true,
         _count: {
-          select: { products: true }
+          select: { products: { where: { status: "LIVE" } } }
         },
         profile: {
           select: {
             collegeName: true,
             course: true,
-            year: true,
+            batch: true,
             rating: true,
             successfulDeals: true,
-            successRate: true,
             bio: true,
-            avgResponseTime: true,
           }
         }
       }
     });
-    
+
     if (!user) return null;
 
     // Privacy rule: Only show first name if preferred, or full name if verified
@@ -347,7 +344,7 @@ export async function saveFcmToken(userId: string, token: string) {
         lastSeenAt: new Date(),
       },
     }));
-    
+
     return { success: true };
   } catch (error: any) {
     console.error("Error saving FCM token:", error);

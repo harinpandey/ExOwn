@@ -239,3 +239,41 @@ export async function markRentalReturned(rentalId: string, ownerId: string) {
     return { success: false };
   }
 }
+
+export async function getUserRentals(userId: string) {
+  try {
+    await requireSameUser(userId);
+
+    const [owned, rented] = await Promise.all([
+      prisma.rental.findMany({
+        where: { ownerId: userId },
+        include: {
+          product: {
+            select: { id: true, title: true, price: true, images: true },
+          },
+          renter: {
+            select: { id: true, name: true, image: true },
+          },
+        },
+        orderBy: { createdAt: "desc" },
+      }),
+      prisma.rental.findMany({
+        where: { renterId: userId },
+        include: {
+          product: {
+            select: { id: true, title: true, price: true, images: true },
+          },
+          owner: {
+            select: { id: true, name: true, image: true },
+          },
+        },
+        orderBy: { createdAt: "desc" },
+      }),
+    ]);
+
+    return { owned, rented };
+  } catch (error) {
+    console.error("[getUserRentals] Error:", error);
+    return { owned: [], rented: [] };
+  }
+}

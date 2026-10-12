@@ -85,7 +85,7 @@ export async function updateOfferStatus(offerId: string, userId: string, status:
 
     const offer = await prisma.offer.findUnique({
       where: { id: offerId },
-      include: { 
+      include: {
         product: { select: { sellerId: true, title: true, status: true, inventory: true } }
       }
     });
@@ -154,5 +154,37 @@ export async function updateOfferStatus(offerId: string, userId: string, status:
   } catch (error: any) {
     console.error("Error updating offer status:", error);
     return { success: false, error: error.message };
+  }
+}
+
+export async function getUserOffers(userId: string) {
+  try {
+    await requireSameUser(userId);
+
+    const [received, sent] = await Promise.all([
+      prisma.offer.findMany({
+        where: { product: { sellerId: userId } },
+        include: {
+          product: {
+            select: { id: true, title: true, price: true, images: true, status: true },
+          },
+        },
+        orderBy: { createdAt: "desc" },
+      }),
+      prisma.offer.findMany({
+        where: { buyerId: userId },
+        include: {
+          product: {
+            select: { id: true, title: true, price: true, images: true, status: true, sellerId: true },
+          },
+        },
+        orderBy: { createdAt: "desc" },
+      }),
+    ]);
+
+    return { received, sent };
+  } catch (error) {
+    console.error("[getUserOffers] Error:", error);
+    return { received: [], sent: [] };
   }
 }

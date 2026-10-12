@@ -124,3 +124,35 @@ async function updateSellerMetrics(sellerId: string) {
     console.error("Failed to update seller metrics:", err);
   }
 }
+
+export async function getUserTransactions(userId: string) {
+  try {
+    await requireSameUser(userId);
+
+    const transactions = await prisma.transactionRecord.findMany({
+      where: {
+        OR: [
+          { buyerId: userId },
+          { sellerId: userId },
+        ],
+      },
+      include: {
+        product: {
+          select: { id: true, title: true, price: true, images: true },
+        },
+        buyer: {
+          select: { id: true, name: true, image: true },
+        },
+        seller: {
+          select: { id: true, name: true, image: true },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    return transactions;
+  } catch (error) {
+    console.error("[getUserTransactions] Error:", error);
+    return [];
+  }
+}

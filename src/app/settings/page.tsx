@@ -4,16 +4,16 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  User, 
-  Shield, 
-  Lock, 
-  Settings as SettingsIcon, 
-  Camera, 
-  Phone, 
-  GraduationCap, 
-  Building2, 
-  Check, 
+import {
+  User,
+  Shield,
+  Lock,
+  Settings as SettingsIcon,
+  Camera,
+  Phone,
+  GraduationCap,
+  Building2,
+  Check,
   AlertTriangle,
   Loader2
 } from "lucide-react";
@@ -66,7 +66,7 @@ export default function SettingsPage() {
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.[0]) return;
-    
+
     const file = e.target.files[0];
     if (!["image/jpeg", "image/png", "image/webp"].includes(file.type) || file.size > 5 * 1024 * 1024) {
       alert("Please upload a JPG, PNG, or WEBP image up to 5MB.");
@@ -113,7 +113,7 @@ export default function SettingsPage() {
     setMessage(null);
 
     const res = await updateProfile(user.uid, formData);
-    
+
     if (res.success) {
       setMessage({ type: "success", text: "Profile updated successfully." });
     } else {
@@ -140,7 +140,7 @@ export default function SettingsPage() {
   return (
     <div className="container mx-auto px-4 py-12 max-w-5xl">
       <div className="flex flex-col md:flex-row gap-8">
-        
+
         {/* Sidebar Tabs */}
         <div className="w-full md:w-64 space-y-2">
           <h1 className="text-2xl font-black mb-8 px-4 tracking-tight">Settings</h1>
@@ -149,8 +149,8 @@ export default function SettingsPage() {
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-sm transition-all ${
-                activeTab === tab.id 
-                ? "bg-primary text-white shadow-lg shadow-primary/25" 
+                activeTab === tab.id
+                ? "bg-primary text-white shadow-lg shadow-primary/25"
                 : "text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800"
               }`}
             >
@@ -175,7 +175,7 @@ export default function SettingsPage() {
                   <div className="flex items-center justify-between">
                     <h2 className="text-xl font-black">Personal Details</h2>
                     {message && (
-                      <motion.span 
+                      <motion.span
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         className={`text-xs font-bold px-3 py-1 rounded-full ${
@@ -191,9 +191,9 @@ export default function SettingsPage() {
                   <div className="flex items-center gap-6 pb-4">
                     <div className="relative group">
                       <div className="w-24 h-24 rounded-3xl overflow-hidden border-4 border-gray-50 dark:border-gray-800 shadow-xl">
-                        <img 
-                          src={formData.image || "/default-avatar.png"} 
-                          alt="Profile" 
+                        <img
+                          src={formData.image || "/default-avatar.png"}
+                          alt="Profile"
                           className="w-full h-full object-cover"
                         />
                       </div>
@@ -211,8 +211,8 @@ export default function SettingsPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <label className="text-xs font-black uppercase tracking-wider text-gray-400">Full Name</label>
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         value={formData.name}
                         onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                         className="w-full px-5 py-4 rounded-2xl bg-gray-50 dark:bg-gray-800/50 border-2 border-transparent focus:border-primary outline-none transition-all font-medium"
@@ -222,8 +222,8 @@ export default function SettingsPage() {
                       <label className="text-xs font-black uppercase tracking-wider text-gray-400">Phone Number</label>
                       <div className="relative">
                         <Phone size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" />
-                        <input 
-                          type="tel" 
+                        <input
+                          type="tel"
                           value={formData.phone}
                           onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
                           className="w-full pl-12 pr-5 py-4 rounded-2xl bg-gray-50 dark:bg-gray-800/50 border-2 border-transparent focus:border-primary outline-none transition-all font-medium"
@@ -234,7 +234,7 @@ export default function SettingsPage() {
                       <label className="text-xs font-black uppercase tracking-wider text-gray-400">Course / Degree</label>
                       <div className="relative">
                         <GraduationCap size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" />
-                        <select 
+                        <select
                           value={formData.course}
                           onChange={(e) => setFormData(p => ({ ...p, course: e.target.value }))}
                           className="w-full pl-12 pr-5 py-4 rounded-2xl bg-gray-50 dark:bg-gray-800/50 border-2 border-transparent focus:border-primary outline-none transition-all font-medium appearance-none"
@@ -271,8 +271,8 @@ export default function SettingsPage() {
                       <label className="text-xs font-black uppercase tracking-wider text-gray-400">Hostel / Residence</label>
                       <div className="relative">
                         <Building2 size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" />
-                        <input 
-                          type="text" 
+                        <input
+                          type="text"
                           value={formData.hostel}
                           onChange={(e) => setFormData(prev => ({ ...prev, hostel: e.target.value }))}
                           className="w-full pl-12 pr-5 py-4 rounded-2xl bg-gray-50 dark:bg-gray-800/50 border-2 border-transparent focus:border-primary outline-none transition-all font-medium"
@@ -283,8 +283,8 @@ export default function SettingsPage() {
                       <label className="text-xs font-black uppercase tracking-wider text-gray-400">Batch Year</label>
                       <div className="relative">
                         <SettingsIcon size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" />
-                        <input 
-                          type="text" 
+                        <input
+                          type="text"
                           value={formData.year}
                           placeholder="e.g. 2024"
                           onChange={(e) => setFormData(prev => ({ ...prev, year: e.target.value }))}
@@ -311,7 +311,7 @@ export default function SettingsPage() {
                     </div>
                   </div>
 
-                  <button 
+                  <button
                     disabled={isSaving}
                     className="w-full py-4 bg-gray-900 dark:bg-white dark:text-gray-900 text-white rounded-2xl font-black text-lg hover:bg-primary dark:hover:bg-primary dark:hover:text-white transition-all flex items-center justify-center gap-2 shadow-xl hover:shadow-primary/20"
                   >
@@ -354,7 +354,7 @@ export default function SettingsPage() {
                       Protected by ExOwn Identity
                     </span>
                   </div>
-                  
+
                   <div className="p-8 rounded-3xl bg-gray-50 dark:bg-gray-800/50 border border-transparent space-y-6">
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 bg-emerald-500/10 text-emerald-500 rounded-2xl flex items-center justify-center">
@@ -382,14 +382,11 @@ export default function SettingsPage() {
                     </div>
                   </div>
 
-                  <div className="p-8 rounded-3xl border-2 border-dashed border-gray-100 dark:border-gray-800 flex flex-col items-center text-center gap-4">
-                    <p className="text-sm text-gray-500 max-w-xs">Run a quick security scan to ensure your profile is fully protected.</p>
-                    <button 
-                      onClick={() => alert("Security Scan Complete: Your profile is 100% secure.")}
-                      className="px-8 py-3 bg-gray-900 dark:bg-white dark:text-gray-900 text-white rounded-2xl font-black text-sm hover:scale-105 transition-all"
-                    >
-                      Run Security Check
-                    </button>
+                  <div className="p-6 rounded-2xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-zinc-900/40 flex items-center gap-4 text-xs text-gray-600 dark:text-gray-400">
+                    <Shield className="text-primary shrink-0" size={20} />
+                    <p>
+                      Your account authentication and credential security are safeguarded via Google Firebase Auth session validation.
+                    </p>
                   </div>
                 </div>
               )}
