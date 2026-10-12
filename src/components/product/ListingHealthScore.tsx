@@ -42,7 +42,7 @@ export default function ListingHealthScore({ product }: ListingHealthScoreProps)
           </div>
           <div>
             <h3 className="text-xl font-black">Listing <span className="text-primary">Health</span></h3>
-            <p className="text-[10px] font-bold text-gray-500 uppercase">Power up your listing for 5x more sales</p>
+            <p className="text-[10px] font-bold text-gray-500 uppercase">Complete details to help campus buyers find your listing</p>
           </div>
         </div>
         <div className="text-right">
@@ -52,7 +52,7 @@ export default function ListingHealthScore({ product }: ListingHealthScoreProps)
       </div>
 
       <div className="w-full h-3 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden mb-8">
-        <div 
+        <div
           className={`h-full transition-all duration-1000 ease-out ${getProgressColor()}`}
           style={{ width: `${health.score}%` }}
         />

@@ -60,7 +60,7 @@ export async function getBuyingRequests(limit = 20) {
             name: true,
             image: true,
             verificationLevel: true,
-            trustScore: true,
+            isVerified: true,
           }
         }
       },

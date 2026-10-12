@@ -56,7 +56,7 @@ export default function RequestBoardPage() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-black pt-24 pb-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
+
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
           <div>
@@ -67,7 +67,7 @@ export default function RequestBoardPage() {
               Post what you're looking for and let the sellers come to you.
             </p>
           </div>
-          <button 
+          <button
             onClick={() => setIsModalOpen(true)}
             className="flex items-center gap-2 px-8 py-4 bg-primary text-white rounded-2xl font-black text-lg hover:bg-primary-dark transition-all shadow-xl shadow-primary/20"
           >
@@ -79,9 +79,9 @@ export default function RequestBoardPage() {
         <div className="flex flex-wrap gap-4 mb-8">
           <div className="flex-1 min-w-[300px] relative">
             <Search className="absolute left-4 top-3.5 text-gray-400" size={20} />
-            <input 
-              type="text" 
-              placeholder="Search requests..." 
+            <input
+              type="text"
+              placeholder="Search requests..."
               className="w-full pl-12 pr-4 py-3.5 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl outline-none focus:ring-4 focus:ring-primary/10 transition-all font-bold"
             />
           </div>
@@ -117,8 +117,8 @@ export default function RequestBoardPage() {
               <div key={req.id} className="bg-white dark:bg-gray-900 p-6 rounded-3xl border border-gray-100 dark:border-gray-800 hover:shadow-2xl transition-all group">
                 <div className="flex items-center justify-between mb-4">
                   <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
-                    req.listingType === 'RENT' ? 'bg-yellow-100 text-yellow-700' : 
-                    req.listingType === 'SERVICE' ? 'bg-purple-100 text-purple-700' : 
+                    req.listingType === 'RENT' ? 'bg-yellow-100 text-yellow-700' :
+                    req.listingType === 'SERVICE' ? 'bg-purple-100 text-purple-700' :
                     'bg-blue-100 text-blue-700'
                   }`}>
                     {req.listingType === 'RENT' ? 'Rental Request' : req.listingType === 'SERVICE' ? 'Service Request' : 'Buying Request'}
@@ -136,10 +136,10 @@ export default function RequestBoardPage() {
                     <img src={req.user.image || "/avatar-placeholder.png"} alt="" className="w-8 h-8 rounded-full border-2 border-primary/20" />
                     <div>
                       <p className="text-[10px] font-black">{req.user.name}</p>
-                      <p className="text-[8px] font-bold text-emerald-500 uppercase">Trust: {req.user.trustScore}%</p>
+                      <p className="text-[8px] font-bold text-emerald-500 uppercase">{req.user.isVerified ? "Verified Member" : "Student Member"}</p>
                     </div>
                   </div>
-                  <Link 
+                  <Link
                     href={`/chat/${req.user.id}?subject=Request: ${req.title}`}
                     className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white rounded-xl font-black text-xs hover:bg-primary hover:text-white transition-all"
                   >
@@ -161,29 +161,29 @@ export default function RequestBoardPage() {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">Title</label>
-                  <input 
+                  <input
                     required
                     value={newRequest.title}
                     onChange={(e) => setNewRequest({...newRequest, title: e.target.value})}
-                    placeholder="e.g. Need a MacBook Air for 1 week" 
+                    placeholder="e.g. Need a MacBook Air for 1 week"
                     className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 rounded-xl outline-none font-bold border-2 border-transparent focus:border-primary transition-all"
                   />
                 </div>
                 <div>
                   <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">Description</label>
-                  <textarea 
+                  <textarea
                     required
                     rows={4}
                     value={newRequest.description}
                     onChange={(e) => setNewRequest({...newRequest, description: e.target.value})}
-                    placeholder="Explain what you need, condition, duration etc." 
+                    placeholder="Explain what you need, condition, duration etc."
                     className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 rounded-xl outline-none font-bold border-2 border-transparent focus:border-primary transition-all resize-none"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">Type</label>
-                    <select 
+                    <select
                       value={newRequest.listingType}
                       onChange={(e) => setNewRequest({...newRequest, listingType: e.target.value as any})}
                       className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 rounded-xl outline-none font-bold"
@@ -195,11 +195,11 @@ export default function RequestBoardPage() {
                   </div>
                   <div>
                     <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">Budget (₹)</label>
-                    <input 
+                    <input
                       type="number"
                       value={newRequest.budget}
                       onChange={(e) => setNewRequest({...newRequest, budget: e.target.value})}
-                      placeholder="Optional" 
+                      placeholder="Optional"
                       className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 rounded-xl outline-none font-bold"
                     />
                   </div>
@@ -208,8 +208,8 @@ export default function RequestBoardPage() {
                   <button type="submit" className="flex-1 py-4 bg-primary text-white rounded-2xl font-black text-lg hover:bg-primary-dark transition-all">
                     Post Request
                   </button>
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     onClick={() => setIsModalOpen(false)}
                     className="px-8 py-4 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-white rounded-2xl font-black text-lg hover:bg-gray-200 transition-all"
                   >
