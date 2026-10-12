@@ -12,6 +12,15 @@ interface Conversation {
   lastMessage: string;
   lastMessageTime: Date;
   unreadCount: number;
+  product?: {
+    id: string;
+    title: string;
+    price: number;
+    images: string[];
+    status: string;
+  };
+  offerStatus?: string;
+  offerPrice?: number;
 }
 
 export default function ChatInboxPage() {
@@ -83,35 +92,74 @@ export default function ChatInboxPage() {
             <ul className="divide-y divide-gray-200 dark:divide-gray-800">
               {filtered.map((conv, i) => (
                 <li key={i}>
-                  <Link href={`/chat/${conv.partner.id}`} className="block p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                    <div className="flex items-center gap-4">
-                      <div className="w-14 h-14 bg-gradient-to-br from-primary/80 to-secondary/80 rounded-full flex items-center justify-center text-white text-xl font-bold overflow-hidden flex-shrink-0">
+                  <Link
+                    href={conv.product?.id ? `/chat/${conv.partner.id}?product=${conv.product.id}` : `/chat/${conv.partner.id}`}
+                    className="block p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+                  >
+                    <div className="flex items-center gap-3.5">
+                      <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary-dark rounded-full flex items-center justify-center text-white text-base font-bold overflow-hidden shrink-0">
                         {conv.partner.image ? (
                           <img src={conv.partner.image} alt={conv.partner.name || ""} className="w-full h-full object-cover" />
                         ) : (
                           (conv.partner.name?.[0] || "?").toUpperCase()
                         )}
                       </div>
+
                       <div className="flex-1 min-w-0">
-                        <div className="flex justify-between items-baseline mb-1">
-                          <h3 className="text-lg font-semibold truncate text-gray-900 dark:text-white">
-                            {conv.partner.name || "Unknown"}
+                        <div className="flex justify-between items-baseline mb-0.5">
+                          <h3 className="text-sm font-bold truncate text-gray-900 dark:text-white">
+                            {conv.partner.name || "Campus Member"}
                           </h3>
-                          <span className="text-xs text-gray-500 whitespace-nowrap ml-2">
+                          <span className="text-[11px] text-gray-400 whitespace-nowrap ml-2">
                             {formatDistanceToNow(new Date(conv.lastMessageTime), { addSuffix: true })}
                           </span>
                         </div>
+
+                        {/* Listing Snippet if linked */}
+                        {conv.product && (
+                          <div className="flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-300 font-medium truncate mb-1">
+                            <span className="text-primary font-bold">Listing:</span>
+                            <span className="truncate">{conv.product.title}</span>
+                            <span className="text-gray-400">•</span>
+                            <span className="font-bold text-gray-900 dark:text-white shrink-0">
+                              ₹{conv.product.price?.toLocaleString("en-IN")}
+                            </span>
+                            {conv.offerStatus && (
+                              <span className={`text-[9px] px-1.5 py-0.2 rounded font-bold uppercase shrink-0 ${
+                                conv.offerStatus === "ACCEPTED"
+                                  ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400"
+                                  : conv.offerStatus === "REJECTED"
+                                  ? "bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-400"
+                                  : "bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400"
+                              }`}>
+                                {conv.offerStatus}
+                              </span>
+                            )}
+                          </div>
+                        )}
+
                         <div className="flex justify-between items-center">
-                          <p className={`text-sm truncate ${conv.unreadCount > 0 ? "text-gray-900 dark:text-white font-semibold" : "text-gray-500"}`}>
+                          <p className={`text-xs truncate ${conv.unreadCount > 0 ? "text-gray-900 dark:text-white font-bold" : "text-gray-500"}`}>
                             {conv.lastMessage}
                           </p>
                           {conv.unreadCount > 0 && (
-                            <span className="ml-2 w-5 h-5 bg-primary rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0">
+                            <span className="ml-2 w-4 h-4 bg-primary rounded-full flex items-center justify-center text-white text-[9px] font-bold shrink-0">
                               {conv.unreadCount}
                             </span>
                           )}
                         </div>
                       </div>
+
+                      {/* Product Thumbnail if available */}
+                      {conv.product?.images?.[0] && (
+                        <div className="w-12 h-12 rounded-lg overflow-hidden border border-gray-200 dark:border-white/10 shrink-0 bg-gray-100 dark:bg-zinc-800">
+                          <img
+                            src={conv.product.images[0]}
+                            alt={conv.product.title}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      )}
                     </div>
                   </Link>
                 </li>

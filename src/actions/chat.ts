@@ -28,7 +28,7 @@ export async function getConversations(userId: string) {
 
     // Group by conversation partner to create a unique list of conversations
     const conversationsMap = new Map();
-    
+
     messages.forEach(msg => {
       const partner = msg.senderId === userId ? msg.receiver : msg.sender;
       if (!conversationsMap.has(partner.id)) {
@@ -45,6 +45,35 @@ export async function getConversations(userId: string) {
         }
       }
     });
+
+    const partnerIds = Array.from(conversationsMap.keys());
+    if (partnerIds.length > 0) {
+      // Fetch latest offers involving the user and these partners to show listing thumbnail
+      const recentOffers = await prisma.offer.findMany({
+        where: {
+          OR: [
+            { buyerId: userId, product: { sellerId: { in: partnerIds } } },
+            { buyerId: { in: partnerIds }, product: { sellerId: userId } },
+          ],
+        },
+        include: {
+          product: {
+            select: { id: true, title: true, price: true, images: true, status: true, sellerId: true },
+          },
+        },
+        orderBy: { createdAt: "desc" },
+      });
+
+      for (const offer of recentOffers) {
+        const otherUserId = offer.buyerId === userId ? offer.product.sellerId : offer.buyerId;
+        const conv = conversationsMap.get(otherUserId);
+        if (conv && !conv.product) {
+          conv.product = offer.product;
+          conv.offerStatus = offer.status;
+          conv.offerPrice = offer.price;
+        }
+      }
+    }
 
     return Array.from(conversationsMap.values());
   } catch (error) {
@@ -142,5 +171,136 @@ export async function getTotalUnreadCount(userId: string) {
     });
   } catch {
     return 0;
+  }
+}
+
+export async function getConversationContext(userId: string, partnerId: string, productId?: string) {
+  try {
+    await requireSameUser(userId);
+
+    // 1. Fetch partner profile (minimized & safe)
+    const partner = await prisma.user.findUnique({
+      where: { id: partnerId },
+      select: {
+        id: true,
+        name: true,
+        image: true,
+        isVerified: true,
+        verificationLevel: true,
+        profile: {
+          select: {
+            collegeName: true,
+            course: true,
+          },
+        },
+      },
+    });
+
+    if (!partner) return null;
+
+    // 2. Resolve Product context
+    let product: any = null;
+    if (productId) {
+      product = await prisma.product.findUnique({
+        where: { id: productId },
+        include: {
+          rentalDetail: true,
+          seller: {
+            select: { id: true, name: true, isVerified: true, verificationLevel: true },
+          },
+        },
+      });
+    }
+
+    // If no explicit product was supplied, attempt to find the latest active offer or rental between them
+    let activeOffer: any = null;
+    let activeRental: any = null;
+    let activeExchange: any = null;
+
+    if (product) {
+      // Find latest offer on this product between these 2 users
+      activeOffer = await prisma.offer.findFirst({
+        where: {
+          productId: product.id,
+          OR: [
+            { buyerId: userId, product: { sellerId: partnerId } },
+            { buyerId: partnerId, product: { sellerId: userId } },
+          ],
+        },
+        orderBy: { createdAt: "desc" },
+      });
+
+      // Find rental if listing is rental
+      if (product.listingType === "RENT") {
+        activeRental = await prisma.rental.findFirst({
+          where: {
+            productId: product.id,
+            OR: [
+              { renterId: userId, ownerId: partnerId },
+              { renterId: partnerId, ownerId: userId },
+            ],
+          },
+          orderBy: { createdAt: "desc" },
+        });
+      }
+
+      // Find exchange offer if allowed
+      if (product.isExchangeAllowed) {
+        activeExchange = await prisma.exchangeOffer.findFirst({
+          where: {
+            productId: product.id,
+            buyerId: userId === product.sellerId ? partnerId : userId,
+          },
+          orderBy: { createdAt: "desc" },
+        });
+      }
+    } else {
+      // Search for any recent offer between these users
+      activeOffer = await prisma.offer.findFirst({
+        where: {
+          OR: [
+            { buyerId: userId, product: { sellerId: partnerId } },
+            { buyerId: partnerId, product: { sellerId: userId } },
+          ],
+        },
+        include: {
+          product: {
+            include: {
+              rentalDetail: true,
+              seller: { select: { id: true, name: true, isVerified: true } },
+            },
+          },
+        },
+        orderBy: { createdAt: "desc" },
+      });
+
+      if (activeOffer?.product) {
+        product = activeOffer.product;
+      }
+    }
+
+    return {
+      partner,
+      product: product
+        ? {
+            id: product.id,
+            title: product.title,
+            price: product.price,
+            images: product.images,
+            status: product.status,
+            listingType: product.listingType,
+            condition: product.condition,
+            pickupLocation: product.pickupLocation,
+            sellerId: product.sellerId,
+            rentalDetail: product.rentalDetail,
+          }
+        : null,
+      offer: activeOffer || null,
+      rental: activeRental || null,
+      exchange: activeExchange || null,
+    };
+  } catch (error) {
+    console.error("[getConversationContext] Error:", error);
+    return null;
   }
 }
