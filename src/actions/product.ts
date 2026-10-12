@@ -5,6 +5,7 @@ import { logActivity } from "@/lib/logger";
 import { getCurrentUser, requireSameUser } from "@/lib/auth";
 import { getCached, invalidateCachePrefix } from "@/lib/cache";
 import { sanitizeString, validateLength, validateRange } from "@/lib/validation";
+import { parseSearchIntent } from "@/lib/search-intent";
 
 
 const LISTING_TYPES = new Set(["SELL", "RENT", "SERVICE"]);
@@ -74,6 +75,7 @@ export async function getSubcategories(categoryId: string) {
 
 export async function searchProducts(opts: {
   query?: string;
+  tokens?: string[];
   categorySlug?: string;
   condition?: string;
   listingType?: "SELL" | "RENT" | "SERVICE";
@@ -87,18 +89,38 @@ export async function searchProducts(opts: {
   pageSize?: number;
 }) {
   try {
-    const { query, categorySlug, condition, listingType, minPrice, maxPrice, sortBy, campusId, exchange, movingOut } = opts;
+    const { query, tokens, categorySlug, condition, listingType, minPrice, maxPrice, sortBy, campusId, exchange, movingOut } = opts;
     const page = Math.max(1, opts.page || 1);
     const pageSize = Math.min(Math.max(opts.pageSize || 24, 1), 50);
     const andFilters: any[] = [];
 
-    if (query) {
+    // Token-based matching: each meaningful keyword must be represented
+    // in title, description, brand, or category
+    const searchTokens = tokens && tokens.length > 0
+      ? tokens
+      : query
+      ? parseSearchIntent(query).tokens
+      : [];
+
+    if (searchTokens.length > 0) {
+      searchTokens.forEach((token) => {
+        andFilters.push({
+          OR: [
+            { title: { contains: token, mode: "insensitive" } },
+            { description: { contains: token, mode: "insensitive" } },
+            { brand: { contains: token, mode: "insensitive" } },
+            { category: { name: { contains: token, mode: "insensitive" } } },
+          ],
+        });
+      });
+    } else if (query && query.trim()) {
+      const trimmedQ = query.trim();
       andFilters.push({
         OR: [
-          { title: { contains: query, mode: "insensitive" } },
-          { description: { contains: query, mode: "insensitive" } },
-          { category: { name: { contains: query, mode: "insensitive" } } },
-          { brand: { contains: query, mode: "insensitive" } },
+          { title: { contains: trimmedQ, mode: "insensitive" } },
+          { description: { contains: trimmedQ, mode: "insensitive" } },
+          { category: { name: { contains: trimmedQ, mode: "insensitive" } } },
+          { brand: { contains: trimmedQ, mode: "insensitive" } },
         ],
       });
     }
@@ -129,7 +151,10 @@ export async function searchProducts(opts: {
       andFilters.push({ price: priceFilter });
     }
 
-    const cacheKey = `search:${JSON.stringify({ query, categorySlug, condition, listingType, minPrice, maxPrice, sortBy, campusId, exchange, movingOut, page, pageSize })}`;
+    const isRelevanceSearch = !sortBy && (query || searchTokens.length > 0);
+    const candidateLimit = isRelevanceSearch ? Math.min(100, Math.max(page * pageSize * 2, pageSize * 2)) : pageSize;
+
+    const cacheKey = `search:${JSON.stringify({ query, tokens: searchTokens, categorySlug, condition, listingType, minPrice, maxPrice, sortBy, campusId, exchange, movingOut, page, pageSize })}`;
     const products = await getCached(cacheKey, 30, () => withRetry(() => prisma.product.findMany({
       where: {
         status: "LIVE",
@@ -147,11 +172,12 @@ export async function searchProducts(opts: {
           ? { price: "desc" as const }
           : { createdAt: "desc" as const }
       ],
-      skip: (page - 1) * pageSize,
-      take: pageSize,
+      ...(isRelevanceSearch ? { take: candidateLimit } : { skip: (page - 1) * pageSize, take: pageSize }),
       select: {
         id: true,
         title: true,
+        description: true,
+        brand: true,
         price: true,
         images: true,
         pickupLocation: true,
@@ -176,6 +202,64 @@ export async function searchProducts(opts: {
         category: { select: { name: true, slug: true } },
       },
     })));
+
+    // Deterministic search relevance scoring (only when no explicit price sort requested)
+    if (!sortBy && (query || searchTokens.length > 0)) {
+      const qLower = (query || "").toLowerCase().trim();
+      const scored = products.map((prod) => {
+        let score = 0;
+        const titleLower = prod.title.toLowerCase();
+        const descLower = (prod.description || "").toLowerCase();
+        const brandLower = (prod.brand || "").toLowerCase();
+        const catLower = (prod.category?.name || "").toLowerCase();
+
+        // 1. Exact title phrase match
+        if (qLower && titleLower === qLower) {
+          score += 100;
+        } else if (qLower && titleLower.includes(qLower)) {
+          score += 50;
+        }
+
+        // 2. Title token matches
+        searchTokens.forEach((t) => {
+          if (titleLower.includes(t)) score += 20;
+        });
+
+        // 3. Brand match
+        if (qLower && brandLower && (brandLower === qLower || brandLower.includes(qLower))) {
+          score += 15;
+        } else {
+          searchTokens.forEach((t) => {
+            if (brandLower.includes(t)) score += 10;
+          });
+        }
+
+        // 4. Category match
+        if (qLower && catLower.includes(qLower)) {
+          score += 10;
+        } else {
+          searchTokens.forEach((t) => {
+            if (catLower.includes(t)) score += 5;
+          });
+        }
+
+        // 5. Description match
+        searchTokens.forEach((t) => {
+          if (descLower.includes(t)) score += 2;
+        });
+
+        return { prod, score };
+      });
+
+      scored.sort((a, b) => {
+        if (b.score !== a.score) return b.score - a.score;
+        return new Date(b.prod.createdAt).getTime() - new Date(a.prod.createdAt).getTime();
+      });
+
+      const sortedProducts = scored.map((item) => item.prod);
+      const startIndex = (page - 1) * pageSize;
+      return sortedProducts.slice(startIndex, startIndex + pageSize);
+    }
 
     return products;
   } catch (error) {
