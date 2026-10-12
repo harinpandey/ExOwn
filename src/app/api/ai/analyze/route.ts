@@ -25,11 +25,12 @@ export async function POST(req: Request) {
 
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
-      console.warn("AI Warning: GEMINI_API_KEY is missing.");
+      console.warn("AI Warning: GEMINI_API_KEY is not configured.");
       return NextResponse.json(getCanonicalFallback("AI service key unconfigured"));
     }
 
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    const model = process.env.GEMINI_MODEL || "gemini-3.8-flash";
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
 
     // Fetch Admin Rules from DB with safety fallback
     let adminRules: Array<{ name: string; rule: unknown }> = [];
@@ -57,7 +58,10 @@ CRITICAL: Respond ONLY with a valid JSON object matching the strict contract.
 
     const response = await fetch(geminiUrl, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "x-goog-api-key": apiKey,
+      },
       body: JSON.stringify({
         contents: [
           {
@@ -65,7 +69,6 @@ CRITICAL: Respond ONLY with a valid JSON object matching the strict contract.
           },
         ],
         generationConfig: {
-          temperature: 0.1,
           maxOutputTokens: 1024,
           responseMimeType: "application/json",
         },
@@ -76,8 +79,21 @@ CRITICAL: Respond ONLY with a valid JSON object matching the strict contract.
     clearTimeout(timeoutId);
 
     if (!response.ok) {
+      const status = response.status;
       const errorText = await response.text().catch(() => "");
-      console.error("AI Error: Gemini API rejected request", response.status, errorText);
+
+      if (status === 401 || status === 403) {
+        console.error(`AI Error: Gemini authentication failure (HTTP ${status}). Check GEMINI_API_KEY validity.`);
+      } else if (status === 404) {
+        console.error(`AI Error: Gemini model '${model}' not found or unavailable (HTTP 404). Check GEMINI_MODEL setting.`);
+      } else if (status === 429) {
+        console.warn(`AI Warning: Gemini upstream rate limit exceeded (HTTP 429).`);
+      } else if (status >= 500) {
+        console.error(`AI Error: Gemini upstream server error (HTTP ${status}).`);
+      } else {
+        console.error(`AI Error: Gemini request rejected (HTTP ${status}). Response:`, errorText);
+      }
+
       return NextResponse.json(getCanonicalFallback("Upstream service error"));
     }
 
@@ -85,7 +101,7 @@ CRITICAL: Respond ONLY with a valid JSON object matching the strict contract.
 
     const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!rawText) {
-      console.error("AI Error: Missing response candidate text", data);
+      console.error("AI Error: Missing response candidate text from Gemini", data);
       return NextResponse.json(getCanonicalFallback("Empty AI response"));
     }
 
