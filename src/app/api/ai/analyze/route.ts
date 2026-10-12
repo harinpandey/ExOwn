@@ -18,7 +18,7 @@ export async function POST(req: Request) {
   if (limited) return limited;
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+  const timeoutId = setTimeout(() => controller.abort(), 20000); // 20s timeout
 
   try {
     const { productData } = await req.json();
@@ -69,6 +69,9 @@ CRITICAL: Respond ONLY with a valid JSON object matching the strict contract.
           },
         ],
         generationConfig: {
+          thinkingConfig: {
+            thinkingLevel: "low",
+          },
           maxOutputTokens: 1024,
           responseMimeType: "application/json",
         },
@@ -116,7 +119,7 @@ CRITICAL: Respond ONLY with a valid JSON object matching the strict contract.
   } catch (error: any) {
     clearTimeout(timeoutId);
     if (error.name === "AbortError") {
-      console.error("AI Error: Request timed out after 10s");
+      console.error("AI Error: Request timed out after 20s");
       return NextResponse.json(getCanonicalFallback("Analysis timed out"));
     }
     console.error("AI Error: Global analysis failure", error);
