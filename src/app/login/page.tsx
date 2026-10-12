@@ -31,6 +31,7 @@ function LoginContent() {
   const { user, loading } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   const createServerSession = useCallback(async (firebaseUser: FirebaseUser) => {
     const idToken = await firebaseUser.getIdToken(true);
@@ -94,6 +95,11 @@ function LoginContent() {
   }, [user, loading, isLoading, redirect, createServerSession]);
 
   const handleGoogleSignIn = async () => {
+    if (!agreedToTerms) {
+      setError("Please agree to the Terms & Conditions and Privacy Policy to continue.");
+      return;
+    }
+
     setIsLoading(true);
     setError("");
 
@@ -164,9 +170,37 @@ function LoginContent() {
           </div>
         )}
 
+        {/* Mandatory Terms & Privacy Consent */}
+        <div className="mb-6 text-left bg-gray-50 dark:bg-gray-800/40 p-4 rounded-xl border border-gray-200 dark:border-gray-800">
+          <label htmlFor="terms-consent-checkbox" className="flex items-start gap-3 cursor-pointer text-xs font-semibold text-gray-700 dark:text-gray-300">
+            <input
+              id="terms-consent-checkbox"
+              type="checkbox"
+              checked={agreedToTerms}
+              onChange={(e) => {
+                setAgreedToTerms(e.target.checked);
+                if (e.target.checked && error.includes("Terms & Conditions")) {
+                  setError("");
+                }
+              }}
+              className="mt-0.5 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary focus:ring-offset-0 cursor-pointer shrink-0"
+            />
+            <span className="leading-relaxed select-none">
+              I agree to the ExOwn{" "}
+              <Link href="/terms" target="_blank" rel="noopener noreferrer" className="text-primary font-bold underline hover:text-primary-dark">
+                Terms &amp; Conditions
+              </Link>{" "}
+              and{" "}
+              <Link href="/privacy" target="_blank" rel="noopener noreferrer" className="text-primary font-bold underline hover:text-primary-dark">
+                Privacy Policy
+              </Link>.
+            </span>
+          </label>
+        </div>
+
         <button
           onClick={handleGoogleSignIn}
-          disabled={isLoading || !auth}
+          disabled={isLoading || !auth || !agreedToTerms}
           className="w-full py-4 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-700 rounded-xl font-bold text-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all flex items-center justify-center gap-3 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed mb-4"
         >
           {isLoading ? (

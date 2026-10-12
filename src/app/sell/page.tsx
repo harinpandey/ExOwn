@@ -7,7 +7,7 @@ import { useMoments } from "@/context/MomentsContext";
 import { 
   Upload, X, Check, ArrowRight, ChevronLeft, 
   LayoutGrid, MapPin, Tag, Image as ImageIcon, Rocket, 
-  Sparkles, Info, ShieldCheck, Trash2
+  Sparkles, Info, ShieldCheck, Trash2, AlertCircle
 } from "lucide-react";
 import CategoryConditionForm from "@/components/forms/CategoryConditionForm";
 import CampusSelector from "@/components/ui/CampusSelector";
@@ -24,6 +24,7 @@ export default function SellPage() {
   
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
   const [images, setImages] = useState<File[]>([]);
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   
@@ -166,7 +167,12 @@ export default function SellPage() {
         toast.success(res.status === "LIVE" ? "Listing is now LIVE!" : "Listing submitted for review.", { id: loadingToast });
         router.push("/profile");
       } else {
-        toast.error(res.error || "Failed to create listing", { id: loadingToast });
+        if (res.error && res.error.toLowerCase().includes("complete your profile")) {
+          toast.dismiss(loadingToast);
+          setShowProfileModal(true);
+        } else {
+          toast.error(res.error || "Failed to create listing", { id: loadingToast });
+        }
       }
     } catch (err: any) {
       toast.error(err.message || "An error occurred", { id: loadingToast });
@@ -246,8 +252,8 @@ export default function SellPage() {
                   className="space-y-10"
                 >
                   <div className="space-y-2">
-                    <h2 className="text-5xl font-black tracking-tighter leading-none italic uppercase">Pick a <span className="text-primary">Category</span></h2>
-                    <p className="text-gray-500 font-bold text-lg">Where does your item belong?</p>
+                    <h2 className="text-3xl font-black tracking-tight uppercase">Pick a <span className="text-primary">Category</span></h2>
+                    <p className="text-gray-500 font-semibold text-sm">Where does your item belong?</p>
                   </div>
 
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
@@ -323,8 +329,8 @@ export default function SellPage() {
                   className="space-y-10"
                 >
                   <div className="space-y-2">
-                    <h2 className="text-5xl font-black tracking-tighter leading-none italic uppercase">Target <span className="text-primary">Campus</span></h2>
-                    <p className="text-gray-500 font-bold text-lg">Help local buyers find your item.</p>
+                    <h2 className="text-3xl font-black tracking-tight uppercase">Select <span className="text-primary">Campus</span></h2>
+                    <p className="text-gray-500 font-semibold text-sm">Help local buyers on your campus find your item.</p>
                   </div>
                   
                   <div className="bg-white dark:bg-gray-900 rounded-[3rem] p-10 border border-gray-100 dark:border-gray-800 shadow-2xl">
@@ -659,8 +665,8 @@ export default function SellPage() {
                   className="space-y-10"
                 >
                   <div className="space-y-2">
-                    <h2 className="text-5xl font-black tracking-tighter leading-none italic uppercase">Last Step: <span className="text-primary">Media</span></h2>
-                    <p className="text-gray-500 font-bold text-lg">Visuals are everything. Upload up to 10 photos.</p>
+                    <h2 className="text-3xl font-black tracking-tight uppercase">Upload <span className="text-primary">Photos</span></h2>
+                    <p className="text-gray-500 font-semibold text-sm">Visuals build buyer trust. Upload up to 10 photos.</p>
                   </div>
 
                   <div className="bg-white dark:bg-gray-900 rounded-[3rem] p-10 border border-gray-100 dark:border-gray-800 shadow-2xl">
@@ -791,6 +797,66 @@ export default function SellPage() {
           </div>
         </div>
       </div>
+
+      {/* Profile Completion Guidance Modal */}
+      <AnimatePresence>
+        {showProfileModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-white dark:bg-gray-900 rounded-3xl p-6 sm:p-8 max-w-lg w-full border border-gray-200 dark:border-gray-800 shadow-2xl relative"
+            >
+              <div className="w-14 h-14 bg-amber-100 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 rounded-2xl flex items-center justify-center mb-5">
+                <AlertCircle size={28} />
+              </div>
+
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                Complete Your Student Profile
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed mb-6">
+                To keep the campus marketplace safe for all students, sellers must verify their university details once before publishing listings.
+              </p>
+
+              <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-2xl border border-gray-100 dark:border-gray-800 mb-6 space-y-2.5">
+                <p className="text-xs font-black uppercase tracking-wider text-gray-500">Required Verification Details</p>
+                <div className="grid grid-cols-2 gap-2 text-xs font-semibold text-gray-700 dark:text-gray-300">
+                  <div className="flex items-center gap-2">
+                    <Check size={14} className="text-primary shrink-0" /> Full Student Name
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Check size={14} className="text-primary shrink-0" /> Registration Number
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Check size={14} className="text-primary shrink-0" /> Course &amp; Year
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Check size={14} className="text-primary shrink-0" /> Phone Number
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button
+                  type="button"
+                  onClick={() => router.push(`/complete-profile?redirect=${encodeURIComponent("/sell")}`)}
+                  className="flex-1 py-3.5 bg-primary text-white rounded-xl font-bold text-sm hover:bg-primary-dark transition flex items-center justify-center gap-2 shadow-lg shadow-primary/20"
+                >
+                  Complete Profile Now <ArrowRight size={16} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowProfileModal(false)}
+                  className="py-3.5 px-6 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-xl font-bold text-sm hover:bg-gray-200 dark:hover:bg-gray-700 transition"
+                >
+                  Keep Draft
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -20,6 +20,7 @@ import {
 import { getHousingListings } from "@/actions/housing";
 import { useLocation } from "@/context/LocationContext";
 import { useMoments } from "@/context/MomentsContext";
+import { getLocalitiesForCampus } from "@/config/localities";
 
 export default function HousingPage() {
   const { selectedCampus, campusObj } = useLocation();
@@ -29,11 +30,14 @@ export default function HousingPage() {
 
   // Filters
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedLocality, setSelectedLocality] = useState<string>("ALL");
   const [selectedType, setSelectedType] = useState("ALL");
   const [maxRent, setMaxRent] = useState(25000);
   const [genderPref, setGenderPref] = useState("ANY");
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+
+  const campusConfig = getLocalitiesForCampus(campusObj?.shortName || campusObj?.name || selectedCampus);
 
   useEffect(() => {
     async function loadHousing() {
@@ -64,6 +68,13 @@ export default function HousingPage() {
   };
 
   const filteredListings = listings.filter((item) => {
+    if (selectedLocality !== "ALL") {
+      const loc = selectedLocality.toLowerCase();
+      const matchLocality = item.locality?.toLowerCase().includes(loc);
+      const matchAddress = item.address?.toLowerCase().includes(loc);
+      if (!matchLocality && !matchAddress) return false;
+    }
+
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       const matchTitle = item.title.toLowerCase().includes(q);
@@ -163,6 +174,62 @@ export default function HousingPage() {
           })}
         </div>
 
+        {/* Student Localities Discovery Bar */}
+        {campusConfig && campusConfig.localities.length > 0 ? (
+          <div className="bg-white dark:bg-[#10141b] rounded-2xl p-4 border border-gray-200 dark:border-white/10 shadow-sm space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-xs font-bold text-gray-700 dark:text-gray-300">
+                <MapPin size={14} className="text-blue-500" />
+                <span>Campus Localities near {campusConfig.campusName}</span>
+              </div>
+              {selectedLocality !== "ALL" && (
+                <button
+                  onClick={() => setSelectedLocality("ALL")}
+                  className="text-[11px] font-semibold text-blue-600 dark:text-blue-400 hover:underline"
+                >
+                  Clear Locality
+                </button>
+              )}
+            </div>
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+              <button
+                onClick={() => setSelectedLocality("ALL")}
+                className={`shrink-0 rounded-xl px-3 py-1.5 text-xs font-medium transition-colors ${
+                  selectedLocality === "ALL"
+                    ? "bg-blue-600 text-white font-bold"
+                    : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+                }`}
+              >
+                All Localities
+              </button>
+              {campusConfig.localities.map((loc) => {
+                const active = selectedLocality === loc.name;
+                return (
+                  <button
+                    key={loc.name}
+                    onClick={() => setSelectedLocality(active ? "ALL" : loc.name)}
+                    title={loc.description}
+                    className={`shrink-0 inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs transition-colors ${
+                      active
+                        ? "bg-blue-600 text-white font-bold shadow-sm"
+                        : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+                    }`}
+                  >
+                    <span>{loc.name}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ) : (
+          <div className="bg-white dark:bg-[#10141b] rounded-2xl p-3 px-4 border border-gray-200 dark:border-white/10 shadow-sm flex items-center justify-between text-xs text-gray-500">
+            <div className="flex items-center gap-2">
+              <MapPin size={14} className="text-gray-400" />
+              <span>Curated student localities for {campusObj.name || "this campus"} coming soon. Use search below to filter by address.</span>
+            </div>
+          </div>
+        )}
+
         {/* Layout Grid: Filters Sidebar + Results */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Filter Sidebar */}
@@ -174,6 +241,7 @@ export default function HousingPage() {
               <button
                 onClick={() => {
                   setSelectedType("ALL");
+                  setSelectedLocality("ALL");
                   setMaxRent(25000);
                   setGenderPref("ANY");
                   setSelectedAmenities([]);

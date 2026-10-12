@@ -102,8 +102,18 @@ export default function ComparePage() {
   const rows: Array<{ label: string; key: string; format?: (val: any) => ReactNode }> = [
     { label: "Price", key: "price", format: (val: number) => `₹${val.toLocaleString()}` },
     { label: "Original Price", key: "originalPrice", format: (val: number | null) => val ? `₹${val.toLocaleString()}` : "N/A" },
+    {
+      label: "Format",
+      key: "listingType",
+      format: (val: string) => (
+        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold ${
+          val === "RENT" ? "bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300" : "bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300"
+        }`}>
+          {val === "RENT" ? "For Rent" : "For Buy / Sell"}
+        </span>
+      )
+    },
     { label: "Condition", key: "condition" },
-    { label: "Type", key: "listingType" },
     { label: "Brand", key: "brand", format: (val: string | null) => val || "Generic" },
     { label: "Age / Year", key: "purchaseYear", format: (val: number | null) => val ? `${new Date().getFullYear() - val} years old (${val})` : "N/A" },
     { label: "Seller Rating", key: "seller", format: (val: any) => `${val?.profile?.rating || 0}/5.0` },
@@ -140,19 +150,21 @@ export default function ComparePage() {
           
           <div className="relative p-10 flex flex-col md:flex-row items-center justify-between gap-8">
             <div className="flex items-center gap-6">
-              <div className="p-5 bg-primary text-white rounded-[2rem] shadow-xl shadow-primary/20 animate-bounce-slow">
-                <Brain size={40} />
+              <div className="p-4 bg-primary text-white rounded-2xl shadow-lg shadow-primary/20">
+                <Brain size={32} />
               </div>
               <div>
-                <h2 className="text-3xl font-black italic tracking-tighter uppercase mb-2">ExOwn <span className="text-primary">Smart Compare</span></h2>
-                <p className="text-gray-500 font-bold max-w-md leading-tight">Our AI analyzes value, risk, and student-friendliness across your selections.</p>
+                <h2 className="text-2xl font-black tracking-tight text-gray-900 dark:text-white">AI Comparative Insight</h2>
+                <p className="text-gray-500 dark:text-gray-400 text-xs font-medium max-w-md leading-relaxed">
+                  Synthesizes listed price, condition, and seller profile into a student-friendly overview. All factual specs remain directly verifiable below.
+                </p>
               </div>
             </div>
             
             <button 
               onClick={runAiAnalysis}
               disabled={aiLoading || products.length < 2}
-              className="px-12 py-6 bg-primary text-white rounded-[2.5rem] font-black text-2xl flex items-center gap-4 hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-primary/30 disabled:opacity-50 disabled:scale-100"
+              className="px-8 py-4 bg-primary text-white rounded-2xl font-bold text-base flex items-center gap-3 hover:scale-102 active:scale-98 transition-all shadow-xl shadow-primary/25 disabled:opacity-50 disabled:scale-100"
             >
               {aiLoading ? (
                 <>Analyzing... <RefreshCw size={28} className="animate-spin" /></>

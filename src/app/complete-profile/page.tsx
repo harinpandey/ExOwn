@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
@@ -23,9 +23,12 @@ const COURSES = ["B.Tech", "BBA", "MBA", "BCA", "MCA", "Law", "Design", "Alumni"
 const YEARS = ["1st Year", "2nd Year", "3rd Year", "4th Year", "Alumni"];
 const HOSTELS = ["BH1", "BH2", "BH3", "BH4", "BH5", "GH", "Apartment", "Day Scholar"];
 
-export default function CompleteProfilePage() {
+function CompleteProfileContent() {
   const { user, loading, isProfileComplete, refreshProfile } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const rawRedirect = searchParams.get("redirect") || "/";
+  const redirectTarget = rawRedirect.startsWith("/complete-profile") ? "/" : rawRedirect;
   
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -46,10 +49,10 @@ export default function CompleteProfilePage() {
 
   useEffect(() => {
     if (!loading && !user) {
-      router.push("/login?redirect=/complete-profile");
+      router.push(`/login?redirect=${encodeURIComponent(`/complete-profile?redirect=${encodeURIComponent(redirectTarget)}`)}`);
     }
     if (!loading && user && isProfileComplete) {
-      router.push("/");
+      router.push(redirectTarget);
     }
     
     // Pre-fill from Firebase & DB
@@ -75,7 +78,7 @@ export default function CompleteProfilePage() {
       };
       fetchData();
     }
-  }, [user, loading, isProfileComplete, router]);
+  }, [user, loading, isProfileComplete, router, redirectTarget]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -155,7 +158,7 @@ export default function CompleteProfilePage() {
       if (result.success) {
         await refreshProfile();
         setStep(4); // Success step
-        setTimeout(() => router.push("/"), 2000);
+        setTimeout(() => router.push(redirectTarget), 2000);
       } else {
         setError(result.error || "Failed to complete profile.");
       }
@@ -457,11 +460,25 @@ export default function CompleteProfilePage() {
                   className="h-full bg-emerald-500"
                 />
               </div>
-              <p className="text-xs text-gray-400 mt-4 italic">Redirecting to marketplace...</p>
+              <p className="text-xs text-gray-400 mt-4 italic">Redirecting...</p>
             </motion.div>
           )}
         </AnimatePresence>
       </div>
     </div>
+  );
+}
+
+export default function CompleteProfilePage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      }
+    >
+      <CompleteProfileContent />
+    </Suspense>
   );
 }
