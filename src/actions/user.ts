@@ -235,34 +235,10 @@ export async function completeProfile(userId: string, data: {
         }
       });
 
-      if (registrationNumber || studentPhoto) {
-        const pendingRequest = await tx.verificationRequest.findFirst({
-          where: {
-            userId,
-            status: "PENDING",
-          },
-          select: { id: true },
-        });
-
-        if (!pendingRequest) {
-          await tx.verificationRequest.create({
-            data: {
-              userId,
-              level: "CAMPUS",
-              documentType: studentPhoto ? "STUDENT_ID" : "OTHER",
-              documentUrl: studentPhoto || null,
-              registrationNumber: registrationNumber || null,
-              status: "PENDING",
-              metadata: {
-                source: "complete-profile",
-                collegeName,
-                course,
-                batch,
-              },
-            },
-          });
-        }
-      }
+      // NOTE: VerificationRequest table is not yet migrated to the production database.
+      // Formal document/ID verification queue is deferred until a dedicated admin
+      // review workflow and database migration are introduced. Student registration
+      // details are safely stored on the User model above.
 
       await tx.profile.upsert({
         where: { userId },
@@ -287,7 +263,6 @@ export async function completeProfile(userId: string, data: {
       actionType: "PROFILE_UPDATED",
       metadata: {
         verificationLevel: existingUser?.verificationLevel || "BASIC",
-        verificationRequestCreated: Boolean(registrationNumber || studentPhoto),
       }
     });
 

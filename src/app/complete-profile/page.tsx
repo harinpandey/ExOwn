@@ -451,7 +451,7 @@ function CompleteProfileContent() {
                 <CheckCircle2 size={40} />
               </div>
               <h1 className="text-3xl font-bold mb-2">Profile Completed</h1>
-              <p className="text-gray-500 mb-8">Identity submitted. You now have full access to the marketplace.</p>
+              <p className="text-gray-500 mb-8">Details saved successfully. You can now publish listings on the marketplace.</p>
               <div className="w-full h-1.5 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
                 <motion.div 
                   initial={{ width: 0 }} 
