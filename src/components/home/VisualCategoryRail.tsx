@@ -20,8 +20,6 @@ interface CategoryMeta {
   shortLabel: string;
   icon: LucideIcon;
   accent: string;
-  badge?: string;
-  badgeColor?: string;
 }
 
 const VISUAL_CATEGORIES: CategoryMeta[] = [
@@ -32,8 +30,6 @@ const VISUAL_CATEGORIES: CategoryMeta[] = [
     shortLabel: "Laptops",
     icon: Laptop,
     accent: "from-blue-500/20 to-indigo-600/20 text-blue-500 border-blue-500/30",
-    badge: "Popular",
-    badgeColor: "bg-blue-500 text-white",
   },
   {
     id: "mobiles-gadgets",
@@ -58,8 +54,6 @@ const VISUAL_CATEGORIES: CategoryMeta[] = [
     shortLabel: "Cycles",
     icon: Bike,
     accent: "from-emerald-500/20 to-teal-600/20 text-emerald-500 border-emerald-500/30",
-    badge: "Campus Hit",
-    badgeColor: "bg-emerald-500 text-white",
   },
   {
     id: "furniture-hostel",
@@ -100,8 +94,6 @@ const VISUAL_CATEGORIES: CategoryMeta[] = [
     shortLabel: "Rooms / PG",
     icon: Building2,
     accent: "from-indigo-500/20 to-blue-600/20 text-indigo-500 border-indigo-500/30",
-    badge: "Verified",
-    badgeColor: "bg-indigo-600 text-white",
   },
   {
     id: "services",
@@ -138,12 +130,6 @@ export default function VisualCategoryRail() {
               href={`/search?category=${cat.slug}`}
               className="group relative flex min-w-[76px] flex-col items-center justify-center gap-2 rounded-2xl border border-gray-200/80 bg-white p-2.5 text-center shadow-xs transition hover:border-primary/50 hover:bg-gray-50/80 hover:shadow-md dark:border-white/10 dark:bg-[#10141b] dark:hover:border-primary/50 dark:hover:bg-white/[0.04] sm:min-w-0 active:scale-95"
             >
-              {cat.badge && (
-                <span className={`absolute -top-1.5 right-1 rounded-full px-1.5 py-0.2 text-[8px] font-black uppercase tracking-tight shadow-xs ${cat.badgeColor}`}>
-                  {cat.badge}
-                </span>
-              )}
-
               {/* 2.5D visual container */}
               <div className={`relative flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br border shadow-xs transition-transform duration-300 group-hover:scale-110 group-hover:-translate-y-1 ${cat.accent}`}>
                 <Icon size={22} className="object-25d transition-transform group-hover:rotate-3" />

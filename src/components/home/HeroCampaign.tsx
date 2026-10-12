@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Sparkles, ShieldCheck, Tag, Laptop, BookOpen, RefreshCw, Plus } from "lucide-react";
+import { ArrowRight, Tag, Laptop, BookOpen, RefreshCw, Plus, Users } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useLocation } from "@/context/LocationContext";
 
@@ -23,8 +23,8 @@ const CAMPAIGNS: CampaignStory[] = [
     tag: "CAMPUS TECH DROP",
     badgeTone: "bg-blue-600 text-white",
     title: "Pre-owned tech from",
-    highlight: "verified seniors.",
-    description: "MacBooks, monitors, graphing calculators and engineering tools inspected and priced for students.",
+    highlight: "campus peers.",
+    description: "Laptops, monitors, calculators and electronics listed directly by students on campus.",
     ctaText: "Browse Tech",
     ctaHref: "/search?category=computers-laptops",
     bgGradient: "from-blue-900/90 via-indigo-950 to-[#07090d]",
@@ -48,7 +48,7 @@ const CAMPAIGNS: CampaignStory[] = [
     badgeTone: "bg-emerald-600 text-white",
     title: "Seniors clearing rooms.",
     highlight: "Instant hostel pickup.",
-    description: "Final-year students handing down textbooks, lab gear and room essentials before graduation.",
+    description: "Graduating students handing down textbooks, lab gear and room essentials before moving.",
     ctaText: "Explore Moving Out",
     ctaHref: "/search?movingOut=true",
     bgGradient: "from-emerald-950/80 via-teal-950/60 to-[#07090d]",
@@ -60,7 +60,7 @@ const CAMPAIGNS: CampaignStory[] = [
 export default function HeroCampaign() {
   const { user } = useAuth();
   const { campusObj } = useLocation();
-  const campaign = CAMPAIGNS[0]; // Featured campaign
+  const campaign = CAMPAIGNS[0];
   const CampaignIcon = campaign.objectIcon;
 
   return (
@@ -79,7 +79,7 @@ export default function HeroCampaign() {
                 {campaign.tag}
               </span>
               <span className="inline-flex items-center gap-1 rounded-lg border border-white/20 bg-white/10 px-2.5 py-1 text-[10px] font-bold text-white/90 backdrop-blur-sm">
-                <ShieldCheck size={12} className="text-emerald-400" />
+                <Users size={12} className="text-blue-300" />
                 {campusObj.shortName} Marketplace
               </span>
             </div>
@@ -109,7 +109,7 @@ export default function HeroCampaign() {
                 className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-5 py-3 text-xs font-bold text-white backdrop-blur-sm transition hover:bg-white/20 active:scale-95"
               >
                 <Plus size={14} />
-                <span>Sell Your Stuff</span>
+                <span>Sell an Item</span>
               </Link>
             </div>
           </div>
@@ -125,16 +125,16 @@ export default function HeroCampaign() {
                 <CampaignIcon size={64} className={`${campaign.objectColor} drop-shadow-xl`} />
               </div>
 
-              {/* Layer 3: Floating Verified Badge Pill */}
+              {/* Layer 3: Factual Peer-to-Peer Pill */}
               <div className="absolute bottom-2 -left-4 flex items-center gap-1.5 rounded-xl border border-white/20 bg-gray-900/90 px-3 py-1.5 text-[11px] font-black text-white shadow-xl backdrop-blur-md">
-                <Sparkles size={13} className="text-yellow-400" />
-                <span>Zero Brokerage</span>
+                <Users size={13} className="text-blue-300" />
+                <span>Student-to-Student</span>
               </div>
 
-              {/* Layer 4: Floating Deal Pill */}
+              {/* Layer 4: Campus Listings Pill */}
               <div className="absolute top-2 -right-4 flex items-center gap-1.5 rounded-xl border border-white/20 bg-blue-600/90 px-3 py-1.5 text-[11px] font-black text-white shadow-xl backdrop-blur-md">
                 <Tag size={12} />
-                <span>Student Pricing</span>
+                <span>Direct Deals</span>
               </div>
             </div>
           </div>
