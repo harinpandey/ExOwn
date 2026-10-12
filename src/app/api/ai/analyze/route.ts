@@ -93,7 +93,7 @@ export async function POST(req: Request) {
     }
 
     const primaryModel = process.env.GEMINI_MODEL || "gemini-3.8-flash";
-    const fallbackModel = process.env.GEMINI_FALLBACK_MODEL || "gemini-3.5-flash-lite";
+    const fallbackModel = process.env.GEMINI_FALLBACK_MODEL || "gemini-3.6-flash";
 
     // Fetch Admin Rules from DB with safety fallback
     let adminRules: Array<{ name: string; rule: unknown }> = [];
