@@ -1,25 +1,31 @@
 import { getRecentlyAdded } from "@/actions/product";
 import ProductCard from "@/components/ui/ProductCard";
-import { DEMO_RECENT } from "@/lib/demoData";
 
 export default async function RecentlyAdded() {
-  let dbProducts: any[] = [];
+  let products: any[] = [];
   try {
-    dbProducts = await getRecentlyAdded();
+    products = await getRecentlyAdded();
   } catch (err) {
-    console.error("[RecentlyAdded] DB fetch failed, using demo data:", err);
+    console.error("[RecentlyAdded] DB fetch failed:", err);
   }
-  const products = dbProducts.length > 0 ? dbProducts : DEMO_RECENT;
+
+  if (!products || products.length === 0) {
+    return (
+      <div className="rounded-2xl border border-dashed border-gray-200 dark:border-white/10 p-8 text-center text-xs font-semibold text-gray-500">
+        No new listings posted yet on this campus.
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-      {products.map((product) => (
+      {products.slice(0, 5).map((product) => (
         <ProductCard
           key={product.id}
           id={product.id}
           title={product.title}
           price={product.price}
-          image={product.images[0] || ""}
+          image={product.images?.[0] || ""}
           location={product.pickupLocation}
           createdAt={product.createdAt}
           isUrgent={product.isUrgent}

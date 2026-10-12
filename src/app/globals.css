@@ -10,9 +10,16 @@
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
+  --color-surface: var(--surface);
+  --color-surface-elevated: var(--surface-elevated);
+  --color-surface-soft: var(--surface-soft);
+  --color-border-subtle: var(--border-subtle);
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  
+
   /* Standardized Border Radius */
   --radius-xs: 4px;
   --radius-sm: 6px;
@@ -20,6 +27,7 @@
   --radius-lg: 10px;
   --radius-xl: 12px;
   --radius-2xl: 16px;
+  --radius-3xl: 24px;
 }
 
 :root {
@@ -33,13 +41,14 @@
   --border-subtle: rgba(0, 0, 0, 0.08);
   --accent: #2563eb;
   --accent-contrast: #ffffff;
-  
+
   /* Subtle elevated shadows */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
   --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.12);
   --shadow-xl: 0 20px 50px rgba(0, 0, 0, 0.16);
   --shadow-premium: 0 24px 60px rgba(0, 0, 0, 0.18);
+  --shadow-25d: 0 20px 35px -10px rgba(37, 99, 235, 0.18), 0 1px 3px 0 rgba(0, 0, 0, 0.06);
 }
 
 .dark {
@@ -60,6 +69,31 @@
   --shadow-lg: 0 18px 42px rgba(0, 0, 0, 0.32);
   --shadow-xl: 0 28px 70px rgba(0, 0, 0, 0.42);
   --shadow-premium: 0 32px 90px rgba(0, 0, 0, 0.52);
+  --shadow-25d: 0 24px 45px -12px rgba(0, 0, 0, 0.65), 0 0 20px rgba(59, 130, 246, 0.15);
+}
+
+/* 2.5D Lightweight Visual Depth Utilities */
+.object-25d {
+  transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1), filter 300ms cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+.group:hover .object-25d,
+.object-25d:hover {
+  transform: translateY(-5px) scale(1.04) rotate(-1deg);
+  filter: drop-shadow(0 14px 18px rgba(0, 0, 0, 0.18));
+}
+.dark .group:hover .object-25d,
+.dark .object-25d:hover {
+  filter: drop-shadow(0 16px 24px rgba(0, 0, 0, 0.6));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .object-25d,
+  .premium-card,
+  .hover-glow {
+    transition: none !important;
+    transform: none !important;
+  }
 }
 
 body {
@@ -208,8 +242,8 @@ body {
 
 /* Premium Card lifting and shadow depths */
 .premium-card {
-  transition: transform 350ms cubic-bezier(0.16, 1, 0.3, 1), 
-              box-shadow 350ms cubic-bezier(0.16, 1, 0.3, 1), 
+  transition: transform 350ms cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 350ms cubic-bezier(0.16, 1, 0.3, 1),
               border-color 350ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 

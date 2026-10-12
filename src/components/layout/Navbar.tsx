@@ -141,7 +141,7 @@ export default function Navbar() {
             type="search"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search laptops, books, cycles, rooms..."
+            placeholder="Search laptops, phones, books, cycles, rooms..."
             className="h-11 w-full rounded-xl border border-gray-200 bg-gray-100 pl-11 pr-24 text-sm font-semibold text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-primary focus:bg-white dark:border-white/10 dark:bg-white/[0.06] dark:text-white dark:placeholder:text-white/35 dark:focus:border-primary/60 dark:focus:bg-white/[0.09]"
           />
           <button type="submit" className="absolute right-1.5 top-1.5 h-8 rounded-lg bg-primary px-4 text-xs font-black text-white transition hover:bg-primary-dark active:scale-95">
@@ -452,7 +452,7 @@ export default function Navbar() {
                 type="search"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search laptops, books, cycles, rooms..."
+                placeholder="Search laptops, phones, books, cycles, rooms..."
                 className="min-w-0 flex-1 rounded-xl border border-gray-200 bg-gray-100 px-4 py-3 text-sm font-semibold text-gray-900 outline-none placeholder:text-gray-400 focus:border-primary dark:border-white/10 dark:bg-white/[0.06] dark:text-white dark:placeholder:text-white/35"
               />
               <button type="submit" className="rounded-xl bg-primary px-4 text-xs font-black text-white transition hover:bg-primary-dark">

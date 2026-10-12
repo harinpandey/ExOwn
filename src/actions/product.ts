@@ -189,9 +189,9 @@ export async function searchProducts(opts: {
         subcategoryId: true,
         sellerId: true,
         seller: {
-          select: { 
-            name: true, 
-            image: true, 
+          select: {
+            name: true,
+            image: true,
             isVerified: true,
             verificationLevel: true,
             isTrustedSeller: true,
@@ -288,7 +288,7 @@ export async function getRecentlyAdded() {
 export async function getPopularRentals() {
   try {
     return await getCached("home:popular-rentals", 45, () => withRetry(() => prisma.product.findMany({
-      where: { 
+      where: {
         status: "LIVE",
         inventory: { gt: 0 },
         listingType: "RENT"
@@ -309,7 +309,7 @@ export async function getPopularRentals() {
 export async function getVerifiedSellersProducts() {
   try {
     return await getCached("home:verified-sellers-products", 45, () => withRetry(() => prisma.product.findMany({
-      where: { 
+      where: {
         status: "LIVE",
         inventory: { gt: 0 },
         seller: { isVerified: true }
@@ -322,6 +322,26 @@ export async function getVerifiedSellersProducts() {
     })));
   } catch (error) {
     console.error("[Action:getVerifiedSellersProducts] Error:", error);
+    return [];
+  }
+}
+
+export async function getMovingOutProducts() {
+  try {
+    return await getCached("home:moving-out-products", 45, () => withRetry(() => prisma.product.findMany({
+      where: {
+        status: "LIVE",
+        inventory: { gt: 0 },
+        isUrgent: true,
+      },
+      take: 8,
+      orderBy: { createdAt: "desc" },
+      include: {
+        seller: { select: { name: true, isVerified: true, image: true } }
+      }
+    })));
+  } catch (error) {
+    console.error("[Action:getMovingOutProducts] Error:", error);
     return [];
   }
 }
