@@ -3,11 +3,8 @@
 import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import {
-  Upload, X, ArrowRight, ChevronLeft,
-  MapPin, Trash2, AlertCircle, RefreshCw,
-  ShoppingBag, Key, HelpCircle
-} from "lucide-react";
+import { Upload, X, ArrowRight, ChevronLeft, Trash2, AlertCircle, RefreshCw, ShoppingBag, Key, HelpCircle } from "lucide-react";
+import LocationSelector from '@/components/ui/LocationSelector';
 import CategoryConditionForm from "@/components/forms/CategoryConditionForm";
 import CampusSelector from "@/components/ui/CampusSelector";
 import { CATEGORIES, Category, Subcategory } from "@/config/categories";
@@ -598,17 +595,11 @@ function SellPageContent() {
                   <label className="block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-400 mb-1.5">
                     Pickup Location / Spot *
                   </label>
-                  <div className="relative">
-                    <MapPin size={16} className="absolute left-3.5 top-3 text-gray-400" />
-                    <input
-                      type="text"
-                      required
-                      value={pickupLocation}
-                      onChange={(e) => setPickupLocation(e.target.value)}
-                      placeholder="e.g. Block 34, Central Library"
-                      className="w-full rounded-xl border border-gray-300 bg-white py-2.5 pl-9 pr-4 text-sm text-gray-900 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-zinc-900 dark:text-white"
-                    />
-                  </div>
+                  <LocationSelector
+                    campusId={campusId}
+                    selectedLocation={pickupLocation}
+                    onSelect={setPickupLocation}
+                  />
                   <p className="mt-1 text-[11px] text-gray-400">
                     Use public campus spots. Never provide private hostel room numbers.
                   </p>

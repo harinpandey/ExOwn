@@ -5,6 +5,7 @@ import { logActivity } from "@/lib/logger";
 import { getCurrentUser, requireSameUser } from "@/lib/auth";
 import { getCached, invalidateCachePrefix } from "@/lib/cache";
 import { sanitizeString, validateLength, validateRange } from "@/lib/validation";
+import { isPublicPickupLocation } from "@/lib/locationValidation";
 import { parseSearchIntent } from "@/lib/search-intent";
 
 
@@ -501,6 +502,9 @@ export async function createProduct(data: {
     const brand = data.brand ? sanitizeString(data.brand) : undefined;
     const customSubcategory = data.customSubcategory ? sanitizeString(data.customSubcategory) : null;
     const pickupLocation = sanitizeString(data.location);
+    if (!isPublicPickupLocation(pickupLocation)) {
+      return { success: false, error: "Pickup location must be a public campus landmark; private addresses are not allowed." };
+    }
     const price = Number(data.price);
     const originalPrice = data.originalPrice !== undefined && data.originalPrice !== null ? Number(data.originalPrice) : undefined;
 
