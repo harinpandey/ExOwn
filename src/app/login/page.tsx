@@ -15,10 +15,10 @@ import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
 // Detect if browser is mobile or likely to block popups
+// Always use popup flow for authentication
 function isMobileOrRestrictedBrowser(): boolean {
-  if (typeof window === "undefined") return false;
-  const ua = navigator.userAgent;
-  return /Android|iPhone|iPad|iPod|Mobile|webOS/i.test(ua);
+  // Disabled mobile detection to enforce popup usage across all devices
+  return false;
 }
 
 import { Suspense } from "react";
