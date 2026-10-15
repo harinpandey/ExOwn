@@ -1,0 +1,8 @@
+{
+  "firestore": [
+    {
+      "database": "exown1",
+      "rules": "firestore.rules"
+    }
+  ]
+}

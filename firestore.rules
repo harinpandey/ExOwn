@@ -1,0 +1,76 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function getSessionData(sessionId) {
+      return get(/databases/$(database)/documents/liveLocationSessions/$(sessionId)).data;
+    }
+
+    function isSessionParticipant(sessionData) {
+      return isAuthenticated() && (
+        request.auth.uid == sessionData.sellerUid ||
+        request.auth.uid == sessionData.buyerUid
+      );
+    }
+
+    function isSeller(sessionData) {
+      return isAuthenticated() && request.auth.uid == sessionData.sellerUid;
+    }
+
+    function isActiveSession(sessionData) {
+      return sessionData.status == 'ACTIVE';
+    }
+
+    function isNotExpired(sessionData) {
+      return request.time < sessionData.expiresAt;
+    }
+
+    function isValidCoordinatePayload(data) {
+      return data.keys().hasAll(['lat', 'lng', 'updatedAt']) &&
+             data.keys().hasOnly(['lat', 'lng', 'updatedAt']) &&
+             data.lat is number &&
+             data.lat >= -90.0 && data.lat <= 90.0 &&
+             data.lng is number &&
+             data.lng >= -180.0 && data.lng <= 180.0 &&
+             data.updatedAt is timestamp;
+    }
+
+    // Live Location Parent Sessions
+    // Created and updated strictly by trusted server admin code.
+    // Client access is strictly read-only and restricted to participating seller and buyer while ACTIVE and unexpired.
+    match /liveLocationSessions/{sessionId} {
+      allow read: if isAuthenticated() && (
+        request.auth.uid == resource.data.sellerUid ||
+        request.auth.uid == resource.data.buyerUid
+      ) &&
+      resource.data.status == 'ACTIVE' &&
+      request.time < resource.data.expiresAt;
+
+      allow write: if false;
+
+      // Current Location Subdocument
+      // Only the current coordinate is stored (no coordinate history / breadcrumb trail).
+      match /location/current {
+        allow read: if isSessionParticipant(getSessionData(sessionId)) &&
+                       isActiveSession(getSessionData(sessionId)) &&
+                       isNotExpired(getSessionData(sessionId));
+
+        allow write: if isSeller(getSessionData(sessionId)) &&
+                        isActiveSession(getSessionData(sessionId)) &&
+                        isNotExpired(getSessionData(sessionId)) &&
+                        isValidCoordinatePayload(request.resource.data);
+      }
+    }
+
+    // Default deny for all other documents
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -31,10 +31,22 @@ export async function getConversations(userId: string) {
 
     messages.forEach(msg => {
       const partner = msg.senderId === userId ? msg.receiver : msg.sender;
+      let displayLastMessage = msg.content;
+      try {
+        if (msg.content.includes("LIVE_LOCATION_STARTED")) {
+          const parsed = JSON.parse(msg.content);
+          if (parsed.type === "LIVE_LOCATION_STARTED") {
+            displayLastMessage = "📍 Live location shared";
+          }
+        }
+      } catch {
+        // normal text
+      }
+
       if (!conversationsMap.has(partner.id)) {
         conversationsMap.set(partner.id, {
           partner,
-          lastMessage: msg.content,
+          lastMessage: displayLastMessage,
           lastMessageTime: msg.createdAt,
           unreadCount: msg.receiverId === userId && !msg.isRead ? 1 : 0
         });
@@ -44,6 +56,7 @@ export async function getConversations(userId: string) {
           existing.unreadCount += 1;
         }
       }
+
     });
 
     const partnerIds = Array.from(conversationsMap.keys());
@@ -302,5 +315,95 @@ export async function getConversationContext(userId: string, partnerId: string, 
   } catch (error) {
     console.error("[getConversationContext] Error:", error);
     return null;
+  }
+}
+
+export async function sendLiveLocationSessionStartedMessage(
+  partnerId: string,
+  sessionId: string
+) {
+  try {
+    const { requireUser } = await import("@/lib/auth");
+    const user = await requireUser();
+
+    if (!sessionId || typeof sessionId !== "string") {
+      return { success: false, error: "Invalid sessionId" };
+    }
+
+    // IDOR Protection: Verify session in PostgreSQL belongs to this seller and partner
+    const session = await prisma.liveLocationSession.findFirst({
+      where: {
+        id: sessionId.trim(),
+        OR: [
+          { sellerId: user.uid },
+          { sellerId: user.firebaseUid || user.uid },
+        ],
+        buyerId: partnerId,
+        status: "ACTIVE",
+      },
+      select: {
+        id: true,
+        productId: true,
+        startedAt: true,
+        expiresAt: true,
+        status: true,
+      },
+    });
+
+    if (!session) {
+      return { success: false, error: "Unauthorized: Invalid or inactive session" };
+    }
+
+    // Idempotency check: don't create duplicate system messages for the same sessionId
+    const existingMessage = await prisma.message.findFirst({
+      where: {
+        senderId: user.uid,
+        receiverId: partnerId,
+        content: { contains: session.id },
+      },
+    });
+
+    if (existingMessage) {
+      return { success: true, message: existingMessage, alreadySent: true };
+    }
+
+    const content = JSON.stringify({
+      type: "LIVE_LOCATION_STARTED",
+      sessionId: session.id,
+      startedAt: session.startedAt.toISOString(),
+      expiresAt: session.expiresAt.toISOString(),
+      productId: session.productId,
+    });
+
+    const message = await withRetry(() =>
+      prisma.message.create({
+        data: {
+          senderId: user.uid,
+          receiverId: partnerId,
+          content,
+        },
+        include: {
+          sender: { select: { name: true } },
+        },
+      })
+    );
+
+    try {
+      const { createNotification } = await import("./notification");
+      await createNotification({
+        userId: partnerId,
+        type: "MESSAGE",
+        title: "Live Location Started",
+        content: `${message.sender.name || "Seller"} shared their live location with you (valid for 15 min).`,
+        link: `/chat/${user.uid}?product=${session.productId}`,
+      });
+    } catch (notifErr) {
+      console.error("Failed to create live location notification:", notifErr);
+    }
+
+    return { success: true, message };
+  } catch (err: any) {
+    console.error("[sendLiveLocationSessionStartedMessage] Error:", err);
+    return { success: false, error: err.message || "Failed to send live location message" };
   }
 }

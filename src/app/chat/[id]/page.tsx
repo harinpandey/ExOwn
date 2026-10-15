@@ -24,6 +24,29 @@ import { getConversationContext } from "@/actions/chat";
 import { updateOfferStatus } from "@/actions/offer";
 import ReportButton from "@/components/ui/ReportButton";
 import { toast } from "react-hot-toast";
+import SellerLiveLocationControl from "@/components/chat/SellerLiveLocationControl";
+import BuyerLiveLocationCard from "@/components/chat/BuyerLiveLocationCard";
+
+interface LiveLocationMessageData {
+  type: "LIVE_LOCATION_STARTED";
+  sessionId: string;
+  startedAt: string;
+  expiresAt: string;
+  productId: string;
+}
+
+function parseLiveLocationMessage(content: string): LiveLocationMessageData | null {
+  if (!content || !content.includes("LIVE_LOCATION_STARTED")) return null;
+  try {
+    const data = JSON.parse(content);
+    if (data?.type === "LIVE_LOCATION_STARTED" && data?.sessionId && data?.expiresAt) {
+      return data as LiveLocationMessageData;
+    }
+  } catch {
+    // not valid JSON
+  }
+  return null;
+}
 
 interface ConversationData {
   partner: {
@@ -320,12 +343,22 @@ function ChatRoomContent({ partnerId }: { partnerId: string }) {
                 </div>
               </div>
 
-              <Link
-                href={`/product/${product.id}`}
-                className="flex-shrink-0 px-3 py-1.5 text-xs font-bold text-primary bg-white dark:bg-gray-900 hover:bg-orange-50 rounded-xl border border-orange-200 dark:border-gray-700 transition-colors shadow-2xl shadow-primary/5"
-              >
-                View Listing
-              </Link>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                {isSeller && user && (
+                  <SellerLiveLocationControl
+                    productId={product.id}
+                    partnerId={partnerId}
+                    currentUserId={user.uid}
+                    onSessionStarted={fetchChatData}
+                  />
+                )}
+                <Link
+                  href={`/product/${product.id}`}
+                  className="px-3 py-1.5 text-xs font-bold text-primary bg-white dark:bg-gray-900 hover:bg-orange-50 rounded-xl border border-orange-200 dark:border-gray-700 transition-colors shadow-2xl shadow-primary/5"
+                >
+                  View Listing
+                </Link>
+              </div>
             </div>
           </div>
         )}
@@ -441,6 +474,40 @@ function ChatRoomContent({ partnerId }: { partnerId: string }) {
           ) : (
             messages.map((msg) => {
               const isMe = msg.senderId === user?.uid;
+              const liveLocData = parseLiveLocationMessage(msg.content);
+
+              if (liveLocData) {
+                const isLiveLocFeatureEnabled = process.env.NEXT_PUBLIC_ENABLE_LIVE_LOCATION === "true";
+                return (
+                  <div key={msg.id} className={`flex ${isMe ? "justify-end" : "justify-start"} my-1.5`}>
+                    <div className="max-w-[92%] sm:max-w-[80%]">
+                      {isLiveLocFeatureEnabled ? (
+                        <BuyerLiveLocationCard
+                          sessionId={liveLocData.sessionId}
+                          expiresAt={liveLocData.expiresAt}
+                          startedAt={liveLocData.startedAt}
+                          isCurrentUserSender={isMe}
+                        />
+                      ) : (
+                        <div className={`rounded-2xl px-4 py-2.5 ${
+                          isMe
+                            ? "bg-primary text-white rounded-br-sm shadow-sm"
+                            : "bg-white dark:bg-gray-800 border border-gray-200/80 dark:border-gray-700/80 text-gray-900 dark:text-gray-100 rounded-bl-sm shadow-sm"
+                        }`}>
+                          <div className="flex items-center gap-2">
+                            <MapPin size={15} className="flex-shrink-0" />
+                            <p className="text-sm font-semibold">Live location shared</p>
+                          </div>
+                        </div>
+                      )}
+                      <p className={`text-[10px] ${isMe ? "text-right" : "text-left"} mt-1 font-medium text-gray-400 px-2`}>
+                        {format(new Date(msg.createdAt), "h:mm a")}
+                      </p>
+                    </div>
+                  </div>
+                );
+              }
+
               return (
                 <div key={msg.id} className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
                   <div className={`max-w-[78%] sm:max-w-[65%] rounded-2xl px-4 py-2.5 ${

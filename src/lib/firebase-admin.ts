@@ -1,4 +1,5 @@
 import * as admin from 'firebase-admin';
+import { getFirestore } from 'firebase-admin/firestore';
 
 const projectId = process.env.FIREBASE_PROJECT_ID?.trim().replace(/^"|"$/g, "");
 const clientEmail = process.env.FIREBASE_CLIENT_EMAIL?.trim().replace(/^"|"$/g, "");
@@ -40,7 +41,8 @@ if (!admin.apps.length && hasAdminCredentials) {
   if (!process.env.FIREBASE_CLIENT_EMAIL) console.warn(" - FIREBASE_CLIENT_EMAIL is missing");
   if (!privateKey) console.warn(" - FIREBASE_PRIVATE_KEY is missing");
 }
+export const FIRESTORE_DATABASE_ID = (process.env.FIRESTORE_DATABASE_ID?.trim().replace(/^"|"$/g, "") || "exown1");
 
 export const adminAuth = admin.apps.length ? admin.auth() : null;
-export const adminDb = admin.apps.length ? admin.firestore() : null;
+export const adminDb = admin.apps.length ? getFirestore(admin.app(), FIRESTORE_DATABASE_ID) : null;
 export const adminMessaging = admin.apps.length ? admin.messaging() : null;
