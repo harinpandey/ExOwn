@@ -445,17 +445,17 @@ export default function ProfileDashboardPage() {
                 <div className="flex items-center gap-2">
                   <div className="flex rounded-xl bg-gray-100 dark:bg-zinc-800 p-1 text-[11px] font-bold">
                     {(['ALL', 'LIVE', 'PENDING', 'SOLD'] as const).map((filter) => (
-                      <button
-                        key={filter}
-                        onClick={() => setListingFilter(filter)}
-                        className={`px-2.5 py-1 rounded-lg transition ${
-                          listingFilter === filter
-                            ? "bg-white text-gray-900 shadow-sm dark:bg-zinc-700 dark:text-white"
-                            : "text-gray-500 hover:text-gray-900 dark:text-gray-400"
-                        }`}
-                      >
-                        {filter}
-                      </button>
+<button
+  key={filter}
+  onClick={() => setListingFilter(filter)}
+  className={`px-2.5 py-1 rounded-lg transition ${
+    listingFilter === filter
+      ? "bg-white text-gray-900 shadow-sm dark:bg-zinc-700 dark:text-white"
+      : "text-gray-500 hover:text-gray-900 dark:text-gray-400"
+  }`}
+>
+  {filter}
+</button>
                     ))}
                   </div>
                   <Link
@@ -475,20 +475,20 @@ export default function ProfileDashboardPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   {filteredListings.map((product) => (
                     <ProductCard
-                      key={product.id}
-                      id={product.id}
-                      title={product.title}
-                      price={product.price}
-                      image={product.images?.[0] || ""}
-                      location={product.pickupLocation}
-                      createdAt={product.createdAt}
-                      isUrgent={product.isUrgent}
-                      listingType={product.listingType}
-                      condition={product.condition}
-                      isVerified={isVerified}
-                      categoryId={product.categoryId}
-                      subcategoryId={product.subcategoryId || ""}
-                      sellerId={product.sellerId}
+key={product.id}
+id={product.id}
+title={product.title}
+price={product.price}
+image={product.images?.[0] || ""}
+
+createdAt={product.createdAt}
+isUrgent={product.isUrgent}
+listingType={product.listingType}
+condition={product.condition}
+isVerified={isVerified}
+categoryId={product.categoryId}
+subcategoryId={product.subcategoryId || ""}
+sellerId={product.sellerId}
                     />
                   ))}
                 </div>
@@ -554,22 +554,22 @@ export default function ProfileDashboardPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   {favorites.map((product) => (
                     <ProductCard
-                      key={product.id}
-                      id={product.id}
-                      title={product.title}
-                      price={product.price}
-                      image={product.images?.[0] || ""}
-                      location={product.pickupLocation}
-                      createdAt={product.createdAt}
-                      isUrgent={product.isUrgent}
-                      listingType={product.listingType}
-                      condition={product.condition}
-                      isVerified={product.seller?.isVerified || false}
-                      categoryId={product.categoryId}
-                      subcategoryId={product.subcategoryId || ""}
-                      sellerId={product.sellerId}
-                      isWishlisted={true}
-                      onWishlistToggle={handleWishlistChange}
+key={product.id}
+id={product.id}
+title={product.title}
+price={product.price}
+image={product.images?.[0] || ""}
+
+createdAt={product.createdAt}
+isUrgent={product.isUrgent}
+listingType={product.listingType}
+condition={product.condition}
+isVerified={product.seller?.isVerified || false}
+categoryId={product.categoryId}
+subcategoryId={product.subcategoryId || ""}
+sellerId={product.sellerId}
+isWishlisted={true}
+onWishlistToggle={handleWishlistChange}
                     />
                   ))}
                 </div>
@@ -612,77 +612,77 @@ export default function ProfileDashboardPage() {
                   {/* Received Offers */}
                   <div>
                     <h4 className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-3">
-                      Received Offers ({offersData.received.length})
+Received Offers ({offersData.received.length})
                     </h4>
                     {offersData.received.length > 0 ? (
-                      <div className="space-y-2.5">
-                        {offersData.received.map((offer) => (
-                          <div
-                            key={offer.id}
-                            className="p-4 rounded-xl border border-gray-100 dark:border-white/10 bg-gray-50/60 dark:bg-zinc-800/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
-                          >
-                            <div>
-                              <span className="font-bold text-gray-900 dark:text-white block">
-                                {offer.product?.title || "Listing"}
-                              </span>
-                              <span className="text-gray-500">
-                                Offered: <strong className="text-gray-900 dark:text-white font-bold">₹{offer.price?.toLocaleString("en-IN")}</strong> (Listed at ₹{offer.product?.price?.toLocaleString("en-IN")})
-                              </span>
-                              {offer.message && (
-                                <p className="mt-1 text-gray-600 dark:text-gray-400 italic">"{offer.message}"</p>
-                              )}
-                            </div>
-                            <span className={`self-start sm:self-center px-2.5 py-1 rounded-full font-bold text-[10px] tracking-wide uppercase ${
-                              offer.status === "ACCEPTED"
-                                ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400"
-                                : offer.status === "REJECTED"
-                                ? "bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-400"
-                                : "bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400"
-                            }`}>
-                              {offer.status}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
+<div className="space-y-2.5">
+  {offersData.received.map((offer) => (
+    <div
+      key={offer.id}
+      className="p-4 rounded-xl border border-gray-100 dark:border-white/10 bg-gray-50/60 dark:bg-zinc-800/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
+    >
+      <div>
+        <span className="font-bold text-gray-900 dark:text-white block">
+          {offer.product?.title || "Listing"}
+        </span>
+        <span className="text-gray-500">
+          Offered: <strong className="text-gray-900 dark:text-white font-bold">₹{offer.price?.toLocaleString("en-IN")}</strong> (Listed at ₹{offer.product?.price?.toLocaleString("en-IN")})
+        </span>
+        {offer.message && (
+          <p className="mt-1 text-gray-600 dark:text-gray-400 italic">"{offer.message}"</p>
+        )}
+      </div>
+      <span className={`self-start sm:self-center px-2.5 py-1 rounded-full font-bold text-[10px] tracking-wide uppercase ${
+        offer.status === "ACCEPTED"
+          ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400"
+          : offer.status === "REJECTED"
+          ? "bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-400"
+          : "bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400"
+      }`}>
+        {offer.status}
+      </span>
+    </div>
+  ))}
+</div>
                     ) : (
-                      <p className="text-xs text-gray-400 italic py-2">No incoming offers received yet.</p>
+<p className="text-xs text-gray-400 italic py-2">No incoming offers received yet.</p>
                     )}
                   </div>
 
                   {/* Sent Offers */}
                   <div className="pt-4 border-t border-gray-100 dark:border-white/10">
                     <h4 className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-3">
-                      Sent Offers ({offersData.sent.length})
+Sent Offers ({offersData.sent.length})
                     </h4>
                     {offersData.sent.length > 0 ? (
-                      <div className="space-y-2.5">
-                        {offersData.sent.map((offer) => (
-                          <div
-                            key={offer.id}
-                            className="p-4 rounded-xl border border-gray-100 dark:border-white/10 bg-gray-50/60 dark:bg-zinc-800/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
-                          >
-                            <div>
-                              <span className="font-bold text-gray-900 dark:text-white block">
-                                {offer.product?.title || "Listing"}
-                              </span>
-                              <span className="text-gray-500">
-                                Your Offer: <strong className="text-gray-900 dark:text-white font-bold">₹{offer.price?.toLocaleString("en-IN")}</strong>
-                              </span>
-                            </div>
-                            <span className={`self-start sm:self-center px-2.5 py-1 rounded-full font-bold text-[10px] tracking-wide uppercase ${
-                              offer.status === "ACCEPTED"
-                                ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400"
-                                : offer.status === "REJECTED"
-                                ? "bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-400"
-                                : "bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400"
-                            }`}>
-                              {offer.status}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
+<div className="space-y-2.5">
+  {offersData.sent.map((offer) => (
+    <div
+      key={offer.id}
+      className="p-4 rounded-xl border border-gray-100 dark:border-white/10 bg-gray-50/60 dark:bg-zinc-800/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
+    >
+      <div>
+        <span className="font-bold text-gray-900 dark:text-white block">
+          {offer.product?.title || "Listing"}
+        </span>
+        <span className="text-gray-500">
+          Your Offer: <strong className="text-gray-900 dark:text-white font-bold">₹{offer.price?.toLocaleString("en-IN")}</strong>
+        </span>
+      </div>
+      <span className={`self-start sm:self-center px-2.5 py-1 rounded-full font-bold text-[10px] tracking-wide uppercase ${
+        offer.status === "ACCEPTED"
+          ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400"
+          : offer.status === "REJECTED"
+          ? "bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-400"
+          : "bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400"
+      }`}>
+        {offer.status}
+      </span>
+    </div>
+  ))}
+</div>
                     ) : (
-                      <p className="text-xs text-gray-400 italic py-2">You have not made any price offers yet.</p>
+<p className="text-xs text-gray-400 italic py-2">You have not made any price offers yet.</p>
                     )}
                   </div>
                 </div>
@@ -710,61 +710,61 @@ export default function ProfileDashboardPage() {
                 <div className="space-y-6">
                   <div>
                     <h4 className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-3">
-                      Items You Put For Rent ({rentalsData.owned.length})
+Items You Put For Rent ({rentalsData.owned.length})
                     </h4>
                     {rentalsData.owned.length > 0 ? (
-                      <div className="space-y-2.5">
-                        {rentalsData.owned.map((rental) => (
-                          <div
-                            key={rental.id}
-                            className="p-4 rounded-xl border border-gray-100 dark:border-white/10 bg-gray-50/60 dark:bg-zinc-800/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
-                          >
-                            <div>
-                              <span className="font-bold text-gray-900 dark:text-white block">
-                                {rental.product?.title}
-                              </span>
-                              <span className="text-gray-500">
-                                Renter: {rental.renter?.name || "Student"} • Deposit: ₹{rental.securityDeposit}
-                              </span>
-                            </div>
-                            <span className="px-2.5 py-1 rounded-full font-bold text-[10px] uppercase bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400">
-                              {rental.status}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
+<div className="space-y-2.5">
+  {rentalsData.owned.map((rental) => (
+    <div
+      key={rental.id}
+      className="p-4 rounded-xl border border-gray-100 dark:border-white/10 bg-gray-50/60 dark:bg-zinc-800/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
+    >
+      <div>
+        <span className="font-bold text-gray-900 dark:text-white block">
+          {rental.product?.title}
+        </span>
+        <span className="text-gray-500">
+          Renter: {rental.renter?.name || "Student"} • Deposit: ₹{rental.securityDeposit}
+        </span>
+      </div>
+      <span className="px-2.5 py-1 rounded-full font-bold text-[10px] uppercase bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400">
+        {rental.status}
+      </span>
+    </div>
+  ))}
+</div>
                     ) : (
-                      <p className="text-xs text-gray-400 italic py-2">No items currently rented out.</p>
+<p className="text-xs text-gray-400 italic py-2">No items currently rented out.</p>
                     )}
                   </div>
 
                   <div className="pt-4 border-t border-gray-100 dark:border-white/10">
                     <h4 className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-3">
-                      Items You Borrowed / Requested ({rentalsData.rented.length})
+Items You Borrowed / Requested ({rentalsData.rented.length})
                     </h4>
                     {rentalsData.rented.length > 0 ? (
-                      <div className="space-y-2.5">
-                        {rentalsData.rented.map((rental) => (
-                          <div
-                            key={rental.id}
-                            className="p-4 rounded-xl border border-gray-100 dark:border-white/10 bg-gray-50/60 dark:bg-zinc-800/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
-                          >
-                            <div>
-                              <span className="font-bold text-gray-900 dark:text-white block">
-                                {rental.product?.title}
-                              </span>
-                              <span className="text-gray-500">
-                                Owner: {rental.owner?.name || "Student"}
-                              </span>
-                            </div>
-                            <span className="px-2.5 py-1 rounded-full font-bold text-[10px] uppercase bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400">
-                              {rental.status}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
+<div className="space-y-2.5">
+  {rentalsData.rented.map((rental) => (
+    <div
+      key={rental.id}
+      className="p-4 rounded-xl border border-gray-100 dark:border-white/10 bg-gray-50/60 dark:bg-zinc-800/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
+    >
+      <div>
+        <span className="font-bold text-gray-900 dark:text-white block">
+          {rental.product?.title}
+        </span>
+        <span className="text-gray-500">
+          Owner: {rental.owner?.name || "Student"}
+        </span>
+      </div>
+      <span className="px-2.5 py-1 rounded-full font-bold text-[10px] uppercase bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400">
+        {rental.status}
+      </span>
+    </div>
+  ))}
+</div>
                     ) : (
-                      <p className="text-xs text-gray-400 italic py-2">No active rental requests made.</p>
+<p className="text-xs text-gray-400 italic py-2">No active rental requests made.</p>
                     )}
                   </div>
                 </div>
@@ -781,13 +781,13 @@ export default function ProfileDashboardPage() {
                   <div className="p-4 bg-gray-50 dark:bg-zinc-800/50 rounded-xl text-xs">
                     <p className="text-gray-500 mb-1">Active Plan</p>
                     <p className="font-bold text-sm text-gray-900 dark:text-white">
-                      {subscription?.planType || "Standard Campus Member"}
+{subscription?.planType || "Standard Campus Member"}
                     </p>
                   </div>
                   <div className="p-4 bg-gray-50 dark:bg-zinc-800/50 rounded-xl text-xs">
                     <p className="text-gray-500 mb-1">Status</p>
                     <p className={`font-bold text-sm ${subscription?.status === 'ACTIVE' ? 'text-emerald-500' : 'text-gray-600 dark:text-gray-400'}`}>
-                      {subscription?.status || "Standard"}
+{subscription?.status || "Standard"}
                     </p>
                   </div>
                 </div>

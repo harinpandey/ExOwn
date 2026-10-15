@@ -250,7 +250,7 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
                 title={p.title}
                 price={p.price}
                 image={p.images?.[0] || ""}
-                location={p.pickupLocation}
+
                 createdAt={p.createdAt}
                 listingType={p.listingType as any}
                 condition={p.condition}

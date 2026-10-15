@@ -175,7 +175,7 @@ export default async function CategoryPage({
                 title={product.title}
                 price={product.price}
                 image={product.images?.[0] || ""}
-                location={product.pickupLocation}
+
                 createdAt={product.createdAt}
                 isUrgent={product.isUrgent}
                 isVerified={product.seller?.isVerified || false}
@@ -209,7 +209,7 @@ export default async function CategoryPage({
                 title={product.title}
                 price={product.price}
                 image={product.images?.[0] || ""}
-                location={product.pickupLocation}
+
                 createdAt={product.createdAt}
                 isUrgent={product.isUrgent}
                 isVerified={product.seller?.isVerified || false}
@@ -243,7 +243,7 @@ export default async function CategoryPage({
                 title={product.title}
                 price={product.price}
                 image={product.images?.[0] || ""}
-                location={product.pickupLocation}
+
                 createdAt={product.createdAt}
                 isUrgent={product.isUrgent}
                 isVerified={product.seller?.isVerified || false}
@@ -287,7 +287,7 @@ export default async function CategoryPage({
                 title={product.title}
                 price={product.price}
                 image={product.images?.[0] || ""}
-                location={product.pickupLocation}
+
                 createdAt={product.createdAt}
                 isUrgent={product.isUrgent}
                 isVerified={product.seller?.isVerified || false}

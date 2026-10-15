@@ -200,7 +200,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ id: st
                     title={product.title}
                     price={product.price}
                     image={product.images?.[0] || ""}
-                    location={product.pickupLocation}
+
                     createdAt={product.createdAt}
                     isUrgent={product.isUrgent}
                     listingType={product.listingType}

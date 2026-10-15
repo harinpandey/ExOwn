@@ -15,7 +15,7 @@ export default function RecentlyViewedSection() {
 
   useEffect(() => {
     if (user) {
-      getRecentlyViewed(user.uid).then(data => {
+      getRecentlyViewed(user.uid).then((data) => {
         setProducts(data);
         setLoading(false);
       });
@@ -39,7 +39,7 @@ export default function RecentlyViewedSection() {
           View History <ArrowRight size={16} />
         </Link>
       </div>
-      
+
       {loading ? (
         <SectionSkeleton count={4} />
       ) : (
@@ -51,7 +51,7 @@ export default function RecentlyViewedSection() {
               title={product.title}
               price={product.price}
               image={product.images[0] || ""}
-              location={product.pickupLocation}
+              // location prop removed to protect privacy
               createdAt={product.createdAt}
               isUrgent={product.isUrgent}
               isVerified={product.seller?.isVerified || false}

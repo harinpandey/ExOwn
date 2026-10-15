@@ -42,7 +42,7 @@ export default async function MovingOutDeals() {
           title={product.title}
           price={product.price}
           image={product.images?.[0] || ""}
-          location={product.pickupLocation}
+          // location prop removed to protect privacy
           createdAt={product.createdAt}
           isUrgent={product.isUrgent}
           isVerified={product.seller?.isVerified || false}

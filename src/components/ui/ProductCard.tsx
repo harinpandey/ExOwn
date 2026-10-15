@@ -20,7 +20,7 @@ export interface ProductCardProps {
   title: string;
   price: number;
   image: string;
-  location: string;
+  // location: string; // removed public location prop
   createdAt: Date;
   isUrgent?: boolean;
   isVerified?: boolean;
@@ -48,7 +48,6 @@ export default function ProductCard({
   title,
   price,
   image,
-  location,
   createdAt,
   isUrgent,
   isVerified,
@@ -149,7 +148,7 @@ export default function ProductCard({
   });
 
   const formattedCondition = formatCondition(condition);
-  const formattedLocation = location?.trim() || "Campus";
+  const formattedLocation = "📍 Pickup location shared privately by seller";
   const formattedPrice = typeof price === "number" ? price.toLocaleString("en-IN") : "0";
   const displayImage = image?.trim();
 

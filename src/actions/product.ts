@@ -225,7 +225,7 @@ export async function searchProducts(opts: {
         brand: true,
         price: true,
         images: true,
-        pickupLocation: true,
+
         createdAt: true,
         isUrgent: true,
         listingType: true,
@@ -240,8 +240,8 @@ export async function searchProducts(opts: {
             isVerified: true,
             verificationLevel: true,
             isTrustedSeller: true,
-            trustScore: true,
-            profile: { select: { avgResponseTime: true } }
+
+
           },
         },
         category: { select: { name: true, slug: true } },

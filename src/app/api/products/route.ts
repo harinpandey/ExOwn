@@ -17,7 +17,7 @@ const PRODUCT_SELECT = {
   condition: true,
   listingType: true,
   images: true,
-  pickupLocation: true,
+
   status: true,
   isUrgent: true,
   inventory: true,

@@ -117,7 +117,7 @@ export default function ComparePage() {
     { label: "Brand", key: "brand", format: (val: string | null) => val || "Generic" },
     { label: "Age / Year", key: "purchaseYear", format: (val: number | null) => val ? `${new Date().getFullYear() - val} years old (${val})` : "N/A" },
     { label: "Seller Rating", key: "seller", format: (val: any) => `${val?.profile?.rating || 0}/5.0` },
-    { label: "Location", key: "pickupLocation" },
+
     { label: "Negotiable", key: "isNegotiable", format: (val: boolean) => val ? "Yes" : "Fixed" },
     { label: "Views", key: "views" },
   ];
