@@ -285,7 +285,11 @@ export default function ProductCard({
       </div>
 
       {/* Primary Link Overlay */}
-      <Link href={`/product/${id}`} className="absolute inset-0 z-10" tabIndex={-1} aria-hidden>
+      <Link
+        href={`/product/${id}`}
+        className="absolute inset-0 z-10"
+        aria-label={`View details for ${title}`}
+      >
         <span className="sr-only">View details for {title}</span>
       </Link>
     </article>
