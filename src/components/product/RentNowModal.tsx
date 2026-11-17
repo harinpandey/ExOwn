@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Calendar, ShieldCheck, X } from "lucide-react";
 import { requestRental } from "@/actions/rental";
 import { useAuth } from "@/context/AuthContext";
@@ -8,7 +9,8 @@ import toast from "react-hot-toast";
 import { format, addDays } from "date-fns";
 
 export default function RentNowModal({ product, isOpen, onClose }: { product: any, isOpen: boolean, onClose: () => void }) {
-  const { user } = useAuth();
+  const { user, isProfileComplete } = useAuth();
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [startDate, setStartDate] = useState(format(new Date(), "yyyy-MM-dd"));
   const [endDate, setEndDate] = useState(format(addDays(new Date(), 1), "yyyy-MM-dd"));
@@ -16,8 +18,20 @@ export default function RentNowModal({ product, isOpen, onClose }: { product: an
   if (!isOpen) return null;
 
   const handleRequest = async () => {
-    if (!user) return toast.error("Please login to rent");
-    
+    const returnTo = `/product/${product.id}`;
+    if (!user) {
+      router.push(`/login?redirect=${encodeURIComponent(returnTo)}`);
+      return;
+    }
+    if (!isProfileComplete) {
+      router.push(`/complete-profile?redirect=${encodeURIComponent(returnTo)}`);
+      return;
+    }
+    if (!startDate || !endDate || endDate <= startDate) {
+      toast.error("Choose an end date after the start date.");
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await requestRental({
@@ -48,7 +62,7 @@ export default function RentNowModal({ product, isOpen, onClose }: { product: an
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
       <div className="bg-white dark:bg-gray-900 w-full max-w-lg rounded-[2.5rem] p-8 shadow-2xl relative animate-in fade-in zoom-in duration-300">
-        <button onClick={onClose} className="absolute top-6 right-6 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors">
+        <button type="button" onClick={onClose} disabled={loading} aria-label="Close rental request" className="absolute top-6 right-6 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors disabled:opacity-50">
           <X size={24} />
         </button>
 
@@ -102,7 +116,7 @@ export default function RentNowModal({ product, isOpen, onClose }: { product: an
 
           <button
             onClick={handleRequest}
-            disabled={loading}
+            disabled={loading || !startDate || !endDate || endDate <= startDate}
             className="w-full py-4 bg-primary text-white rounded-2xl font-black text-xl hover:bg-primary-dark transition-all shadow-xl shadow-primary/20 disabled:opacity-50"
           >
             {loading ? "Sending Request..." : "Send Rental Request"}
