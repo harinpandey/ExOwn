@@ -92,6 +92,11 @@ export default function PricingCard({ product, isOwner: serverIsOwner }: Pricing
       return;
     }
 
+    if (!isProfileComplete) {
+      router.push(`/complete-profile?redirect=${encodeURIComponent(`/product/${product.id}`)}`);
+      return;
+    }
+
     if (!isAvailable) {
       toast.error("This listing is no longer available.");
       return;
@@ -305,7 +310,7 @@ export default function PricingCard({ product, isOwner: serverIsOwner }: Pricing
                   !user
                     ? `/login?redirect=/product/${product.id}`
                     : !isProfileComplete
-                    ? "/complete-profile"
+                    ? `/complete-profile?redirect=${encodeURIComponent(`/chat/${seller?.id}?product=${product.id}`)}`
                     : `/chat/${seller?.id}?product=${product.id}`
                 }
                 className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3.5 text-sm font-bold text-white shadow-sm transition hover:bg-primary-dark active:scale-[0.99]"
@@ -325,7 +330,7 @@ export default function PricingCard({ product, isOwner: serverIsOwner }: Pricing
                     return;
                   }
                   if (!isProfileComplete) {
-                    router.push("/complete-profile");
+                    router.push(`/complete-profile?redirect=${encodeURIComponent(`/product/${product.id}`)}`);
                     return;
                   }
                   setOfferMode(true);
@@ -341,8 +346,13 @@ export default function PricingCard({ product, isOwner: serverIsOwner }: Pricing
               <button
                 type="button"
                 onClick={() => {
+                  const returnTo = `/product/${product.id}`;
                   if (!user) {
-                    router.push(`/login?redirect=/product/${product.id}`);
+                    router.push(`/login?redirect=${encodeURIComponent(returnTo)}`);
+                    return;
+                  }
+                  if (!isProfileComplete) {
+                    router.push(`/complete-profile?redirect=${encodeURIComponent(returnTo)}`);
                     return;
                   }
                   setIsExchangeModalOpen(true);
