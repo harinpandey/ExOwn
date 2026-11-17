@@ -249,7 +249,7 @@ export async function updateUserStatus(userId: string, isSuspended: boolean, ban
     });
 
     revalidatePath("/admin/users");
-    revalidatePath(`/admin/users/\${userId}`);
+    revalidatePath(`/admin/users/${userId}`);
     return { success: true };
   } catch (err) {
     console.error("Admin user status update failed:", err);
