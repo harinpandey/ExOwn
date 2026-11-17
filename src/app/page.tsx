@@ -143,7 +143,7 @@ export default function Home() {
 
           <div className="grid gap-5 lg:grid-cols-3">
             <Link
-              href="/search?category=properties"
+              href="/housing"
               className="group flex flex-col justify-between rounded-3xl border border-gray-200/80 bg-white p-6 shadow-xs transition hover:border-primary/50 hover:shadow-lg dark:border-white/10 dark:bg-[#10141b]"
             >
               <div>
@@ -163,7 +163,7 @@ export default function Home() {
             </Link>
 
             <Link
-              href="/requests"
+              href="/roommates"
               className="group flex flex-col justify-between rounded-3xl border border-gray-200/80 bg-white p-6 shadow-xs transition hover:border-primary/50 hover:shadow-lg dark:border-white/10 dark:bg-[#10141b]"
             >
               <div>
@@ -171,14 +171,14 @@ export default function Home() {
                   <Handshake size={24} />
                 </div>
                 <h3 className="text-lg font-black text-gray-900 group-hover:text-primary transition dark:text-white">
-                  Roommates & Want Board
+                  Roommate Finder
                 </h3>
                 <p className="mt-2 text-xs font-semibold leading-relaxed text-gray-600 dark:text-gray-400">
-                  Connect with compatible batchmates or broadcast what equipment you need to borrow or buy.
+                  Find compatible campus peers for shared housing and flatmate connections.
                 </p>
               </div>
               <span className="mt-6 inline-flex items-center gap-1.5 text-xs font-black text-primary">
-                Browse Board <ArrowRight size={13} className="transition-transform group-hover:translate-x-1" />
+                Find Roommates <ArrowRight size={13} className="transition-transform group-hover:translate-x-1" />
               </span>
             </Link>
 
