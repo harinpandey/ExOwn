@@ -109,7 +109,7 @@ export async function requestRental(data: {
       type: "RENTAL_REQUEST",
       title: "New Rental Request! 📦",
       content: `Someone wants to rent your "${product.title}". Check details now.`,
-      link: `/dashboard/rentals/${rental.id}`,
+      link: "/profile?tab=rentals",
     });
 
     await logActivity({
@@ -190,7 +190,7 @@ export async function approveRental(rentalId: string, ownerId: string) {
       type: "RENTAL_APPROVED",
       title: "Rental Approved! 🎉",
       content: `Your request for "${rental.product.title}" has been approved. Coordinate pickup!`,
-      link: `/dashboard/rentals/${rental.id}`,
+      link: "/profile?tab=rentals",
     });
 
     await logActivity({
