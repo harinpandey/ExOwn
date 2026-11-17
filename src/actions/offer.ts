@@ -67,7 +67,7 @@ export async function createOffer(data: {
         type: "OFFER",
         title: "New Offer Received",
         content: `You received an offer of ₹${price.toLocaleString('en-IN')} for "${product.title}"`,
-        link: `/profile?tab=listings` // Or a dedicated offers page
+        link: "/profile?tab=offers"
       });
     } catch (notifErr) {
       console.error("Failed to trigger offer notification:", notifErr);
