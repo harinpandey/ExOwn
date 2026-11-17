@@ -15,6 +15,7 @@ import BillingHistory from "@/components/dashboard/BillingHistory";
 import { getSubscription } from "@/actions/subscription";
 import { getWishlist } from "@/actions/wishlist";
 import { format } from "date-fns";
+import toast from "react-hot-toast";
 
 export default function ProfileDashboardPage() {
   const { user, loading, logout, isProfileComplete } = useAuth();
@@ -29,11 +30,15 @@ export default function ProfileDashboardPage() {
 
   const [offersData, setOffersData] = useState<{ received: any[]; sent: any[] }>({ received: [], sent: [] });
   const [offersLoading, setOffersLoading] = useState(false);
+  const [exchangeOffersData, setExchangeOffersData] = useState<{ received: any[]; sent: any[] }>({ received: [], sent: [] });
+  const [exchangeOffersLoading, setExchangeOffersLoading] = useState(false);
+  const [exchangeView, setExchangeView] = useState<"RECEIVED" | "SENT">("RECEIVED");
+  const [exchangeActionId, setExchangeActionId] = useState<string | null>(null);
 
   const [rentalsData, setRentalsData] = useState<{ owned: any[]; rented: any[] }>({ owned: [], rented: [] });
   const [rentalsLoading, setRentalsLoading] = useState(false);
 
-  const [activeTab, setActiveTab] = useState<"listings" | "favorites" | "offers" | "rentals" | "billing" | "settings">("listings");
+  const [activeTab, setActiveTab] = useState<"listings" | "favorites" | "offers" | "exchanges" | "rentals" | "billing" | "settings">("listings");
   const [listingFilter, setListingFilter] = useState<"ALL" | "LIVE" | "SOLD" | "PENDING">("ALL");
   const [subscription, setSubscription] = useState<any>(null);
   const [dbUser, setDbUser] = useState<any>(null);
@@ -44,6 +49,16 @@ export default function ProfileDashboardPage() {
       router.push("/login?redirect=/profile");
     }
   }, [user, loading, router]);
+
+  // Direct links from exchange notifications open the correct profile inbox tab.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("tab") === "exchanges") {
+      setActiveTab("exchanges");
+      const view = params.get("view")?.toUpperCase();
+      if (view === "SENT" || view === "RECEIVED") setExchangeView(view);
+    }
+  }, []);
 
   useEffect(() => {
     if (user) {
@@ -98,6 +113,47 @@ export default function ProfileDashboardPage() {
     }
   }, [user]);
 
+  const fetchExchangeOffers = useCallback(async () => {
+    if (!user) return;
+    setExchangeOffersLoading(true);
+    try {
+      const { getExchangeOffers } = await import("@/actions/exchange");
+      const [received, sent] = await Promise.all([
+        getExchangeOffers(user.uid, "RECEIVED"),
+        getExchangeOffers(user.uid, "SENT"),
+      ]);
+      setExchangeOffersData({
+        received: Array.isArray(received) ? received : [],
+        sent: Array.isArray(sent) ? sent : [],
+      });
+    } catch (error) {
+      console.error("Exchange offers fetch failed:", error);
+      toast.error("Could not load exchange proposals. Please try again.");
+    } finally {
+      setExchangeOffersLoading(false);
+    }
+  }, [user]);
+
+  const handleExchangeDecision = async (offerId: string, status: "ACCEPTED" | "REJECTED") => {
+    if (!user || exchangeActionId) return;
+    setExchangeActionId(offerId);
+    try {
+      const { respondToExchangeOffer } = await import("@/actions/exchange");
+      const result = await respondToExchangeOffer(user.uid, offerId, status);
+      if (!result.success) {
+        toast.error(result.error || "Unable to update exchange proposal.");
+        return;
+      }
+      toast.success(status === "ACCEPTED" ? "Exchange proposal accepted." : "Exchange proposal declined.");
+      await fetchExchangeOffers();
+    } catch (error) {
+      console.error("Exchange proposal decision failed:", error);
+      toast.error("Unable to update exchange proposal. Please try again.");
+    } finally {
+      setExchangeActionId(null);
+    }
+  };
+
   const fetchRentals = useCallback(async () => {
     if (!user) return;
     setRentalsLoading(true);
@@ -123,10 +179,12 @@ export default function ProfileDashboardPage() {
       fetchFavorites();
     } else if (activeTab === "offers" && user) {
       fetchOffers();
+    } else if (activeTab === "exchanges" && user) {
+      fetchExchangeOffers();
     } else if (activeTab === "rentals" && user) {
       fetchRentals();
     }
-  }, [activeTab, user, fetchFavorites, fetchOffers, fetchRentals]);
+  }, [activeTab, user, fetchFavorites, fetchOffers, fetchExchangeOffers, fetchRentals]);
 
   const handleSignOut = async () => {
     try {
@@ -353,6 +411,22 @@ export default function ProfileDashboardPage() {
                 }`}
               >
                 <span className="flex items-center gap-2.5"><Handshake size={16} /> Offers</span>
+              </button>
+
+              <button
+                onClick={() => setActiveTab("exchanges")}
+                className={`flex items-center justify-between px-3.5 py-3 rounded-xl font-bold transition-colors text-left ${
+                  activeTab === "exchanges"
+                    ? "bg-primary/10 text-primary"
+                    : "hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300"
+                }`}
+              >
+                <span className="flex items-center gap-2.5"><RefreshCw size={16} /> Exchange Offers</span>
+                {exchangeOffersData.received.filter((offer) => offer.status === "PENDING").length > 0 && (
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-bold">
+                    {exchangeOffersData.received.filter((offer) => offer.status === "PENDING").length}
+                  </span>
+                )}
               </button>
 
               <button
@@ -685,6 +759,114 @@ Sent Offers ({offersData.sent.length})
 <p className="text-xs text-gray-400 italic py-2">You have not made any price offers yet.</p>
                     )}
                   </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* TAB: EXCHANGE PROPOSALS */}
+          {activeTab === "exchanges" && (
+            <div className="space-y-5 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-gray-900">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white">Exchange Proposals</h3>
+                  <p className="mt-1 text-xs text-gray-500">Review proposals for your listings or track the ones you sent.</p>
+                </div>
+                <div className="flex rounded-xl bg-gray-100 p-1 text-[11px] font-bold dark:bg-zinc-800">
+                  <button
+                    type="button"
+                    onClick={() => setExchangeView("RECEIVED")}
+                    className={`rounded-lg px-3 py-2 transition ${exchangeView === "RECEIVED" ? "bg-white text-gray-900 shadow-sm dark:bg-zinc-700 dark:text-white" : "text-gray-500 dark:text-gray-400"}`}
+                  >
+                    Received ({exchangeOffersData.received.length})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setExchangeView("SENT")}
+                    className={`rounded-lg px-3 py-2 transition ${exchangeView === "SENT" ? "bg-white text-gray-900 shadow-sm dark:bg-zinc-700 dark:text-white" : "text-gray-500 dark:text-gray-400"}`}
+                  >
+                    Sent ({exchangeOffersData.sent.length})
+                  </button>
+                </div>
+              </div>
+
+              {exchangeOffersLoading ? (
+                <div className="flex justify-center py-12">
+                  <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+                </div>
+              ) : (exchangeView === "RECEIVED" ? exchangeOffersData.received : exchangeOffersData.sent).length === 0 ? (
+                <div className="rounded-2xl border border-dashed border-gray-200 px-5 py-14 text-center dark:border-white/10">
+                  <RefreshCw size={30} className="mx-auto mb-3 text-gray-400" />
+                  <h4 className="text-sm font-black text-gray-900 dark:text-white">
+                    {exchangeView === "RECEIVED" ? "No exchange proposals received" : "No exchange proposals sent"}
+                  </h4>
+                  <p className="mx-auto mt-1 max-w-sm text-xs text-gray-500">
+                    {exchangeView === "RECEIVED" ? "When another student proposes an exchange for one of your listings, it will appear here." : "When you propose an exchange for a campus listing, you can track its status here."}
+                  </p>
+                  <Link href="/search?exchange=true" className="mt-4 inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline">
+                    Explore exchange listings <ChevronRight size={13} />
+                  </Link>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {(exchangeView === "RECEIVED" ? exchangeOffersData.received : exchangeOffersData.sent).map((offer) => (
+                    <article key={offer.id} className="rounded-2xl border border-gray-100 bg-gray-50/70 p-4 dark:border-white/10 dark:bg-zinc-800/40">
+                      <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+                        <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-gray-200 dark:bg-zinc-700">
+                          {offer.offeredImages?.[0] ? (
+                            <img src={offer.offeredImages[0]} alt={offer.offeredTitle} className="h-full w-full object-cover" />
+                          ) : (
+                            <div className="flex h-full items-center justify-center text-xs font-bold text-gray-400">No photo</div>
+                          )}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <h4 className="text-sm font-black text-gray-900 dark:text-white">{offer.offeredTitle}</h4>
+                            <span className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase ${offer.status === "ACCEPTED" || offer.status === "COMPLETED" ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300" : offer.status === "REJECTED" ? "bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-300" : "bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300"}`}>
+                              {offer.status}
+                            </span>
+                          </div>
+                          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                            For <Link href={`/product/${offer.product.id}`} className="font-bold text-primary hover:underline">{offer.product.title}</Link>
+                          </p>
+                          <p className="mt-2 whitespace-pre-wrap text-xs leading-relaxed text-gray-600 dark:text-gray-300">{offer.offeredDescription}</p>
+                          {offer.cashDifference != null && offer.cashDifference > 0 && (
+                            <p className="mt-2 text-xs font-bold text-emerald-700 dark:text-emerald-300">
+                              Cash difference offered: ₹{offer.cashDifference.toLocaleString("en-IN")}
+                            </p>
+                          )}
+                          <p className="mt-2 text-[10px] text-gray-400">
+                            {exchangeView === "RECEIVED" ? `From ${offer.buyer?.name || "Campus member"}` : "Your proposal"} · {format(new Date(offer.createdAt), "dd MMM yyyy")}
+                          </p>
+                          <div className="mt-3 flex flex-wrap items-center gap-2">
+                            <Link href={`/chat/${exchangeView === "RECEIVED" ? offer.buyerId : offer.product.seller.id}?product=${offer.product.id}`} className="rounded-lg border border-gray-200 px-3 py-2 text-[11px] font-bold text-gray-700 hover:border-primary hover:text-primary dark:border-white/10 dark:text-gray-200">
+                              Open chat
+                            </Link>
+                            {exchangeView === "RECEIVED" && offer.status === "PENDING" && (
+                              <>
+                                <button
+                                  type="button"
+                                  disabled={exchangeActionId === offer.id}
+                                  onClick={() => handleExchangeDecision(offer.id, "REJECTED")}
+                                  className="rounded-lg border border-red-200 px-3 py-2 text-[11px] font-bold text-red-600 hover:bg-red-50 disabled:opacity-50 dark:border-red-900/50 dark:text-red-300"
+                                >
+                                  Decline
+                                </button>
+                                <button
+                                  type="button"
+                                  disabled={exchangeActionId === offer.id}
+                                  onClick={() => handleExchangeDecision(offer.id, "ACCEPTED")}
+                                  className="rounded-lg bg-primary px-3 py-2 text-[11px] font-bold text-white hover:bg-primary-dark disabled:opacity-50"
+                                >
+                                  {exchangeActionId === offer.id ? "Updating..." : "Accept"}
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </article>
+                  ))}
                 </div>
               )}
             </div>
