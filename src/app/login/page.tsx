@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { 
   signInWithPopup, 
@@ -10,6 +10,7 @@ import {
   type User as FirebaseUser,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import { ensureServerSession } from "@/lib/auth-session-client";
 import { useAuth } from "@/context/AuthContext";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
@@ -33,21 +34,6 @@ function LoginContent() {
   const [error, setError] = useState("");
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
-  const createServerSession = useCallback(async (firebaseUser: FirebaseUser) => {
-    const idToken = await firebaseUser.getIdToken(true);
-    const response = await fetch("/api/auth/session", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ idToken }),
-      credentials: "same-origin",
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error || "Could not create a secure session.");
-    }
-  }, []);
-
   // Handle redirect result after mobile sign-in returns
   useEffect(() => {
     if (!auth) return;
@@ -58,7 +44,7 @@ function LoginContent() {
       getRedirectResult(auth)
         .then(async (result) => {
           if (result?.user) {
-            await createServerSession(result.user);
+            await ensureServerSession(result.user);
             const { syncUser } = await import("@/actions/user");
             await syncUser({
               id: result.user.uid,
@@ -80,19 +66,19 @@ function LoginContent() {
       // If user already exists, ensure loading is false
       setIsLoading(false);
     }
-  }, [user, redirect, router, createServerSession]);
+  }, [user, redirect]);
 
   // If already logged in, redirect away
   useEffect(() => {
     if (user && !loading && !isLoading) {
       // Use window.location for a more robust redirect if router.push feels stuck
-      createServerSession(user)
+      ensureServerSession(user)
         .catch((err) => console.warn("Session refresh error during redirect:", err))
         .finally(() => {
           window.location.href = redirect;
         });
     }
-  }, [user, loading, isLoading, redirect, createServerSession]);
+  }, [user, loading, isLoading, redirect]);
 
   const handleGoogleSignIn = async () => {
     if (!agreedToTerms) {
@@ -119,7 +105,7 @@ function LoginContent() {
         // Desktop: use popup for better UX
         try {
           const result = await signInWithPopup(auth, provider);
-          await createServerSession(result.user);
+          await ensureServerSession(result.user);
           const { syncUser } = await import("@/actions/user");
           await syncUser({
             id: result.user.uid,
