@@ -298,7 +298,7 @@ export default function RequestBoardPage() {
                     type="button"
                     disabled={isSubmitting}
                     onClick={() => setIsModalOpen(false)}
-                    className="px-8 py-4 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-white rounded-2xl font-black text-lg hover:bg-gray-200 transition-all disabled:opacity-50
+                    className="px-8 py-4 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-white rounded-2xl font-black text-lg hover:bg-gray-200 transition-all disabled:opacity-50"
                   >
                     Cancel
                   </button>
