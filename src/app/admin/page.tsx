@@ -12,7 +12,7 @@ export default async function AdminPage() {
     { label: "Live listings", value: data?.liveListingCount.toLocaleString() || "0", icon: Package, color: "text-purple-500" },
     { label: "Pending listings", value: data?.pendingListingCount.toLocaleString() || "0", icon: ShieldCheck, color: "text-amber-500" },
     { label: "Pending reports", value: data?.pendingReportCount.toLocaleString() || "0", icon: AlertCircle, color: "text-red-500" },
-    { label: "Verified revenue", value: `₹\${(data?.revenue || 0).toLocaleString("en-IN")}`, icon: BarChart3, color: "text-emerald-500" },
+    { label: "Verified revenue", value: `₹${(data?.revenue || 0).toLocaleString("en-IN")}`, icon: BarChart3, color: "text-emerald-500" },
   ];
 
   const tools = [
@@ -41,7 +41,7 @@ export default async function AdminPage() {
       <section aria-label="Platform overview" className="mb-10 grid grid-cols-2 gap-3 xl:grid-cols-5">
         {stats.map((stat) => (
           <div key={stat.label} className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:p-6">
-            <stat.icon className={`\${stat.color} mb-4`} size={24} />
+            <stat.icon className={`${stat.color} mb-4`} size={24} />
             <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">{stat.label}</p>
             <p className="mt-1 break-words text-2xl font-black text-gray-950 dark:text-white">{stat.value}</p>
           </div>
