@@ -130,7 +130,7 @@ export default function RoommatesPage() {
               Find Compatible Roommates at {campusObj.name}
             </h1>
             <p className="text-xs sm:text-sm text-white/80 font-medium leading-relaxed">
-              Connect with verified university peers sharing similar budgets, move-in dates, and lifestyle preferences. Safe, private & student-verified.
+              Discover campus peers with similar budgets, move-in dates, and lifestyle preferences. Verification status is shown where available.
             </p>
 
             {/* Quick Search */}
