@@ -152,10 +152,13 @@ export async function approveRental(rentalId: string, ownerId: string) {
     // 1. Update Status
     await withRetry(() =>
       prisma.$transaction(async (tx) => {
-        await tx.rental.update({
-          where: { id: rentalId },
+        const updated = await tx.rental.updateMany({
+          where: { id: rentalId, ownerId: canonicalOwnerId, status: "PENDING" },
           data: { status: "ACTIVE" },
         });
+        if (updated.count !== 1) {
+          throw new Error("This rental request has already been reviewed.");
+        }
 
         const rentalDays = Math.max(
           1,
@@ -224,12 +227,15 @@ export async function markRentalReturned(rentalId: string, ownerId: string) {
       throw new Error("Only active rentals can be marked returned");
     }
 
-    await withRetry(() =>
-      prisma.rental.update({
-        where: { id: rentalId },
+    const updated = await withRetry(() =>
+      prisma.rental.updateMany({
+        where: { id: rentalId, ownerId: canonicalOwnerId, status: "ACTIVE" },
         data: { status: "RETURNED" },
       })
     );
+    if (updated.count !== 1) {
+      throw new Error("This rental has already been updated.");
+    }
 
     await logActivity({
       userId: canonicalOwnerId,
@@ -240,6 +246,58 @@ export async function markRentalReturned(rentalId: string, ownerId: string) {
     return { success: true };
   } catch {
     return { success: false };
+  }
+}
+
+export async function cancelRentalRequest(rentalId: string, renterId: string) {
+  try {
+    const renter = await requireSameUser(renterId);
+    const rental = await prisma.rental.findUnique({
+      where: { id: rentalId },
+      select: {
+        id: true,
+        renterId: true,
+        ownerId: true,
+        status: true,
+        product: { select: { title: true } },
+      },
+    });
+
+    if (!rental || rental.renterId !== renter.uid) {
+      return { success: false, error: "Rental request not found." };
+    }
+    if (rental.status !== "PENDING") {
+      return { success: false, error: "Only pending rental requests can be cancelled." };
+    }
+
+    const updated = await withRetry(() =>
+      prisma.rental.updateMany({
+        where: { id: rental.id, renterId: renter.uid, status: "PENDING" },
+        data: { status: "CANCELLED" },
+      })
+    );
+    if (updated.count !== 1) {
+      return { success: false, error: "This rental request has already been updated." };
+    }
+
+    await createNotification({
+      userId: rental.ownerId,
+      type: "RENTAL_REQUEST",
+      title: "Rental request withdrawn",
+      content: "A student withdrew their rental request for " + rental.product.title + ".",
+      link: "/profile?tab=rentals",
+    });
+    await logActivity({
+      userId: renter.uid,
+      actionType: "RENTAL_REQUEST_CANCELLED",
+      rentalId: rental.id,
+      targetUserId: rental.ownerId,
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error("[cancelRentalRequest] Failed:", error);
+    return { success: false, error: "Unable to cancel this rental request." };
   }
 }
 
