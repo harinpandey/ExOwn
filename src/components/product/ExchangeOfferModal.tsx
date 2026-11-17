@@ -14,7 +14,7 @@ interface ExchangeOfferModalProps {
 }
 
 export default function ExchangeOfferModal({ product, isOpen, onClose }: ExchangeOfferModalProps) {
-  const { user } = useAuth();
+  const { user, isProfileComplete } = useAuth();
   const router = useRouter();
   const [offeredTitle, setOfferedTitle] = useState("");
   const [offeredDescription, setOfferedDescription] = useState("");
@@ -57,8 +57,13 @@ export default function ExchangeOfferModal({ product, isOpen, onClose }: Exchang
   };
 
   const handleSubmit = async () => {
+    const returnTo = `/product/${product.id}`;
     if (!user) {
-      router.push(`/login?redirect=/product/${product.id}`);
+      router.push(`/login?redirect=${encodeURIComponent(returnTo)}`);
+      return;
+    }
+    if (!isProfileComplete) {
+      router.push(`/complete-profile?redirect=${encodeURIComponent(returnTo)}`);
       return;
     }
     if (!offeredTitle || !offeredDescription || images.length === 0) {
@@ -91,7 +96,14 @@ export default function ExchangeOfferModal({ product, isOpen, onClose }: Exchang
           body: formData,
         });
         const uploadData = await uploadRes.json();
-        if (uploadData.secure_url) uploadedImageUrls.push(uploadData.secure_url);
+        if (!uploadRes.ok || typeof uploadData.secure_url !== "string" || !uploadData.secure_url.startsWith("https://")) {
+          throw new Error(uploadData.error?.message || "One of your exchange photos failed to upload. Please try again.");
+        }
+        uploadedImageUrls.push(uploadData.secure_url);
+      }
+
+      if (uploadedImageUrls.length !== images.length || uploadedImageUrls.length === 0) {
+        throw new Error("All exchange photos must upload successfully before sending the proposal.");
       }
 
       // 2. Create Exchange Offer Action
@@ -108,7 +120,7 @@ export default function ExchangeOfferModal({ product, isOpen, onClose }: Exchang
       if (res.success) {
         toast.success("Exchange proposal sent!", { id: loadingToast });
         onClose();
-        router.push("/requests");
+        router.push("/profile?tab=exchanges&view=SENT");
       } else {
         toast.error(res.error || "Failed to send proposal", { id: loadingToast });
       }
@@ -123,7 +135,7 @@ export default function ExchangeOfferModal({ product, isOpen, onClose }: Exchang
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-xl" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-xl" onClick={() => { if (!isSubmitting) onClose(); }} />
       
       <motion.div 
         initial={{ scale: 0.9, opacity: 0, y: 20 }}
@@ -141,7 +153,13 @@ export default function ExchangeOfferModal({ product, isOpen, onClose }: Exchang
               <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">Trade your item for {product.title}</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-3 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-2xl transition-all">
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={isSubmitting}
+            aria-label="Close exchange proposal"
+            className="p-3 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-2xl transition-all disabled:cursor-wait disabled:opacity-50"
+          >
             <X size={24} />
           </button>
         </div>
@@ -159,6 +177,8 @@ export default function ExchangeOfferModal({ product, isOpen, onClose }: Exchang
                 <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Product Title</label>
                 <input 
                   type="text"
+                  required
+                  maxLength={100}
                   value={offeredTitle}
                   onChange={(e) => setOfferedTitle(e.target.value)}
                   placeholder="e.g. Sony A7III with 28-70mm lens"
@@ -171,6 +191,9 @@ export default function ExchangeOfferModal({ product, isOpen, onClose }: Exchang
                   <span className="absolute left-6 top-1/2 -translate-y-1/2 font-black text-gray-300 group-focus-within:text-primary transition-colors">₹</span>
                   <input 
                     type="number"
+                    min="0"
+                    max="1000000"
+                    step="1"
                     value={cashDifference}
                     onChange={(e) => setCashDifference(e.target.value)}
                     placeholder="Extra amount you'll pay"
@@ -184,6 +207,8 @@ export default function ExchangeOfferModal({ product, isOpen, onClose }: Exchang
               <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Item Condition & Details</label>
               <textarea 
                 rows={4}
+                required
+                maxLength={1000}
                 value={offeredDescription}
                 onChange={(e) => setOfferedDescription(e.target.value)}
                 placeholder="Mention usage, defects, and why you want to trade..."
@@ -204,6 +229,9 @@ export default function ExchangeOfferModal({ product, isOpen, onClose }: Exchang
                 <div key={url} className="relative aspect-square rounded-2xl overflow-hidden shadow-lg border-4 border-white dark:border-gray-800 group">
                   <img src={url} className="w-full h-full object-cover" alt="" />
                   <button 
+                    type="button"
+                    disabled={isSubmitting}
+                    aria-label={`Remove photo ${index + 1}`}
                     onClick={() => removeImage(index)}
                     className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
                   >
