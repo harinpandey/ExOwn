@@ -12,7 +12,7 @@ import {
   X,
   Lock,
 } from "lucide-react";
-import { getRoommateProfiles, sendRoommateInterest } from "@/actions/roommate";
+import { getRoommateProfiles, reportRoommateProfile, sendRoommateInterest } from "@/actions/roommate";
 import { useLocation } from "@/context/LocationContext";
 import { useAuth } from "@/context/AuthContext";
 import { useMoments } from "@/context/MomentsContext";
@@ -31,6 +31,10 @@ export default function RoommatesPage() {
   const [roomTypePref, setRoomTypePref] = useState("ANY");
   const [searchQuery, setSearchQuery] = useState("");
   const [sendingId, setSendingId] = useState<string | null>(null);
+  const [reportingProfile, setReportingProfile] = useState<{ id: string; name: string } | null>(null);
+  const [reportReason, setReportReason] = useState<"SPAM" | "ABUSIVE_CONTENT" | "WRONG_INFORMATION" | "SCAM">("SPAM");
+  const [reportDescription, setReportDescription] = useState("");
+  const [isReporting, setIsReporting] = useState(false);
 
   useEffect(() => {
     async function loadProfiles() {
@@ -54,34 +58,59 @@ export default function RoommatesPage() {
     return () => clearTimeout(timer);
   }, [campusObj, triggerEvent]);
 
-  const handleConnect = async (profileId: string, receiverId: string) => {
+  const handleConnect = async (profileId: string) => {
     if (!user) {
       toast.error("Please login to connect with campus roommates");
       return;
     }
+
     setSendingId(profileId);
-    const res = await sendRoommateInterest({
-      receiverId: receiverId || "u-demo-1",
-      senderId: user.uid,
-    });
-    setSendingId(null);
-    if (res.success) {
-      toast.success("Interest sent! We've notified your campus peer.");
-    } else {
-      toast.error(res.error || "Failed to send request");
+    try {
+      const res = await sendRoommateInterest(profileId);
+      if (res.success) {
+        toast.success("Your roommate interest was sent.");
+      } else {
+        toast.error(res.error || "Failed to send request");
+      }
+    } catch {
+      toast.error("Unable to send roommate request. Please try again.");
+    } finally {
+      setSendingId(null);
     }
   };
 
-  const handleReport = (name: string) => {
-    if (confirm(`Report profile of ${name} for moderation review?`)) {
-      toast.success("Report submitted to campus safety moderators.");
+  const submitRoommateReport = async () => {
+    if (!reportingProfile) return;
+    if (!user) {
+      toast.error("Please login to report a profile");
+      return;
+    }
+
+    setIsReporting(true);
+    try {
+      const result = await reportRoommateProfile({
+        profileId: reportingProfile.id,
+        reason: reportReason,
+        description: reportDescription,
+      });
+      if (result.success) {
+        toast.success("Report sent to the ExOwn moderation team.");
+        setReportingProfile(null);
+        setReportDescription("");
+      } else {
+        toast.error(result.error || "Unable to submit report.");
+      }
+    } catch {
+      toast.error("Unable to submit report. Please try again.");
+    } finally {
+      setIsReporting(false);
     }
   };
 
   const filteredProfiles = profiles.filter((p) => {
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
-      const matchBio = p.bio.toLowerCase().includes(q);
+      const matchBio = (p.bio || "").toLowerCase().includes(q);
       const matchName = p.user?.name?.toLowerCase().includes(q);
       if (!matchBio && !matchName) return false;
     }
@@ -250,7 +279,13 @@ export default function RoommatesPage() {
                     </div>
 
                     <button
-                      onClick={() => handleReport(p.user?.name || "Student")}
+                      onClick={() => {
+                        if (!user) { toast.error("Please login to report a profile"); return; }
+                        setReportReason("SPAM");
+                        setReportDescription("");
+                        setReportingProfile({ id: p.id, name: p.user?.name || "Student" });
+                      }}
+                      aria-label={`Report ${p.user?.name || "student"} profile`}
                       className="text-gray-400 hover:text-red-500 transition p-1"
                       title="Report profile"
                     >
@@ -315,7 +350,7 @@ export default function RoommatesPage() {
                   </span>
 
                   <button
-                    onClick={() => handleConnect(p.id, p.user?.id)}
+                    onClick={() => handleConnect(p.id)}
                     disabled={sendingId === p.id}
                     className="flex items-center gap-1.5 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold transition shadow-md shadow-purple-600/20"
                   >
@@ -346,6 +381,64 @@ export default function RoommatesPage() {
           </div>
         )}
       </div>
+
+      {reportingProfile && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget && !isReporting) setReportingProfile(null);
+          }}
+        >
+          <section
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="roommate-report-title"
+            className="w-full max-w-lg rounded-2xl border border-gray-200 bg-white p-6 shadow-2xl dark:border-white/10 dark:bg-[#10141b]"
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2 id="roommate-report-title" className="text-lg font-black text-gray-900 dark:text-white">Report profile</h2>
+                <p className="mt-1 text-xs text-gray-500 dark:text-white/55">Your report about {reportingProfile.name} will be sent to ExOwn moderators.</p>
+              </div>
+              <button type="button" disabled={isReporting} onClick={() => setReportingProfile(null)} className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 disabled:opacity-50 dark:hover:bg-white/10" aria-label="Close report form">
+                <X size={18} />
+              </button>
+            </div>
+
+            <label className="mt-5 block text-xs font-bold text-gray-700 dark:text-white/80">
+              Reason
+              <select
+                value={reportReason}
+                onChange={(event) => setReportReason(event.target.value as typeof reportReason)}
+                className="mt-2 w-full rounded-xl border border-gray-200 bg-white px-3 py-3 text-sm text-gray-900 outline-none focus:border-primary dark:border-white/10 dark:bg-[#07090d] dark:text-white"
+              >
+                <option value="SPAM">Spam or misleading activity</option>
+                <option value="ABUSIVE_CONTENT">Abusive or inappropriate content</option>
+                <option value="WRONG_INFORMATION">False or misleading information</option>
+                <option value="SCAM">Suspected scam or fraud</option>
+              </select>
+            </label>
+
+            <label className="mt-4 block text-xs font-bold text-gray-700 dark:text-white/80">
+              Additional details (optional)
+              <textarea
+                value={reportDescription}
+                onChange={(event) => setReportDescription(event.target.value)}
+                maxLength={1000}
+                rows={3}
+                placeholder="Share details that may help our moderators review this report."
+                className="mt-2 w-full resize-y rounded-xl border border-gray-200 bg-white px-3 py-3 text-sm text-gray-900 outline-none focus:border-primary dark:border-white/10 dark:bg-[#07090d] dark:text-white"
+              />
+            </label>
+
+            <div className="mt-5 flex justify-end gap-2">
+              <button type="button" disabled={isReporting} onClick={() => setReportingProfile(null)} className="rounded-xl border border-gray-200 px-4 py-2.5 text-xs font-bold text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-white/10 dark:text-white dark:hover:bg-white/5">Cancel</button>
+              <button type="button" disabled={isReporting} onClick={submitRoommateReport} className="rounded-xl bg-red-600 px-4 py-2.5 text-xs font-bold text-white hover:bg-red-700 disabled:cursor-wait disabled:opacity-60">{isReporting ? "Submitting..." : "Submit report"}</button>
+            </div>
+          </section>
+        </div>
+      )}
     </div>
   );
 }
