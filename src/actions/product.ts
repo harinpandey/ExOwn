@@ -7,23 +7,25 @@ import { getCached, invalidateCachePrefix } from "@/lib/cache";
 import { sanitizeString, validateLength, validateRange } from "@/lib/validation";
 import { isPublicPickupLocation } from "@/lib/locationValidation";
 import { parseSearchIntent } from "@/lib/search-intent";
+import { resolveCampusId } from "@/lib/campus";
 
 
 const LISTING_TYPES = new Set(["SELL", "RENT", "SERVICE"]);
 const CONDITIONS = new Set(["LIKE_NEW", "GOOD", "FAIR", "POOR"]);
 
-export async function getTrendingProducts() {
+export async function getTrendingProducts(campus: string) {
   try {
     if (!process.env.DATABASE_URL) return [];
+    const campusId = await resolveCampusId(campus);
+    if (!campusId) return [];
 
-    const products = await getCached("home:trending-products", 45, () => withRetry(() => prisma.product.findMany({
+    return await getCached(`home:trending-products:${campusId}`, 45, () => withRetry(() => prisma.product.findMany({
       where: {
         status: "LIVE",
         inventory: { gt: 0 },
+        campusId,
       },
-      orderBy: {
-        createdAt: "desc",
-      },
+      orderBy: { createdAt: "desc" },
       take: 8,
       include: {
         seller: {
@@ -38,8 +40,6 @@ export async function getTrendingProducts() {
         }
       }
     })));
-
-    return products;
   } catch (error) {
     console.error("Error fetching trending products:", error);
     return [];
@@ -313,10 +313,13 @@ export async function searchProducts(opts: {
   }
 }
 
-export async function getRecentlyAdded() {
+export async function getRecentlyAdded(campus: string) {
   try {
-    return await getCached("home:recently-added", 45, () => withRetry(() => prisma.product.findMany({
-      where: { status: "LIVE", inventory: { gt: 0 } },
+    const campusId = await resolveCampusId(campus);
+    if (!campusId || !process.env.DATABASE_URL) return [];
+
+    return await getCached(`home:recently-added:${campusId}`, 45, () => withRetry(() => prisma.product.findMany({
+      where: { status: "LIVE", inventory: { gt: 0 }, campusId },
       take: 8,
       orderBy: { createdAt: "desc" },
       include: {
@@ -329,14 +332,17 @@ export async function getRecentlyAdded() {
   }
 }
 
-
-export async function getPopularRentals() {
+export async function getPopularRentals(campus: string) {
   try {
-    return await getCached("home:popular-rentals", 45, () => withRetry(() => prisma.product.findMany({
+    const campusId = await resolveCampusId(campus);
+    if (!campusId || !process.env.DATABASE_URL) return [];
+
+    return await getCached(`home:popular-rentals:${campusId}`, 45, () => withRetry(() => prisma.product.findMany({
       where: {
         status: "LIVE",
         inventory: { gt: 0 },
-        listingType: "RENT"
+        listingType: "RENT",
+        campusId,
       },
       take: 8,
       orderBy: { createdAt: "desc" },
@@ -350,13 +356,16 @@ export async function getPopularRentals() {
   }
 }
 
-
-export async function getVerifiedSellersProducts() {
+export async function getVerifiedSellersProducts(campus: string) {
   try {
-    return await getCached("home:verified-sellers-products", 45, () => withRetry(() => prisma.product.findMany({
+    const campusId = await resolveCampusId(campus);
+    if (!campusId || !process.env.DATABASE_URL) return [];
+
+    return await getCached(`home:verified-sellers-products:${campusId}`, 45, () => withRetry(() => prisma.product.findMany({
       where: {
         status: "LIVE",
         inventory: { gt: 0 },
+        campusId,
         seller: { isVerified: true }
       },
       take: 8,
@@ -371,13 +380,17 @@ export async function getVerifiedSellersProducts() {
   }
 }
 
-export async function getMovingOutProducts() {
+export async function getMovingOutProducts(campus: string) {
   try {
-    return await getCached("home:moving-out-products", 45, () => withRetry(() => prisma.product.findMany({
+    const campusId = await resolveCampusId(campus);
+    if (!campusId || !process.env.DATABASE_URL) return [];
+
+    return await getCached(`home:moving-out-products:${campusId}`, 45, () => withRetry(() => prisma.product.findMany({
       where: {
         status: "LIVE",
         inventory: { gt: 0 },
         isUrgent: true,
+        campusId,
       },
       take: 8,
       orderBy: { createdAt: "desc" },
