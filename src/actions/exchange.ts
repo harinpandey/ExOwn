@@ -1,7 +1,7 @@
 "use server";
 
 import prisma, { withRetry } from "@/lib/prisma";
-import { logActivity } from "@/lib/logger";
+import { logActivity, type ActivityAction } from "@/lib/logger";
 import { createNotification } from "@/actions/notification";
 import { ExchangeStatus } from "@prisma/client";
 import { requireSameUser } from "@/lib/auth";
@@ -189,9 +189,16 @@ export async function respondToExchangeOffer(userId: string, offerId: string, st
     });
 
     // 3. Log Activity
+    const activityActionByStatus: Record<ExchangeStatus, ActivityAction> = {
+      PENDING: "EXCHANGE_PROPOSAL_PENDING",
+      ACCEPTED: "EXCHANGE_PROPOSAL_ACCEPTED",
+      REJECTED: "EXCHANGE_PROPOSAL_REJECTED",
+      COUNTERED: "EXCHANGE_PROPOSAL_COUNTERED",
+      COMPLETED: "EXCHANGE_PROPOSAL_COMPLETED",
+    };
     await logActivity({
       userId: actor.uid,
-      actionType: `EXCHANGE_PROPOSAL_${status}`,
+      actionType: activityActionByStatus[status],
       productId: offer.productId,
       metadata: { offerId }
     });
