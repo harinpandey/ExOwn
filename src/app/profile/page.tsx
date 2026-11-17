@@ -30,6 +30,7 @@ export default function ProfileDashboardPage() {
 
   const [offersData, setOffersData] = useState<{ received: any[]; sent: any[] }>({ received: [], sent: [] });
   const [offersLoading, setOffersLoading] = useState(false);
+  const [offerActionId, setOfferActionId] = useState<string | null>(null);
   const [exchangeOffersData, setExchangeOffersData] = useState<{ received: any[]; sent: any[] }>({ received: [], sent: [] });
   const [exchangeOffersLoading, setExchangeOffersLoading] = useState(false);
   const [exchangeView, setExchangeView] = useState<"RECEIVED" | "SENT">("RECEIVED");
@@ -121,6 +122,26 @@ export default function ProfileDashboardPage() {
       setOffersLoading(false);
     }
   }, [user]);
+
+  const handleOfferDecision = async (offerId: string, status: "ACCEPTED" | "REJECTED") => {
+    if (!user || offerActionId) return;
+    setOfferActionId(offerId);
+    try {
+      const { updateOfferStatus } = await import("@/actions/offer");
+      const result = await updateOfferStatus(offerId, user.uid, status);
+      if (!result.success) {
+        toast.error(result.error || "Unable to update this offer.");
+        return;
+      }
+      toast.success(status === "ACCEPTED" ? "Price offer accepted." : "Price offer declined.");
+      await fetchOffers();
+    } catch (error) {
+      console.error("[Profile] Price offer action failed:", error);
+      toast.error("Unable to update this offer. Please try again.");
+    } finally {
+      setOfferActionId(null);
+    }
+  };
 
   const fetchExchangeOffers = useCallback(async () => {
     if (!user) return;
@@ -796,26 +817,49 @@ Received Offers ({offersData.received.length})
       key={offer.id}
       className="p-4 rounded-xl border border-gray-100 dark:border-white/10 bg-gray-50/60 dark:bg-zinc-800/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
     >
-      <div>
-        <span className="font-bold text-gray-900 dark:text-white block">
+      <div className="min-w-0 flex-1">
+        <span className="block font-bold text-gray-900 dark:text-white">
           {offer.product?.title || "Listing"}
         </span>
         <span className="text-gray-500">
-          Offered: <strong className="text-gray-900 dark:text-white font-bold">₹{offer.price?.toLocaleString("en-IN")}</strong> (Listed at ₹{offer.product?.price?.toLocaleString("en-IN")})
+          {offer.buyer?.name ? `From ${offer.buyer.name} · ` : ""}Offered: <strong className="font-bold text-gray-900 dark:text-white">₹{offer.price?.toLocaleString("en-IN")}</strong> (Listed at ₹{offer.product?.price?.toLocaleString("en-IN")})
         </span>
         {offer.message && (
           <p className="mt-1 text-gray-600 dark:text-gray-400 italic">"{offer.message}"</p>
         )}
+        <p className="mt-1 text-[10px] text-gray-400">{format(new Date(offer.createdAt), "dd MMM yyyy")}</p>
       </div>
-      <span className={`self-start sm:self-center px-2.5 py-1 rounded-full font-bold text-[10px] tracking-wide uppercase ${
-        offer.status === "ACCEPTED"
-          ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400"
-          : offer.status === "REJECTED"
-          ? "bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-400"
-          : "bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400"
-      }`}>
-        {offer.status}
-      </span>
+      <div className="flex shrink-0 flex-wrap items-center gap-2">
+        <span className={`rounded-full px-2.5 py-1 font-bold text-[10px] tracking-wide uppercase ${
+          offer.status === "ACCEPTED"
+            ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400"
+            : offer.status === "REJECTED"
+            ? "bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-400"
+            : "bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400"
+        }`}>
+          {offer.status}
+        </span>
+        {offer.status === "PENDING" && (
+          <>
+            <button
+              type="button"
+              disabled={offerActionId === offer.id}
+              onClick={() => handleOfferDecision(offer.id, "REJECTED")}
+              className="rounded-lg border border-red-200 px-3 py-2 text-[10px] font-black text-red-600 hover:bg-red-50 disabled:opacity-50 dark:border-red-900/50 dark:text-red-300"
+            >
+              Decline
+            </button>
+            <button
+              type="button"
+              disabled={offerActionId === offer.id}
+              onClick={() => handleOfferDecision(offer.id, "ACCEPTED")}
+              className="rounded-lg bg-primary px-3 py-2 text-[10px] font-black text-white hover:bg-primary-dark disabled:opacity-50"
+            >
+              {offerActionId === offer.id ? "Saving..." : "Accept"}
+            </button>
+          </>
+        )}
+      </div>
     </div>
   ))}
 </div>
