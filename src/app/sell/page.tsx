@@ -201,7 +201,6 @@ function SellPageContent() {
         conditionDetails,
         price: parsedPrice,
         location: pickupLocation.trim(),
-        sellerId: user.uid,
         campusId,
         images: uploadedImageUrls,
         isNegotiable,
