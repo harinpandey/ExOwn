@@ -81,7 +81,7 @@ function SellPageContent() {
     if (!loading && !user) {
       router.push(`/login?redirect=${encodeURIComponent(searchParams.toString() ? `/sell?${searchParams.toString()}` : "/sell")}`);
     }
-  }, [user, loading, router]);
+  }, [user, loading, router, searchParams]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
