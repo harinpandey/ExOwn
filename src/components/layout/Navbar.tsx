@@ -122,7 +122,7 @@ export default function Navbar() {
             <img src="/exown-logo.png" alt="ExOwn" className="h-8 w-auto" />
           </Link>
 
-          <label className="hidden items-center gap-2 rounded-xl border border-gray-200 bg-gray-100 px-3 py-1.5 text-xs font-bold text-gray-700 transition hover:border-primary dark:border-white/10 dark:bg-white/[0.04] dark:text-white/80 sm:flex">
+          <label className="hidden cursor-pointer items-center gap-2 rounded-xl border border-gray-200 bg-gray-100 px-3 py-1.5 text-xs font-bold text-gray-700 transition hover:border-primary dark:border-white/10 dark:bg-white/[0.04] dark:text-white/80 sm:flex">
             <MapPin size={15} className="text-primary" />
             <span className="sr-only">Campus</span>
             <select
@@ -136,7 +136,7 @@ export default function Navbar() {
                 </option>
               ))}
             </select>
-            <ChevronDown size={12} className="text-gray-400 dark:text-white/45" />
+            <ChevronDown size={12} className="pointer-events-none select-none text-gray-400 dark:text-white/45" aria-hidden="true" />
           </label>
         </div>
 
