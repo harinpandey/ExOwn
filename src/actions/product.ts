@@ -2,7 +2,7 @@
 
 import prisma, { withRetry } from "@/lib/prisma";
 import { logActivity } from "@/lib/logger";
-import { getCurrentUser, requireUser } from "@/lib/auth";
+import { getCurrentUser, requireSameUser, requireUser } from "@/lib/auth";
 import { getCached, invalidateCachePrefix } from "@/lib/cache";
 import { sanitizeString, validateLength, validateRange } from "@/lib/validation";
 import { isPublicPickupLocation } from "@/lib/locationValidation";
