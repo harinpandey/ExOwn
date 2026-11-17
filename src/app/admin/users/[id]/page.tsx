@@ -31,13 +31,14 @@ export default async function AdminUserDetailsPage({ params }: { params: Promise
   const { id } = await params;
   const member = await getAdminUserDetails(id);
   if (!member) notFound();
+  const memberRecord = member;
 
   async function toggleSuspension() {
     "use server";
     await updateUserStatus(
-      member.id,
-      !member.isSuspended,
-      member.isSuspended ? undefined : "Suspended after admin review."
+      memberRecord.id,
+      !memberRecord.isSuspended,
+      memberRecord.isSuspended ? undefined : "Suspended after admin review."
     );
     revalidatePath("/admin/users");
     revalidatePath(`/admin/users/\${member.id}`);
