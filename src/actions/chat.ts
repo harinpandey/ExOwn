@@ -266,7 +266,7 @@ export async function getConversationContext(userId: string, partnerId: string, 
         activeExchange = await prisma.exchangeOffer.findFirst({
           where: {
             productId: product.id,
-            buyerId: canonicalUserId === product.sellerId ? partnerId : userId,
+            buyerId: canonicalUserId === product.sellerId ? partnerId : canonicalUserId,
           },
           orderBy: { createdAt: "desc" },
         });
