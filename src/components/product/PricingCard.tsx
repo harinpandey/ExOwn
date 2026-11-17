@@ -129,7 +129,14 @@ export default function PricingCard({ product, isOwner: serverIsOwner }: Pricing
       const message = `Hi, I'm interested in your "${product.title}". My offer is ₹${amount.toLocaleString(
         "en-IN"
       )}${isRental ? "/day" : ""}.`;
-      await sendMessage(user.uid, seller?.id, message);
+      const messageResult = await sendMessage(user.uid, seller?.id, message);
+      if (!messageResult.success) {
+        toast.success("Your offer was submitted. You can track it from Profile → Offers.");
+        setOfferMode(false);
+        router.push("/profile?tab=offers");
+        return;
+      }
+
       toast.success("Offer submitted to seller.");
       setOfferMode(false);
       router.push(`/chat/${seller?.id}`);
