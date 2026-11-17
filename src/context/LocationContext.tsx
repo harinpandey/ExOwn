@@ -1,18 +1,14 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { CAMPUS_DIRECTORY } from "@/config/campuses";
 
-export const CAMPUSES = [
-  { id: "lpu", name: "Lovely Professional University", shortName: "LPU Campus" },
-  { id: "du", name: "Delhi University", shortName: "DU Campus" },
-  { id: "cu", name: "Chandigarh University", shortName: "CU Campus" },
-  { id: "vit", name: "VIT Vellore", shortName: "VIT Campus" },
-];
+export const CAMPUSES = CAMPUS_DIRECTORY;
 
 interface LocationContextType {
   selectedCampus: string;
   setSelectedCampus: (campus: string) => void;
-  campusObj: typeof CAMPUSES[0];
+  campusObj: (typeof CAMPUSES)[number];
 }
 
 const LocationContext = createContext<LocationContextType | undefined>(undefined);
@@ -22,9 +18,7 @@ export function LocationProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const saved = localStorage.getItem("exown_selected_campus");
-    if (saved) {
-      setSelectedCampusState(saved);
-    }
+    if (saved) setSelectedCampusState(saved);
   }, []);
 
   const setSelectedCampus = (campus: string) => {
@@ -43,8 +37,6 @@ export function LocationProvider({ children }: { children: ReactNode }) {
 
 export const useLocation = () => {
   const context = useContext(LocationContext);
-  if (!context) {
-    throw new Error("useLocation must be used within LocationProvider");
-  }
+  if (!context) throw new Error("useLocation must be used within LocationProvider");
   return context;
 };
