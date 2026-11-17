@@ -48,26 +48,34 @@ export async function syncUser(data: {
       }
     }
 
-    let user: any;
+    const userSelect = {
+      id: true,
+      role: true,
+      isVerified: true,
+      isProfileCompleted: true,
+      verificationLevel: true,
+      isTrustedSeller: true,
+    } as const;
+
+    const profileUpdate = {
+      ...(email && { email }),
+      ...(name && { name }),
+      ...(image && { image }),
+      ...(isAdmin && { role: "ADMIN" as const }),
+      lastActive: new Date(),
+    };
+
+    let user;
     if (existingUser) {
+      // Preserve the existing database identity and its profile/verification data.
       user = await withRetry(() => prisma.user.update({
         where: { id: existingUser.id },
-        data: {
-          ...(email && { email }),
-          ...(name && { name }),
-          ...(image && { image }),
-          ...(isAdmin && { role: "ADMIN" as const }),
-          lastActive: new Date(),
-        },
-        select: {
-          id: true,
-          role: true,
-          isVerified: true,
-          isProfileCompleted: true,
-          verificationLevel: true,
-          isTrustedSeller: true,
-        },
+        data: profileUpdate,
+        select: userSelect,
       }));
+    } else {
+      // New Firebase accounts must be inserted; previously this create was nested
+      // inside the existing-user branch, so first-time sync left user undefined.
       try {
         user = await withRetry(() => prisma.user.create({
           data: {
@@ -79,32 +87,36 @@ export async function syncUser(data: {
             lastActive: new Date(),
             verificationLevel: "BASIC",
           },
-          select: {
-            id: true,
-            role: true,
-            isVerified: true,
-            isProfileCompleted: true,
-            verificationLevel: true,
-            isTrustedSeller: true,
-          },
+          select: userSelect,
         }));
       } catch (createError: any) {
-        if (createError.code === "P2002" && email) {
-          user = await prisma.user.findUnique({
-            where: { email },
-            select: {
-              id: true,
-              role: true,
-              isVerified: true,
-              isProfileCompleted: true,
-              verificationLevel: true,
-              isTrustedSeller: true,
-            },
-          });
-        }
-        if (!user) {
+        if (createError.code !== "P2002") {
           throw createError;
         }
+
+        // Another concurrent request may have created this user. Resolve by
+        // Firebase UID first, then by verified email for legacy ExOwn accounts.
+        let conflictingUser = await prisma.user.findUnique({
+          where: { id: data.id },
+          select: userSelect,
+        });
+
+        if (!conflictingUser && email && currentUser.emailVerified !== false) {
+          conflictingUser = await prisma.user.findUnique({
+            where: { email },
+            select: userSelect,
+          });
+        }
+
+        if (!conflictingUser) {
+          throw createError;
+        }
+
+        user = await withRetry(() => prisma.user.update({
+          where: { id: conflictingUser.id },
+          data: profileUpdate,
+          select: userSelect,
+        }));
       }
     }
 

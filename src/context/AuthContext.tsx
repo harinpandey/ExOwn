@@ -1,8 +1,9 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
-import { onAuthStateChanged, User, setPersistence, browserLocalPersistence, onIdTokenChanged } from "firebase/auth";
+import React, { createContext, useContext, useEffect, useRef, useState } from "react";
+import { User, setPersistence, browserLocalPersistence, onIdTokenChanged } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import { ensureServerSession } from "@/lib/auth-session-client";
 
 interface AuthContextType {
   user: User | null;
@@ -24,25 +25,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [isProfileComplete, setIsProfileComplete] = useState(true);
-
-  const ensureServerSession = async (firebaseUser: User) => {
-    try {
-      const idToken = await firebaseUser.getIdToken(true);
-      const response = await fetch("/api/auth/session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ idToken }),
-        credentials: "same-origin",
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        console.warn("[ensureServerSession] Non-200 session response:", errorData.error || response.statusText);
-      }
-    } catch (err) {
-      console.error("[ensureServerSession] Network error creating server session:", err);
-    }
-  };
+  const lastSyncedUid = useRef<string | null>(null);
+  const activeUid = useRef<string | null>(null);
 
   const syncProfile = async (firebaseUser: User) => {
     try {
@@ -55,14 +39,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         image: firebaseUser.photoURL,
       });
 
-      if (result.success && result.user) {
-        setIsProfileComplete(result.user.isProfileCompleted);
-      } else {
-        setIsProfileComplete(true);
+      if (activeUid.current === firebaseUser.uid) {
+        setIsProfileComplete(result.success && result.user
+          ? result.user.isProfileCompleted
+          : true);
       }
     } catch (err) {
       console.error("Failed to sync user to DB:", err);
-      setIsProfileComplete(true);
+      if (activeUid.current === firebaseUser.uid) {
+        setIsProfileComplete(true);
+      }
     }
   };
 
@@ -70,6 +56,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const { signOut } = await import("firebase/auth");
       await fetch("/api/auth/session", { method: "DELETE", credentials: "same-origin" }).catch(() => {});
+      activeUid.current = null;
+      lastSyncedUid.current = null;
       setUser(null);
       setIsProfileComplete(true);
       if (auth) await signOut(auth);
@@ -90,45 +78,54 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       return;
     }
 
-    // 1. Set Persistence (survive browser close)
+    let active = true;
+
+    // Persist the Firebase session across browser restarts.
     setPersistence(auth, browserLocalPersistence).catch((err) => {
       console.error("Auth persistence error:", err);
     });
 
-    // 2. Auth State Change (handle login/logout)
-    const unsubscribeAuth = onAuthStateChanged(auth, async (firebaseUser) => {
+    // A single ID-token listener handles sign-in, sign-out, and token refresh.
+    // Do not force-refresh inside this callback: doing so can trigger another
+    // onIdTokenChanged event and cause redundant session-cookie requests.
+    const unsubscribe = onIdTokenChanged(auth, async (firebaseUser) => {
       try {
-        if (firebaseUser) {
-          setUser(firebaseUser); // Immediately update client auth state
-          await ensureServerSession(firebaseUser);
-          await syncProfile(firebaseUser);
-        } else {
-          await fetch("/api/auth/session", { method: "DELETE", credentials: "same-origin" }).catch(() => {});
-          setUser(null);
-          setIsProfileComplete(true);
-        }
-      } catch (err) {
-        console.error("Auth status listener error:", err);
-      } finally {
-        setLoading(false);
-      }
-    });
+        if (!active) return;
 
-    // 3. ID Token Change (handle token refresh)
-    const unsubscribeToken = onIdTokenChanged(auth, async (firebaseUser) => {
-      try {
         if (firebaseUser) {
+          activeUid.current = firebaseUser.uid;
           setUser(firebaseUser);
           await ensureServerSession(firebaseUser);
+
+          if (!active || activeUid.current !== firebaseUser.uid) return;
+
+          if (lastSyncedUid.current !== firebaseUser.uid) {
+            lastSyncedUid.current = firebaseUser.uid;
+            await syncProfile(firebaseUser);
+          }
+        } else {
+          activeUid.current = null;
+          lastSyncedUid.current = null;
+          await fetch("/api/auth/session", {
+            method: "DELETE",
+            credentials: "same-origin",
+          }).catch(() => {});
+
+          if (active) {
+            setUser(null);
+            setIsProfileComplete(true);
+          }
         }
       } catch (err) {
-        console.error("Token sync failed:", err);
+        console.error("Auth/token synchronization failed:", err);
+      } finally {
+        if (active) setLoading(false);
       }
     });
 
     return () => {
-      unsubscribeAuth();
-      unsubscribeToken();
+      active = false;
+      unsubscribe();
     };
   }, []);
 

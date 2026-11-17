@@ -18,7 +18,19 @@ export type CurrentUser = {
 };
 
 function hasValidAudience(decoded: DecodedIdToken) {
-  const adminProjectId = process.env.FIREBASE_PROJECT_ID?.trim().replace(/^"|"$/g, "");
+  const normalizeProjectId = (value?: string) =>
+    value?.trim().replace(/^["']|["']$/g, "");
+
+  const adminProjectId = normalizeProjectId(process.env.FIREBASE_PROJECT_ID);
+  const clientProjectId = normalizeProjectId(process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID);
+
+  if (adminProjectId && clientProjectId && adminProjectId !== clientProjectId) {
+    console.error(
+      `[auth:config] Firebase project mismatch. Client project: ${clientProjectId}; Admin project: ${adminProjectId}`
+    );
+    return false;
+  }
+
   if (adminProjectId && decoded.aud !== adminProjectId) {
     console.error(`[auth:security] Token audience mismatch. Token: ${decoded.aud}, Expected: ${adminProjectId}`);
     return false;
@@ -41,7 +53,7 @@ export async function verifyFirebaseIdToken(token?: string | null): Promise<Deco
     console.log(`[auth] ID token verified. UID: ${decoded.uid}, Email: ${decoded.email}, Project ID: ${decoded.aud}`);
     return hasValidAudience(decoded) ? decoded : null;
   } catch (error: any) {
-    console.error("[auth:security] Firebase token verification failed:", error.message);
+    console.error(`[auth:security] Firebase token verification failed (${error.code || "unknown"}):`, error.message);
     if (error.code === 'auth/id-token-expired') {
       console.log("[auth] Token expired");
     }

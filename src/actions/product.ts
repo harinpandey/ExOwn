@@ -494,7 +494,8 @@ export async function createProduct(data: {
   exchangeCashAllowed?: boolean;
 }) {
   try {
-    await requireSameUser(data.sellerId);
+    const authenticatedSeller = await requireSameUser(data.sellerId);
+    const sellerId = authenticatedSeller.uid;
 
     // 1. Sanitize & Validate Inputs
     const title = sanitizeString(data.title);
@@ -550,7 +551,7 @@ export async function createProduct(data: {
     }
 
     const seller = await prisma.user.findUnique({
-      where: { id: data.sellerId },
+      where: { id: sellerId },
       select: {
         isProfileCompleted: true,
         isVerified: true,
@@ -568,7 +569,7 @@ export async function createProduct(data: {
     // 2. Fraud Check: Duplicate Listing
     const existing = await prisma.product.findFirst({
       where: {
-        sellerId: data.sellerId,
+        sellerId: sellerId,
         title: { equals: title, mode: 'insensitive' },
         price: price,
         status: { in: ['LIVE', 'PENDING'] }
@@ -594,7 +595,7 @@ export async function createProduct(data: {
         categoryId: data.categoryId,
         subcategoryId: data.subcategoryId,
         customSubcategory,
-        sellerId: data.sellerId,
+        sellerId: sellerId,
         campusId: data.campusId,
         images: data.images,
         pickupLocation,
@@ -608,7 +609,7 @@ export async function createProduct(data: {
     }));
 
     await logActivity({
-      userId: data.sellerId,
+      userId: sellerId,
       actionType: "PRODUCT_CREATED",
       productId: product.id,
       metadata: { title: product.title, price: product.price }
