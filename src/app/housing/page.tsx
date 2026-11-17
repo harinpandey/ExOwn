@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Building2,
   CheckCircle2,
@@ -28,6 +29,7 @@ export default function HousingPage() {
   const { selectedCampus, campusObj } = useLocation();
   const { triggerEvent } = useMoments();
   const { user } = useAuth();
+  const router = useRouter();
   const [listings, setListings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [ownerPhones, setOwnerPhones] = useState<Record<string, string>>({});
@@ -70,7 +72,7 @@ export default function HousingPage() {
 
   const handleRevealOwnerPhone = async (listingId: string) => {
     if (!user) {
-      toast.error("Please sign in to view the owner's contact number.");
+      router.push("/login?redirect=/housing");
       return;
     }
 
