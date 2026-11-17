@@ -149,7 +149,7 @@ export async function updateOfferStatus(offerId: string, userId: string, status:
         type: "OFFER",
         title: status === "ACCEPTED" ? "Offer Accepted" : "Offer Rejected",
         content: `Your offer for "${offer.product.title}" has been ${status.toLowerCase()}.`,
-        link: `/product/${offer.productId}`
+        link: "/profile?tab=offers"
       });
     } catch (notifErr) {
       console.error("Failed to trigger offer status notification:", notifErr);
