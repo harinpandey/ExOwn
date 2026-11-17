@@ -40,18 +40,20 @@ export default function HousingPage() {
   const campusConfig = getLocalitiesForCampus(campusObj?.shortName || campusObj?.name || selectedCampus);
 
   useEffect(() => {
-    async function loadHousing() {
-      setLoading(true);
-      const data = await getHousingListings({
-        campus: selectedCampus,
-        type: selectedType,
-        maxRent: maxRent,
-        gender: genderPref,
-      });
-      setListings(data);
-      setLoading(false);
-    }
-    loadHousing();
+    let active = true;
+    setLoading(true);
+
+    getHousingListings({
+      campus: selectedCampus,
+      type: selectedType,
+      maxRent,
+      gender: genderPref,
+    })
+      .then((data) => { if (active) setListings(data); })
+      .catch((error) => console.error("[HousingPage] Failed to load selected campus listings:", error))
+      .finally(() => { if (active) setLoading(false); });
+
+    return () => { active = false; };
   }, [selectedCampus, selectedType, maxRent, genderPref]);
 
   useEffect(() => {
