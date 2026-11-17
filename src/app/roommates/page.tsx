@@ -21,6 +21,7 @@ import toast from "react-hot-toast";
 export default function RoommatesPage() {
   const { selectedCampus, campusObj } = useLocation();
   const { user } = useAuth();
+  const userId = user?.uid;
   const { triggerEvent } = useMoments();
   const [profiles, setProfiles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -58,7 +59,7 @@ export default function RoommatesPage() {
 
   useEffect(() => {
     let active = true;
-    if (!user) {
+    if (!userId) {
       setReceivedRequests([]);
       setRequestsLoading(false);
       return;
@@ -71,7 +72,7 @@ export default function RoommatesPage() {
       .finally(() => { if (active) setRequestsLoading(false); });
 
     return () => { active = false; };
-  }, [user?.uid]);
+  }, [userId]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
