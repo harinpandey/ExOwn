@@ -40,18 +40,20 @@ export default function RoommatesPage() {
   const [isReporting, setIsReporting] = useState(false);
 
   useEffect(() => {
-    async function loadProfiles() {
-      setLoading(true);
-      const data = await getRoommateProfiles({
-        campus: selectedCampus,
-        maxBudget: maxBudget,
-        gender: genderPref,
-        roomType: roomTypePref,
-      });
-      setProfiles(data);
-      setLoading(false);
-    }
-    loadProfiles();
+    let active = true;
+    setLoading(true);
+
+    getRoommateProfiles({
+      campus: selectedCampus,
+      maxBudget,
+      gender: genderPref,
+      roomType: roomTypePref,
+    })
+      .then((data) => { if (active) setProfiles(data); })
+      .catch((error) => console.error("[RoommatesPage] Failed to load selected campus profiles:", error))
+      .finally(() => { if (active) setLoading(false); });
+
+    return () => { active = false; };
   }, [selectedCampus, maxBudget, genderPref, roomTypePref]);
 
   useEffect(() => {
