@@ -45,7 +45,7 @@ const secondaryLinks = [
   { label: "Sell", href: "/sell" },
   { label: "Rent", href: "/search?listingType=RENT" },
   { label: "Exchange", href: "/search?exchange=true" },
-  { label: "Housing", href: "/search?category=properties" },
+  { label: "Housing", href: "/housing" },
   { label: "Roommates", href: "/roommates" },
   { label: "Services", href: "/search?listingType=SERVICE" },
 ];
