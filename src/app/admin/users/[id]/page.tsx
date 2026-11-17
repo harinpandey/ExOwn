@@ -12,7 +12,6 @@ import {
   Mail,
   MapPin,
   Package,
-  Phone,
   ShieldAlert,
   ShieldCheck,
   User,
