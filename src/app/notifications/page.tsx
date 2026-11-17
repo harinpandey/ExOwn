@@ -294,12 +294,12 @@ export default function NotificationsPage() {
               <BellOff size={32} />
             </div>
             <h2 className="text-lg sm:text-xl font-black text-gray-900 dark:text-white mb-1">
-              No notifications found
+              {notificationsLoading ? "Loading notifications..." : activeTab === "UNREAD" ? "You're all caught up" : "No notifications yet"}
             </h2>
             <p className="text-xs sm:text-sm text-gray-500 dark:text-white/50 max-w-sm mx-auto mb-6">
-              When you receive a message, offer, housing update or campus alert, it will appear here.
+              {notificationsLoading ? "Checking your latest account activity." : "When you receive a message, offer, housing update or campus alert, it will appear here."}
             </p>
-            <div className="flex flex-wrap items-center justify-center gap-3">
+            {!notificationsLoading && <div className="flex flex-wrap items-center justify-center gap-3">
 
               <Link
                 href="/"
@@ -307,7 +307,7 @@ export default function NotificationsPage() {
               >
                 Explore Marketplace
               </Link>
-            </div>
+            </div>}
           </div>
         )}
 
