@@ -13,7 +13,6 @@ import {
   MessageSquare,
   RefreshCw,
   ShieldCheck,
-  Sparkles,
   Tag,
   Trash2,
   BellOff,
@@ -29,20 +28,26 @@ export default function NotificationsPage() {
   const {
     notifications,
     unreadCount,
+    notificationsLoading,
+    refreshNotifications,
     markRead,
+    markUnread,
     markAllRead,
     deleteNotif,
     clearAllNotifs,
-    seedDemoNotifs,
   } = useNotifications();
 
   const [activeTab, setActiveTab] = useState<TabType>("ALL");
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const notificationUnreadCount = notifications.filter((notif) => !notif.isRead).length;
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
-    await seedDemoNotifs();
-    setTimeout(() => setIsRefreshing(false), 500);
+    try {
+      await refreshNotifications();
+    } finally {
+      setIsRefreshing(false);
+    }
   };
 
   const filteredNotifs = notifications.filter((notif) => {
@@ -131,7 +136,7 @@ export default function NotificationsPage() {
               onClick={handleRefresh}
               disabled={isRefreshing}
               className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-gray-600 dark:text-white/70 hover:bg-gray-100 dark:hover:bg-white/[0.06] rounded-xl border border-gray-200 dark:border-white/10 transition"
-              title="Refresh / Seed test notifications"
+              title="Refresh notifications"
             >
               <RefreshCw size={14} className={isRefreshing ? "animate-spin" : ""} />
               {isRefreshing ? "Refreshing..." : "Refresh"}
@@ -157,7 +162,7 @@ export default function NotificationsPage() {
         <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
           {[
             { id: "ALL", label: `All (${notifications.length})` },
-            { id: "UNREAD", label: `Unread (${unreadCount})` },
+            { id: "UNREAD", label: `Unread (${notificationUnreadCount})` },
             { id: "OFFERS", label: "Deals & Rentals" },
             { id: "MESSAGES", label: "Messages" },
             { id: "SYSTEM", label: "System & Badges" },
@@ -262,7 +267,7 @@ export default function NotificationsPage() {
                         <div className="flex items-center gap-3">
                           <button
                             type="button"
-                            onClick={() => markRead(notif.id)}
+                            onClick={() => notif.isRead ? markUnread(notif.id) : markRead(notif.id)}
                             className="text-[11px] font-semibold text-gray-500 dark:text-white/50 hover:text-blue-600"
                           >
                             {notif.isRead ? "Mark unread" : "Mark as read"}
@@ -293,16 +298,10 @@ export default function NotificationsPage() {
               No notifications found
             </h2>
             <p className="text-xs sm:text-sm text-gray-500 dark:text-white/50 max-w-sm mx-auto mb-6">
-              You are all caught up! Want to see how notification alerts look on your account?
+              When you receive a message, offer, housing update or campus alert, it will appear here.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-3">
-              <button
-                onClick={handleRefresh}
-                className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition shadow-lg shadow-blue-600/20 inline-flex items-center gap-2"
-              >
-                <Sparkles size={15} />
-                Generate Sample Notifications
-              </button>
+
               <Link
                 href="/"
                 className="px-5 py-2.5 bg-gray-100 dark:bg-white/[0.06] text-gray-700 dark:text-white text-xs font-bold rounded-xl hover:bg-gray-200 dark:hover:bg-white/[0.1] transition"
