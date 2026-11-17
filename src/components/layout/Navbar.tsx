@@ -122,13 +122,18 @@ export default function Navbar() {
             <img src="/exown-logo.png" alt="ExOwn" className="h-8 w-auto" />
           </Link>
 
-          <label className="hidden cursor-pointer items-center gap-2 rounded-xl border border-gray-200 bg-gray-100 px-3 py-1.5 text-xs font-bold text-gray-700 transition hover:border-primary dark:border-white/10 dark:bg-white/[0.04] dark:text-white/80 sm:flex">
-            <MapPin size={15} className="text-primary" />
+          <label className="relative hidden cursor-pointer items-center gap-2 rounded-xl border border-gray-200 bg-gray-100 px-3 py-1.5 text-xs font-bold text-gray-700 transition hover:border-primary focus-within:ring-2 focus-within:ring-primary/30 dark:border-white/10 dark:bg-white/[0.04] dark:text-white/80 sm:flex">
+            <MapPin size={15} className="pointer-events-none text-primary" aria-hidden="true" />
             <span className="sr-only">Campus</span>
+            <span className="max-w-44 truncate text-xs font-bold text-gray-900 dark:text-white" aria-hidden="true">
+              {CAMPUS_DIRECTORY.find((campus) => campus.name === selectedCampus)?.shortName || selectedCampus}
+            </span>
+            <ChevronDown size={12} className="pointer-events-none select-none text-gray-400 dark:text-white/45" aria-hidden="true" />
             <select
+              aria-label="Select campus"
               value={selectedCampus}
               onChange={(e) => setSelectedCampus(e.target.value)}
-              className="max-w-44 cursor-pointer appearance-none bg-transparent text-xs font-bold outline-none text-gray-900 dark:text-white"
+              className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"
             >
               {CAMPUS_DIRECTORY.map((campus) => (
                 <option key={campus.id} value={campus.name} className="bg-white text-gray-900 dark:bg-[#10141b] dark:text-white">
@@ -136,7 +141,6 @@ export default function Navbar() {
                 </option>
               ))}
             </select>
-            <ChevronDown size={12} className="pointer-events-none select-none text-gray-400 dark:text-white/45" aria-hidden="true" />
           </label>
         </div>
 
