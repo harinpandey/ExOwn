@@ -43,11 +43,11 @@ export async function createNotification(data: {
 
 export async function getUserNotifications(userId: string) {
   try {
-    await requireSameUser(userId);
+    const actor = await requireSameUser(userId);
 
     return await withRetry(() =>
       prisma.notification.findMany({
-        where: { userId },
+        where: { userId: actor.uid },
         orderBy: { createdAt: "desc" },
         take: 50,
       })
@@ -60,11 +60,11 @@ export async function getUserNotifications(userId: string) {
 
 export async function getUnreadCount(userId: string) {
   try {
-    await requireSameUser(userId);
+    const actor = await requireSameUser(userId);
 
     return await withRetry(() =>
       prisma.notification.count({
-        where: { userId, isRead: false },
+        where: { userId: actor.uid, isRead: false },
       })
     );
   } catch {
@@ -118,11 +118,11 @@ export async function markAsUnread(notificationId: string) {
 
 export async function markAllAsRead(userId: string) {
   try {
-    await requireSameUser(userId);
+    const actor = await requireSameUser(userId);
 
     await withRetry(() =>
       prisma.notification.updateMany({
-        where: { userId, isRead: false },
+        where: { userId: actor.uid, isRead: false },
         data: { isRead: true },
       })
     );
@@ -155,11 +155,11 @@ export async function deleteNotification(notificationId: string) {
 
 export async function clearAllNotifications(userId: string) {
   try {
-    await requireSameUser(userId);
+    const actor = await requireSameUser(userId);
 
     await withRetry(() =>
       prisma.notification.deleteMany({
-        where: { userId },
+        where: { userId: actor.uid },
       })
     );
     return { success: true };
