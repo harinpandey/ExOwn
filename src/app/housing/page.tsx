@@ -17,7 +17,9 @@ import {
   X,
   Search,
 } from "lucide-react";
-import { getHousingListings } from "@/actions/housing";
+import { getHousingListings, revealHousingOwnerPhone } from "@/actions/housing";
+import { useAuth } from "@/context/AuthContext";
+import toast from "react-hot-toast";
 import { useLocation } from "@/context/LocationContext";
 import { useMoments } from "@/context/MomentsContext";
 import { getLocalitiesForCampus } from "@/config/localities";
@@ -25,8 +27,11 @@ import { getLocalitiesForCampus } from "@/config/localities";
 export default function HousingPage() {
   const { selectedCampus, campusObj } = useLocation();
   const { triggerEvent } = useMoments();
+  const { user } = useAuth();
   const [listings, setListings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [ownerPhones, setOwnerPhones] = useState<Record<string, string>>({});
+  const [phoneLoadingFor, setPhoneLoadingFor] = useState<string | null>(null);
 
   // Filters
   const [searchQuery, setSearchQuery] = useState("");
@@ -62,6 +67,27 @@ export default function HousingPage() {
     }, 4500);
     return () => clearTimeout(timer);
   }, [campusObj, triggerEvent]);
+
+  const handleRevealOwnerPhone = async (listingId: string) => {
+    if (!user) {
+      toast.error("Please sign in to view the owner's contact number.");
+      return;
+    }
+
+    setPhoneLoadingFor(listingId);
+    try {
+      const result = await revealHousingOwnerPhone(listingId);
+      if (result.success && result.phone) {
+        setOwnerPhones((current) => ({ ...current, [listingId]: result.phone }));
+      } else {
+        toast.error(result.error || "Unable to load the owner's contact number.");
+      }
+    } catch {
+      toast.error("Unable to load the owner's contact number.");
+    } finally {
+      setPhoneLoadingFor(null);
+    }
+  };
 
   const toggleAmenity = (amenity: string) => {
     setSelectedAmenities((prev) =>
@@ -443,18 +469,24 @@ export default function HousingPage() {
                         </div>
                       </div>
 
-                      {item.owner?.phone ? (
+                      {ownerPhones[item.id] ? (
                         <a
-                          href={`tel:${item.owner.phone}`}
-                          className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition shadow-md shadow-blue-600/20"
+                          href={`tel:${ownerPhones[item.id]}`}
+                          className="flex items-center gap-1.5 rounded-xl bg-emerald-600 px-3 py-2 text-xs font-bold text-white shadow-md shadow-emerald-600/20 transition hover:bg-emerald-700"
                         >
                           <Phone size={13} />
                           Call Owner
                         </a>
                       ) : (
-                        <span className="flex items-center gap-1.5 px-3 py-2 bg-gray-100 dark:bg-white/10 text-gray-500 dark:text-white/60 rounded-xl text-xs font-bold">
-                          Contact via Chat
-                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleRevealOwnerPhone(item.id)}
+                          disabled={phoneLoadingFor === item.id}
+                          className="flex items-center gap-1.5 rounded-xl bg-blue-600 px-3 py-2 text-xs font-bold text-white shadow-md shadow-blue-600/20 transition hover:bg-blue-700 disabled:cursor-wait disabled:opacity-60"
+                        >
+                          <Phone size={13} />
+                          {phoneLoadingFor === item.id ? "Loading..." : user ? "Show phone number" : "Sign in to contact"}
+                        </button>
                       )}
                     </div>
                   </article>
