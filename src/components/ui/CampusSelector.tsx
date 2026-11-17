@@ -5,7 +5,7 @@ import { ChevronDown, Plus } from "lucide-react";
 import { getCountries, getStates, getCities, getCampuses } from "@/actions/location";
 
 interface Props {
-  onSelect: (campusId: string) => void;
+  onSelect: (campusId: string, campusSlug: string) => void;
   selectedId?: string;
 }
 
@@ -71,7 +71,8 @@ export default function CampusSelector({ onSelect, selectedId }: Props) {
 
   const handleCampusSelect = (id: string) => {
     setSelection(prev => ({ ...prev, campus: id }));
-    onSelect(id);
+    const selectedCampus = campuses.find((campus) => campus.id === id);
+    onSelect(id, selectedCampus?.slug || "");
   };
 
   return (
