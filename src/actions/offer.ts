@@ -171,7 +171,6 @@ export async function getUserOffers(userId: string) {
       prisma.offer.findMany({
         where: { product: { sellerId: canonicalUserId } },
         include: {
-          buyer: { select: { id: true, name: true, image: true } },
           product: {
             select: { id: true, title: true, price: true, images: true, status: true },
           },
