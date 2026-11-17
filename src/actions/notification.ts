@@ -94,6 +94,28 @@ export async function markAsRead(notificationId: string) {
   }
 }
 
+export async function markAsUnread(notificationId: string) {
+  try {
+    const notification = await prisma.notification.findUnique({
+      where: { id: notificationId },
+      select: { userId: true },
+    });
+
+    if (!notification) return { success: false };
+    await requireSameUser(notification.userId);
+
+    await withRetry(() =>
+      prisma.notification.update({
+        where: { id: notificationId },
+        data: { isRead: false },
+      })
+    );
+    return { success: true };
+  } catch {
+    return { success: false };
+  }
+}
+
 export async function markAllAsRead(userId: string) {
   try {
     await requireSameUser(userId);
@@ -142,64 +164,6 @@ export async function clearAllNotifications(userId: string) {
     );
     return { success: true };
   } catch {
-    return { success: false };
-  }
-}
-
-export async function seedDemoNotifications(userId: string) {
-  try {
-    await requireSameUser(userId);
-
-    const demos = [
-      {
-        type: "OFFER" as const,
-        title: "⚡ Price Drop Alert: MacBook Air M1",
-        content: "A MacBook Air M1 in your wishlist dropped by ₹3,500! Check out the updated listing now.",
-        link: "/search?q=MacBook",
-      },
-      {
-        type: "RENTAL_APPROVED" as const,
-        title: "✅ Rental Request Approved!",
-        content: "Rohan accepted your rental request for the Mini Refrigerator (3-Month Semester Rental).",
-        link: "/search?listingType=RENT",
-      },
-      {
-        type: "VERIFICATION_STATUS" as const,
-        title: "🛡️ Campus Seller Verified",
-        content: "Congratulations! Your university student ID has been verified. You now carry the Trusted Student badge.",
-        link: "/profile",
-      },
-      {
-        type: "MESSAGE" as const,
-        title: "💬 New message from Priya (LPU BH-3)",
-        content: "'Hey! Is the Engineering Physics textbook still available for instant pickup today?'",
-        link: "/chat",
-      },
-      {
-        type: "SYSTEM" as const,
-        title: "🎉 Welcome to ExOwn Campus Marketplace",
-        content: "Buy, sell, and rent directly within your campus community with zero platform commission fees!",
-        link: "/",
-      },
-    ];
-
-    await Promise.all(
-      demos.map((d) =>
-        prisma.notification.create({
-          data: {
-            userId,
-            type: d.type,
-            title: d.title,
-            content: d.content,
-            link: d.link,
-          },
-        })
-      )
-    );
-
-    return { success: true };
-  } catch (err) {
-    console.error("Error seeding notifications:", err);
     return { success: false };
   }
 }
