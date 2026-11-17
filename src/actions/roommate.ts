@@ -144,15 +144,15 @@ export async function sendRoommateInterest(receiverProfileId: string, message?: 
       },
     });
 
-    await createNotification({
+    const notification = await createNotification({
       userId: receiverProfile.userId,
       type: "ROOMMATE_MATCH",
       title: "Roommate interest received",
-      content: "A campus member is interested in connecting with you. Open Roommates to review their profile.",
+      content: "A campus member is interested in connecting with you. Open Roommates to review the request.",
       link: "/roommates",
     });
 
-    return { success: true };
+    return { success: true, notificationSent: Boolean(notification) };
   } catch (error: any) {
     if (error?.code === "P2002") {
       return { success: false, error: "You've already sent a request to this profile." };
