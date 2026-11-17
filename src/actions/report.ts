@@ -12,13 +12,14 @@ export async function createReport(data: {
   description?: string;
 }) {
   try {
-    await requireSameUser(data.reporterId);
+    const actor = await requireSameUser(data.reporterId);
+    const reporterId = actor.uid;
 
     const cleanDescription = data.description ? sanitizeString(data.description) : undefined;
     if (!data.productId && !data.reportedId) {
       return { success: false, error: "Choose a listing or user to report." };
     }
-    if (data.reportedId === data.reporterId) {
+    if (data.reportedId === reporterId) {
       return { success: false, error: "You cannot report your own profile." };
     }
     if (cleanDescription && !validateLength(cleanDescription, 0, 1000)) {
@@ -31,7 +32,7 @@ export async function createReport(data: {
         select: { id: true, sellerId: true },
       });
       if (!product) return { success: false, error: "Listing not found." };
-      if (product.sellerId === data.reporterId) {
+      if (product.sellerId === reporterId) {
         return { success: false, error: "You cannot report your own listing." };
       }
     }
@@ -46,7 +47,7 @@ export async function createReport(data: {
 
     const duplicate = await prisma.report.findFirst({
       where: {
-        reporterId: data.reporterId,
+        reporterId,
         productId: data.productId,
         reportedId: data.reportedId,
         status: "PENDING",
@@ -60,7 +61,7 @@ export async function createReport(data: {
 
     const report = await prisma.report.create({
       data: {
-        reporterId: data.reporterId,
+        reporterId,
         productId: data.productId,
         reportedId: data.reportedId,
         reason: data.reason,
