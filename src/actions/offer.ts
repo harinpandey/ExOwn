@@ -11,7 +11,8 @@ export async function createOffer(data: {
   message?: string;
 }) {
   try {
-    await requireSameUser(data.buyerId);
+    const buyer = await requireSameUser(data.buyerId);
+    const canonicalBuyerId = buyer.uid;
 
     const price = Number(data.price);
     if (!validateRange(price, 1, 1000000)) {
@@ -32,14 +33,14 @@ export async function createOffer(data: {
     if (product.status !== "LIVE" || product.inventory < 1) {
       throw new Error("This listing is no longer available");
     }
-    if (product.sellerId === data.buyerId) {
+    if (product.sellerId === canonicalBuyerId) {
       throw new Error("You cannot make an offer on your own listing");
     }
 
     const existingPendingOffer = await prisma.offer.findFirst({
       where: {
         productId: data.productId,
-        buyerId: data.buyerId,
+        buyerId: canonicalBuyerId,
         status: "PENDING",
       },
       select: { id: true },
@@ -52,7 +53,7 @@ export async function createOffer(data: {
     const offer = await prisma.offer.create({
       data: {
         productId: data.productId,
-        buyerId: data.buyerId,
+        buyerId: canonicalBuyerId,
         price,
         message,
       }
@@ -66,7 +67,7 @@ export async function createOffer(data: {
         type: "OFFER",
         title: "New Offer Received",
         content: `You received an offer of ₹${price.toLocaleString('en-IN')} for "${product.title}"`,
-        link: `/profile?tab=listings` // Or a dedicated offers page
+        link: "/profile?tab=offers"
       });
     } catch (notifErr) {
       console.error("Failed to trigger offer notification:", notifErr);
@@ -81,7 +82,8 @@ export async function createOffer(data: {
 
 export async function updateOfferStatus(offerId: string, userId: string, status: "ACCEPTED" | "REJECTED") {
   try {
-    await requireSameUser(userId);
+    const actor = await requireSameUser(userId);
+    const canonicalUserId = actor.uid;
 
     const offer = await prisma.offer.findUnique({
       where: { id: offerId },
@@ -91,17 +93,20 @@ export async function updateOfferStatus(offerId: string, userId: string, status:
     });
 
     if (!offer) throw new Error("Offer not found");
-    if (offer.product.sellerId !== userId) throw new Error("Unauthorized");
+    if (offer.product.sellerId !== canonicalUserId) throw new Error("Unauthorized");
     if (offer.status !== "PENDING") throw new Error("Offer is already resolved");
     if (offer.product.status !== "LIVE" || offer.product.inventory < 1) {
       throw new Error("This listing is no longer available");
     }
 
     await prisma.$transaction(async (tx) => {
-      await tx.offer.update({
-        where: { id: offerId },
-        data: { status }
+      const updated = await tx.offer.updateMany({
+        where: { id: offerId, status: "PENDING" },
+        data: { status },
       });
+      if (updated.count !== 1) {
+        throw new Error("This offer has already been resolved.");
+      }
 
       if (status === "ACCEPTED") {
         await tx.offer.updateMany({
@@ -117,7 +122,7 @@ export async function updateOfferStatus(offerId: string, userId: string, status:
           where: { offerId },
           update: {
             buyerId: offer.buyerId,
-            sellerId: userId,
+            sellerId: canonicalUserId,
             productId: offer.productId,
             type: "SALE",
             source: "OFFER",
@@ -125,7 +130,7 @@ export async function updateOfferStatus(offerId: string, userId: string, status:
           },
           create: {
             buyerId: offer.buyerId,
-            sellerId: userId,
+            sellerId: canonicalUserId,
             productId: offer.productId,
             offerId,
             type: "SALE",
@@ -144,7 +149,7 @@ export async function updateOfferStatus(offerId: string, userId: string, status:
         type: "OFFER",
         title: status === "ACCEPTED" ? "Offer Accepted" : "Offer Rejected",
         content: `Your offer for "${offer.product.title}" has been ${status.toLowerCase()}.`,
-        link: `/product/${offer.productId}`
+        link: "/profile?tab=offers"
       });
     } catch (notifErr) {
       console.error("Failed to trigger offer status notification:", notifErr);
@@ -159,11 +164,12 @@ export async function updateOfferStatus(offerId: string, userId: string, status:
 
 export async function getUserOffers(userId: string) {
   try {
-    await requireSameUser(userId);
+    const actor = await requireSameUser(userId);
+    const canonicalUserId = actor.uid;
 
     const [received, sent] = await Promise.all([
       prisma.offer.findMany({
-        where: { product: { sellerId: userId } },
+        where: { product: { sellerId: canonicalUserId } },
         include: {
           product: {
             select: { id: true, title: true, price: true, images: true, status: true },
@@ -172,7 +178,7 @@ export async function getUserOffers(userId: string) {
         orderBy: { createdAt: "desc" },
       }),
       prisma.offer.findMany({
-        where: { buyerId: userId },
+        where: { buyerId: canonicalUserId },
         include: {
           product: {
             select: { id: true, title: true, price: true, images: true, status: true, sellerId: true },

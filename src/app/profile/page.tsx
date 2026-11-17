@@ -7,7 +7,7 @@ import { useEffect, useState, useCallback } from "react";
 import {
   Package, Heart, Settings, ShieldCheck, LogOut,
   Edit2, CreditCard, Crown, Clock, RefreshCw,
-  AlertCircle, ArrowRight, CheckCircle2, ChevronRight, Handshake, MapPin
+  AlertCircle, ArrowRight, CheckCircle2, ChevronRight, Handshake, MapPin, MessageSquare
 } from "lucide-react";
 import ProductCard from "@/components/ui/ProductCard";
 import UpgradePlanModal from "@/components/dashboard/UpgradePlanModal";
@@ -15,6 +15,7 @@ import BillingHistory from "@/components/dashboard/BillingHistory";
 import { getSubscription } from "@/actions/subscription";
 import { getWishlist } from "@/actions/wishlist";
 import { format } from "date-fns";
+import toast from "react-hot-toast";
 
 export default function ProfileDashboardPage() {
   const { user, loading, logout, isProfileComplete } = useAuth();
@@ -29,11 +30,21 @@ export default function ProfileDashboardPage() {
 
   const [offersData, setOffersData] = useState<{ received: any[]; sent: any[] }>({ received: [], sent: [] });
   const [offersLoading, setOffersLoading] = useState(false);
+  const [offerActionId, setOfferActionId] = useState<string | null>(null);
+  const [exchangeOffersData, setExchangeOffersData] = useState<{ received: any[]; sent: any[] }>({ received: [], sent: [] });
+  const [exchangeOffersLoading, setExchangeOffersLoading] = useState(false);
+  const [exchangeView, setExchangeView] = useState<"RECEIVED" | "SENT">("RECEIVED");
+  const [exchangeActionId, setExchangeActionId] = useState<string | null>(null);
+  const [serviceQuotesData, setServiceQuotesData] = useState<{ received: any[]; sent: any[] }>({ received: [], sent: [] });
+  const [serviceQuotesLoading, setServiceQuotesLoading] = useState(false);
+  const [serviceQuoteView, setServiceQuoteView] = useState<"RECEIVED" | "SENT">("RECEIVED");
+  const [serviceQuoteActionId, setServiceQuoteActionId] = useState<string | null>(null);
 
   const [rentalsData, setRentalsData] = useState<{ owned: any[]; rented: any[] }>({ owned: [], rented: [] });
   const [rentalsLoading, setRentalsLoading] = useState(false);
+  const [rentalActionId, setRentalActionId] = useState<string | null>(null);
 
-  const [activeTab, setActiveTab] = useState<"listings" | "favorites" | "offers" | "rentals" | "billing" | "settings">("listings");
+  const [activeTab, setActiveTab] = useState<"listings" | "favorites" | "offers" | "exchanges" | "serviceQuotes" | "rentals" | "billing" | "settings">("listings");
   const [listingFilter, setListingFilter] = useState<"ALL" | "LIVE" | "SOLD" | "PENDING">("ALL");
   const [subscription, setSubscription] = useState<any>(null);
   const [dbUser, setDbUser] = useState<any>(null);
@@ -44,6 +55,23 @@ export default function ProfileDashboardPage() {
       router.push("/login?redirect=/profile");
     }
   }, [user, loading, router]);
+
+  // Notification links open the corresponding Profile inbox directly.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get("tab");
+    const view = params.get("view")?.toUpperCase();
+
+    if (tab === "offers" || tab === "rentals") {
+      setActiveTab(tab);
+    } else if (tab === "exchanges") {
+      setActiveTab("exchanges");
+      if (view === "SENT" || view === "RECEIVED") setExchangeView(view);
+    } else if (tab === "serviceQuotes") {
+      setActiveTab("serviceQuotes");
+      if (view === "SENT" || view === "RECEIVED") setServiceQuoteView(view);
+    }
+  }, []);
 
   useEffect(() => {
     if (user) {
@@ -98,6 +126,111 @@ export default function ProfileDashboardPage() {
     }
   }, [user]);
 
+  const handleOfferDecision = async (offerId: string, status: "ACCEPTED" | "REJECTED") => {
+    if (!user || offerActionId) return;
+    setOfferActionId(offerId);
+    try {
+      const { updateOfferStatus } = await import("@/actions/offer");
+      const result = await updateOfferStatus(offerId, user.uid, status);
+      if (!result.success) {
+        toast.error(result.error || "Unable to update this offer.");
+        return;
+      }
+      toast.success(status === "ACCEPTED" ? "Price offer accepted." : "Price offer declined.");
+      await fetchOffers();
+    } catch (error) {
+      console.error("[Profile] Price offer action failed:", error);
+      toast.error("Unable to update this offer. Please try again.");
+    } finally {
+      setOfferActionId(null);
+    }
+  };
+
+  const fetchExchangeOffers = useCallback(async () => {
+    if (!user) return;
+    setExchangeOffersLoading(true);
+    try {
+      const { getExchangeOffers } = await import("@/actions/exchange");
+      const [received, sent] = await Promise.all([
+        getExchangeOffers(user.uid, "RECEIVED"),
+        getExchangeOffers(user.uid, "SENT"),
+      ]);
+      setExchangeOffersData({
+        received: Array.isArray(received) ? received : [],
+        sent: Array.isArray(sent) ? sent : [],
+      });
+    } catch (error) {
+      console.error("Exchange offers fetch failed:", error);
+      toast.error("Could not load exchange proposals. Please try again.");
+    } finally {
+      setExchangeOffersLoading(false);
+    }
+  }, [user]);
+
+  const fetchServiceQuotes = useCallback(async () => {
+    if (!user) return;
+    setServiceQuotesLoading(true);
+    try {
+      const { getServiceQuoteRequests } = await import("@/actions/service");
+      const [received, sent] = await Promise.all([
+        getServiceQuoteRequests(user.uid, "RECEIVED"),
+        getServiceQuoteRequests(user.uid, "SENT"),
+      ]);
+      setServiceQuotesData({
+        received: Array.isArray(received) ? received : [],
+        sent: Array.isArray(sent) ? sent : [],
+      });
+    } catch (error) {
+      console.error("Service quote requests fetch failed:", error);
+      toast.error("Could not load service inquiries. Please try again.");
+    } finally {
+      setServiceQuotesLoading(false);
+    }
+  }, [user]);
+
+  const handleServiceQuoteAction = async (quoteId: string, action: "REPLIED" | "CANCEL") => {
+    if (!user || serviceQuoteActionId) return;
+    setServiceQuoteActionId(quoteId);
+    try {
+      const serviceActions = await import("@/actions/service");
+      const result = action === "REPLIED"
+        ? await serviceActions.markServiceQuoteReplied(quoteId, user.uid)
+        : await serviceActions.cancelServiceQuoteRequest(quoteId, user.uid);
+
+      if (!result.success) {
+        toast.error(result.error || "Unable to update this service inquiry.");
+        return;
+      }
+      toast.success(action === "REPLIED" ? "Inquiry marked as replied." : "Inquiry cancelled.");
+      await fetchServiceQuotes();
+    } catch (error) {
+      console.error("Service quote action failed:", error);
+      toast.error("Unable to update this service inquiry. Please try again.");
+    } finally {
+      setServiceQuoteActionId(null);
+    }
+  };
+
+  const handleExchangeDecision = async (offerId: string, status: "ACCEPTED" | "REJECTED") => {
+    if (!user || exchangeActionId) return;
+    setExchangeActionId(offerId);
+    try {
+      const { respondToExchangeOffer } = await import("@/actions/exchange");
+      const result = await respondToExchangeOffer(user.uid, offerId, status);
+      if (!result.success) {
+        toast.error(result.error || "Unable to update exchange proposal.");
+        return;
+      }
+      toast.success(status === "ACCEPTED" ? "Exchange proposal accepted." : "Exchange proposal declined.");
+      await fetchExchangeOffers();
+    } catch (error) {
+      console.error("Exchange proposal decision failed:", error);
+      toast.error("Unable to update exchange proposal. Please try again.");
+    } finally {
+      setExchangeActionId(null);
+    }
+  };
+
   const fetchRentals = useCallback(async () => {
     if (!user) return;
     setRentalsLoading(true);
@@ -112,6 +245,36 @@ export default function ProfileDashboardPage() {
     }
   }, [user]);
 
+  const handleRentalAction = async (rentalId: string, action: "APPROVE" | "RETURN" | "CANCEL") => {
+    if (!user || rentalActionId) return;
+    setRentalActionId(rentalId);
+    try {
+      const rentalActions = await import("@/actions/rental");
+      const result = action === "APPROVE"
+        ? await rentalActions.approveRental(rentalId, user.uid)
+        : action === "RETURN"
+        ? await rentalActions.markRentalReturned(rentalId, user.uid)
+        : await rentalActions.cancelRentalRequest(rentalId, user.uid);
+
+      if (!result.success) {
+        toast.error(result.error || "Unable to update this rental.");
+        return;
+      }
+
+      toast.success(
+        action === "APPROVE" ? "Rental request approved."
+          : action === "RETURN" ? "Item marked as returned."
+          : "Rental request cancelled."
+      );
+      await fetchRentals();
+    } catch (error) {
+      console.error("[Profile] Rental action failed:", error);
+      toast.error("Unable to update this rental. Please try again.");
+    } finally {
+      setRentalActionId(null);
+    }
+  };
+
   const handleWishlistChange = useCallback((productId: string, added: boolean) => {
     if (!added) {
       setFavorites((prev) => prev.filter((p) => p.id !== productId));
@@ -123,10 +286,14 @@ export default function ProfileDashboardPage() {
       fetchFavorites();
     } else if (activeTab === "offers" && user) {
       fetchOffers();
+    } else if (activeTab === "exchanges" && user) {
+      fetchExchangeOffers();
+    } else if (activeTab === "serviceQuotes" && user) {
+      fetchServiceQuotes();
     } else if (activeTab === "rentals" && user) {
       fetchRentals();
     }
-  }, [activeTab, user, fetchFavorites, fetchOffers, fetchRentals]);
+  }, [activeTab, user, fetchFavorites, fetchOffers, fetchExchangeOffers, fetchServiceQuotes, fetchRentals]);
 
   const handleSignOut = async () => {
     try {
@@ -353,6 +520,38 @@ export default function ProfileDashboardPage() {
                 }`}
               >
                 <span className="flex items-center gap-2.5"><Handshake size={16} /> Offers</span>
+              </button>
+
+              <button
+                onClick={() => setActiveTab("exchanges")}
+                className={`flex items-center justify-between px-3.5 py-3 rounded-xl font-bold transition-colors text-left ${
+                  activeTab === "exchanges"
+                    ? "bg-primary/10 text-primary"
+                    : "hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300"
+                }`}
+              >
+                <span className="flex items-center gap-2.5"><RefreshCw size={16} /> Exchange Offers</span>
+                {exchangeOffersData.received.filter((offer) => offer.status === "PENDING").length > 0 && (
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-bold">
+                    {exchangeOffersData.received.filter((offer) => offer.status === "PENDING").length}
+                  </span>
+                )}
+              </button>
+
+              <button
+                onClick={() => setActiveTab("serviceQuotes")}
+                className={`flex items-center justify-between px-3.5 py-3 rounded-xl font-bold transition-colors text-left ${
+                  activeTab === "serviceQuotes"
+                    ? "bg-primary/10 text-primary"
+                    : "hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300"
+                }`}
+              >
+                <span className="flex items-center gap-2.5"><MessageSquare size={16} /> Service Requests</span>
+                {serviceQuotesData.received.filter((quote) => quote.status === "PENDING").length > 0 && (
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-bold">
+                    {serviceQuotesData.received.filter((quote) => quote.status === "PENDING").length}
+                  </span>
+                )}
               </button>
 
               <button
@@ -621,26 +820,49 @@ Received Offers ({offersData.received.length})
       key={offer.id}
       className="p-4 rounded-xl border border-gray-100 dark:border-white/10 bg-gray-50/60 dark:bg-zinc-800/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
     >
-      <div>
-        <span className="font-bold text-gray-900 dark:text-white block">
+      <div className="min-w-0 flex-1">
+        <span className="block font-bold text-gray-900 dark:text-white">
           {offer.product?.title || "Listing"}
         </span>
         <span className="text-gray-500">
-          Offered: <strong className="text-gray-900 dark:text-white font-bold">₹{offer.price?.toLocaleString("en-IN")}</strong> (Listed at ₹{offer.product?.price?.toLocaleString("en-IN")})
+          Offered: <strong className="font-bold text-gray-900 dark:text-white">₹{offer.price?.toLocaleString("en-IN")}</strong> (Listed at ₹{offer.product?.price?.toLocaleString("en-IN")})
         </span>
         {offer.message && (
           <p className="mt-1 text-gray-600 dark:text-gray-400 italic">"{offer.message}"</p>
         )}
+        <p className="mt-1 text-[10px] text-gray-400">{format(new Date(offer.createdAt), "dd MMM yyyy")}</p>
       </div>
-      <span className={`self-start sm:self-center px-2.5 py-1 rounded-full font-bold text-[10px] tracking-wide uppercase ${
-        offer.status === "ACCEPTED"
-          ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400"
-          : offer.status === "REJECTED"
-          ? "bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-400"
-          : "bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400"
-      }`}>
-        {offer.status}
-      </span>
+      <div className="flex shrink-0 flex-wrap items-center gap-2">
+        <span className={`rounded-full px-2.5 py-1 font-bold text-[10px] tracking-wide uppercase ${
+          offer.status === "ACCEPTED"
+            ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400"
+            : offer.status === "REJECTED"
+            ? "bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-400"
+            : "bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400"
+        }`}>
+          {offer.status}
+        </span>
+        {offer.status === "PENDING" && (
+          <>
+            <button
+              type="button"
+              disabled={offerActionId === offer.id}
+              onClick={() => handleOfferDecision(offer.id, "REJECTED")}
+              className="rounded-lg border border-red-200 px-3 py-2 text-[10px] font-black text-red-600 hover:bg-red-50 disabled:opacity-50 dark:border-red-900/50 dark:text-red-300"
+            >
+              Decline
+            </button>
+            <button
+              type="button"
+              disabled={offerActionId === offer.id}
+              onClick={() => handleOfferDecision(offer.id, "ACCEPTED")}
+              className="rounded-lg bg-primary px-3 py-2 text-[10px] font-black text-white hover:bg-primary-dark disabled:opacity-50"
+            >
+              {offerActionId === offer.id ? "Saving..." : "Accept"}
+            </button>
+          </>
+        )}
+      </div>
     </div>
   ))}
 </div>
@@ -690,6 +912,207 @@ Sent Offers ({offersData.sent.length})
             </div>
           )}
 
+          {/* TAB: EXCHANGE PROPOSALS */}
+          {activeTab === "exchanges" && (
+            <div className="space-y-5 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-gray-900">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white">Exchange Proposals</h3>
+                  <p className="mt-1 text-xs text-gray-500">Review proposals for your listings or track the ones you sent.</p>
+                </div>
+                <div className="flex rounded-xl bg-gray-100 p-1 text-[11px] font-bold dark:bg-zinc-800">
+                  <button
+                    type="button"
+                    onClick={() => setExchangeView("RECEIVED")}
+                    className={`rounded-lg px-3 py-2 transition ${exchangeView === "RECEIVED" ? "bg-white text-gray-900 shadow-sm dark:bg-zinc-700 dark:text-white" : "text-gray-500 dark:text-gray-400"}`}
+                  >
+                    Received ({exchangeOffersData.received.length})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setExchangeView("SENT")}
+                    className={`rounded-lg px-3 py-2 transition ${exchangeView === "SENT" ? "bg-white text-gray-900 shadow-sm dark:bg-zinc-700 dark:text-white" : "text-gray-500 dark:text-gray-400"}`}
+                  >
+                    Sent ({exchangeOffersData.sent.length})
+                  </button>
+                </div>
+              </div>
+
+              {exchangeOffersLoading ? (
+                <div className="flex justify-center py-12">
+                  <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+                </div>
+              ) : (exchangeView === "RECEIVED" ? exchangeOffersData.received : exchangeOffersData.sent).length === 0 ? (
+                <div className="rounded-2xl border border-dashed border-gray-200 px-5 py-14 text-center dark:border-white/10">
+                  <RefreshCw size={30} className="mx-auto mb-3 text-gray-400" />
+                  <h4 className="text-sm font-black text-gray-900 dark:text-white">
+                    {exchangeView === "RECEIVED" ? "No exchange proposals received" : "No exchange proposals sent"}
+                  </h4>
+                  <p className="mx-auto mt-1 max-w-sm text-xs text-gray-500">
+                    {exchangeView === "RECEIVED" ? "When another student proposes an exchange for one of your listings, it will appear here." : "When you propose an exchange for a campus listing, you can track its status here."}
+                  </p>
+                  <Link href="/search?exchange=true" className="mt-4 inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline">
+                    Explore exchange listings <ChevronRight size={13} />
+                  </Link>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {(exchangeView === "RECEIVED" ? exchangeOffersData.received : exchangeOffersData.sent).map((offer) => (
+                    <article key={offer.id} className="rounded-2xl border border-gray-100 bg-gray-50/70 p-4 dark:border-white/10 dark:bg-zinc-800/40">
+                      <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+                        <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-gray-200 dark:bg-zinc-700">
+                          {offer.offeredImages?.[0] ? (
+                            <img src={offer.offeredImages[0]} alt={offer.offeredTitle} className="h-full w-full object-cover" />
+                          ) : (
+                            <div className="flex h-full items-center justify-center text-xs font-bold text-gray-400">No photo</div>
+                          )}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <h4 className="text-sm font-black text-gray-900 dark:text-white">{offer.offeredTitle}</h4>
+                            <span className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase ${offer.status === "ACCEPTED" || offer.status === "COMPLETED" ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300" : offer.status === "REJECTED" ? "bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-300" : "bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300"}`}>
+                              {offer.status}
+                            </span>
+                          </div>
+                          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                            For <Link href={`/product/${offer.product.id}`} className="font-bold text-primary hover:underline">{offer.product.title}</Link>
+                          </p>
+                          <p className="mt-2 whitespace-pre-wrap text-xs leading-relaxed text-gray-600 dark:text-gray-300">{offer.offeredDescription}</p>
+                          {offer.cashDifference != null && offer.cashDifference > 0 && (
+                            <p className="mt-2 text-xs font-bold text-emerald-700 dark:text-emerald-300">
+                              Cash difference offered: ₹{offer.cashDifference.toLocaleString("en-IN")}
+                            </p>
+                          )}
+                          <p className="mt-2 text-[10px] text-gray-400">
+                            {exchangeView === "RECEIVED" ? `From ${offer.buyer?.name || "Campus member"}` : "Your proposal"} · {format(new Date(offer.createdAt), "dd MMM yyyy")}
+                          </p>
+                          <div className="mt-3 flex flex-wrap items-center gap-2">
+                            <Link href={`/chat/${exchangeView === "RECEIVED" ? offer.buyerId : offer.product.seller.id}?product=${offer.product.id}`} className="rounded-lg border border-gray-200 px-3 py-2 text-[11px] font-bold text-gray-700 hover:border-primary hover:text-primary dark:border-white/10 dark:text-gray-200">
+                              Open chat
+                            </Link>
+                            {exchangeView === "RECEIVED" && offer.status === "PENDING" && (
+                              <>
+                                <button
+                                  type="button"
+                                  disabled={exchangeActionId === offer.id}
+                                  onClick={() => handleExchangeDecision(offer.id, "REJECTED")}
+                                  className="rounded-lg border border-red-200 px-3 py-2 text-[11px] font-bold text-red-600 hover:bg-red-50 disabled:opacity-50 dark:border-red-900/50 dark:text-red-300"
+                                >
+                                  Decline
+                                </button>
+                                <button
+                                  type="button"
+                                  disabled={exchangeActionId === offer.id}
+                                  onClick={() => handleExchangeDecision(offer.id, "ACCEPTED")}
+                                  className="rounded-lg bg-primary px-3 py-2 text-[11px] font-bold text-white hover:bg-primary-dark disabled:opacity-50"
+                                >
+                                  {exchangeActionId === offer.id ? "Updating..." : "Accept"}
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* TAB: SERVICE QUOTE REQUESTS */}
+          {activeTab === "serviceQuotes" && (
+            <div className="space-y-5 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-gray-900">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white">Service Requests</h3>
+                  <p className="mt-1 text-xs text-gray-500">Review inquiries for your services or track the quotes you requested.</p>
+                </div>
+                <div className="flex rounded-xl bg-gray-100 p-1 text-[11px] font-bold dark:bg-zinc-800">
+                  <button
+                    type="button"
+                    onClick={() => setServiceQuoteView("RECEIVED")}
+                    className={`rounded-lg px-3 py-2 transition ${serviceQuoteView === "RECEIVED" ? "bg-white text-gray-900 shadow-sm dark:bg-zinc-700 dark:text-white" : "text-gray-500 dark:text-gray-400"}`}
+                  >
+                    Received ({serviceQuotesData.received.length})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setServiceQuoteView("SENT")}
+                    className={`rounded-lg px-3 py-2 transition ${serviceQuoteView === "SENT" ? "bg-white text-gray-900 shadow-sm dark:bg-zinc-700 dark:text-white" : "text-gray-500 dark:text-gray-400"}`}
+                  >
+                    Sent ({serviceQuotesData.sent.length})
+                  </button>
+                </div>
+              </div>
+
+              {serviceQuotesLoading ? (
+                <div className="flex justify-center py-12">
+                  <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+                </div>
+              ) : (serviceQuoteView === "RECEIVED" ? serviceQuotesData.received : serviceQuotesData.sent).length === 0 ? (
+                <div className="rounded-2xl border border-dashed border-gray-200 px-5 py-14 text-center dark:border-white/10">
+                  <MessageSquare size={30} className="mx-auto mb-3 text-gray-400" />
+                  <h4 className="text-sm font-black text-gray-900 dark:text-white">
+                    {serviceQuoteView === "RECEIVED" ? "No service inquiries received" : "No service inquiries sent"}
+                  </h4>
+                  <p className="mx-auto mt-1 max-w-sm text-xs text-gray-500">
+                    {serviceQuoteView === "RECEIVED" ? "Student inquiries for your service listings will appear here." : "Your quote requests to campus service providers will appear here."}
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {(serviceQuoteView === "RECEIVED" ? serviceQuotesData.received : serviceQuotesData.sent).map((quote) => {
+                    const product = quote.serviceDetail.product;
+                    const partnerId = serviceQuoteView === "RECEIVED" ? quote.user.id : product.seller.id;
+                    const partnerName = serviceQuoteView === "RECEIVED" ? quote.user.name : product.seller.name;
+                    return (
+                      <article key={quote.id} className="rounded-2xl border border-gray-100 bg-gray-50/70 p-4 dark:border-white/10 dark:bg-zinc-800/40">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                          <div className="min-w-0 flex-1">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <h4 className="text-sm font-black text-gray-900 dark:text-white">{product.title}</h4>
+                              <span className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase ${quote.status === "REPLIED" ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300" : quote.status === "CANCELLED" ? "bg-gray-100 text-gray-500 dark:bg-zinc-700" : "bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300"}`}>
+                                {quote.status}
+                              </span>
+                            </div>
+                            <p className="mt-1 text-[11px] text-gray-500">{serviceQuoteView === "RECEIVED" ? "From" : "Provider"}: {partnerName || "Campus member"} · {format(new Date(quote.createdAt), "dd MMM yyyy")}</p>
+                            <p className="mt-3 whitespace-pre-wrap text-xs leading-relaxed text-gray-700 dark:text-gray-300">{quote.content}</p>
+                          </div>
+                          <div className="flex shrink-0 flex-wrap gap-2">
+                            <Link href={`/chat/${partnerId}?product=${product.id}`} className="rounded-lg border border-gray-200 px-3 py-2 text-[10px] font-bold text-gray-700 hover:border-primary hover:text-primary dark:border-white/10 dark:text-gray-200">
+                              Open chat
+                            </Link>
+                            {serviceQuoteView === "RECEIVED" && quote.status === "PENDING" && (
+                              <button
+                                type="button"
+                                disabled={serviceQuoteActionId === quote.id}
+                                onClick={() => handleServiceQuoteAction(quote.id, "REPLIED")}
+                                className="rounded-lg bg-primary px-3 py-2 text-[10px] font-bold text-white hover:bg-primary-dark disabled:opacity-50"
+                              >
+                                {serviceQuoteActionId === quote.id ? "Saving..." : "Mark replied"}
+                              </button>
+                            )}
+                            {serviceQuoteView === "SENT" && quote.status === "PENDING" && (
+                              <button
+                                type="button"
+                                disabled={serviceQuoteActionId === quote.id}
+                                onClick={() => handleServiceQuoteAction(quote.id, "CANCEL")}
+                                className="rounded-lg border border-red-200 px-3 py-2 text-[10px] font-bold text-red-600 hover:bg-red-50 disabled:opacity-50 dark:border-red-900/50 dark:text-red-300"
+                              >
+                                {serviceQuoteActionId === quote.id ? "Saving..." : "Cancel request"}
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </article>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+
           {/* TAB: RENTALS */}
           {activeTab === "rentals" && (
             <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-white/10 p-6 shadow-sm space-y-6">
@@ -719,17 +1142,42 @@ Items You Put For Rent ({rentalsData.owned.length})
       key={rental.id}
       className="p-4 rounded-xl border border-gray-100 dark:border-white/10 bg-gray-50/60 dark:bg-zinc-800/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
     >
-      <div>
-        <span className="font-bold text-gray-900 dark:text-white block">
+      <div className="min-w-0">
+        <span className="block font-bold text-gray-900 dark:text-white">
           {rental.product?.title}
         </span>
         <span className="text-gray-500">
           Renter: {rental.renter?.name || "Student"} • Deposit: ₹{rental.securityDeposit}
         </span>
+        <p className="mt-1 text-[10px] text-gray-400">
+          {format(new Date(rental.startDate), "dd MMM yyyy")} – {format(new Date(rental.endDate), "dd MMM yyyy")}
+        </p>
       </div>
-      <span className="px-2.5 py-1 rounded-full font-bold text-[10px] uppercase bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400">
-        {rental.status}
-      </span>
+      <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+        <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[10px] font-bold uppercase text-blue-700 dark:bg-blue-950/40 dark:text-blue-400">
+          {rental.status}
+        </span>
+        {rental.status === "PENDING" && (
+          <button
+            type="button"
+            disabled={rentalActionId === rental.id}
+            onClick={() => handleRentalAction(rental.id, "APPROVE")}
+            className="rounded-lg bg-primary px-3 py-2 text-[10px] font-black text-white hover:bg-primary-dark disabled:opacity-50"
+          >
+            {rentalActionId === rental.id ? "Saving..." : "Approve"}
+          </button>
+        )}
+        {rental.status === "ACTIVE" && (
+          <button
+            type="button"
+            disabled={rentalActionId === rental.id}
+            onClick={() => handleRentalAction(rental.id, "RETURN")}
+            className="rounded-lg border border-emerald-200 px-3 py-2 text-[10px] font-black text-emerald-700 hover:bg-emerald-50 disabled:opacity-50 dark:border-emerald-900/50 dark:text-emerald-300"
+          >
+            {rentalActionId === rental.id ? "Saving..." : "Mark returned"}
+          </button>
+        )}
+      </div>
     </div>
   ))}
 </div>
@@ -749,17 +1197,32 @@ Items You Borrowed / Requested ({rentalsData.rented.length})
       key={rental.id}
       className="p-4 rounded-xl border border-gray-100 dark:border-white/10 bg-gray-50/60 dark:bg-zinc-800/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
     >
-      <div>
-        <span className="font-bold text-gray-900 dark:text-white block">
+      <div className="min-w-0">
+        <span className="block font-bold text-gray-900 dark:text-white">
           {rental.product?.title}
         </span>
         <span className="text-gray-500">
           Owner: {rental.owner?.name || "Student"}
         </span>
+        <p className="mt-1 text-[10px] text-gray-400">
+          {format(new Date(rental.startDate), "dd MMM yyyy")} – {format(new Date(rental.endDate), "dd MMM yyyy")}
+        </p>
       </div>
-      <span className="px-2.5 py-1 rounded-full font-bold text-[10px] uppercase bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400">
-        {rental.status}
-      </span>
+      <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+        <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[10px] font-bold uppercase text-blue-700 dark:bg-blue-950/40 dark:text-blue-400">
+          {rental.status}
+        </span>
+        {rental.status === "PENDING" && (
+          <button
+            type="button"
+            disabled={rentalActionId === rental.id}
+            onClick={() => handleRentalAction(rental.id, "CANCEL")}
+            className="rounded-lg border border-red-200 px-3 py-2 text-[10px] font-black text-red-600 hover:bg-red-50 disabled:opacity-50 dark:border-red-900/50 dark:text-red-300"
+          >
+            {rentalActionId === rental.id ? "Saving..." : "Cancel request"}
+          </button>
+        )}
+      </div>
     </div>
   ))}
 </div>

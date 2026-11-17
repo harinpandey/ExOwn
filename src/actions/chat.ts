@@ -7,13 +7,14 @@ import { sanitizeString } from "@/lib/validation";
 
 export async function getConversations(userId: string) {
   try {
-    await requireSameUser(userId);
+    const actor = await requireSameUser(userId);
+    const canonicalUserId = actor.uid;
 
     const messages = await withRetry(() => prisma.message.findMany({
       where: {
         OR: [
-          { senderId: userId },
-          { receiverId: userId }
+          { senderId: canonicalUserId },
+          { receiverId: canonicalUserId }
         ]
       },
       orderBy: {
@@ -30,7 +31,7 @@ export async function getConversations(userId: string) {
     const conversationsMap = new Map();
 
     messages.forEach(msg => {
-      const partner = msg.senderId === userId ? msg.receiver : msg.sender;
+      const partner = msg.senderId === canonicalUserId ? msg.receiver : msg.sender;
       let displayLastMessage = msg.content;
       try {
         if (msg.content.includes("LIVE_LOCATION_STARTED")) {
@@ -48,11 +49,11 @@ export async function getConversations(userId: string) {
           partner,
           lastMessage: displayLastMessage,
           lastMessageTime: msg.createdAt,
-          unreadCount: msg.receiverId === userId && !msg.isRead ? 1 : 0
+          unreadCount: msg.receiverId === canonicalUserId && !msg.isRead ? 1 : 0
         });
       } else {
         const existing = conversationsMap.get(partner.id);
-        if (msg.receiverId === userId && !msg.isRead) {
+        if (msg.receiverId === canonicalUserId && !msg.isRead) {
           existing.unreadCount += 1;
         }
       }
@@ -65,8 +66,8 @@ export async function getConversations(userId: string) {
       const recentOffers = await prisma.offer.findMany({
         where: {
           OR: [
-            { buyerId: userId, product: { sellerId: { in: partnerIds } } },
-            { buyerId: { in: partnerIds }, product: { sellerId: userId } },
+            { buyerId: canonicalUserId, product: { sellerId: { in: partnerIds } } },
+            { buyerId: { in: partnerIds }, product: { sellerId: canonicalUserId } },
           ],
         },
         include: {
@@ -78,7 +79,7 @@ export async function getConversations(userId: string) {
       });
 
       for (const offer of recentOffers) {
-        const otherUserId = offer.buyerId === userId ? offer.product.sellerId : offer.buyerId;
+        const otherUserId = offer.buyerId === canonicalUserId ? offer.product.sellerId : offer.buyerId;
         const conv = conversationsMap.get(otherUserId);
         if (conv && !conv.product) {
           conv.product = offer.product;
@@ -97,13 +98,14 @@ export async function getConversations(userId: string) {
 
 export async function getChatHistory(userId: string, partnerId: string) {
   try {
-    await requireSameUser(userId);
+    const actor = await requireSameUser(userId);
+    const canonicalUserId = actor.uid;
 
     const messages = await withRetry(() => prisma.message.findMany({
       where: {
         OR: [
-          { senderId: userId, receiverId: partnerId },
-          { senderId: partnerId, receiverId: userId }
+          { senderId: canonicalUserId, receiverId: partnerId },
+          { senderId: partnerId, receiverId: canonicalUserId }
         ]
       },
       orderBy: {
@@ -115,7 +117,7 @@ export async function getChatHistory(userId: string, partnerId: string) {
     await withRetry(() => prisma.message.updateMany({
       where: {
         senderId: partnerId,
-        receiverId: userId,
+        receiverId: canonicalUserId,
         isRead: false
       },
       data: {
@@ -133,7 +135,8 @@ export async function getChatHistory(userId: string, partnerId: string) {
 
 export async function sendMessage(senderId: string, receiverId: string, content: string) {
   try {
-    await requireSameUser(senderId);
+    const actor = await requireSameUser(senderId);
+    const canonicalSenderId = actor.uid;
 
     const cleanContent = sanitizeString(content);
     if (!cleanContent.trim()) {
@@ -142,7 +145,7 @@ export async function sendMessage(senderId: string, receiverId: string, content:
 
     const message = await withRetry(() => prisma.message.create({
       data: {
-        senderId,
+        senderId: canonicalSenderId,
         receiverId,
         content: cleanContent
       },
@@ -160,7 +163,7 @@ export async function sendMessage(senderId: string, receiverId: string, content:
         type: "MESSAGE",
         title: "New Message",
         content: `${message.sender.name || 'Someone'} sent you a message: "${content.substring(0, 50)}${content.length > 50 ? '...' : ''}"`,
-        link: `/chat?partner=${senderId}`
+        link: `/chat?partner=${canonicalSenderId}`
       });
     } catch (notifErr) {
       console.error("Failed to create message notification:", notifErr);
@@ -189,7 +192,8 @@ export async function getTotalUnreadCount(userId: string) {
 
 export async function getConversationContext(userId: string, partnerId: string, productId?: string) {
   try {
-    await requireSameUser(userId);
+    const actor = await requireSameUser(userId);
+    const canonicalUserId = actor.uid;
 
     // 1. Fetch partner profile (minimized & safe)
     const partner = await prisma.user.findUnique({
@@ -236,8 +240,8 @@ export async function getConversationContext(userId: string, partnerId: string, 
         where: {
           productId: product.id,
           OR: [
-            { buyerId: userId, product: { sellerId: partnerId } },
-            { buyerId: partnerId, product: { sellerId: userId } },
+            { buyerId: canonicalUserId, product: { sellerId: partnerId } },
+            { buyerId: partnerId, product: { sellerId: canonicalUserId } },
           ],
         },
         orderBy: { createdAt: "desc" },
@@ -249,8 +253,8 @@ export async function getConversationContext(userId: string, partnerId: string, 
           where: {
             productId: product.id,
             OR: [
-              { renterId: userId, ownerId: partnerId },
-              { renterId: partnerId, ownerId: userId },
+              { renterId: canonicalUserId, ownerId: partnerId },
+              { renterId: partnerId, ownerId: canonicalUserId },
             ],
           },
           orderBy: { createdAt: "desc" },
@@ -262,7 +266,7 @@ export async function getConversationContext(userId: string, partnerId: string, 
         activeExchange = await prisma.exchangeOffer.findFirst({
           where: {
             productId: product.id,
-            buyerId: userId === product.sellerId ? partnerId : userId,
+            buyerId: canonicalUserId === product.sellerId ? partnerId : canonicalUserId,
           },
           orderBy: { createdAt: "desc" },
         });
@@ -272,8 +276,8 @@ export async function getConversationContext(userId: string, partnerId: string, 
       activeOffer = await prisma.offer.findFirst({
         where: {
           OR: [
-            { buyerId: userId, product: { sellerId: partnerId } },
-            { buyerId: partnerId, product: { sellerId: userId } },
+            { buyerId: canonicalUserId, product: { sellerId: partnerId } },
+            { buyerId: partnerId, product: { sellerId: canonicalUserId } },
           ],
         },
         include: {

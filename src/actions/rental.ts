@@ -15,7 +15,8 @@ export async function requestRental(data: {
   pickupLocation: string;
 }) {
   try {
-    await requireSameUser(data.renterId);
+    const renter = await requireSameUser(data.renterId);
+    const renterId = renter.uid;
 
     const startDate = new Date(data.startDate);
     const endDate = new Date(data.endDate);
@@ -51,7 +52,7 @@ export async function requestRental(data: {
       throw new Error("This rental is no longer available");
     }
 
-    if (product.sellerId === data.renterId) {
+    if (product.sellerId === renterId) {
       throw new Error("You cannot rent your own listing");
     }
 
@@ -85,7 +86,7 @@ export async function requestRental(data: {
           return await tx.rental.create({
             data: {
               productId: data.productId,
-              renterId: data.renterId,
+              renterId,
               ownerId: product.sellerId,
               rentalDetailId: product.rentalDetail!.id,
               startDate,
@@ -108,11 +109,11 @@ export async function requestRental(data: {
       type: "RENTAL_REQUEST",
       title: "New Rental Request! 📦",
       content: `Someone wants to rent your "${product.title}". Check details now.`,
-      link: `/dashboard/rentals/${rental.id}`,
+      link: "/profile?tab=rentals",
     });
 
     await logActivity({
-      userId: data.renterId,
+      userId: renterId,
       actionType: "RENTAL_REQUESTED",
       productId: data.productId,
       rentalId: rental.id,
@@ -128,14 +129,15 @@ export async function requestRental(data: {
 
 export async function approveRental(rentalId: string, ownerId: string) {
   try {
-    await requireSameUser(ownerId);
+    const owner = await requireSameUser(ownerId);
+    const canonicalOwnerId = owner.uid;
 
     const rental = await prisma.rental.findUnique({
       where: { id: rentalId },
       include: { product: true },
     });
 
-    if (!rental || rental.ownerId !== ownerId) {
+    if (!rental || rental.ownerId !== canonicalOwnerId) {
       throw new Error("Unauthorized or rental not found");
     }
 
@@ -150,10 +152,13 @@ export async function approveRental(rentalId: string, ownerId: string) {
     // 1. Update Status
     await withRetry(() =>
       prisma.$transaction(async (tx) => {
-        await tx.rental.update({
-          where: { id: rentalId },
+        const updated = await tx.rental.updateMany({
+          where: { id: rentalId, ownerId: canonicalOwnerId, status: "PENDING" },
           data: { status: "ACTIVE" },
         });
+        if (updated.count !== 1) {
+          throw new Error("This rental request has already been reviewed.");
+        }
 
         const rentalDays = Math.max(
           1,
@@ -163,7 +168,7 @@ export async function approveRental(rentalId: string, ownerId: string) {
           where: { rentalId },
           update: {
             buyerId: rental.renterId,
-            sellerId: ownerId,
+            sellerId: canonicalOwnerId,
             productId: rental.productId,
             type: "RENT",
             source: "RENTAL",
@@ -171,7 +176,7 @@ export async function approveRental(rentalId: string, ownerId: string) {
           },
           create: {
             buyerId: rental.renterId,
-            sellerId: ownerId,
+            sellerId: canonicalOwnerId,
             productId: rental.productId,
             rentalId,
             type: "RENT",
@@ -188,11 +193,11 @@ export async function approveRental(rentalId: string, ownerId: string) {
       type: "RENTAL_APPROVED",
       title: "Rental Approved! 🎉",
       content: `Your request for "${rental.product.title}" has been approved. Coordinate pickup!`,
-      link: `/dashboard/rentals/${rental.id}`,
+      link: "/profile?tab=rentals",
     });
 
     await logActivity({
-      userId: ownerId,
+      userId: canonicalOwnerId,
       actionType: "RENTAL_APPROVED",
       rentalId: rentalId,
       targetUserId: rental.renterId,
@@ -206,14 +211,15 @@ export async function approveRental(rentalId: string, ownerId: string) {
 
 export async function markRentalReturned(rentalId: string, ownerId: string) {
   try {
-    await requireSameUser(ownerId);
+    const owner = await requireSameUser(ownerId);
+    const canonicalOwnerId = owner.uid;
 
     const rental = await prisma.rental.findUnique({
       where: { id: rentalId },
       select: { ownerId: true, status: true },
     });
 
-    if (!rental || rental.ownerId !== ownerId) {
+    if (!rental || rental.ownerId !== canonicalOwnerId) {
       throw new Error("Unauthorized or rental not found");
     }
 
@@ -221,32 +227,92 @@ export async function markRentalReturned(rentalId: string, ownerId: string) {
       throw new Error("Only active rentals can be marked returned");
     }
 
-    await withRetry(() =>
-      prisma.rental.update({
-        where: { id: rentalId },
+    const updated = await withRetry(() =>
+      prisma.rental.updateMany({
+        where: { id: rentalId, ownerId: canonicalOwnerId, status: "ACTIVE" },
         data: { status: "RETURNED" },
       })
     );
+    if (updated.count !== 1) {
+      throw new Error("This rental has already been updated.");
+    }
 
     await logActivity({
-      userId: ownerId,
+      userId: canonicalOwnerId,
       actionType: "RENTAL_RETURNED",
       rentalId: rentalId,
     });
 
     return { success: true };
-  } catch {
-    return { success: false };
+  } catch (error) {
+    console.error("[markRentalReturned] Failed:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Unable to mark this rental as returned.",
+    };
+  }
+}
+
+export async function cancelRentalRequest(rentalId: string, renterId: string) {
+  try {
+    const renter = await requireSameUser(renterId);
+    const rental = await prisma.rental.findUnique({
+      where: { id: rentalId },
+      select: {
+        id: true,
+        renterId: true,
+        ownerId: true,
+        status: true,
+        product: { select: { title: true } },
+      },
+    });
+
+    if (!rental || rental.renterId !== renter.uid) {
+      return { success: false, error: "Rental request not found." };
+    }
+    if (rental.status !== "PENDING") {
+      return { success: false, error: "Only pending rental requests can be cancelled." };
+    }
+
+    const updated = await withRetry(() =>
+      prisma.rental.updateMany({
+        where: { id: rental.id, renterId: renter.uid, status: "PENDING" },
+        data: { status: "CANCELLED" },
+      })
+    );
+    if (updated.count !== 1) {
+      return { success: false, error: "This rental request has already been updated." };
+    }
+
+    await createNotification({
+      userId: rental.ownerId,
+      type: "RENTAL_REQUEST",
+      title: "Rental request withdrawn",
+      content: "A student withdrew their rental request for " + rental.product.title + ".",
+      link: "/profile?tab=rentals",
+    });
+    await logActivity({
+      userId: renter.uid,
+      actionType: "RENTAL_REQUEST_CANCELLED",
+      rentalId: rental.id,
+      targetUserId: rental.ownerId,
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error("[cancelRentalRequest] Failed:", error);
+    return { success: false, error: "Unable to cancel this rental request." };
   }
 }
 
 export async function getUserRentals(userId: string) {
   try {
-    await requireSameUser(userId);
+    const actor = await requireSameUser(userId);
+    const canonicalUserId = actor.uid;
 
     const [owned, rented] = await Promise.all([
       prisma.rental.findMany({
-        where: { ownerId: userId },
+        where: { ownerId: canonicalUserId },
         include: {
           product: {
             select: { id: true, title: true, price: true, images: true },
@@ -258,7 +324,7 @@ export async function getUserRentals(userId: string) {
         orderBy: { createdAt: "desc" },
       }),
       prisma.rental.findMany({
-        where: { renterId: userId },
+        where: { renterId: canonicalUserId },
         include: {
           product: {
             select: { id: true, title: true, price: true, images: true },
