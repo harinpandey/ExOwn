@@ -24,7 +24,12 @@ export default function MobileNav() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const { user, isProfileComplete } = useAuth();
 
-  const sellHref = !user ? "/login?redirect=/sell" : !isProfileComplete ? "/complete-profile" : "/sell";
+  const getSellHref = (type?: "RENT" | "EXCHANGE" | "SERVICE") => {
+    const destination = type ? `/sell?type=${type}` : "/sell";
+    if (!user) return `/login?redirect=${encodeURIComponent(destination)}`;
+    if (!isProfileComplete) return `/complete-profile?redirect=${encodeURIComponent(destination)}`;
+    return destination;
+  };
   const navItems = [
     { name: "Home", icon: Home, href: "/" },
     { name: "Search", icon: Search, href: "/search" },
@@ -33,12 +38,12 @@ export default function MobileNav() {
   ];
 
   const createActions = [
-    { label: "Sell Item", href: sellHref, icon: PackagePlus },
-    { label: "Rent Item", href: `${sellHref}${sellHref.includes("?") ? "&" : "?"}intent=rent`, icon: KeyRound },
-    { label: "Exchange", href: `${sellHref}${sellHref.includes("?") ? "&" : "?"}intent=exchange`, icon: RefreshCw },
+    { label: "Sell Item", href: getSellHref(), icon: PackagePlus },
+    { label: "Rent Item", href: getSellHref("RENT"), icon: KeyRound },
+    { label: "Exchange", href: getSellHref("EXCHANGE"), icon: RefreshCw },
     { label: "Find Student Housing", href: "/housing", icon: House },
     { label: "Roommate Finder", href: "/roommates", icon: User },
-    { label: "Offer Service", href: `${sellHref}${sellHref.includes("?") ? "&" : "?"}intent=service`, icon: BriefcaseBusiness },
+    { label: "Offer Service", href: getSellHref("SERVICE"), icon: BriefcaseBusiness },
   ];
 
   return (
