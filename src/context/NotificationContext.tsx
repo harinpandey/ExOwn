@@ -152,7 +152,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       }, 60000);
       return () => window.clearInterval(interval);
     }
-  }, [user?.uid, authLoading, refreshNotifications]);
+  }, [user, authLoading, refreshNotifications]);
 
   return (
     <NotificationContext.Provider
