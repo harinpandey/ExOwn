@@ -45,6 +45,7 @@ function SellPageContent() {
   const [selectedSubcategory, setSelectedSubcategory] = useState<Subcategory | null>(null);
   const [customOtherTitle, setCustomOtherTitle] = useState("");
   const [campusId, setCampusId] = useState("");
+  const [campusSlug, setCampusSlug] = useState("");
 
   // Technical Condition & Attributes
   const [conditionDetails, setConditionDetails] = useState<any>(null);
@@ -401,7 +402,14 @@ function SellPageContent() {
               <label className="block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-400 mb-3">
                 Select Campus
               </label>
-              <CampusSelector onSelect={setCampusId} selectedId={campusId} />
+              <CampusSelector
+                onSelect={(id, slug) => {
+                  setCampusId(id);
+                  setCampusSlug(slug);
+                  setPickupLocation("");
+                }}
+                selectedId={campusId}
+              />
             </div>
 
             {/* Category Grid */}
@@ -595,7 +603,7 @@ function SellPageContent() {
                     Pickup Location / Spot *
                   </label>
                   <LocationSelector
-                    campusId={campusId}
+                    campusSlug={campusSlug}
                     selectedLocation={pickupLocation}
                     onSelect={setPickupLocation}
                   />
