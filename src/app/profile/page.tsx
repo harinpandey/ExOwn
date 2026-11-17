@@ -822,7 +822,7 @@ Received Offers ({offersData.received.length})
           {offer.product?.title || "Listing"}
         </span>
         <span className="text-gray-500">
-          {offer.buyer?.name ? `From ${offer.buyer.name} · ` : ""}Offered: <strong className="font-bold text-gray-900 dark:text-white">₹{offer.price?.toLocaleString("en-IN")}</strong> (Listed at ₹{offer.product?.price?.toLocaleString("en-IN")})
+          Offered: <strong className="font-bold text-gray-900 dark:text-white">₹{offer.price?.toLocaleString("en-IN")}</strong> (Listed at ₹{offer.product?.price?.toLocaleString("en-IN")})
         </span>
         {offer.message && (
           <p className="mt-1 text-gray-600 dark:text-gray-400 italic">"{offer.message}"</p>
