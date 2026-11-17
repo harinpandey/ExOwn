@@ -27,7 +27,6 @@ export default function NotificationsPage() {
   const router = useRouter();
   const {
     notifications,
-    unreadCount,
     loading: notificationsLoading,
     refreshNotifications,
     markRead,
