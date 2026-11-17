@@ -77,7 +77,7 @@ export default function Navbar() {
   useEffect(() => {
     let active = true;
     setIsAdmin(false);
-    if (user) {
+    if (user?.uid) {
       isCurrentUserAdmin()
         .then((allowed) => { if (active) setIsAdmin(allowed); })
         .catch(() => { if (active) setIsAdmin(false); });
