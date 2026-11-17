@@ -53,7 +53,7 @@ export async function createOffer(data: {
     const offer = await prisma.offer.create({
       data: {
         productId: data.productId,
-        buyerId: data.buyerId,
+        buyerId: canonicalBuyerId,
         price,
         message,
       }
