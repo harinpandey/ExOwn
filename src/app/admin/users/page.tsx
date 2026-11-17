@@ -82,7 +82,7 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
                         )}
                       </div>
                       <div className="min-w-0">
-                        <Link href={`/admin/users/\${u.id}`} className="block truncate text-sm font-black text-gray-900 hover:text-primary dark:text-white">
+                        <Link href={`/admin/users/${u.id}`} className="block truncate text-sm font-black text-gray-900 hover:text-primary dark:text-white">
                           {u.name || "Unnamed member"}
                         </Link>
                         <p className="mt-1 flex items-center gap-1 truncate text-xs text-gray-500 dark:text-gray-400">
@@ -116,7 +116,7 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
                   <td className="px-6 py-5">
                     <div className="flex items-center gap-2">
                       <div className="h-1.5 w-20 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-700">
-                        <div className={`h-full rounded-full \${u.trustScore >= 70 ? "bg-emerald-500" : u.trustScore >= 40 ? "bg-amber-500" : "bg-red-500"}`} style={{ width: `\${Math.max(0, Math.min(100, u.trustScore))}%` }} />
+                        <div className={`h-full rounded-full ${u.trustScore >= 70 ? "bg-emerald-500" : u.trustScore >= 40 ? "bg-amber-500" : "bg-red-500"}`} style={{ width: `${Math.max(0, Math.min(100, u.trustScore))}%` }} />
                       </div>
                       <span className="text-xs font-black text-gray-700 dark:text-gray-300">{u.trustScore}</span>
                     </div>
@@ -135,7 +135,7 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
                   </td>
                   <td className="px-6 py-5 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <Link href={`/admin/users/\${u.id}`} className="inline-flex items-center gap-1 rounded-xl border border-gray-200 px-3 py-2 text-xs font-bold text-gray-700 transition hover:border-primary hover:text-primary dark:border-gray-700 dark:text-gray-200">
+                      <Link href={`/admin/users/${u.id}`} className="inline-flex items-center gap-1 rounded-xl border border-gray-200 px-3 py-2 text-xs font-bold text-gray-700 transition hover:border-primary hover:text-primary dark:border-gray-700 dark:text-gray-200">
                         View record <ChevronRight size={14} />
                       </Link>
                       {u.isSuspended ? (
