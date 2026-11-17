@@ -28,7 +28,7 @@ export default function NotificationsPage() {
   const {
     notifications,
     unreadCount,
-    notificationsLoading,
+    loading: notificationsLoading,
     refreshNotifications,
     markRead,
     markUnread,
@@ -109,7 +109,7 @@ export default function NotificationsPage() {
                 <h1 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white tracking-tight">
                   Notifications
                 </h1>
-                {unreadCount > 0 && (
+                {notificationUnreadCount > 0 && (
                   <span className="px-2.5 py-0.5 rounded-full bg-blue-600 text-white text-xs font-black">
                     {unreadCount} New
                   </span>
