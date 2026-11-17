@@ -32,38 +32,46 @@ export default function ReportButton({ productId, reportedId }: ReportButtonProp
 
   const handleReport = async (e: React.FormEvent) => {
     e.preventDefault();
+    const returnTo = productId ? `/product/${productId}` : "/profile";
     if (!user) {
-      toast.error("Please sign in to report.");
-      router.push("/login");
+      router.push(`/login?redirect=${encodeURIComponent(returnTo)}`);
       return;
     }
-    
+    if (!reason || isSubmitting) return;
+
     setIsSubmitting(true);
-    const res = await createReport({
-      reporterId: user.uid,
-      productId,
-      reportedId,
-      reason,
-      description
-    });
-    
-    setIsSubmitting(false);
-    if (res.success) {
-      setIsSuccess(true);
-      setTimeout(() => {
-        setIsOpen(false);
-        setIsSuccess(false);
-        setReason("");
-        setDescription("");
-      }, 2000);
-    } else {
-      toast.error(res.error || "Failed to submit report.");
+    try {
+      const res = await createReport({
+        reporterId: user.uid,
+        productId,
+        reportedId,
+        reason,
+        description
+      });
+
+      if (res.success) {
+        setIsSuccess(true);
+        window.setTimeout(() => {
+          setIsOpen(false);
+          setIsSuccess(false);
+          setReason("");
+          setDescription("");
+        }, 2000);
+      } else {
+        toast.error(res.error || "Failed to submit report.");
+      }
+    } catch (error) {
+      console.error("[ReportButton] Failed to submit report:", error);
+      toast.error("Unable to submit your report. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
     <>
       <button 
+        type="button"
         onClick={() => setIsOpen(true)}
         className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-red-400 hover:text-red-600 transition-colors"
       >
@@ -88,7 +96,7 @@ export default function ReportButton({ productId, reportedId }: ReportButtonProp
                       </h3>
                       <p className="text-xs text-gray-500 font-bold uppercase tracking-widest mt-1">Help us keep ExOwn safe</p>
                     </div>
-                    <button onClick={() => setIsOpen(false)} className="p-2 bg-gray-100 dark:bg-gray-800 rounded-xl text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors">
+                    <button type="button" disabled={isSubmitting} aria-label="Close report dialog" onClick={() => setIsOpen(false)} className="p-2 bg-gray-100 dark:bg-gray-800 rounded-xl text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors">
                       <X size={20} />
                     </button>
                   </div>
