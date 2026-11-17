@@ -2,6 +2,7 @@
 
 import prisma, { withRetry } from "@/lib/prisma";
 import { resolveCampusId } from "@/lib/campus";
+import { requireUser } from "@/lib/auth";
 
 export interface HousingFilterParams {
   campus?: string;
@@ -57,7 +58,7 @@ export async function getHousingListings(params: HousingFilterParams = {}) {
         orderBy: { createdAt: "desc" },
         include: {
           campus: { select: { name: true, slug: true } },
-          owner: { select: { name: true, trustScore: true, isVerified: true, phone: true } },
+          owner: { select: { name: true, trustScore: true, isVerified: true } },
         },
       })
     );
@@ -69,5 +70,34 @@ export async function getHousingListings(params: HousingFilterParams = {}) {
   } catch (error) {
     console.error("[Action:getHousingListings] Failed to fetch campus housing:", error);
     return [];
+  }
+}
+
+
+/**
+ * Reveal a housing owner's phone only after an authenticated member explicitly
+ * requests it. Public housing results never contain the owner's phone number.
+ */
+export async function revealHousingOwnerPhone(listingId: string) {
+  try {
+    await requireUser();
+
+    const listing = await prisma.housingListing.findFirst({
+      where: { id: listingId, status: "LIVE" },
+      select: { owner: { select: { phone: true } } },
+    });
+
+    if (!listing) return { success: false, error: "Housing listing not found." };
+
+    const phone = listing.owner.phone?.trim();
+    if (!phone) return { success: false, error: "The owner has not added a contact number." };
+
+    return { success: true, phone };
+  } catch (error: any) {
+    if (error?.message === "Unauthorized") {
+      return { success: false, error: "Sign in to view the owner's contact number." };
+    }
+    console.error("[Action:revealHousingOwnerPhone] Failed to reveal contact:", error);
+    return { success: false, error: "Unable to load the owner's contact number." };
   }
 }
