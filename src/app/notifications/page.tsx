@@ -111,7 +111,7 @@ export default function NotificationsPage() {
                 </h1>
                 {notificationUnreadCount > 0 && (
                   <span className="px-2.5 py-0.5 rounded-full bg-blue-600 text-white text-xs font-black">
-                    {unreadCount} New
+                    {notificationUnreadCount} New
                   </span>
                 )}
               </div>
@@ -122,7 +122,7 @@ export default function NotificationsPage() {
           </div>
 
           <div className="flex items-center gap-2 self-end sm:self-auto">
-            {unreadCount > 0 && (
+            {notificationUnreadCount > 0 && (
               <button
                 onClick={() => markAllRead()}
                 className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-xl transition"
