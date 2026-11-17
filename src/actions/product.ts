@@ -2,7 +2,7 @@
 
 import prisma, { withRetry } from "@/lib/prisma";
 import { logActivity } from "@/lib/logger";
-import { getCurrentUser, requireSameUser } from "@/lib/auth";
+import { getCurrentUser, requireUser } from "@/lib/auth";
 import { getCached, invalidateCachePrefix } from "@/lib/cache";
 import { sanitizeString, validateLength, validateRange } from "@/lib/validation";
 import { isPublicPickupLocation } from "@/lib/locationValidation";
@@ -482,7 +482,6 @@ export async function createProduct(data: {
   categoryId: string;
   subcategoryId?: string | null;
   customSubcategory?: string | null;
-  sellerId: string;
   campusId: string;
   images: string[];
   location: string;
@@ -494,7 +493,9 @@ export async function createProduct(data: {
   exchangeCashAllowed?: boolean;
 }) {
   try {
-    const authenticatedSeller = await requireSameUser(data.sellerId);
+    // Never trust a seller ID supplied by the browser. Resolve the listing
+    // owner from the verified Firebase session and its canonical Prisma user.
+    const authenticatedSeller = await requireUser();
     const sellerId = authenticatedSeller.uid;
 
     // 1. Sanitize & Validate Inputs
