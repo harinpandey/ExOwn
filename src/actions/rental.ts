@@ -244,8 +244,12 @@ export async function markRentalReturned(rentalId: string, ownerId: string) {
     });
 
     return { success: true };
-  } catch {
-    return { success: false };
+  } catch (error) {
+    console.error("[markRentalReturned] Failed:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Unable to mark this rental as returned.",
+    };
   }
 }
 
