@@ -56,12 +56,15 @@ export default function ProfileDashboardPage() {
     }
   }, [user, loading, router]);
 
-  // Direct links from exchange notifications open the correct profile inbox tab.
+  // Notification links open the corresponding Profile inbox directly.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const tab = params.get("tab");
     const view = params.get("view")?.toUpperCase();
-    if (tab === "exchanges") {
+
+    if (tab === "offers" || tab === "rentals") {
+      setActiveTab(tab);
+    } else if (tab === "exchanges") {
       setActiveTab("exchanges");
       if (view === "SENT" || view === "RECEIVED") setExchangeView(view);
     } else if (tab === "serviceQuotes") {
