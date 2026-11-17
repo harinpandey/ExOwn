@@ -2,7 +2,7 @@
 
 import prisma, { withRetry } from "@/lib/prisma";
 import { logActivity } from "@/lib/logger";
-import { getCurrentUser, requireSameFirebaseUser, requireSameUser } from "@/lib/auth";
+import { getCurrentUser, requireSameFirebaseUser, requireSameUser, requireUser } from "@/lib/auth";
 import { sanitizeString, validateLength, validatePhone } from "@/lib/validation";
 
 function isConfiguredAdminEmail(email?: string | null) {
@@ -181,7 +181,7 @@ export async function getUserProfile(userId: string, _requesterId?: string) {
   }
 }
 
-export async function completeProfile(userId: string, data: {
+export async function completeProfile(data: {
   name: string;
   phone: string;
   registrationNumber: string;
@@ -193,7 +193,10 @@ export async function completeProfile(userId: string, data: {
   address?: string;
 }) {
   try {
-    await requireSameUser(userId);
+    // The authenticated session resolves the canonical Prisma User.id. The
+    // browser must not choose the ID used for profile, profile-row, or activity writes.
+    const authenticatedUser = await requireUser();
+    const userId = authenticatedUser.uid;
 
     const name = sanitizeString(data.name);
     const phone = data.phone.trim();
