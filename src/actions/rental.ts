@@ -15,7 +15,8 @@ export async function requestRental(data: {
   pickupLocation: string;
 }) {
   try {
-    await requireSameUser(data.renterId);
+    const renter = await requireSameUser(data.renterId);
+    const renterId = renter.uid;
 
     const startDate = new Date(data.startDate);
     const endDate = new Date(data.endDate);
@@ -51,7 +52,7 @@ export async function requestRental(data: {
       throw new Error("This rental is no longer available");
     }
 
-    if (product.sellerId === data.renterId) {
+    if (product.sellerId === renterId) {
       throw new Error("You cannot rent your own listing");
     }
 
@@ -85,7 +86,7 @@ export async function requestRental(data: {
           return await tx.rental.create({
             data: {
               productId: data.productId,
-              renterId: data.renterId,
+              renterId,
               ownerId: product.sellerId,
               rentalDetailId: product.rentalDetail!.id,
               startDate,
@@ -112,7 +113,7 @@ export async function requestRental(data: {
     });
 
     await logActivity({
-      userId: data.renterId,
+      userId: renterId,
       actionType: "RENTAL_REQUESTED",
       productId: data.productId,
       rentalId: rental.id,
@@ -128,14 +129,15 @@ export async function requestRental(data: {
 
 export async function approveRental(rentalId: string, ownerId: string) {
   try {
-    await requireSameUser(ownerId);
+    const owner = await requireSameUser(ownerId);
+    const canonicalOwnerId = owner.uid;
 
     const rental = await prisma.rental.findUnique({
       where: { id: rentalId },
       include: { product: true },
     });
 
-    if (!rental || rental.ownerId !== ownerId) {
+    if (!rental || rental.ownerId !== canonicalOwnerId) {
       throw new Error("Unauthorized or rental not found");
     }
 
@@ -163,7 +165,7 @@ export async function approveRental(rentalId: string, ownerId: string) {
           where: { rentalId },
           update: {
             buyerId: rental.renterId,
-            sellerId: ownerId,
+            sellerId: canonicalOwnerId,
             productId: rental.productId,
             type: "RENT",
             source: "RENTAL",
@@ -171,7 +173,7 @@ export async function approveRental(rentalId: string, ownerId: string) {
           },
           create: {
             buyerId: rental.renterId,
-            sellerId: ownerId,
+            sellerId: canonicalOwnerId,
             productId: rental.productId,
             rentalId,
             type: "RENT",
@@ -192,7 +194,7 @@ export async function approveRental(rentalId: string, ownerId: string) {
     });
 
     await logActivity({
-      userId: ownerId,
+      userId: canonicalOwnerId,
       actionType: "RENTAL_APPROVED",
       rentalId: rentalId,
       targetUserId: rental.renterId,
@@ -206,14 +208,15 @@ export async function approveRental(rentalId: string, ownerId: string) {
 
 export async function markRentalReturned(rentalId: string, ownerId: string) {
   try {
-    await requireSameUser(ownerId);
+    const owner = await requireSameUser(ownerId);
+    const canonicalOwnerId = owner.uid;
 
     const rental = await prisma.rental.findUnique({
       where: { id: rentalId },
       select: { ownerId: true, status: true },
     });
 
-    if (!rental || rental.ownerId !== ownerId) {
+    if (!rental || rental.ownerId !== canonicalOwnerId) {
       throw new Error("Unauthorized or rental not found");
     }
 
@@ -229,7 +232,7 @@ export async function markRentalReturned(rentalId: string, ownerId: string) {
     );
 
     await logActivity({
-      userId: ownerId,
+      userId: canonicalOwnerId,
       actionType: "RENTAL_RETURNED",
       rentalId: rentalId,
     });
@@ -242,11 +245,12 @@ export async function markRentalReturned(rentalId: string, ownerId: string) {
 
 export async function getUserRentals(userId: string) {
   try {
-    await requireSameUser(userId);
+    const actor = await requireSameUser(userId);
+    const canonicalUserId = actor.uid;
 
     const [owned, rented] = await Promise.all([
       prisma.rental.findMany({
-        where: { ownerId: userId },
+        where: { ownerId: canonicalUserId },
         include: {
           product: {
             select: { id: true, title: true, price: true, images: true },
@@ -258,7 +262,7 @@ export async function getUserRentals(userId: string) {
         orderBy: { createdAt: "desc" },
       }),
       prisma.rental.findMany({
-        where: { renterId: userId },
+        where: { renterId: canonicalUserId },
         include: {
           product: {
             select: { id: true, title: true, price: true, images: true },
