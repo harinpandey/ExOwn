@@ -7,22 +7,24 @@ import ProductCard from "@/components/ui/ProductCard";
 import { SectionSkeleton } from "@/components/ui/ProductSkeleton";
 import { History, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { useLocation } from "@/context/LocationContext";
 
 export default function RecentlyViewedSection() {
   const { user } = useAuth();
+  const { campusObj } = useLocation();
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (user) {
-      getRecentlyViewed(user.uid).then((data) => {
+      getRecentlyViewed(user.uid, campusObj.name).then((data) => {
         setProducts(data);
         setLoading(false);
       });
     } else {
       setLoading(false);
     }
-  }, [user]);
+  }, [user?.uid, campusObj.name]);
 
   if (!user || (products.length === 0 && !loading)) return null;
 
