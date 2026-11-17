@@ -144,7 +144,7 @@ function CompleteProfileContent() {
     setError("");
 
     try {
-      const result = await completeProfile(user!.uid, {
+      const result = await completeProfile({
         name: formData.name,
         registrationNumber: formData.registrationNumber,
         course: formData.course,
