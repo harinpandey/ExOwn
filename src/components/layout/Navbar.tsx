@@ -50,6 +50,7 @@ const secondaryLinks = [
 ];
 
 import { useLocation } from "@/context/LocationContext";
+import { CAMPUS_DIRECTORY } from "@/config/campuses";
 
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -115,10 +116,11 @@ export default function Navbar() {
               onChange={(e) => setSelectedCampus(e.target.value)}
               className="max-w-44 cursor-pointer appearance-none bg-transparent text-xs font-bold outline-none text-gray-900 dark:text-white"
             >
-              <option value="Lovely Professional University" className="bg-white text-gray-900 dark:bg-[#10141b] dark:text-white">LPU Campus</option>
-              <option value="Delhi University" className="bg-white text-gray-900 dark:bg-[#10141b] dark:text-white">Delhi University</option>
-              <option value="Chandigarh University" className="bg-white text-gray-900 dark:bg-[#10141b] dark:text-white">Chandigarh University</option>
-              <option value="VIT Vellore" className="bg-white text-gray-900 dark:bg-[#10141b] dark:text-white">VIT Vellore</option>
+              {CAMPUS_DIRECTORY.map((campus) => (
+                <option key={campus.id} value={campus.name} className="bg-white text-gray-900 dark:bg-[#10141b] dark:text-white">
+                  {campus.shortName}
+                </option>
+              ))}
             </select>
             <ChevronDown size={12} className="text-gray-400 dark:text-white/45" />
           </label>
