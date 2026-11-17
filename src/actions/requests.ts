@@ -13,7 +13,7 @@ export async function createBuyingRequest(userId: string, data: {
   listingType?: "SELL" | "RENT" | "SERVICE";
 }) {
   try {
-    await requireSameUser(userId);
+    const actor = await requireSameUser(userId);
 
     const title = sanitizeString(data.title);
     const description = sanitizeString(data.description);
@@ -32,7 +32,7 @@ export async function createBuyingRequest(userId: string, data: {
 
     const request = await withRetry(() => prisma.buyingRequest.create({
       data: {
-        userId,
+        userId: actor.uid,
         title,
         description,
         budget,
@@ -75,10 +75,10 @@ export async function getBuyingRequests(limit = 20) {
 
 export async function toggleRequestStatus(requestId: string, userId: string, isActive: boolean) {
   try {
-    await requireSameUser(userId);
+    const actor = await requireSameUser(userId);
 
     await prisma.buyingRequest.update({
-      where: { id: requestId, userId },
+      where: { id: requestId, userId: actor.uid },
       data: { isActive }
     });
     revalidatePath("/requests");
