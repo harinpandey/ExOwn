@@ -23,10 +23,17 @@ export async function requestServiceQuote(data: {
     // 1. Fetch service detail to get provider info
     const service = await prisma.serviceDetail.findUnique({
       where: { id: data.serviceDetailId },
-      include: { product: true }
+      include: {
+        product: {
+          select: { id: true, sellerId: true, title: true, status: true, listingType: true },
+        },
+      },
     });
 
     if (!service) throw new Error("Service not found");
+    if (service.product.status !== "LIVE" || service.product.listingType !== "SERVICE") {
+      throw new Error("This service listing is no longer available.");
+    }
     if (service.product.sellerId === requesterId) {
       throw new Error("You cannot request a quote from yourself");
     }
