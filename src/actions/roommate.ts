@@ -227,12 +227,15 @@ export async function updateRoommateInterestStatus(
       return { success: false, error: "This request has already been reviewed." };
     }
 
-    await withRetry(() =>
-      prisma.roommateInterest.update({
-        where: { id: interest.id },
+    const updated = await withRetry(() =>
+      prisma.roommateInterest.updateMany({
+        where: { id: interest.id, status: "PENDING" },
         data: { status },
       })
     );
+    if (updated.count !== 1) {
+      return { success: false, error: "This request has already been reviewed." };
+    }
 
     const accepted = status === "ACCEPTED";
     await createNotification({
