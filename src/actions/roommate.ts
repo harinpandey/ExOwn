@@ -163,6 +163,96 @@ export async function sendRoommateInterest(receiverProfileId: string, message?: 
 }
 
 /**
+ * Return incoming requests only for the authenticated user's own roommate
+ * profile. Sender details are never exposed to unrelated campus visitors.
+ */
+export async function getReceivedRoommateInterests() {
+  try {
+    const viewer = await requireUser();
+    const ownProfile = await prisma.roommateProfile.findUnique({
+      where: { userId: viewer.uid },
+      select: { id: true },
+    });
+
+    if (!ownProfile) return [];
+
+    return await withRetry(() =>
+      prisma.roommateInterest.findMany({
+        where: { receiverProfileId: ownProfile.id },
+        orderBy: { createdAt: "desc" },
+        take: 25,
+        include: {
+          sender: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
+              isVerified: true,
+              profile: { select: { collegeName: true, course: true, year: true } },
+            },
+          },
+        },
+      })
+    );
+  } catch (error) {
+    console.error("[Action:getReceivedRoommateInterests] Failed to fetch requests:", error);
+    return [];
+  }
+}
+
+/**
+ * Only the owner of the receiving profile can accept or decline an interest.
+ * The sender is notified after the status change is committed.
+ */
+export async function updateRoommateInterestStatus(
+  interestId: string,
+  status: "ACCEPTED" | "DECLINED"
+) {
+  try {
+    const viewer = await requireUser();
+    const interest = await prisma.roommateInterest.findUnique({
+      where: { id: interestId },
+      select: {
+        id: true,
+        status: true,
+        senderId: true,
+        receiverProfile: { select: { userId: true } },
+      },
+    });
+
+    if (!interest || interest.receiverProfile.userId !== viewer.uid) {
+      return { success: false, error: "Roommate request not found." };
+    }
+    if (interest.status !== "PENDING") {
+      return { success: false, error: "This request has already been reviewed." };
+    }
+
+    await withRetry(() =>
+      prisma.roommateInterest.update({
+        where: { id: interest.id },
+        data: { status },
+      })
+    );
+
+    const accepted = status === "ACCEPTED";
+    await createNotification({
+      userId: interest.senderId,
+      type: "ROOMMATE_MATCH",
+      title: accepted ? "Roommate interest accepted" : "Roommate interest declined",
+      content: accepted
+        ? "Your roommate request was accepted. You can now start a conversation."
+        : "Your roommate request was reviewed. Keep exploring other campus profiles.",
+      link: accepted ? `/chat/${viewer.uid}` : "/roommates",
+    });
+
+    return { success: true };
+  } catch (error: any) {
+    console.error("[Action:updateRoommateInterestStatus] Failed to update request:", error);
+    return { success: false, error: error?.message || "Unable to update roommate request." };
+  }
+}
+
+/**
  * Reports are stored in the existing moderation Report table and linked to
  * the reported member. The profile ID is retained in the description for
  * moderator context without introducing a schema migration.
