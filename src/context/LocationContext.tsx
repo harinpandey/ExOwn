@@ -13,12 +13,12 @@ interface LocationContextType {
 
 const LocationContext = createContext<LocationContextType | undefined>(undefined);
 
+function persistCampusCookie(campus: string) {
+  document.cookie = `exown_selected_campus=${encodeURIComponent(campus)}; path=/; max-age=31536000; samesite=lax`;
+}
+
 export function LocationProvider({ children }: { children: ReactNode }) {
   const [selectedCampus, setSelectedCampusState] = useState<string>("Lovely Professional University");
-
-  const persistCampusCookie = (campus: string) => {
-    document.cookie = `exown_selected_campus=${encodeURIComponent(campus)}; path=/; max-age=31536000; samesite=lax`;
-  };
 
   useEffect(() => {
     const saved = localStorage.getItem("exown_selected_campus");
