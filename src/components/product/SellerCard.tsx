@@ -36,10 +36,12 @@ export default function SellerCard({ seller, productId }: SellerCardProps) {
     setPhoneError("");
     try {
       const result = await revealSellerPhoneNumber(productId);
-      if (result.success && result.phone) {
+      if ("phone" in result && typeof result.phone === "string") {
         setPhoneNumber(result.phone);
-      } else {
+      } else if ("error" in result) {
         setPhoneError(result.error || "Unable to load the seller's contact number.");
+      } else {
+        setPhoneError("Unable to load the seller's contact number.");
       }
     } catch {
       setPhoneError("Unable to load the seller's contact number.");
