@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, MessageSquare, Search, AlertCircle } from "lucide-react";
+import { Plus, MessageSquare, Search, AlertCircle, X } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { getBuyingRequests, createBuyingRequest } from "@/actions/requests";
 import { formatDistanceToNow } from "date-fns";
@@ -12,6 +12,7 @@ export default function RequestBoardPage() {
   const { user } = useAuth();
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedType, setSelectedType] = useState<"ALL" | "SELL" | "RENT" | "SERVICE">("ALL");
@@ -28,10 +29,27 @@ export default function RequestBoardPage() {
   }, []);
 
   const loadRequests = async () => {
-    const data = await getBuyingRequests();
-    setRequests(data);
-    setLoading(false);
+    setLoading(true);
+    try {
+      const data = await getBuyingRequests();
+      setRequests(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("[RequestBoard] Failed to load requests:", error);
+      toast.error("Unable to load requests. Please refresh the page.");
+      setRequests([]);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  useEffect(() => {
+    if (!isModalOpen) return;
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !isSubmitting) setIsModalOpen(false);
+    };
+    window.addEventListener("keydown", handleEscape);
+    return () => window.removeEventListener("keydown", handleEscape);
+  }, [isModalOpen, isSubmitting]);
 
   const filteredRequests = requests.filter((request) => {
     const query = searchQuery.trim().toLocaleLowerCase();
@@ -58,18 +76,27 @@ export default function RequestBoardPage() {
       return;
     }
 
-    const res = await createBuyingRequest(user.uid, {
-      ...newRequest,
-      budget: newRequest.budget ? parseFloat(newRequest.budget) : undefined,
-    });
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      const res = await createBuyingRequest(user.uid, {
+        ...newRequest,
+        budget: newRequest.budget ? parseFloat(newRequest.budget) : undefined,
+      });
 
-    if (res.success) {
-      toast.success("Request posted successfully!");
-      setIsModalOpen(false);
-      setNewRequest({ title: "", description: "", budget: "", category: "", listingType: "SELL" });
-      loadRequests();
-    } else {
-      toast.error(res.error || "Failed to post request");
+      if (res.success) {
+        toast.success("Request posted successfully!");
+        setIsModalOpen(false);
+        setNewRequest({ title: "", description: "", budget: "", category: "", listingType: "SELL" });
+        await loadRequests();
+      } else {
+        toast.error(res.error || "Failed to post request");
+      }
+    } catch (error) {
+      console.error("[RequestBoard] Failed to post request:", error);
+      toast.error("Unable to post your request. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -205,7 +232,18 @@ export default function RequestBoardPage() {
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
           <div className="bg-white dark:bg-gray-900 w-full max-w-lg rounded-3xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
             <div className="p-8">
-              <h2 className="text-3xl font-black mb-6">What do you <span className="text-primary">Need?</span></h2>
+              <div className="mb-6 flex items-start justify-between gap-3">
+                <h2 className="text-3xl font-black">What do you <span className="text-primary">Need?</span></h2>
+                <button
+                  type="button"
+                  aria-label="Close request form"
+                  disabled={isSubmitting}
+                  onClick={() => setIsModalOpen(false)}
+                  className="rounded-xl p-2 text-gray-500 transition hover:bg-gray-100 disabled:opacity-50 dark:hover:bg-white/10"
+                >
+                  <X size={18} />
+                </button>
+              </div>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">Title</label>
@@ -253,13 +291,14 @@ export default function RequestBoardPage() {
                   </div>
                 </div>
                 <div className="flex gap-3 mt-8">
-                  <button type="submit" className="flex-1 py-4 bg-primary text-white rounded-2xl font-black text-lg hover:bg-primary-dark transition-all">
-                    Post Request
+                  <button type="submit" disabled={isSubmitting} className="flex-1 py-4 bg-primary text-white rounded-2xl font-black text-lg hover:bg-primary-dark transition-all disabled:cursor-wait disabled:opacity-60">
+                    {isSubmitting ? "Posting..." : "Post Request"}
                   </button>
                   <button
                     type="button"
+                    disabled={isSubmitting}
                     onClick={() => setIsModalOpen(false)}
-                    className="px-8 py-4 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-white rounded-2xl font-black text-lg hover:bg-gray-200 transition-all"
+                    className="px-8 py-4 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-white rounded-2xl font-black text-lg hover:bg-gray-200 transition-all disabled:opacity-50
                   >
                     Cancel
                   </button>
