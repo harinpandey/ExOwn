@@ -43,7 +43,7 @@ export default function AdminNavigation() {
           {navigation.map((item) => {
             const active = item.href === "/admin"
               ? pathname === "/admin"
-              : pathname === item.href || pathname.startsWith(\`\${item.href}/\`);
+              : pathname === item.href || pathname.startsWith(`\${item.href}/`);
             const Icon = item.icon;
 
             return (
@@ -51,9 +51,9 @@ export default function AdminNavigation() {
                 key={item.href}
                 href={item.href}
                 aria-current={active ? "page" : undefined}
-                className={\`flex shrink-0 items-center gap-3 rounded-xl px-3 py-3 text-xs font-bold transition lg:w-full \${active
+                className={`flex shrink-0 items-center gap-3 rounded-xl px-3 py-3 text-xs font-bold transition lg:w-full \${active
                   ? "bg-primary/10 text-primary ring-1 ring-primary/15"
-                  : "text-gray-600 hover:bg-gray-100 hover:text-gray-950 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white"}\`}
+                  : "text-gray-600 hover:bg-gray-100 hover:text-gray-950 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white"}`}
               >
                 <Icon size={17} />
                 <span>{item.label}</span>
