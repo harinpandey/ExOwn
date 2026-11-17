@@ -1,8 +1,10 @@
 "use server";
 
+import type { ReportReason } from "@prisma/client";
 import prisma, { withRetry } from "@/lib/prisma";
-import { requireSameUser } from "@/lib/auth";
+import { requireUser } from "@/lib/auth";
 import { createNotification } from "./notification";
+import { resolveCampusId } from "@/lib/campus";
 
 export interface RoommateFilterParams {
   campus?: string;
@@ -11,97 +13,62 @@ export interface RoommateFilterParams {
   roomType?: string;
 }
 
-export const DEMO_ROOMMATE_PROFILES = [
-  {
-    id: "roommate-demo-1",
-    bio: "Final year B.Tech CSE student looking for a clean, quiet roommate to share a 2BHK flat near Law Gate. Non-smoker, loves coding & gaming weekends.",
-    budgetMin: 5000,
-    budgetMax: 9000,
-    preferredGender: "MALE",
-    roomType: "PRIVATE",
-    moveInFrom: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
-    leaseMonths: 6,
-    lifestyle: { sleepHours: "11 PM - 7 AM", diet: "Veg", cleanliness: "High" },
-    interests: ["Coding", "Gaming", "Gym", "Tech"],
-    visibility: "CAMPUS",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3),
-    campus: { name: "LPU Campus", slug: "lpu" },
-    user: {
-      id: "u-demo-1",
-      name: "Aman Verma (CSE '25)",
-      image: "/exown-logo.png",
-      trustScore: 94,
-      isVerified: true,
-    },
-    matchReasons: ["Same Campus", "Budget Overlap", "Move-in Period Match"],
-  },
-  {
-    id: "roommate-demo-2",
-    bio: "2nd year Economics student at DU seeking a female roommate for a spacious PG/flat in North Campus. Friendly, tidy, and loves study sessions.",
-    budgetMin: 7000,
-    budgetMax: 12000,
-    preferredGender: "FEMALE",
-    roomType: "SHARED",
-    moveInFrom: new Date(Date.now() + 1000 * 60 * 60 * 24 * 10),
-    leaseMonths: 12,
-    lifestyle: { sleepHours: "12 AM - 8 AM", diet: "Non-Veg", cleanliness: "Very High" },
-    interests: ["Reading", "Coffee", "Economics", "Music"],
-    visibility: "CAMPUS",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5),
-    campus: { name: "Delhi University", slug: "du" },
-    user: {
-      id: "u-demo-2",
-      name: "Sneha Kapoor (Econ '26)",
-      image: "/exown-icon.png",
-      trustScore: 96,
-      isVerified: true,
-    },
-    matchReasons: ["Same Campus", "Female Roommate Preference", "Shared Room Fit"],
-  },
-  {
-    id: "roommate-demo-3",
-    bio: "Mechanical Engg senior at CU looking for a flatmate to take over a master bedroom in a fully furnished 3BHK flat near Sector 14.",
-    budgetMin: 6000,
-    budgetMax: 8500,
-    preferredGender: "MALE",
-    roomType: "PRIVATE",
-    moveInFrom: new Date(Date.now() + 1000 * 60 * 60 * 24 * 4),
-    leaseMonths: 6,
-    lifestyle: { sleepHours: "11 PM - 6 AM", diet: "Any", cleanliness: "Moderate" },
-    interests: ["Robotics", "Football", "Movies"],
-    visibility: "CAMPUS",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2),
-    campus: { name: "Chandigarh University", slug: "cu" },
-    user: {
-      id: "u-demo-3",
-      name: "Karan Singh (Mech '25)",
-      image: "/exown-logo.png",
-      trustScore: 90,
-      isVerified: true,
-    },
-    matchReasons: ["Same Campus", "Private Room Fit", "Immediate Move-in"],
-  },
-];
+const ROOMMATE_REPORT_REASONS = new Set<ReportReason>([
+  "SPAM",
+  "ABUSIVE_CONTENT",
+  "WRONG_INFORMATION",
+  "SCAM",
+]);
 
+/**
+ * Public discovery only returns real, LIVE profiles explicitly made visible
+ * to the campus community. A missing/unknown campus never becomes an
+ * unscoped query and database errors never fall back to sample identities.
+ */
 export async function getRoommateProfiles(params: RoommateFilterParams = {}) {
   try {
-    if (!process.env.DATABASE_URL) {
-      return filterDemoRoommates(params);
-    }
+    if (!process.env.DATABASE_URL) return [];
+
+    const campusId = await resolveCampusId(params.campus);
+    if (!campusId) return [];
 
     const where: any = {
       status: "LIVE",
+      visibility: "CAMPUS",
+      campusId,
     };
+    const andFilters: any[] = [];
 
     if (params.gender && params.gender !== "ANY") {
-      where.preferredGender = params.gender;
+      andFilters.push({
+        OR: [
+          { preferredGender: params.gender },
+          { preferredGender: "NO_PREFERENCE" },
+        ],
+      });
     }
 
-    if (params.maxBudget) {
-      where.budgetMax = { lte: params.maxBudget };
+    if (params.roomType && params.roomType !== "ANY") {
+      andFilters.push({
+        OR: [
+          { roomType: params.roomType },
+          { roomType: "ANY" },
+        ],
+      });
     }
 
-    const dbProfiles = await withRetry(() =>
+    if (typeof params.maxBudget === "number" && Number.isFinite(params.maxBudget)) {
+      andFilters.push({
+        OR: [
+          { budgetMin: null },
+          { budgetMin: { lte: Math.max(0, params.maxBudget) } },
+        ],
+      });
+    }
+
+    if (andFilters.length) where.AND = andFilters;
+
+    const profiles = await withRetry(() =>
       prisma.roommateProfile.findMany({
         where,
         orderBy: { updatedAt: "desc" },
@@ -112,42 +79,136 @@ export async function getRoommateProfiles(params: RoommateFilterParams = {}) {
       })
     );
 
-    if (dbProfiles && dbProfiles.length > 0) {
-      return dbProfiles.map((p) => ({
-        ...p,
-        matchReasons: ["Verified Campus Peer", "Budget Compatibility"],
-      }));
-    }
-
-    return filterDemoRoommates(params);
+    return profiles.map((profile) => ({
+      ...profile,
+      matchReasons: ["Same Campus", "Campus-visible profile"],
+    }));
   } catch (error) {
-    console.error("Error fetching roommate profiles:", error);
-    return filterDemoRoommates(params);
+    console.error("[Action:getRoommateProfiles] Failed to fetch campus profiles:", error);
+    return [];
   }
 }
 
-function filterDemoRoommates(params: RoommateFilterParams) {
-  return DEMO_ROOMMATE_PROFILES.filter((item) => {
-    if (params.gender && params.gender !== "ANY" && item.preferredGender !== params.gender) return false;
-    if (params.maxBudget && item.budgetMax > params.maxBudget) return false;
-    return true;
-  });
-}
-
-export async function sendRoommateInterest(data: { receiverId: string; senderId: string; message?: string }) {
+/**
+ * Persist a genuine interest against a RoommateProfile ID, never a client
+ * supplied sender/receiver user ID. The unique DB constraint prevents repeats.
+ */
+export async function sendRoommateInterest(receiverProfileId: string, message?: string) {
   try {
-    await requireSameUser(data.senderId);
+    const sender = await requireUser();
+
+    const receiverProfile = await prisma.roommateProfile.findUnique({
+      where: { id: receiverProfileId },
+      select: {
+        id: true,
+        userId: true,
+        status: true,
+        visibility: true,
+        campus: { select: { name: true } },
+        user: { select: { name: true } },
+      },
+    });
+
+    if (
+      !receiverProfile ||
+      receiverProfile.status !== "LIVE" ||
+      receiverProfile.visibility !== "CAMPUS"
+    ) {
+      return { success: false, error: "This roommate profile is no longer available." };
+    }
+
+    if (receiverProfile.userId === sender.uid) {
+      return { success: false, error: "You cannot send a request to your own profile." };
+    }
+
+    const existing = await prisma.roommateInterest.findUnique({
+      where: {
+        senderId_receiverProfileId: {
+          senderId: sender.uid,
+          receiverProfileId: receiverProfile.id,
+        },
+      },
+      select: { id: true, status: true },
+    });
+
+    if (existing) {
+      return { success: false, error: "You've already sent a request to this profile." };
+    }
+
+    const cleanMessage = message?.trim().slice(0, 500);
+    await prisma.roommateInterest.create({
+      data: {
+        senderId: sender.uid,
+        receiverProfileId: receiverProfile.id,
+        ...(cleanMessage ? { message: cleanMessage } : {}),
+      },
+    });
 
     await createNotification({
-      userId: data.receiverId,
+      userId: receiverProfile.userId,
       type: "ROOMMATE_MATCH",
-      title: "🤝 Roommate Interest Received!",
-      content: `A student from your campus sent you a roommate request. Check details now.`,
+      title: "Roommate interest received",
+      content: "A campus member is interested in connecting with you. Open Roommates to review their profile.",
       link: "/roommates",
     });
 
     return { success: true };
-  } catch (err: any) {
-    return { success: false, error: err.message };
+  } catch (error: any) {
+    if (error?.code === "P2002") {
+      return { success: false, error: "You've already sent a request to this profile." };
+    }
+    console.error("[Action:sendRoommateInterest] Failed to persist interest:", error);
+    return { success: false, error: error?.message || "Unable to send roommate request." };
+  }
+}
+
+/**
+ * Reports are stored in the existing moderation Report table and linked to
+ * the reported member. The profile ID is retained in the description for
+ * moderator context without introducing a schema migration.
+ */
+export async function reportRoommateProfile(input: {
+  profileId: string;
+  reason: string;
+  description?: string;
+}) {
+  try {
+    const reporter = await requireUser();
+    const profile = await prisma.roommateProfile.findUnique({
+      where: { id: input.profileId },
+      select: { id: true, userId: true, status: true, visibility: true },
+    });
+
+    if (!profile || profile.status !== "LIVE" || profile.visibility !== "CAMPUS") {
+      return { success: false, error: "This roommate profile is no longer available." };
+    }
+
+    if (profile.userId === reporter.uid) {
+      return { success: false, error: "You cannot report your own profile." };
+    }
+
+    const reason = input.reason as ReportReason;
+    if (!ROOMMATE_REPORT_REASONS.has(reason)) {
+      return { success: false, error: "Choose a valid report reason." };
+    }
+
+    const description = [
+      `Roommate profile ID: ${profile.id}`,
+      input.description?.trim().slice(0, 1000),
+    ].filter(Boolean).join("\n");
+
+    await prisma.report.create({
+      data: {
+        reason,
+        description,
+        reporterId: reporter.uid,
+        reportedId: profile.userId,
+      },
+    });
+
+    return { success: true };
+  } catch (error: any) {
+    console.error("[Action:reportRoommateProfile] Failed to submit report:", error);
+    return { success: false, error: error?.message || "Unable to submit report." };
   }
 }
