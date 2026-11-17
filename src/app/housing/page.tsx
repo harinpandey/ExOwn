@@ -113,13 +113,13 @@ export default function HousingPage() {
         <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-blue-600 via-indigo-700 to-purple-800 p-6 sm:p-10 text-white shadow-xl">
           <div className="relative z-10 max-w-2xl space-y-3">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1 text-xs font-black uppercase tracking-wider backdrop-blur">
-              <ShieldCheck size={14} /> Verified Student Housing
+              <ShieldCheck size={14} /> Campus Housing
             </span>
             <h1 className="text-2xl sm:text-4xl font-black tracking-tight leading-tight">
               Find Your Next Campus Home near {campusObj.name}
             </h1>
             <p className="text-xs sm:text-sm text-white/80 font-medium leading-relaxed">
-              Explore PGs, Hostels, Flats, and Shared Rooms verified by university peers with direct owner contact and no brokerage fees.
+              Browse live PGs, hostels, flats, and shared rooms around your university, with rent and amenities listed clearly.
             </p>
 
             {/* Quick Search */}
@@ -331,7 +331,7 @@ export default function HousingPage() {
           <main className="lg:col-span-3 space-y-4">
             <div className="flex items-center justify-between">
               <p className="text-xs font-bold text-gray-500 dark:text-white/50">
-                Showing <span className="text-gray-900 dark:text-white">{filteredListings.length}</span> verified property options
+                Showing <span className="text-gray-900 dark:text-white">{filteredListings.length}</span> live campus housing listings
               </p>
 
               <div className="flex items-center gap-2">
