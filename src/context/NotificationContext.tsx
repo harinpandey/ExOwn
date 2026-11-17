@@ -77,13 +77,17 @@ interface NotificationContextType {
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
 
 export function NotificationProvider({ children }: { children: ReactNode }) {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [notifications, setNotifications] = useState<NotificationItem[]>(DEFAULT_DEMO_NOTIFS);
   const [unreadCount, setUnreadCount] = useState(2);
   const [loading, setLoading] = useState(false);
   useFcm(); // Initialize FCM foreground listener
 
   const refreshNotifications = useCallback(async () => {
+    // Wait until AuthProvider has finished establishing the HttpOnly server
+    // session. Client Firebase state alone is not enough for protected actions.
+    if (authLoading) return;
+
     if (!user) {
       setNotifications(DEFAULT_DEMO_NOTIFS);
       setUnreadCount(DEFAULT_DEMO_NOTIFS.filter((n) => !n.isRead).length);
@@ -110,7 +114,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [user, authLoading]);
 
   const markRead = async (id: string) => {
     if (user && !id.startsWith("demo-")) {
@@ -163,12 +167,14 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
+    if (authLoading) return;
+
     refreshNotifications();
     if (user) {
       const interval = setInterval(refreshNotifications, 60000);
       return () => clearInterval(interval);
     }
-  }, [user, refreshNotifications]);
+  }, [user, authLoading, refreshNotifications]);
 
   return (
     <NotificationContext.Provider
