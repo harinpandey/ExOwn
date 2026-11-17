@@ -7,7 +7,7 @@ import { useEffect, useState, useCallback } from "react";
 import {
   Package, Heart, Settings, ShieldCheck, LogOut,
   Edit2, CreditCard, Crown, Clock, RefreshCw,
-  AlertCircle, ArrowRight, CheckCircle2, ChevronRight, Handshake, MapPin
+  AlertCircle, ArrowRight, CheckCircle2, ChevronRight, Handshake, MapPin, MessageSquare
 } from "lucide-react";
 import ProductCard from "@/components/ui/ProductCard";
 import UpgradePlanModal from "@/components/dashboard/UpgradePlanModal";
@@ -34,12 +34,16 @@ export default function ProfileDashboardPage() {
   const [exchangeOffersLoading, setExchangeOffersLoading] = useState(false);
   const [exchangeView, setExchangeView] = useState<"RECEIVED" | "SENT">("RECEIVED");
   const [exchangeActionId, setExchangeActionId] = useState<string | null>(null);
+  const [serviceQuotesData, setServiceQuotesData] = useState<{ received: any[]; sent: any[] }>({ received: [], sent: [] });
+  const [serviceQuotesLoading, setServiceQuotesLoading] = useState(false);
+  const [serviceQuoteView, setServiceQuoteView] = useState<"RECEIVED" | "SENT">("RECEIVED");
+  const [serviceQuoteActionId, setServiceQuoteActionId] = useState<string | null>(null);
 
   const [rentalsData, setRentalsData] = useState<{ owned: any[]; rented: any[] }>({ owned: [], rented: [] });
   const [rentalsLoading, setRentalsLoading] = useState(false);
   const [rentalActionId, setRentalActionId] = useState<string | null>(null);
 
-  const [activeTab, setActiveTab] = useState<"listings" | "favorites" | "offers" | "exchanges" | "rentals" | "billing" | "settings">("listings");
+  const [activeTab, setActiveTab] = useState<"listings" | "favorites" | "offers" | "exchanges" | "serviceQuotes" | "rentals" | "billing" | "settings">("listings");
   const [listingFilter, setListingFilter] = useState<"ALL" | "LIVE" | "SOLD" | "PENDING">("ALL");
   const [subscription, setSubscription] = useState<any>(null);
   const [dbUser, setDbUser] = useState<any>(null);
@@ -54,10 +58,14 @@ export default function ProfileDashboardPage() {
   // Direct links from exchange notifications open the correct profile inbox tab.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (params.get("tab") === "exchanges") {
+    const tab = params.get("tab");
+    const view = params.get("view")?.toUpperCase();
+    if (tab === "exchanges") {
       setActiveTab("exchanges");
-      const view = params.get("view")?.toUpperCase();
       if (view === "SENT" || view === "RECEIVED") setExchangeView(view);
+    } else if (tab === "serviceQuotes") {
+      setActiveTab("serviceQuotes");
+      if (view === "SENT" || view === "RECEIVED") setServiceQuoteView(view);
     }
   }, []);
 
@@ -134,6 +142,50 @@ export default function ProfileDashboardPage() {
       setExchangeOffersLoading(false);
     }
   }, [user]);
+
+  const fetchServiceQuotes = useCallback(async () => {
+    if (!user) return;
+    setServiceQuotesLoading(true);
+    try {
+      const { getServiceQuoteRequests } = await import("@/actions/service");
+      const [received, sent] = await Promise.all([
+        getServiceQuoteRequests(user.uid, "RECEIVED"),
+        getServiceQuoteRequests(user.uid, "SENT"),
+      ]);
+      setServiceQuotesData({
+        received: Array.isArray(received) ? received : [],
+        sent: Array.isArray(sent) ? sent : [],
+      });
+    } catch (error) {
+      console.error("Service quote requests fetch failed:", error);
+      toast.error("Could not load service inquiries. Please try again.");
+    } finally {
+      setServiceQuotesLoading(false);
+    }
+  }, [user]);
+
+  const handleServiceQuoteAction = async (quoteId: string, action: "REPLIED" | "CANCEL") => {
+    if (!user || serviceQuoteActionId) return;
+    setServiceQuoteActionId(quoteId);
+    try {
+      const serviceActions = await import("@/actions/service");
+      const result = action === "REPLIED"
+        ? await serviceActions.markServiceQuoteReplied(quoteId, user.uid)
+        : await serviceActions.cancelServiceQuoteRequest(quoteId, user.uid);
+
+      if (!result.success) {
+        toast.error(result.error || "Unable to update this service inquiry.");
+        return;
+      }
+      toast.success(action === "REPLIED" ? "Inquiry marked as replied." : "Inquiry cancelled.");
+      await fetchServiceQuotes();
+    } catch (error) {
+      console.error("Service quote action failed:", error);
+      toast.error("Unable to update this service inquiry. Please try again.");
+    } finally {
+      setServiceQuoteActionId(null);
+    }
+  };
 
   const handleExchangeDecision = async (offerId: string, status: "ACCEPTED" | "REJECTED") => {
     if (!user || exchangeActionId) return;
@@ -212,10 +264,12 @@ export default function ProfileDashboardPage() {
       fetchOffers();
     } else if (activeTab === "exchanges" && user) {
       fetchExchangeOffers();
+    } else if (activeTab === "serviceQuotes" && user) {
+      fetchServiceQuotes();
     } else if (activeTab === "rentals" && user) {
       fetchRentals();
     }
-  }, [activeTab, user, fetchFavorites, fetchOffers, fetchExchangeOffers, fetchRentals]);
+  }, [activeTab, user, fetchFavorites, fetchOffers, fetchExchangeOffers, fetchServiceQuotes, fetchRentals]);
 
   const handleSignOut = async () => {
     try {
@@ -456,6 +510,22 @@ export default function ProfileDashboardPage() {
                 {exchangeOffersData.received.filter((offer) => offer.status === "PENDING").length > 0 && (
                   <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-bold">
                     {exchangeOffersData.received.filter((offer) => offer.status === "PENDING").length}
+                  </span>
+                )}
+              </button>
+
+              <button
+                onClick={() => setActiveTab("serviceQuotes")}
+                className={`flex items-center justify-between px-3.5 py-3 rounded-xl font-bold transition-colors text-left ${
+                  activeTab === "serviceQuotes"
+                    ? "bg-primary/10 text-primary"
+                    : "hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300"
+                }`}
+              >
+                <span className="flex items-center gap-2.5"><MessageSquare size={16} /> Service Requests</span>
+                {serviceQuotesData.received.filter((quote) => quote.status === "PENDING").length > 0 && (
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-bold">
+                    {serviceQuotesData.received.filter((quote) => quote.status === "PENDING").length}
                   </span>
                 )}
               </button>
@@ -898,6 +968,99 @@ Sent Offers ({offersData.sent.length})
                       </div>
                     </article>
                   ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* TAB: SERVICE QUOTE REQUESTS */}
+          {activeTab === "serviceQuotes" && (
+            <div className="space-y-5 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-gray-900">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white">Service Requests</h3>
+                  <p className="mt-1 text-xs text-gray-500">Review inquiries for your services or track the quotes you requested.</p>
+                </div>
+                <div className="flex rounded-xl bg-gray-100 p-1 text-[11px] font-bold dark:bg-zinc-800">
+                  <button
+                    type="button"
+                    onClick={() => setServiceQuoteView("RECEIVED")}
+                    className={`rounded-lg px-3 py-2 transition ${serviceQuoteView === "RECEIVED" ? "bg-white text-gray-900 shadow-sm dark:bg-zinc-700 dark:text-white" : "text-gray-500 dark:text-gray-400"}`}
+                  >
+                    Received ({serviceQuotesData.received.length})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setServiceQuoteView("SENT")}
+                    className={`rounded-lg px-3 py-2 transition ${serviceQuoteView === "SENT" ? "bg-white text-gray-900 shadow-sm dark:bg-zinc-700 dark:text-white" : "text-gray-500 dark:text-gray-400"}`}
+                  >
+                    Sent ({serviceQuotesData.sent.length})
+                  </button>
+                </div>
+              </div>
+
+              {serviceQuotesLoading ? (
+                <div className="flex justify-center py-12">
+                  <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+                </div>
+              ) : (serviceQuoteView === "RECEIVED" ? serviceQuotesData.received : serviceQuotesData.sent).length === 0 ? (
+                <div className="rounded-2xl border border-dashed border-gray-200 px-5 py-14 text-center dark:border-white/10">
+                  <MessageSquare size={30} className="mx-auto mb-3 text-gray-400" />
+                  <h4 className="text-sm font-black text-gray-900 dark:text-white">
+                    {serviceQuoteView === "RECEIVED" ? "No service inquiries received" : "No service inquiries sent"}
+                  </h4>
+                  <p className="mx-auto mt-1 max-w-sm text-xs text-gray-500">
+                    {serviceQuoteView === "RECEIVED" ? "Student inquiries for your service listings will appear here." : "Your quote requests to campus service providers will appear here."}
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {(serviceQuoteView === "RECEIVED" ? serviceQuotesData.received : serviceQuotesData.sent).map((quote) => {
+                    const product = quote.serviceDetail.product;
+                    const partnerId = serviceQuoteView === "RECEIVED" ? quote.user.id : product.seller.id;
+                    const partnerName = serviceQuoteView === "RECEIVED" ? quote.user.name : product.seller.name;
+                    return (
+                      <article key={quote.id} className="rounded-2xl border border-gray-100 bg-gray-50/70 p-4 dark:border-white/10 dark:bg-zinc-800/40">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                          <div className="min-w-0 flex-1">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <h4 className="text-sm font-black text-gray-900 dark:text-white">{product.title}</h4>
+                              <span className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase ${quote.status === "REPLIED" ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300" : quote.status === "CANCELLED" ? "bg-gray-100 text-gray-500 dark:bg-zinc-700" : "bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300"}`}>
+                                {quote.status}
+                              </span>
+                            </div>
+                            <p className="mt-1 text-[11px] text-gray-500">{serviceQuoteView === "RECEIVED" ? "From" : "Provider"}: {partnerName || "Campus member"} · {format(new Date(quote.createdAt), "dd MMM yyyy")}</p>
+                            <p className="mt-3 whitespace-pre-wrap text-xs leading-relaxed text-gray-700 dark:text-gray-300">{quote.content}</p>
+                          </div>
+                          <div className="flex shrink-0 flex-wrap gap-2">
+                            <Link href={`/chat/${partnerId}?product=${product.id}`} className="rounded-lg border border-gray-200 px-3 py-2 text-[10px] font-bold text-gray-700 hover:border-primary hover:text-primary dark:border-white/10 dark:text-gray-200">
+                              Open chat
+                            </Link>
+                            {serviceQuoteView === "RECEIVED" && quote.status === "PENDING" && (
+                              <button
+                                type="button"
+                                disabled={serviceQuoteActionId === quote.id}
+                                onClick={() => handleServiceQuoteAction(quote.id, "REPLIED")}
+                                className="rounded-lg bg-primary px-3 py-2 text-[10px] font-bold text-white hover:bg-primary-dark disabled:opacity-50"
+                              >
+                                {serviceQuoteActionId === quote.id ? "Saving..." : "Mark replied"}
+                              </button>
+                            )}
+                            {serviceQuoteView === "SENT" && quote.status === "PENDING" && (
+                              <button
+                                type="button"
+                                disabled={serviceQuoteActionId === quote.id}
+                                onClick={() => handleServiceQuoteAction(quote.id, "CANCEL")}
+                                className="rounded-lg border border-red-200 px-3 py-2 text-[10px] font-bold text-red-600 hover:bg-red-50 disabled:opacity-50 dark:border-red-900/50 dark:text-red-300"
+                              >
+                                {serviceQuoteActionId === quote.id ? "Saving..." : "Cancel request"}
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </article>
+                    );
+                  })}
                 </div>
               )}
             </div>
