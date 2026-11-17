@@ -16,14 +16,20 @@ export default function RecentlyViewedSection() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (user) {
-      getRecentlyViewed(user.uid, campusObj.name).then((data) => {
-        setProducts(data);
-        setLoading(false);
-      });
-    } else {
+    let active = true;
+    if (!user) {
+      setProducts([]);
       setLoading(false);
+      return;
     }
+
+    setLoading(true);
+    getRecentlyViewed(user.uid, campusObj.name)
+      .then((data) => { if (active) setProducts(data); })
+      .catch((error) => console.error("[RecentlyViewedSection] Failed to load campus history:", error))
+      .finally(() => { if (active) setLoading(false); });
+
+    return () => { active = false; };
   }, [user?.uid, campusObj.name]);
 
   if (!user || (products.length === 0 && !loading)) return null;
