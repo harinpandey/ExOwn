@@ -154,7 +154,7 @@ export default function Home() {
                   Student Housing & PGs
                 </h3>
                 <p className="mt-2 text-xs font-semibold leading-relaxed text-gray-600 dark:text-gray-400">
-                  Find verified student accommodations, flats, and rooms with zero broker fees.
+                  Browse active student accommodations, flats, and rooms around your campus.
                 </p>
               </div>
               <span className="mt-6 inline-flex items-center gap-1.5 text-xs font-black text-primary">
