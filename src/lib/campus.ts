@@ -1,5 +1,7 @@
 import "server-only";
 
+import { cookies } from "next/headers";
+
 import prisma, { withRetry } from "@/lib/prisma";
 import { CAMPUS_DIRECTORY } from "@/config/campuses";
 
@@ -9,9 +11,26 @@ import { CAMPUS_DIRECTORY } from "@/config/campuses";
  * unscoped query because that could mix students from different universities.
  */
 export async function resolveCampusId(campus?: string | null): Promise<string | null> {
-  const value = campus?.trim();
-  if (!value) return null;
+  let value = campus?.trim() || "";
 
+  // Server-rendered pages and older call sites may omit an explicit campus.
+  // Use the same-site preference cookie in that case; never fall back to an
+  // unscoped listing query.
+  if (!value) {
+    try {
+      const cookieStore = await cookies();
+      value = cookieStore.get("exown_selected_campus")?.value || "";
+      try {
+        value = value ? decodeURIComponent(value) : "";
+      } catch {
+        value = "";
+      }
+    } catch {
+      value = "";
+    }
+  }
+
+  if (!value) return null;
   const normalized = value.toLocaleLowerCase();
   const directoryEntry = CAMPUS_DIRECTORY.find((entry) =>
     [entry.id, entry.name, entry.shortName].some(
