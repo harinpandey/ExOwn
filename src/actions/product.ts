@@ -13,7 +13,7 @@ import { resolveCampusId } from "@/lib/campus";
 const LISTING_TYPES = new Set(["SELL", "RENT", "SERVICE"]);
 const CONDITIONS = new Set(["LIKE_NEW", "GOOD", "FAIR", "POOR"]);
 
-export async function getTrendingProducts(campus: string) {
+export async function getTrendingProducts(campus?: string) {
   try {
     if (!process.env.DATABASE_URL) return [];
     const campusId = await resolveCampusId(campus);
@@ -313,7 +313,7 @@ export async function searchProducts(opts: {
   }
 }
 
-export async function getRecentlyAdded(campus: string) {
+export async function getRecentlyAdded(campus?: string) {
   try {
     const campusId = await resolveCampusId(campus);
     if (!campusId || !process.env.DATABASE_URL) return [];
@@ -332,7 +332,7 @@ export async function getRecentlyAdded(campus: string) {
   }
 }
 
-export async function getPopularRentals(campus: string) {
+export async function getPopularRentals(campus?: string) {
   try {
     const campusId = await resolveCampusId(campus);
     if (!campusId || !process.env.DATABASE_URL) return [];
@@ -356,7 +356,7 @@ export async function getPopularRentals(campus: string) {
   }
 }
 
-export async function getVerifiedSellersProducts(campus: string) {
+export async function getVerifiedSellersProducts(campus?: string) {
   try {
     const campusId = await resolveCampusId(campus);
     if (!campusId || !process.env.DATABASE_URL) return [];
@@ -380,7 +380,7 @@ export async function getVerifiedSellersProducts(campus: string) {
   }
 }
 
-export async function getMovingOutProducts(campus: string) {
+export async function getMovingOutProducts(campus?: string) {
   try {
     const campusId = await resolveCampusId(campus);
     if (!campusId || !process.env.DATABASE_URL) return [];
