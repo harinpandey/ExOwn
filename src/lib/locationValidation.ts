@@ -22,7 +22,7 @@ export function isPublicPickupLocation(value: string): boolean {
 
   // Accept typical campus landmark patterns.
   const publicPatterns = [
-    /bh-?\d+/i,
+    /\\bbh-?\\d+\\s+(entrance|gate|reception|lobby|common\\s+area)\\b/i,
     /gate\s*\d+/i,
     /block\s*[a-z]/i,
     /hostel\s*\d+/i,
