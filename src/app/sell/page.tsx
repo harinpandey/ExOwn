@@ -3,7 +3,7 @@
 import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { Upload, X, ArrowRight, ChevronLeft, Trash2, AlertCircle, RefreshCw, ShoppingBag, Key, HelpCircle } from "lucide-react";
+import { Upload, X, ArrowRight, ChevronLeft, Trash2, AlertCircle, RefreshCw, ShoppingBag, Key, HelpCircle, BriefcaseBusiness } from "lucide-react";
 import LocationSelector from '@/components/ui/LocationSelector';
 import CategoryConditionForm from "@/components/forms/CategoryConditionForm";
 import CampusSelector from "@/components/ui/CampusSelector";
@@ -34,7 +34,7 @@ function SellPageContent() {
   const [showProfileModal, setShowProfileModal] = useState(false);
 
   // Listing Mode
-  const [listingMode, setListingMode] = useState<"SELL" | "RENT" | "EXCHANGE">("SELL");
+  const [listingMode, setListingMode] = useState<"SELL" | "RENT" | "EXCHANGE" | "SERVICE">("SELL");
 
   // Media
   const [images, setImages] = useState<File[]>([]);
@@ -63,13 +63,15 @@ function SellPageContent() {
   const [exchangeCategories, setExchangeCategories] = useState<string[]>([]);
   const [exchangeCashAllowed, setExchangeCashAllowed] = useState(false);
 
-  // Read initial query parameter (?type=RENT or ?type=EXCHANGE or ?type=WANT)
+  // Read initial query parameter (?type=RENT, EXCHANGE, SERVICE or WANT)
   useEffect(() => {
     const typeParam = searchParams.get("type")?.toUpperCase();
     if (typeParam === "RENT") {
       setListingMode("RENT");
     } else if (typeParam === "EXCHANGE") {
       setListingMode("EXCHANGE");
+    } else if (typeParam === "SERVICE") {
+      setListingMode("SERVICE");
     } else if (typeParam === "WANT") {
       router.replace("/requests");
     }
@@ -77,7 +79,7 @@ function SellPageContent() {
 
   useEffect(() => {
     if (!loading && !user) {
-      router.push("/login?redirect=/sell");
+      router.push(`/login?redirect=${encodeURIComponent(searchParams.toString() ? `/sell?${searchParams.toString()}` : "/sell")}`);
     }
   }, [user, loading, router]);
 
@@ -206,7 +208,7 @@ function SellPageContent() {
         images: uploadedImageUrls,
         isNegotiable,
         isUrgent,
-        listingType: listingMode === "RENT" ? ("RENT" as const) : ("SELL" as const),
+        listingType: listingMode === "RENT" ? ("RENT" as const) : listingMode === "SERVICE" ? ("SERVICE" as const) : ("SELL" as const),
         isExchangeAllowed: listingMode === "EXCHANGE",
         exchangeCategories: listingMode === "EXCHANGE" ? exchangeCategories : [],
         exchangeCashAllowed: listingMode === "EXCHANGE" ? exchangeCashAllowed : false,
@@ -347,6 +349,25 @@ function SellPageContent() {
                 </span>
                 <span className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                   Trade an item for another desired item, with or without cash difference.
+                </span>
+              </button>
+
+              {/* SERVICE */}
+              <button
+                type="button"
+                onClick={() => setListingMode("SERVICE")}
+                className={`flex flex-col items-start rounded-2xl border-2 p-5 text-left transition ${
+                  listingMode === "SERVICE"
+                    ? "border-primary bg-primary/5 shadow-sm dark:bg-primary/10"
+                    : "border-gray-200 bg-white hover:border-gray-300 dark:border-white/10 dark:bg-[#10141b] dark:hover:border-white/20"
+                }`}
+              >
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-purple-50 text-purple-600 dark:bg-purple-950/40 dark:text-purple-400">
+                  <BriefcaseBusiness size={22} />
+                </div>
+                <span className="mt-3 text-base font-bold text-gray-900 dark:text-white">Offer a Service</span>
+                <span className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  Offer tutoring, repairs, design, printing or other student services.
                 </span>
               </button>
 
