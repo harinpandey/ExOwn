@@ -12,7 +12,7 @@ import {
   X,
   Lock,
 } from "lucide-react";
-import { getRoommateProfiles, reportRoommateProfile, sendRoommateInterest } from "@/actions/roommate";
+import { getReceivedRoommateInterests, getRoommateProfiles, reportRoommateProfile, sendRoommateInterest, updateRoommateInterestStatus } from "@/actions/roommate";
 import { useLocation } from "@/context/LocationContext";
 import { useAuth } from "@/context/AuthContext";
 import { useMoments } from "@/context/MomentsContext";
@@ -24,6 +24,9 @@ export default function RoommatesPage() {
   const { triggerEvent } = useMoments();
   const [profiles, setProfiles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [receivedRequests, setReceivedRequests] = useState<any[]>([]);
+  const [requestsLoading, setRequestsLoading] = useState(false);
+  const [updatingRequestId, setUpdatingRequestId] = useState<string | null>(null);
 
   // Filters
   const [maxBudget, setMaxBudget] = useState(15000);
@@ -52,6 +55,23 @@ export default function RoommatesPage() {
   }, [selectedCampus, maxBudget, genderPref, roomTypePref]);
 
   useEffect(() => {
+    let active = true;
+    if (!user) {
+      setReceivedRequests([]);
+      setRequestsLoading(false);
+      return;
+    }
+
+    setRequestsLoading(true);
+    getReceivedRoommateInterests()
+      .then((items) => { if (active) setReceivedRequests(items); })
+      .catch((error) => console.error("[RoommatesPage] Failed to load incoming requests:", error))
+      .finally(() => { if (active) setRequestsLoading(false); });
+
+    return () => { active = false; };
+  }, [user?.uid]);
+
+  useEffect(() => {
     const timer = setTimeout(() => {
       triggerEvent("ROOMMATE_MATCH", { campusName: campusObj?.name, customCtaHref: "/roommates" });
     }, 4500);
@@ -68,7 +88,7 @@ export default function RoommatesPage() {
     try {
       const res = await sendRoommateInterest(profileId);
       if (res.success) {
-        toast.success("Your roommate interest was sent.");
+        toast.success(res.notificationSent ? "Your roommate request was sent." : "Request saved. The notification could not be delivered.");
       } else {
         toast.error(res.error || "Failed to send request");
       }
@@ -76,6 +96,25 @@ export default function RoommatesPage() {
       toast.error("Unable to send roommate request. Please try again.");
     } finally {
       setSendingId(null);
+    }
+  };
+
+  const handleRequestStatus = async (interestId: string, status: "ACCEPTED" | "DECLINED") => {
+    setUpdatingRequestId(interestId);
+    try {
+      const result = await updateRoommateInterestStatus(interestId, status);
+      if (!result.success) {
+        toast.error(result.error || "Unable to update request.");
+        return;
+      }
+      setReceivedRequests((current) =>
+        current.map((item) => item.id === interestId ? { ...item, status } : item)
+      );
+      toast.success(status === "ACCEPTED" ? "Roommate request accepted." : "Roommate request declined.");
+    } catch {
+      toast.error("Unable to update request. Please try again.");
+    } finally {
+      setUpdatingRequestId(null);
     }
   };
 
@@ -160,6 +199,73 @@ export default function RoommatesPage() {
             </div>
           </div>
         </div>
+
+        {user && (requestsLoading || receivedRequests.length > 0) && (
+          <section className="rounded-3xl border border-gray-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-[#10141b]">
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <div>
+                <h2 className="text-base font-black text-gray-900 dark:text-white">Requests to you</h2>
+                <p className="mt-1 text-xs text-gray-500 dark:text-white/50">Roommate interests sent to your campus profile.</p>
+              </div>
+              {receivedRequests.filter((item) => item.status === "PENDING").length > 0 && (
+                <span className="rounded-full bg-purple-500/10 px-3 py-1 text-[11px] font-bold text-purple-600 dark:text-purple-300">
+                  {receivedRequests.filter((item) => item.status === "PENDING").length} pending
+                </span>
+              )}
+            </div>
+
+            {requestsLoading ? (
+              <div className="h-20 animate-pulse rounded-2xl bg-gray-100 dark:bg-white/[0.04]" />
+            ) : (
+              <div className="grid gap-3 md:grid-cols-2">
+                {receivedRequests.map((request) => (
+                  <article key={request.id} className="rounded-2xl border border-gray-200 p-4 dark:border-white/10">
+                    <div className="flex items-start gap-3">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-purple-500/10 text-sm font-black text-purple-600 dark:text-purple-300">
+                        {request.sender?.image ? (
+                          <img src={request.sender.image} alt="" className="h-full w-full object-cover" />
+                        ) : (
+                          (request.sender?.name || "S").charAt(0).toUpperCase()
+                        )}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-black text-gray-900 dark:text-white">{request.sender?.name || "Campus member"}</p>
+                        <p className="mt-0.5 truncate text-[11px] text-gray-500 dark:text-white/50">
+                          {[request.sender?.profile?.collegeName, request.sender?.profile?.course, request.sender?.profile?.year].filter(Boolean).join(" • ") || "ExOwn member"}
+                        </p>
+                        {request.message && <p className="mt-2 text-xs text-gray-600 dark:text-white/70">{request.message}</p>}
+                        <p className="mt-2 text-[10px] text-gray-400">{new Date(request.createdAt).toLocaleDateString()}</p>
+                      </div>
+                      <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold ${request.status === "PENDING" ? "bg-amber-500/10 text-amber-600" : request.status === "ACCEPTED" ? "bg-emerald-500/10 text-emerald-600" : "bg-gray-500/10 text-gray-500"}`}>
+                        {request.status.toLowerCase()}
+                      </span>
+                    </div>
+                    {request.status === "PENDING" && (
+                      <div className="mt-4 flex justify-end gap-2">
+                        <button
+                          type="button"
+                          disabled={updatingRequestId === request.id}
+                          onClick={() => handleRequestStatus(request.id, "DECLINED")}
+                          className="rounded-xl border border-gray-200 px-3 py-2 text-[11px] font-bold text-gray-600 hover:bg-gray-50 disabled:opacity-50 dark:border-white/10 dark:text-white/70 dark:hover:bg-white/5"
+                        >
+                          Decline
+                        </button>
+                        <button
+                          type="button"
+                          disabled={updatingRequestId === request.id}
+                          onClick={() => handleRequestStatus(request.id, "ACCEPTED")}
+                          className="rounded-xl bg-purple-600 px-3 py-2 text-[11px] font-bold text-white hover:bg-purple-700 disabled:opacity-50"
+                        >
+                          {updatingRequestId === request.id ? "Saving..." : "Accept"}
+                        </button>
+                      </div>
+                    )}
+                  </article>
+                ))}
+              </div>
+            )}
+          </section>
+        )}
 
         {/* Filter Toolbar */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-white dark:bg-[#10141b] p-5 rounded-3xl border border-gray-200 dark:border-white/10 shadow-sm">
