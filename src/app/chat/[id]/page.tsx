@@ -172,7 +172,8 @@ function ChatRoomContent({ partnerId }: { partnerId: string }) {
 
     const distanceFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
     const isNearBottom = distanceFromBottom < 160;
-    const isOwnMessage = lastMessage.senderId === user?.uid;
+    // The route partner ID is the other participant's canonical database ID.
+    const isOwnMessage = lastMessage.senderId !== partnerId;
 
     lastAutoScrolledMessageIdRef.current = lastMessageId;
 
