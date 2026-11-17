@@ -24,9 +24,10 @@ import ExchangeOfferModal from "./ExchangeOfferModal";
 
 interface PricingCardProps {
   product: any;
+  isOwner?: boolean;
 }
 
-export default function PricingCard({ product }: PricingCardProps) {
+export default function PricingCard({ product, isOwner: serverIsOwner }: PricingCardProps) {
   const { user, isProfileComplete } = useAuth();
   const { toggleCompare, isInCompare } = useCompare();
   const router = useRouter();
@@ -41,8 +42,9 @@ export default function PricingCard({ product }: PricingCardProps) {
   const [isExchangeModalOpen, setIsExchangeModalOpen] = useState(false);
   const [isWishlisted, setIsWishlisted] = useState(false);
 
-  const isOwner = user && user.uid === product?.sellerId;
+  const isOwner = serverIsOwner ?? Boolean(user && user.uid === product?.sellerId);
   const isAvailable = product?.status === "LIVE" && (product?.inventory ?? 1) > 0;
+  const isPending = product?.status === "PENDING";
   const isSold =
     product?.status === "SOLD" ||
     (product?.inventory === 0 && product?.status !== "ARCHIVED");
@@ -178,9 +180,9 @@ export default function PricingCard({ product }: PricingCardProps) {
 
         {/* Availability State */}
         {!isAvailable && (
-          <span className="inline-flex items-center gap-1 rounded-md bg-rose-50 px-2.5 py-1 text-xs font-bold text-rose-700 dark:bg-rose-950/40 dark:text-rose-400">
+          <span className={"inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-xs font-bold " + (isPending ? "bg-amber-50 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300" : "bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-400")}>
             <AlertCircle size={13} />
-            {isSold ? "Sold" : isArchived ? "Archived" : "Unavailable"}
+            {isPending ? (isOwner ? "Pending approval" : "Under review") : isSold ? "Sold" : isArchived ? "Archived" : "Unavailable"}
           </span>
         )}
       </div>
@@ -249,7 +251,9 @@ export default function PricingCard({ product }: PricingCardProps) {
         {isOwner ? (
           <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center dark:border-white/10 dark:bg-zinc-800">
             <p className="text-xs font-semibold text-gray-600 dark:text-gray-300">
-              You are the seller of this listing.
+              {isPending
+                ? "Your listing has been submitted and is awaiting review. It will become available to buyers after approval."
+                : "You are the seller of this listing."}
             </p>
             <div className="mt-3 flex justify-center gap-2">
               <Link
@@ -263,7 +267,9 @@ export default function PricingCard({ product }: PricingCardProps) {
         ) : !isAvailable ? (
           <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-center dark:border-rose-950/50 dark:bg-rose-950/20">
             <p className="text-xs font-bold text-rose-700 dark:text-rose-400">
-              This listing is {isSold ? "sold" : "no longer available"}.
+              {isPending
+                ? "This listing is currently under review and is not available to buyers yet."
+                : "This listing is " + (isSold ? "sold" : "no longer available") + "."}
             </p>
             <Link
               href={`/search?category=${product.category?.slug || ""}`}
