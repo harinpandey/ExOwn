@@ -100,10 +100,13 @@ export async function updateOfferStatus(offerId: string, userId: string, status:
     }
 
     await prisma.$transaction(async (tx) => {
-      await tx.offer.update({
-        where: { id: offerId },
-        data: { status }
+      const updated = await tx.offer.updateMany({
+        where: { id: offerId, status: "PENDING" },
+        data: { status },
       });
+      if (updated.count !== 1) {
+        throw new Error("This offer has already been resolved.");
+      }
 
       if (status === "ACCEPTED") {
         await tx.offer.updateMany({
@@ -168,6 +171,7 @@ export async function getUserOffers(userId: string) {
       prisma.offer.findMany({
         where: { product: { sellerId: canonicalUserId } },
         include: {
+          buyer: { select: { id: true, name: true, image: true } },
           product: {
             select: { id: true, title: true, price: true, images: true, status: true },
           },
