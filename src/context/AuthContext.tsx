@@ -94,10 +94,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
         if (firebaseUser) {
           activeUid.current = firebaseUser.uid;
-          setUser(firebaseUser);
+
+          // Do not expose an authenticated client user to providers/components
+          // until the server has accepted the Firebase ID token and stored the
+          // HttpOnly session cookie. Otherwise their server actions can race
+          // the cookie response and be rejected as anonymous.
           await ensureServerSession(firebaseUser);
 
           if (!active || activeUid.current !== firebaseUser.uid) return;
+
+          setUser(firebaseUser);
 
           if (lastSyncedUid.current !== firebaseUser.uid) {
             lastSyncedUid.current = firebaseUser.uid;
