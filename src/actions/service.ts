@@ -11,7 +11,8 @@ export async function requestServiceQuote(data: {
   content: string;
 }) {
   try {
-    await requireSameUser(data.userId);
+    const actor = await requireSameUser(data.userId);
+    const requesterId = actor.uid;
 
     if (!data.content.trim()) {
       throw new Error("Inquiry content is required");
@@ -24,7 +25,7 @@ export async function requestServiceQuote(data: {
     });
 
     if (!service) throw new Error("Service not found");
-    if (service.product.sellerId === data.userId) {
+    if (service.product.sellerId === requesterId) {
       throw new Error("You cannot request a quote from yourself");
     }
 
@@ -32,7 +33,7 @@ export async function requestServiceQuote(data: {
     const quote = await withRetry(() => prisma.quoteRequest.create({
       data: {
         serviceDetailId: data.serviceDetailId,
-        userId: data.userId,
+        userId: requesterId,
         content: data.content,
         status: "PENDING",
       }
@@ -48,7 +49,7 @@ export async function requestServiceQuote(data: {
     });
 
     await logActivity({
-      userId: data.userId,
+      userId: requesterId,
       actionType: "QUOTE_REQUESTED",
       productId: service.productId,
       targetUserId: service.product.sellerId,
@@ -63,10 +64,10 @@ export async function requestServiceQuote(data: {
 
 export async function getServiceProviderStats(userId: string) {
   try {
-    await requireSameUser(userId);
+    const actor = await requireSameUser(userId);
 
     return await withRetry(() => prisma.serviceDetail.findMany({
-      where: { product: { sellerId: userId } },
+      where: { product: { sellerId: actor.uid } },
       include: {
         _count: {
           select: { quoteRequests: true }
