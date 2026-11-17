@@ -99,7 +99,9 @@ function ChatRoomContent({ partnerId }: { partnerId: string }) {
   const [showMeetupTips, setShowMeetupTips] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const lastAutoScrolledMessageIdRef = useRef<string | null>(null);
+  const hasInitializedMessageScrollRef = useRef(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   // Close options menu on outside click
@@ -146,9 +148,39 @@ function ChatRoomContent({ partnerId }: { partnerId: string }) {
     return () => clearInterval(interval);
   }, [fetchChatData]);
 
+  // Keep scrolling contained to the message pane. The chat polls every 3s, so
+  // the messages array is refreshed even when nothing new has arrived. Only
+  // follow an actually new last message, and do not pull readers away from
+  // older messages they are currently viewing.
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    if (loading) return;
+
+    const container = messagesContainerRef.current;
+    if (!container) return;
+
+    const lastMessage = messages[messages.length - 1];
+    const lastMessageId = lastMessage?.id == null ? null : String(lastMessage.id);
+
+    if (!hasInitializedMessageScrollRef.current) {
+      hasInitializedMessageScrollRef.current = true;
+      lastAutoScrolledMessageIdRef.current = lastMessageId;
+      container.scrollTop = container.scrollHeight;
+      return;
+    }
+
+    if (!lastMessageId || lastMessageId === lastAutoScrolledMessageIdRef.current) return;
+
+    const distanceFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
+    const isNearBottom = distanceFromBottom < 160;
+    // The route partner ID is the other participant's canonical database ID.
+    const isOwnMessage = lastMessage.senderId !== partnerId;
+
+    lastAutoScrolledMessageIdRef.current = lastMessageId;
+
+    if (isNearBottom || isOwnMessage) {
+      container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
+    }
+  }, [messages, loading, user?.uid]);
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -205,7 +237,7 @@ function ChatRoomContent({ partnerId }: { partnerId: string }) {
   const isSeller = product && user ? product.sellerId === user.uid : false;
 
   return (
-    <div className="container mx-auto px-4 py-4 md:py-6 max-w-4xl h-[calc(100vh-120px)] md:h-[calc(100vh-160px)] flex flex-col">
+    <div className="container mx-auto px-4 py-4 md:py-6 max-w-4xl h-[calc(100dvh-176px)] md:h-[calc(100vh-160px)] flex flex-col min-h-0">
       <div className="bg-white dark:bg-gray-900 rounded-3xl border border-gray-200/80 dark:border-gray-800 shadow-sm flex-1 flex flex-col overflow-hidden">
 
         {/* Header 1: User & Verification */}
@@ -460,7 +492,7 @@ function ChatRoomContent({ partnerId }: { partnerId: string }) {
         )}
 
         {/* Message Thread */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 bg-[#f8fafc] dark:bg-[#09090b]">
+        <div ref={messagesContainerRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 md:p-6 space-y-4 bg-[#f8fafc] dark:bg-[#09090b]">
           {messages.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center p-8 space-y-3">
               <div className="w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center text-gray-400">
@@ -524,11 +556,10 @@ function ChatRoomContent({ partnerId }: { partnerId: string }) {
               );
             })
           )}
-          <div ref={messagesEndRef} />
         </div>
 
         {/* Input Composer */}
-        <div className="p-3 md:p-4 border-t border-gray-200/80 dark:border-gray-800 bg-white dark:bg-gray-900">
+        <div className="shrink-0 p-3 md:p-4 border-t border-gray-200/80 dark:border-gray-800 bg-white dark:bg-gray-900">
           <form onSubmit={handleSend} className="flex items-end gap-2 max-w-4xl mx-auto">
             <div className="flex-1 relative">
               <textarea
