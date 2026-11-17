@@ -110,13 +110,18 @@ export default function ProductCard({
     if (!user || isMutating) return;
     if (confirm("Mark this item as sold?")) {
       setIsMutating(true);
-      const { markProductAsSold } = await import("@/actions/product");
-      const res = await markProductAsSold(id, user.uid);
-      if (res.success) {
-        import("react-hot-toast").then(({ toast }) => toast.success("Marked as sold"));
-        window.location.reload();
-      } else {
-        import("react-hot-toast").then(({ toast }) => toast.error(res.error || "Failed to mark as sold"));
+      try {
+        const { markProductAsSold } = await import("@/actions/product");
+        const res = await markProductAsSold(id, user.uid);
+        if (res.success) {
+          import("react-hot-toast").then(({ toast }) => toast.success("Marked as sold"));
+          window.location.reload();
+        } else {
+          import("react-hot-toast").then(({ toast }) => toast.error(res.error || "Failed to mark as sold"));
+          setIsMutating(false);
+        }
+      } catch {
+        import("react-hot-toast").then(({ toast }) => toast.error("Unable to update this listing. Please try again."));
         setIsMutating(false);
       }
     }
@@ -128,13 +133,18 @@ export default function ProductCard({
     if (!user || isMutating) return;
     if (confirm("Archive this listing? It will no longer be visible to others.")) {
       setIsMutating(true);
-      const { archiveProduct } = await import("@/actions/product");
-      const res = await archiveProduct(id, user.uid);
-      if (res.success) {
-        import("react-hot-toast").then(({ toast }) => toast.success("Listing archived"));
-        window.location.reload();
-      } else {
-        import("react-hot-toast").then(({ toast }) => toast.error(res.error || "Failed to archive"));
+      try {
+        const { archiveProduct } = await import("@/actions/product");
+        const res = await archiveProduct(id, user.uid);
+        if (res.success) {
+          import("react-hot-toast").then(({ toast }) => toast.success("Listing archived"));
+          window.location.reload();
+        } else {
+          import("react-hot-toast").then(({ toast }) => toast.error(res.error || "Failed to archive"));
+          setIsMutating(false);
+        }
+      } catch {
+        import("react-hot-toast").then(({ toast }) => toast.error("Unable to archive this listing. Please try again."));
         setIsMutating(false);
       }
     }
@@ -221,6 +231,7 @@ export default function ProductCard({
             </Link>
             <button
               type="button"
+              disabled={isMutating}
               onClick={handleMarkSold}
               className="flex items-center gap-1 rounded-md bg-emerald-600 px-2 py-1 text-[10px] font-bold text-white shadow transition hover:bg-emerald-700"
             >
@@ -229,6 +240,7 @@ export default function ProductCard({
             </button>
             <button
               type="button"
+              disabled={isMutating}
               onClick={handleArchive}
               className="flex items-center gap-1 rounded-md bg-rose-600 px-2 py-1 text-[10px] font-bold text-white shadow transition hover:bg-rose-700"
             >
@@ -285,7 +297,11 @@ export default function ProductCard({
       </div>
 
       {/* Primary Link Overlay */}
-      <Link href={`/product/${id}`} className="absolute inset-0 z-10" tabIndex={-1} aria-hidden>
+      <Link
+        href={`/product/${id}`}
+        className="absolute inset-0 z-10"
+        aria-label={`View details for ${title}`}
+      >
         <span className="sr-only">View details for {title}</span>
       </Link>
     </article>

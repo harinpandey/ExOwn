@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, MessageSquare, Search, AlertCircle } from "lucide-react";
+import { Plus, MessageSquare, Search, AlertCircle, X } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { getBuyingRequests, createBuyingRequest } from "@/actions/requests";
 import { formatDistanceToNow } from "date-fns";
@@ -12,7 +12,10 @@ export default function RequestBoardPage() {
   const { user } = useAuth();
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedType, setSelectedType] = useState<"ALL" | "SELL" | "RENT" | "SERVICE">("ALL");
   const [newRequest, setNewRequest] = useState({
     title: "",
     description: "",
@@ -26,9 +29,44 @@ export default function RequestBoardPage() {
   }, []);
 
   const loadRequests = async () => {
-    const data = await getBuyingRequests();
-    setRequests(data);
-    setLoading(false);
+    setLoading(true);
+    try {
+      const data = await getBuyingRequests();
+      setRequests(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("[RequestBoard] Failed to load requests:", error);
+      toast.error("Unable to load requests. Please refresh the page.");
+      setRequests([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!isModalOpen) return;
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !isSubmitting) setIsModalOpen(false);
+    };
+    window.addEventListener("keydown", handleEscape);
+    return () => window.removeEventListener("keydown", handleEscape);
+  }, [isModalOpen, isSubmitting]);
+
+  const filteredRequests = requests.filter((request) => {
+    const query = searchQuery.trim().toLocaleLowerCase();
+    const matchesType = selectedType === "ALL" || request.listingType === selectedType;
+    const searchableText = [
+      request.title,
+      request.description,
+      request.category,
+      request.user?.name,
+    ].filter(Boolean).join(" ").toLocaleLowerCase();
+
+    return matchesType && (!query || searchableText.includes(query));
+  });
+
+  const clearFilters = () => {
+    setSearchQuery("");
+    setSelectedType("ALL");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -38,18 +76,27 @@ export default function RequestBoardPage() {
       return;
     }
 
-    const res = await createBuyingRequest(user.uid, {
-      ...newRequest,
-      budget: newRequest.budget ? parseFloat(newRequest.budget) : undefined,
-    });
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      const res = await createBuyingRequest(user.uid, {
+        ...newRequest,
+        budget: newRequest.budget ? parseFloat(newRequest.budget) : undefined,
+      });
 
-    if (res.success) {
-      toast.success("Request posted successfully!");
-      setIsModalOpen(false);
-      setNewRequest({ title: "", description: "", budget: "", category: "", listingType: "SELL" });
-      loadRequests();
-    } else {
-      toast.error(res.error || "Failed to post request");
+      if (res.success) {
+        toast.success("Request posted successfully!");
+        setIsModalOpen(false);
+        setNewRequest({ title: "", description: "", budget: "", category: "", listingType: "SELL" });
+        await loadRequests();
+      } else {
+        toast.error(res.error || "Failed to post request");
+      }
+    } catch (error) {
+      console.error("[RequestBoard] Failed to post request:", error);
+      toast.error("Unable to post your request. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -80,17 +127,36 @@ export default function RequestBoardPage() {
           <div className="flex-1 min-w-[300px] relative">
             <Search className="absolute left-4 top-3.5 text-gray-400" size={20} />
             <input
-              type="text"
-              placeholder="Search requests..."
+              type="search"
+              aria-label="Search requests"
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              placeholder="Search requests by item, details or student..."
               className="w-full pl-12 pr-4 py-3.5 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl outline-none focus:ring-4 focus:ring-primary/10 transition-all font-bold"
             />
           </div>
-          <select className="px-6 py-3.5 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl outline-none font-bold">
-            <option>All Types</option>
-            <option>Buying</option>
-            <option>Rental</option>
-            <option>Service</option>
+          <select
+            aria-label="Filter request type"
+            value={selectedType}
+            onChange={(event) => setSelectedType(event.target.value as "ALL" | "SELL" | "RENT" | "SERVICE")}
+            className="px-6 py-3.5 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl outline-none font-bold"
+          >
+            <option value="ALL">All Types</option>
+            <option value="SELL">Buying</option>
+            <option value="RENT">Rental</option>
+            <option value="SERVICE">Service</option>
           </select>
+        </div>
+
+        <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+          <p className="text-sm font-bold text-gray-500 dark:text-gray-400">
+            {loading ? "Loading requests..." : `Showing ${filteredRequests.length} of ${requests.length} requests`}
+          </p>
+          {(searchQuery.trim() || selectedType !== "ALL") && (
+            <button type="button" onClick={clearFilters} className="text-xs font-black text-primary hover:underline">
+              Clear filters
+            </button>
+          )}
         </div>
 
         {/* Request Grid */}
@@ -111,9 +177,18 @@ export default function RequestBoardPage() {
               Post Request
             </button>
           </div>
+        ) : filteredRequests.length === 0 ? (
+          <div className="rounded-3xl border border-dashed border-gray-200 bg-white px-6 py-20 text-center dark:border-gray-800 dark:bg-gray-900">
+            <Search size={36} className="mx-auto mb-4 text-gray-400" />
+            <h2 className="text-xl font-black text-gray-900 dark:text-white">No matching requests</h2>
+            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Try a different keyword or request type.</p>
+            <button type="button" onClick={clearFilters} className="mt-5 rounded-xl bg-primary px-5 py-2.5 text-xs font-black text-white">
+              Clear filters
+            </button>
+          </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {requests.map((req) => (
+            {filteredRequests.map((req) => (
               <div key={req.id} className="bg-white dark:bg-gray-900 p-6 rounded-3xl border border-gray-100 dark:border-gray-800 hover:shadow-2xl transition-all group">
                 <div className="flex items-center justify-between mb-4">
                   <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
@@ -157,7 +232,18 @@ export default function RequestBoardPage() {
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
           <div className="bg-white dark:bg-gray-900 w-full max-w-lg rounded-3xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
             <div className="p-8">
-              <h2 className="text-3xl font-black mb-6">What do you <span className="text-primary">Need?</span></h2>
+              <div className="mb-6 flex items-start justify-between gap-3">
+                <h2 className="text-3xl font-black">What do you <span className="text-primary">Need?</span></h2>
+                <button
+                  type="button"
+                  aria-label="Close request form"
+                  disabled={isSubmitting}
+                  onClick={() => setIsModalOpen(false)}
+                  className="rounded-xl p-2 text-gray-500 transition hover:bg-gray-100 disabled:opacity-50 dark:hover:bg-white/10"
+                >
+                  <X size={18} />
+                </button>
+              </div>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">Title</label>
@@ -205,13 +291,14 @@ export default function RequestBoardPage() {
                   </div>
                 </div>
                 <div className="flex gap-3 mt-8">
-                  <button type="submit" className="flex-1 py-4 bg-primary text-white rounded-2xl font-black text-lg hover:bg-primary-dark transition-all">
-                    Post Request
+                  <button type="submit" disabled={isSubmitting} className="flex-1 py-4 bg-primary text-white rounded-2xl font-black text-lg hover:bg-primary-dark transition-all disabled:cursor-wait disabled:opacity-60">
+                    {isSubmitting ? "Posting..." : "Post Request"}
                   </button>
                   <button
                     type="button"
+                    disabled={isSubmitting}
                     onClick={() => setIsModalOpen(false)}
-                    className="px-8 py-4 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-white rounded-2xl font-black text-lg hover:bg-gray-200 transition-all"
+                    className="px-8 py-4 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-white rounded-2xl font-black text-lg hover:bg-gray-200 transition-all disabled:opacity-50"
                   >
                     Cancel
                   </button>

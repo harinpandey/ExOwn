@@ -6,10 +6,10 @@ import {
   getUnreadCount,
   getUserNotifications,
   markAsRead,
+  markAsUnread,
   markAllAsRead,
   deleteNotification,
   clearAllNotifications,
-  seedDemoNotifications,
 } from "@/actions/notification";
 import { useFcm } from "@/hooks/useFcm";
 
@@ -23,54 +23,15 @@ export interface NotificationItem {
   createdAt: string | Date;
 }
 
-const DEFAULT_DEMO_NOTIFS: NotificationItem[] = [
-  {
-    id: "demo-1",
-    type: "OFFER",
-    title: "⚡ Price Drop Alert: MacBook Air M1",
-    content: "A MacBook Air M1 in your wishlist dropped by ₹3,500! Check out the updated listing now.",
-    link: "/search?q=MacBook",
-    isRead: false,
-    createdAt: new Date(Date.now() - 1000 * 60 * 15),
-  },
-  {
-    id: "demo-2",
-    type: "RENTAL_APPROVED",
-    title: "✅ Rental Request Approved!",
-    content: "Rohan accepted your rental request for the Mini Refrigerator (3-Month Semester Rental).",
-    link: "/search?listingType=RENT",
-    isRead: false,
-    createdAt: new Date(Date.now() - 1000 * 60 * 120),
-  },
-  {
-    id: "demo-3",
-    type: "VERIFICATION_STATUS",
-    title: "🛡️ Campus Seller Verified",
-    content: "Congratulations! Your university student ID has been verified. You now carry the Trusted Student badge.",
-    link: "/profile",
-    isRead: true,
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24),
-  },
-  {
-    id: "demo-4",
-    type: "MESSAGE",
-    title: "💬 New message from Priya (LPU BH-3)",
-    content: "'Hey! Is the Engineering Physics textbook still available for instant pickup today?'",
-    link: "/chat",
-    isRead: true,
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 48),
-  },
-];
-
 interface NotificationContextType {
   notifications: NotificationItem[];
   unreadCount: number;
   refreshNotifications: () => Promise<void>;
   markRead: (id: string) => Promise<void>;
+  markUnread: (id: string) => Promise<void>;
   markAllRead: () => Promise<void>;
   deleteNotif: (id: string) => Promise<void>;
   clearAllNotifs: () => Promise<void>;
-  seedDemoNotifs: () => Promise<void>;
   loading: boolean;
 }
 
@@ -78,21 +39,22 @@ const NotificationContext = createContext<NotificationContextType | undefined>(u
 
 export function NotificationProvider({ children }: { children: ReactNode }) {
   const { user, loading: authLoading } = useAuth();
-  const [notifications, setNotifications] = useState<NotificationItem[]>(DEFAULT_DEMO_NOTIFS);
-  const [unreadCount, setUnreadCount] = useState(2);
-  const [loading, setLoading] = useState(false);
-  useFcm(); // Initialize FCM foreground listener
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+  useFcm();
 
   const refreshNotifications = useCallback(async () => {
-    // Wait until AuthProvider has finished establishing the HttpOnly server
-    // session. Client Firebase state alone is not enough for protected actions.
+    // Wait until AuthProvider has established the server session.
     if (authLoading) return;
 
     if (!user) {
-      setNotifications(DEFAULT_DEMO_NOTIFS);
-      setUnreadCount(DEFAULT_DEMO_NOTIFS.filter((n) => !n.isRead).length);
+      setNotifications([]);
+      setUnreadCount(0);
+      setLoading(false);
       return;
     }
+
     setLoading(true);
     try {
       const { getTotalUnreadCount } = await import("@/actions/chat");
@@ -101,78 +63,94 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         getUnreadCount(user.uid),
         getTotalUnreadCount(user.uid),
       ]);
-      if (notifs && notifs.length > 0) {
-        setNotifications(notifs);
-        setUnreadCount(systemCount + chatCount);
-      } else {
-        // Fallback demo data if DB has no notifications yet
-        setNotifications(DEFAULT_DEMO_NOTIFS);
-        setUnreadCount(DEFAULT_DEMO_NOTIFS.filter((n) => !n.isRead).length);
-      }
-    } catch (err) {
-      console.error("Failed to refresh notifications:", err);
+
+      // An empty database means no notifications, not a reason to show
+      // fabricated sample messages in a real student's account.
+      setNotifications(Array.isArray(notifs) ? notifs : []);
+      setUnreadCount(systemCount + chatCount);
+    } catch (error) {
+      console.error("[NotificationContext] Failed to refresh notifications:", error);
     } finally {
       setLoading(false);
     }
   }, [user, authLoading]);
 
   const markRead = async (id: string) => {
-    if (user && !id.startsWith("demo-")) {
-      await markAsRead(id);
-    }
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
+    const target = notifications.find((item) => item.id === id);
+    if (!user || !target || target.isRead) return;
+
+    const result = await markAsRead(id);
+    if (!result.success) return;
+
+    setNotifications((current) =>
+      current.map((item) => item.id === id ? { ...item, isRead: true } : item)
     );
-    setUnreadCount((prev) => Math.max(0, prev - 1));
+    setUnreadCount((current) => Math.max(0, current - 1));
+  };
+
+  const markUnread = async (id: string) => {
+    const target = notifications.find((item) => item.id === id);
+    if (!user || !target || !target.isRead) return;
+
+    const result = await markAsUnread(id);
+    if (!result.success) return;
+
+    setNotifications((current) =>
+      current.map((item) => item.id === id ? { ...item, isRead: false } : item)
+    );
+    setUnreadCount((current) => current + 1);
   };
 
   const markAllRead = async () => {
-    if (user) {
-      await markAllAsRead(user.uid);
-    }
-    setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
-    setUnreadCount(0);
+    if (!user) return;
+
+    const unreadNotifications = notifications.filter((item) => !item.isRead).length;
+    if (unreadNotifications === 0) return;
+
+    const result = await markAllAsRead(user.uid);
+    if (!result.success) return;
+
+    setNotifications((current) => current.map((item) => ({ ...item, isRead: true })));
+    // Keep unread chat messages in the global navbar count.
+    setUnreadCount((current) => Math.max(0, current - unreadNotifications));
   };
 
   const deleteNotif = async (id: string) => {
-    if (user && !id.startsWith("demo-")) {
-      await deleteNotification(id);
+    if (!user) return;
+
+    const target = notifications.find((item) => item.id === id);
+    if (!target) return;
+
+    const result = await deleteNotification(id);
+    if (!result.success) return;
+
+    setNotifications((current) => current.filter((item) => item.id !== id));
+    if (!target.isRead) {
+      setUnreadCount((current) => Math.max(0, current - 1));
     }
-    setNotifications((prev) => {
-      const target = prev.find((n) => n.id === id);
-      const next = prev.filter((n) => n.id !== id);
-      if (target && !target.isRead) {
-        setUnreadCount((cnt) => Math.max(0, cnt - 1));
-      }
-      return next;
-    });
   };
 
   const clearAllNotifs = async () => {
-    if (user) {
-      await clearAllNotifications(user.uid);
-    }
-    setNotifications([]);
-    setUnreadCount(0);
-  };
+    if (!user) return;
 
-  const seedDemoNotifs = async () => {
-    if (user) {
-      await seedDemoNotifications(user.uid);
-      await refreshNotifications();
-    } else {
-      setNotifications(DEFAULT_DEMO_NOTIFS);
-      setUnreadCount(DEFAULT_DEMO_NOTIFS.filter((n) => !n.isRead).length);
-    }
+    const unreadNotifications = notifications.filter((item) => !item.isRead).length;
+    const result = await clearAllNotifications(user.uid);
+    if (!result.success) return;
+
+    setNotifications([]);
+    // Clearing notification records must not clear unread chat conversations.
+    setUnreadCount((current) => Math.max(0, current - unreadNotifications));
   };
 
   useEffect(() => {
     if (authLoading) return;
 
-    refreshNotifications();
+    void refreshNotifications();
     if (user) {
-      const interval = setInterval(refreshNotifications, 60000);
-      return () => clearInterval(interval);
+      const interval = window.setInterval(() => {
+        void refreshNotifications();
+      }, 60000);
+      return () => window.clearInterval(interval);
     }
   }, [user, authLoading, refreshNotifications]);
 
@@ -183,10 +161,10 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         unreadCount,
         refreshNotifications,
         markRead,
+        markUnread,
         markAllRead,
         deleteNotif,
         clearAllNotifs,
-        seedDemoNotifs,
         loading,
       }}
     >

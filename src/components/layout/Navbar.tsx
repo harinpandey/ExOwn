@@ -271,10 +271,15 @@ export default function Navbar() {
                       </div>
                     ) : (
                       notifications.slice(0, 4).map((n: any) => (
-                        <div
+                        <Link
                           key={n.id}
-                          onClick={() => markRead(n.id)}
-                          className={`group relative cursor-pointer rounded-xl p-3 text-xs transition ${
+                          href={typeof n.link === "string" && n.link.startsWith("/") ? n.link : "/notifications"}
+                          onClick={() => {
+                            void markRead(n.id);
+                            setIsNotificationsOpen(false);
+                          }}
+                          aria-label={`Open notification: ${n.title}`}
+                          className={`group relative block cursor-pointer rounded-xl p-3 text-xs transition ${
                             n.isRead || n.read
                               ? "bg-gray-50 text-gray-600 dark:bg-white/[0.02] dark:text-white/60"
                               : "border border-primary/20 bg-blue-50/60 text-gray-900 font-bold dark:bg-primary/10 dark:text-white"
@@ -289,7 +294,7 @@ export default function Navbar() {
                           <p className="mt-0.5 text-[11px] font-normal text-gray-500 line-clamp-2 dark:text-white/50">
                             {n.content || n.message}
                           </p>
-                        </div>
+                        </Link>
                       ))
                     )}
                   </div>

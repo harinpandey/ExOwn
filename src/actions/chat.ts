@@ -174,11 +174,11 @@ export async function sendMessage(senderId: string, receiverId: string, content:
 }
 export async function getTotalUnreadCount(userId: string) {
   try {
-    await requireSameUser(userId);
+    const actor = await requireSameUser(userId);
 
     return await prisma.message.count({
       where: {
-        receiverId: userId,
+        receiverId: actor.uid,
         isRead: false
       }
     });
