@@ -37,6 +37,7 @@ export default function ProfileDashboardPage() {
 
   const [rentalsData, setRentalsData] = useState<{ owned: any[]; rented: any[] }>({ owned: [], rented: [] });
   const [rentalsLoading, setRentalsLoading] = useState(false);
+  const [rentalActionId, setRentalActionId] = useState<string | null>(null);
 
   const [activeTab, setActiveTab] = useState<"listings" | "favorites" | "offers" | "exchanges" | "rentals" | "billing" | "settings">("listings");
   const [listingFilter, setListingFilter] = useState<"ALL" | "LIVE" | "SOLD" | "PENDING">("ALL");
@@ -167,6 +168,36 @@ export default function ProfileDashboardPage() {
       setRentalsLoading(false);
     }
   }, [user]);
+
+  const handleRentalAction = async (rentalId: string, action: "APPROVE" | "RETURN" | "CANCEL") => {
+    if (!user || rentalActionId) return;
+    setRentalActionId(rentalId);
+    try {
+      const rentalActions = await import("@/actions/rental");
+      const result = action === "APPROVE"
+        ? await rentalActions.approveRental(rentalId, user.uid)
+        : action === "RETURN"
+        ? await rentalActions.markRentalReturned(rentalId, user.uid)
+        : await rentalActions.cancelRentalRequest(rentalId, user.uid);
+
+      if (!result.success) {
+        toast.error(result.error || "Unable to update this rental.");
+        return;
+      }
+
+      toast.success(
+        action === "APPROVE" ? "Rental request approved."
+          : action === "RETURN" ? "Item marked as returned."
+          : "Rental request cancelled."
+      );
+      await fetchRentals();
+    } catch (error) {
+      console.error("[Profile] Rental action failed:", error);
+      toast.error("Unable to update this rental. Please try again.");
+    } finally {
+      setRentalActionId(null);
+    }
+  };
 
   const handleWishlistChange = useCallback((productId: string, added: boolean) => {
     if (!added) {
@@ -901,17 +932,42 @@ Items You Put For Rent ({rentalsData.owned.length})
       key={rental.id}
       className="p-4 rounded-xl border border-gray-100 dark:border-white/10 bg-gray-50/60 dark:bg-zinc-800/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
     >
-      <div>
-        <span className="font-bold text-gray-900 dark:text-white block">
+      <div className="min-w-0">
+        <span className="block font-bold text-gray-900 dark:text-white">
           {rental.product?.title}
         </span>
         <span className="text-gray-500">
           Renter: {rental.renter?.name || "Student"} • Deposit: ₹{rental.securityDeposit}
         </span>
+        <p className="mt-1 text-[10px] text-gray-400">
+          {format(new Date(rental.startDate), "dd MMM yyyy")} – {format(new Date(rental.endDate), "dd MMM yyyy")}
+        </p>
       </div>
-      <span className="px-2.5 py-1 rounded-full font-bold text-[10px] uppercase bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400">
-        {rental.status}
-      </span>
+      <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+        <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[10px] font-bold uppercase text-blue-700 dark:bg-blue-950/40 dark:text-blue-400">
+          {rental.status}
+        </span>
+        {rental.status === "PENDING" && (
+          <button
+            type="button"
+            disabled={rentalActionId === rental.id}
+            onClick={() => handleRentalAction(rental.id, "APPROVE")}
+            className="rounded-lg bg-primary px-3 py-2 text-[10px] font-black text-white hover:bg-primary-dark disabled:opacity-50"
+          >
+            {rentalActionId === rental.id ? "Saving..." : "Approve"}
+          </button>
+        )}
+        {rental.status === "ACTIVE" && (
+          <button
+            type="button"
+            disabled={rentalActionId === rental.id}
+            onClick={() => handleRentalAction(rental.id, "RETURN")}
+            className="rounded-lg border border-emerald-200 px-3 py-2 text-[10px] font-black text-emerald-700 hover:bg-emerald-50 disabled:opacity-50 dark:border-emerald-900/50 dark:text-emerald-300"
+          >
+            {rentalActionId === rental.id ? "Saving..." : "Mark returned"}
+          </button>
+        )}
+      </div>
     </div>
   ))}
 </div>
@@ -931,17 +987,32 @@ Items You Borrowed / Requested ({rentalsData.rented.length})
       key={rental.id}
       className="p-4 rounded-xl border border-gray-100 dark:border-white/10 bg-gray-50/60 dark:bg-zinc-800/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
     >
-      <div>
-        <span className="font-bold text-gray-900 dark:text-white block">
+      <div className="min-w-0">
+        <span className="block font-bold text-gray-900 dark:text-white">
           {rental.product?.title}
         </span>
         <span className="text-gray-500">
           Owner: {rental.owner?.name || "Student"}
         </span>
+        <p className="mt-1 text-[10px] text-gray-400">
+          {format(new Date(rental.startDate), "dd MMM yyyy")} – {format(new Date(rental.endDate), "dd MMM yyyy")}
+        </p>
       </div>
-      <span className="px-2.5 py-1 rounded-full font-bold text-[10px] uppercase bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400">
-        {rental.status}
-      </span>
+      <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+        <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[10px] font-bold uppercase text-blue-700 dark:bg-blue-950/40 dark:text-blue-400">
+          {rental.status}
+        </span>
+        {rental.status === "PENDING" && (
+          <button
+            type="button"
+            disabled={rentalActionId === rental.id}
+            onClick={() => handleRentalAction(rental.id, "CANCEL")}
+            className="rounded-lg border border-red-200 px-3 py-2 text-[10px] font-black text-red-600 hover:bg-red-50 disabled:opacity-50 dark:border-red-900/50 dark:text-red-300"
+          >
+            {rentalActionId === rental.id ? "Saving..." : "Cancel request"}
+          </button>
+        )}
+      </div>
     </div>
   ))}
 </div>
