@@ -69,6 +69,7 @@ export default function Navbar() {
   const profileRef = useRef<HTMLDivElement>(null);
   const loginPopupRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
+  const currentUserId = user?.uid;
 
   useEffect(() => {
     setMounted(true);
@@ -77,13 +78,13 @@ export default function Navbar() {
   useEffect(() => {
     let active = true;
     setIsAdmin(false);
-    if (user?.uid) {
+    if (currentUserId) {
       isCurrentUserAdmin()
         .then((allowed) => { if (active) setIsAdmin(allowed); })
         .catch(() => { if (active) setIsAdmin(false); });
     }
     return () => { active = false; };
-  }, [user?.uid]);
+  }, [currentUserId]);
 
   // Close dropdowns when clicking outside
   useEffect(() => {
