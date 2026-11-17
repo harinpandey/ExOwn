@@ -1,9 +1,41 @@
 "use server";
 
 import prisma from "@/lib/prisma";
+import { CAMPUS_DIRECTORY } from "@/config/campuses";
 
+/**
+ * Add missing featured campus location rows without deleting or
+ * replacing existing records. Repeated calls are safe and idempotent.
+ */
+async function ensureCampusDirectory() {
+  await prisma.$transaction(async (tx) => {
+    for (const campus of CAMPUS_DIRECTORY) {
+      const country = await tx.country.upsert({
+        where: { slug: campus.countrySlug },
+        update: { name: campus.country },
+        create: { name: campus.country, slug: campus.countrySlug },
+      });
+      const state = await tx.state.upsert({
+        where: { name_countryId: { name: campus.state, countryId: country.id } },
+        update: { slug: campus.stateSlug },
+        create: { name: campus.state, slug: campus.stateSlug, countryId: country.id },
+      });
+      const city = await tx.city.upsert({
+        where: { name_stateId: { name: campus.city, stateId: state.id } },
+        update: { slug: campus.citySlug },
+        create: { name: campus.city, slug: campus.citySlug, stateId: state.id },
+      });
+      await tx.campus.upsert({
+        where: { name_cityId: { name: campus.name, cityId: city.id } },
+        update: { slug: campus.id },
+        create: { name: campus.name, slug: campus.id, cityId: city.id },
+      });
+    }
+  });
+}
 export async function getCountries() {
   try {
+    await ensureCampusDirectory();
     return await prisma.country.findMany({
       orderBy: { name: "asc" }
     });

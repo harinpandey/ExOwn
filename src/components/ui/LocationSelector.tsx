@@ -5,12 +5,12 @@ import { useGeolocation } from '@/hooks/useGeolocation';
 import { reverseGeocode } from '@/lib/reverseGeocode';
 
 interface LocationSelectorProps {
-  campusId: string;
+  campusSlug: string;
   selectedLocation: string;
   onSelect: (loc: string) => void;
 }
 
-export default function LocationSelector({ campusId, selectedLocation, onSelect }: LocationSelectorProps) {
+export default function LocationSelector({ campusSlug, selectedLocation, onSelect }: LocationSelectorProps) {
   const [manualLocation, setManualLocation] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [suggestedLocation, setSuggestedLocation] = useState<string | null>(null);
@@ -19,10 +19,10 @@ export default function LocationSelector({ campusId, selectedLocation, onSelect 
   const { loading, error: geoError, latitude, longitude, requestLocation, reset } = useGeolocation();
 
   // Reset selections when campus changes
-  const prevCampusId = useRef<string>(campusId);
+  const prevCampusId = useRef<string>(campusSlug);
   useEffect(() => {
-    if (prevCampusId.current !== campusId) {
-      const campusLocs = CAMPUS_LOCALITIES[campusId]?.localities?.map(l => l.name) ?? [];
+    if (prevCampusId.current !== campusSlug) {
+      const campusLocs = CAMPUS_LOCALITIES[campusSlug]?.localities?.map(l => l.name) ?? [];
       if (selectedLocation && !campusLocs.includes(selectedLocation)) {
         onSelect('');
       }
@@ -31,9 +31,9 @@ export default function LocationSelector({ campusId, selectedLocation, onSelect 
       setSuggestedLocation(null);
       setCampusMismatch(false);
       reset();
-      prevCampusId.current = campusId;
+      prevCampusId.current = campusSlug;
     }
-  }, [campusId, selectedLocation, onSelect, reset]);
+  }, [campusSlug, selectedLocation, onSelect, reset]);
 
   // When coordinates are available, attempt reverse‑geocoding
   useEffect(() => {
@@ -83,7 +83,7 @@ export default function LocationSelector({ campusId, selectedLocation, onSelect 
     }
   };
 
-  const campusOptions = CAMPUS_LOCALITIES[campusId]?.localities ?? [];
+  const campusOptions = CAMPUS_LOCALITIES[campusSlug]?.localities ?? [];
 
   return (
     <div className="space-y-4">

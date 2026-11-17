@@ -9,6 +9,7 @@ import ImageGallery from "@/components/product/ImageGallery";
 import SellerCard from "@/components/product/SellerCard";
 import ProductCard from "@/components/ui/ProductCard";
 import { format } from "date-fns";
+import { getCurrentDbUser } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -22,6 +23,11 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
   }
 
   if (!product) return notFound();
+
+  // Resolve the viewer to their Prisma ID so legacy Firebase UIDs map correctly
+  // when checking whether this is their own listing.
+  const viewerDbUser = await getCurrentDbUser();
+  const isOwner = viewerDbUser?.id === product.sellerId;
 
   // Increment view counter (server-side, fire-and-forget — do not let failure crash page)
   incrementProductViews(id).catch(() => {});
@@ -191,7 +197,7 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
         {/* Right Column: Pricing & Seller Info & Safe Meetup */}
         <div className="lg:col-span-5 space-y-6">
           {/* Main Action & Pricing Card */}
-          <PricingCard product={product} />
+          <PricingCard product={product} isOwner={isOwner} />
 
           {/* Seller Card */}
           <SellerCard seller={seller} productId={product.id} />

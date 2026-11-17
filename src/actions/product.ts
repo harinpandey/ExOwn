@@ -439,6 +439,32 @@ export async function getProductById(id: string) {
 }
 
 
+/**
+ * Reveal a seller's phone number only after an authenticated viewer explicitly
+ * requests it. The phone is not included in the public product payload.
+ */
+export async function revealSellerPhoneNumber(productId: string) {
+  try {
+    await requireUser();
+
+    const product = await prisma.product.findUnique({
+      where: { id: productId },
+      select: { seller: { select: { phone: true } } },
+    });
+
+    if (!product) return { success: false, error: "Listing not found." };
+
+    const phone = product.seller.phone?.trim();
+    if (!phone) return { success: false, error: "The seller has not added a contact number." };
+    return { success: true, phone };
+  } catch (error: any) {
+    if (error?.message === "Unauthorized") {
+      return { success: false, error: "Sign in to view the seller's contact number." };
+    }
+    console.error("[Action:revealSellerPhoneNumber] Error:", error);
+    return { success: false, error: "Unable to load the seller's contact number." };
+  }
+}
 export async function getUserListings(userId: string) {
   try {
     const currentUser = await getCurrentUser();
