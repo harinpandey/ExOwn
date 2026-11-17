@@ -127,10 +127,13 @@ export async function respondToExchangeOffer(userId: string, offerId: string, st
 
     // 1. Update Status
     await withRetry(() => prisma.$transaction(async (tx) => {
-      await tx.exchangeOffer.update({
-        where: { id: offerId },
-        data: { status }
+      const updated = await tx.exchangeOffer.updateMany({
+        where: { id: offerId, status: offer.status },
+        data: { status },
       });
+      if (updated.count !== 1) {
+        throw new Error("This exchange proposal has already been reviewed.");
+      }
 
       if (status === "ACCEPTED") {
         await tx.transactionRecord.upsert({
