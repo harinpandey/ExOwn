@@ -41,7 +41,7 @@ export default async function AdminUserDetailsPage({ params }: { params: Promise
       memberRecord.isSuspended ? undefined : "Suspended after admin review."
     );
     revalidatePath("/admin/users");
-    revalidatePath(`/admin/users/\${member.id}`);
+    revalidatePath(`/admin/users/${memberRecord.id}`);
   }
 
   const documents = [
@@ -91,7 +91,7 @@ export default async function AdminUserDetailsPage({ params }: { params: Promise
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-black \${member.isSuspended
+            <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-black ${member.isSuspended
               ? "bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-300"
               : "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300"}`}>
               {member.isSuspended ? <ShieldAlert size={14} /> : <ShieldCheck size={14} />}
@@ -195,7 +195,7 @@ export default async function AdminUserDetailsPage({ params }: { params: Promise
                 <tbody className="divide-y divide-gray-100 text-sm dark:divide-gray-800">
                   {member.products.map((product) => (
                     <tr key={product.id}>
-                      <td className="py-3 pr-4"><Link href={`/product/\${product.id}`} target="_blank" className="font-bold text-gray-900 hover:text-primary dark:text-gray-100">{product.title}</Link></td>
+                      <td className="py-3 pr-4"><Link href={`/product/${product.id}`} target="_blank" className="font-bold text-gray-900 hover:text-primary dark:text-gray-100">{product.title}</Link></td>
                       <td className="py-3 pr-4 text-xs text-gray-500">{product.category.name} · {product.campus.name}</td>
                       <td className="py-3 pr-4 font-bold">₹{product.price.toLocaleString("en-IN")}</td>
                       <td className="py-3 pr-4"><span className="rounded-full bg-gray-100 px-2 py-1 text-[10px] font-black uppercase dark:bg-gray-800">{product.status}</span></td>
