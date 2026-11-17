@@ -1,13 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { 
   signInWithPopup, 
   signInWithRedirect, 
   getRedirectResult,
   GoogleAuthProvider,
-  type User as FirebaseUser,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { ensureServerSession } from "@/lib/auth-session-client";
@@ -25,7 +24,6 @@ function isMobileOrRestrictedBrowser(): boolean {
 import { Suspense } from "react";
 
 function LoginContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const rawRedirect = searchParams.get("redirect") || "/";
   const redirect = rawRedirect.startsWith("/login") ? "/" : rawRedirect;
@@ -71,7 +69,7 @@ function LoginContent() {
   // If already logged in, redirect away
   useEffect(() => {
     if (user && !loading && !isLoading) {
-      // Use window.location for a more robust redirect if router.push feels stuck
+      // Use a full-page redirect after the server session is established
       ensureServerSession(user)
         .catch((err) => console.warn("Session refresh error during redirect:", err))
         .finally(() => {
