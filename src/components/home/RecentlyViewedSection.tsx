@@ -11,26 +11,27 @@ import { useLocation } from "@/context/LocationContext";
 
 export default function RecentlyViewedSection() {
   const { user } = useAuth();
+  const userId = user?.uid;
   const { campusObj } = useLocation();
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let active = true;
-    if (!user) {
+    if (!userId) {
       setProducts([]);
       setLoading(false);
       return;
     }
 
     setLoading(true);
-    getRecentlyViewed(user.uid, campusObj.name)
+    getRecentlyViewed(userId, campusObj.name)
       .then((data) => { if (active) setProducts(data); })
       .catch((error) => console.error("[RecentlyViewedSection] Failed to load campus history:", error))
       .finally(() => { if (active) setLoading(false); });
 
     return () => { active = false; };
-  }, [user?.uid, campusObj.name]);
+  }, [userId, campusObj.name]);
 
   if (!user || (products.length === 0 && !loading)) return null;
 
