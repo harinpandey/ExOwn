@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Building2,
   CheckCircle2,
@@ -17,7 +18,9 @@ import {
   X,
   Search,
 } from "lucide-react";
-import { getHousingListings } from "@/actions/housing";
+import { getHousingListings, revealHousingOwnerPhone } from "@/actions/housing";
+import { useAuth } from "@/context/AuthContext";
+import toast from "react-hot-toast";
 import { useLocation } from "@/context/LocationContext";
 import { useMoments } from "@/context/MomentsContext";
 import { getLocalitiesForCampus } from "@/config/localities";
@@ -25,8 +28,12 @@ import { getLocalitiesForCampus } from "@/config/localities";
 export default function HousingPage() {
   const { selectedCampus, campusObj } = useLocation();
   const { triggerEvent } = useMoments();
+  const { user } = useAuth();
+  const router = useRouter();
   const [listings, setListings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [ownerPhones, setOwnerPhones] = useState<Record<string, string>>({});
+  const [phoneLoadingFor, setPhoneLoadingFor] = useState<string | null>(null);
 
   // Filters
   const [searchQuery, setSearchQuery] = useState("");
@@ -40,18 +47,20 @@ export default function HousingPage() {
   const campusConfig = getLocalitiesForCampus(campusObj?.shortName || campusObj?.name || selectedCampus);
 
   useEffect(() => {
-    async function loadHousing() {
-      setLoading(true);
-      const data = await getHousingListings({
-        campus: selectedCampus,
-        type: selectedType,
-        maxRent: maxRent,
-        gender: genderPref,
-      });
-      setListings(data);
-      setLoading(false);
-    }
-    loadHousing();
+    let active = true;
+    setLoading(true);
+
+    getHousingListings({
+      campus: selectedCampus,
+      type: selectedType,
+      maxRent,
+      gender: genderPref,
+    })
+      .then((data) => { if (active) setListings(data); })
+      .catch((error) => console.error("[HousingPage] Failed to load selected campus listings:", error))
+      .finally(() => { if (active) setLoading(false); });
+
+    return () => { active = false; };
   }, [selectedCampus, selectedType, maxRent, genderPref]);
 
   useEffect(() => {
@@ -60,6 +69,27 @@ export default function HousingPage() {
     }, 4500);
     return () => clearTimeout(timer);
   }, [campusObj, triggerEvent]);
+
+  const handleRevealOwnerPhone = async (listingId: string) => {
+    if (!user) {
+      router.push("/login?redirect=/housing");
+      return;
+    }
+
+    setPhoneLoadingFor(listingId);
+    try {
+      const result = await revealHousingOwnerPhone(listingId);
+      if (result.success && result.phone) {
+        setOwnerPhones((current) => ({ ...current, [listingId]: result.phone }));
+      } else {
+        toast.error(result.error || "Unable to load the owner's contact number.");
+      }
+    } catch {
+      toast.error("Unable to load the owner's contact number.");
+    } finally {
+      setPhoneLoadingFor(null);
+    }
+  };
 
   const toggleAmenity = (amenity: string) => {
     setSelectedAmenities((prev) =>
@@ -113,13 +143,13 @@ export default function HousingPage() {
         <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-blue-600 via-indigo-700 to-purple-800 p-6 sm:p-10 text-white shadow-xl">
           <div className="relative z-10 max-w-2xl space-y-3">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1 text-xs font-black uppercase tracking-wider backdrop-blur">
-              <ShieldCheck size={14} /> Verified Student Housing
+              <ShieldCheck size={14} /> Campus Housing
             </span>
             <h1 className="text-2xl sm:text-4xl font-black tracking-tight leading-tight">
               Find Your Next Campus Home near {campusObj.name}
             </h1>
             <p className="text-xs sm:text-sm text-white/80 font-medium leading-relaxed">
-              Explore PGs, Hostels, Flats, and Shared Rooms verified by university peers with direct owner contact and no brokerage fees.
+              Browse live PGs, hostels, flats, and shared rooms around your university, with rent and amenities listed clearly.
             </p>
 
             {/* Quick Search */}
@@ -331,7 +361,7 @@ export default function HousingPage() {
           <main className="lg:col-span-3 space-y-4">
             <div className="flex items-center justify-between">
               <p className="text-xs font-bold text-gray-500 dark:text-white/50">
-                Showing <span className="text-gray-900 dark:text-white">{filteredListings.length}</span> verified property options
+                Showing <span className="text-gray-900 dark:text-white">{filteredListings.length}</span> live campus housing listings
               </p>
 
               <div className="flex items-center gap-2">
@@ -441,18 +471,24 @@ export default function HousingPage() {
                         </div>
                       </div>
 
-                      {item.owner?.phone ? (
+                      {ownerPhones[item.id] ? (
                         <a
-                          href={`tel:${item.owner.phone}`}
-                          className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition shadow-md shadow-blue-600/20"
+                          href={`tel:${ownerPhones[item.id]}`}
+                          className="flex items-center gap-1.5 rounded-xl bg-emerald-600 px-3 py-2 text-xs font-bold text-white shadow-md shadow-emerald-600/20 transition hover:bg-emerald-700"
                         >
                           <Phone size={13} />
                           Call Owner
                         </a>
                       ) : (
-                        <span className="flex items-center gap-1.5 px-3 py-2 bg-gray-100 dark:bg-white/10 text-gray-500 dark:text-white/60 rounded-xl text-xs font-bold">
-                          Contact via Chat
-                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleRevealOwnerPhone(item.id)}
+                          disabled={phoneLoadingFor === item.id}
+                          className="flex items-center gap-1.5 rounded-xl bg-blue-600 px-3 py-2 text-xs font-bold text-white shadow-md shadow-blue-600/20 transition hover:bg-blue-700 disabled:cursor-wait disabled:opacity-60"
+                        >
+                          <Phone size={13} />
+                          {phoneLoadingFor === item.id ? "Loading..." : user ? "Show phone number" : "Sign in to contact"}
+                        </button>
                       )}
                     </div>
                   </article>

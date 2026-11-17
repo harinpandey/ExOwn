@@ -25,6 +25,7 @@ import { resolveCampus } from "@/actions/location";
 import { parseSearchIntent } from "@/lib/search-intent";
 import SortSelect from "@/components/ui/SortSelect";
 import Link from "next/link";
+import { cookies } from "next/headers";
 import SearchSidebar from "@/components/search/SearchSidebar";
 import EmptyState from "@/components/ui/EmptyState";
 import SearchMomentsTrigger from "@/components/search/SearchMomentsTrigger";
@@ -54,7 +55,14 @@ export default async function SearchPage({
   const categorySlug = params.category || "";
   const subcategorySlug = params.subcategory || "";
   const sort = params.sort || "";
-  const rawCampus = params.campus || "";
+  const cookieStore = await cookies();
+  let savedCampus = cookieStore.get("exown_selected_campus")?.value || "";
+  try {
+    savedCampus = savedCampus ? decodeURIComponent(savedCampus) : "";
+  } catch {
+    savedCampus = "";
+  }
+  const rawCampus = params.campus || savedCampus || "Lovely Professional University";
   const page = Math.max(1, params.page ? parseInt(params.page, 10) : 1);
   const pageSize = 24;
 
@@ -86,7 +94,7 @@ export default async function SearchPage({
   const campusLabel = resolvedCampusObj?.name || rawCampus;
 
   const activeFilters = [
-    rawCampus && { label: `Campus: ${campusLabel}`, param: "campus" },
+    params.campus && { label: `Campus: ${campusLabel}`, param: "campus" },
     categorySlug && { label: `Category: ${categorySlug}`, param: "category" },
     subcategorySlug && { label: `Subcategory: ${subcategorySlug}`, param: "subcategory" },
     condition && { label: `Condition: ${condition.replace("_", " ")}`, param: "condition" },

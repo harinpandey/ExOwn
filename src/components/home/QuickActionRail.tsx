@@ -26,7 +26,7 @@ const marketplaceActions = [
   {
     label: "Campus Housing",
     subtext: "PGs & student rooms",
-    href: "/search?category=properties",
+    href: "/housing",
     icon: Building2,
     tone: "from-purple-600 to-pink-600 text-white",
   },

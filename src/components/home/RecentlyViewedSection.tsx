@@ -7,22 +7,31 @@ import ProductCard from "@/components/ui/ProductCard";
 import { SectionSkeleton } from "@/components/ui/ProductSkeleton";
 import { History, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { useLocation } from "@/context/LocationContext";
 
 export default function RecentlyViewedSection() {
   const { user } = useAuth();
+  const userId = user?.uid;
+  const { campusObj } = useLocation();
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (user) {
-      getRecentlyViewed(user.uid).then((data) => {
-        setProducts(data);
-        setLoading(false);
-      });
-    } else {
+    let active = true;
+    if (!userId) {
+      setProducts([]);
       setLoading(false);
+      return;
     }
-  }, [user]);
+
+    setLoading(true);
+    getRecentlyViewed(userId, campusObj.name)
+      .then((data) => { if (active) setProducts(data); })
+      .catch((error) => console.error("[RecentlyViewedSection] Failed to load campus history:", error))
+      .finally(() => { if (active) setLoading(false); });
+
+    return () => { active = false; };
+  }, [userId, campusObj.name]);
 
   if (!user || (products.length === 0 && !loading)) return null;
 

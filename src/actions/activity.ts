@@ -1,9 +1,13 @@
 "use server";
 
 import prisma from "@/lib/prisma";
+import { requireSameUser } from "@/lib/auth";
+import { resolveCampusId } from "@/lib/campus";
 
 export async function trackActivity(userId: string, type: string, entityId?: string, metadata?: any) {
   try {
+    const actor = await requireSameUser(userId);
+    userId = actor.uid;
     // Increment product views if it's a VIEWED activity
     if (type === "VIEWED" && entityId) {
       const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
@@ -40,30 +44,31 @@ export async function trackActivity(userId: string, type: string, entityId?: str
   }
 }
 
-export async function getRecentlyViewed(userId: string, limit: number = 4) {
+export async function getRecentlyViewed(userId: string, campus: string, limit: number = 4) {
   try {
+    const viewer = await requireSameUser(userId);
+    const campusId = await resolveCampusId(campus);
+    if (!campusId) return [];
+
     const activities = await prisma.userActivity.findMany({
       where: {
-        userId,
+        userId: viewer.uid,
         type: "VIEWED",
         entityId: { not: null }
       },
       orderBy: { createdAt: "desc" },
-      take: limit * 2, // Fetch more to filter duplicates
+      take: limit * 2,
       distinct: ["entityId"],
-      include: {
-        // We can't directly include 'product' because activity is generic, 
-        // so we fetch product details separately if needed or use entityId.
-      }
     });
 
-    const productIds = activities.map(a => a.entityId!).filter(Boolean);
+    const productIds = activities.map((activity) => activity.entityId!).filter(Boolean);
     if (productIds.length === 0) return [];
 
     const products = await prisma.product.findMany({
       where: {
         id: { in: productIds },
-        status: "LIVE"
+        status: "LIVE",
+        campusId,
       },
       include: {
         seller: {
@@ -72,14 +77,12 @@ export async function getRecentlyViewed(userId: string, limit: number = 4) {
       }
     });
 
-    // Re-sort to match activity order
     return productIds
-      .map(id => products.find(p => p.id === id))
+      .map((id) => products.find((product) => product.id === id))
       .filter(Boolean)
       .slice(0, limit);
-
-  } catch (err) {
-    console.error("Error fetching recently viewed:", err);
+  } catch (error) {
+    console.error("Error fetching recently viewed:", error);
     return [];
   }
 }

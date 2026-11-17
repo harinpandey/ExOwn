@@ -36,7 +36,7 @@ import { useNotifications } from "@/context/NotificationContext";
 const primaryLinks = [
   { label: "Marketplace", href: "/search" },
   { label: "Rent", href: "/search?listingType=RENT" },
-  { label: "Housing", href: "/search?category=properties" },
+  { label: "Housing", href: "/housing" },
   { label: "Services", href: "/search?listingType=SERVICE" },
 ];
 
@@ -45,8 +45,8 @@ const secondaryLinks = [
   { label: "Sell", href: "/sell" },
   { label: "Rent", href: "/search?listingType=RENT" },
   { label: "Exchange", href: "/search?exchange=true" },
-  { label: "Housing", href: "/search?category=properties" },
-  { label: "Roommates", href: "/requests" },
+  { label: "Housing", href: "/housing" },
+  { label: "Roommates", href: "/roommates" },
   { label: "Services", href: "/search?listingType=SERVICE" },
 ];
 

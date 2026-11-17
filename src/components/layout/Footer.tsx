@@ -11,8 +11,8 @@ const marketplaceLinks = [
   { label: "Buy Items", href: "/search?listingType=SELL" },
   { label: "Rent Items", href: "/search?listingType=RENT" },
   { label: "Exchange", href: "/search?exchange=true" },
-  { label: "Student Housing", href: "/search?category=properties" },
-  { label: "Roommates", href: "/requests" },
+  { label: "Student Housing", href: "/housing" },
+  { label: "Roommates", href: "/roommates" },
   { label: "Campus Services", href: "/search?listingType=SERVICE" },
 ];
 
