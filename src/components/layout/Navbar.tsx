@@ -5,6 +5,7 @@ import type { ElementType } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { isCurrentUserAdmin } from "@/actions/admin";
 import { useTheme } from "next-themes";
 import {
   Bell,
@@ -58,6 +59,7 @@ export default function Navbar() {
   const { selectedCampus, setSelectedCampus } = useLocation();
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isLoginPopupOpen, setIsLoginPopupOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
@@ -71,6 +73,17 @@ export default function Navbar() {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    let active = true;
+    setIsAdmin(false);
+    if (user) {
+      isCurrentUserAdmin()
+        .then((allowed) => { if (active) setIsAdmin(allowed); })
+        .catch(() => { if (active) setIsAdmin(false); });
+    }
+    return () => { active = false; };
+  }, [user?.uid]);
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -359,6 +372,7 @@ export default function Navbar() {
                       <ProfileLink href="/chat" icon={MessageSquare} label="Messages" />
                       <ProfileLink href="/compare" icon={GitCompare} label="Compare Hub" />
                       <ProfileLink href="/settings" icon={Settings} label="Settings" />
+                      {isAdmin && <ProfileLink href="/admin" icon={ShieldCheck} label="Admin Console" />}
 
                       <div className="my-1.5 h-px bg-gray-100 dark:bg-white/10" />
                       <button
