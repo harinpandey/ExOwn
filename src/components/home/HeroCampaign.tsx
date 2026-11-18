@@ -29,7 +29,7 @@ export default function HeroCampaign() {
         >
           <div className="pointer-events-none absolute -right-24 -top-28 -z-10 h-80 w-80 rounded-full bg-cyan-300/20 blur-3xl" />
           <div className="pointer-events-none absolute -bottom-36 left-1/4 -z-10 h-80 w-80 rounded-full bg-violet-300/15 blur-3xl" />
-          <div className="relative z-10 flex max-w-[62%] flex-col items-start justify-center sm:max-w-[58%]">
+          <div className="relative z-10 flex max-w-full flex-col items-start justify-center sm:max-w-[58%]">
             <span className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-blue-50 backdrop-blur">
               <Users size={12} />
               {campusObj.shortName} · Student marketplace
