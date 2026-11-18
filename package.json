@@ -9,7 +9,8 @@
     "start": "next start",
     "lint": "eslint",
     "db:news:generate": "node scripts/generate-lpu-news-client.mjs",
-    "db:news:push": "prisma db push --schema=prisma/lpu-news/schema.prisma"
+    "db:news:push": "prisma db push --schema=prisma/lpu-news/schema.prisma",
+    "db:migrate:vehicles": "node scripts/migrate-vehicle-category.mjs"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
