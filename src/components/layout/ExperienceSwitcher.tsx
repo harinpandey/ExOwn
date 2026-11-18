@@ -30,7 +30,7 @@ export default function ExperienceSwitcher() {
   return (
     <nav
       aria-label="ExOwn services"
-      className="flex items-center gap-2 overflow-x-auto border-b border-gray-100 py-2.5 no-scrollbar dark:border-white/10 sm:gap-3"
+      className="flex min-w-0 flex-1 items-center justify-center gap-1 overflow-x-auto no-scrollbar sm:gap-1.5 lg:gap-2"
     >
       {destinations.map((destination) => {
         const Icon = destination.icon;
@@ -49,16 +49,16 @@ export default function ExperienceSwitcher() {
             href={destination.href}
             aria-current={active ? "page" : undefined}
             onClick={() => setListingType(destination.id === "rentals" ? "RENT" : "")}
-            className={`group flex min-w-fit shrink-0 items-center gap-2 rounded-2xl border px-3 py-2 transition hover:-translate-y-0.5 hover:shadow-sm sm:px-4 ${
+            className={`group flex min-w-fit shrink-0 items-center gap-1.5 rounded-xl border px-2 py-1.5 transition hover:-translate-y-0.5 hover:shadow-sm sm:gap-2 sm:px-2.5 lg:px-3 ${
               active
                 ? "border-primary/25 bg-primary/10 text-primary dark:bg-primary/15"
                 : "border-gray-100 bg-gray-100/90 text-gray-700 hover:border-gray-200 hover:bg-gray-100 dark:border-white/5 dark:bg-white/[0.05] dark:text-white/75 dark:hover:bg-white/[0.09]"
             }`}
           >
-            <span className={`flex h-8 w-8 items-center justify-center rounded-xl ${destination.tone}`}>
+            <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg sm:h-8 sm:w-8 ${destination.tone}`}>
               <Icon size={17} strokeWidth={2.1} />
             </span>
-            <span className="whitespace-nowrap text-xs font-extrabold sm:text-sm">
+            <span className="whitespace-nowrap text-[10px] font-extrabold sm:text-xs lg:text-sm">
               {destination.label}
             </span>
             {destination.id === "news" && (
