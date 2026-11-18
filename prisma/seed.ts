@@ -79,7 +79,7 @@ async function main() {
     "furniture-hostel": ["Chair", "Study Table", "Bed", "Mattress", "Storage Rack", "Lamp", "Fan", "Mirror", "Other"],
     "fashion": ["Shoes", "Bags", "Watches", "Jackets", "Men's Wear", "Women's Wear", "Accessories", "Other"],
     "books-sports-hobbies": ["Textbooks", "Notes", "Calculators", "Sports Equipment", "Musical Instruments", "Hobby Kits", "Other"],
-    "vehicles": ["Cycles", "E-Bikes", "Motorcycles", "Scooters", "Cars", "Helmets", "Spare Parts", "Accessories", "Other"],
+    "vehicles": ["Cycles", "E-Bikes", "Motorcycles", "Scooters", "Cars", "Helmets", "Locks", "Tyres", "Spare Parts", "Accessories", "Other"],
     "properties": ["Room", "PG", "Flat", "Hostel Transfer", "Shared Accommodation", "Other"],
     "jobs": ["Internship", "Part-Time", "Freelance", "Campus Ambassador", "Other"],
     "services": ["Repair", "Tutoring", "Printing", "Assignment Help", "Delivery Help", "Event Help", "Other"],
