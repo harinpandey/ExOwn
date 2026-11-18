@@ -111,7 +111,7 @@ export default function RequestBoardPage() {
               Need Something? <span className="text-primary">Request Board</span>
             </h1>
             <p className="text-gray-500 dark:text-gray-400 font-bold">
-              Post what you're looking for and let the sellers come to you.
+              Ask for any student need — items, notes, event tickets, campus help, housing leads and more.
             </p>
           </div>
           <button
@@ -202,6 +202,11 @@ export default function RequestBoardPage() {
                     {formatDistanceToNow(new Date(req.createdAt), { addSuffix: true })}
                   </span>
                 </div>
+                {req.category && (
+                  <span className="mb-2 inline-flex rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-primary">
+                    {req.category}
+                  </span>
+                )}
                 <h3 className="text-xl font-black mb-2 group-hover:text-primary transition-colors">{req.title}</h3>
                 <p className="text-gray-500 dark:text-gray-400 text-sm font-bold line-clamp-3 mb-6">
                   {req.description}
