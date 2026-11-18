@@ -15,7 +15,19 @@ export interface CampusAdSlide {
   isSponsored: boolean;
 }
 
+function getSafeLink(value: string) {
+  if (value.startsWith("/") && !value.startsWith("//")) return value;
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" || url.protocol === "http:" ? url.toString() : "/search";
+  } catch {
+    return "/search";
+  }
+}
+
 function AdCard({ ad }: { ad: CampusAdSlide }) {
+  const safeLink = getSafeLink(ad.linkUrl);
+  const isExternal = /^https?:\\/\\//i.test(safeLink);
   const content = (
     <article className="group relative isolate flex h-[230px] w-[min(540px,88vw)] shrink-0 snap-start overflow-hidden rounded-[22px] border border-[#E2E8E5] bg-[#14231C] shadow-[0_2px_10px_rgba(19,34,29,0.07)] transition hover:-translate-y-0.5 hover:shadow-[0_8px_22px_rgba(19,34,29,0.12)] sm:h-[260px] sm:w-[min(540px,43vw)]">
       {ad.imageUrl ? (
@@ -55,7 +67,7 @@ function AdCard({ ad }: { ad: CampusAdSlide }) {
           </p>
           <span className="mt-4 inline-flex min-h-9 items-center gap-2 rounded-xl bg-white px-3.5 py-2 text-xs font-extrabold text-[#1E5646] transition group-hover:bg-[#E6F2EE]">
             {ad.cta}
-            {ad.linkUrl.startsWith("http") ? <ExternalLink size={13} /> : <ArrowRight size={13} />}
+            {isExternal ? <ExternalLink size={13} /> : <ArrowRight size={13} />}
           </span>
         </div>
       </div>
@@ -63,10 +75,10 @@ function AdCard({ ad }: { ad: CampusAdSlide }) {
   );
 
   if (/^https?:\/\//i.test(ad.linkUrl)) {
-    return <a href={ad.linkUrl} target="_blank" rel="noopener noreferrer" className="block">{content}</a>;
+    return <a href={safeLink} target="_blank" rel="noopener noreferrer" className="block">{content}</a>;
   }
 
-  return <Link href={ad.linkUrl || "/search"} className="block">{content}</Link>;
+  return <Link href={safeLink} className="block">{content}</Link>;
 }
 
 export default function CampusAdCarousel({ ads }: { ads: CampusAdSlide[] }) {
@@ -148,6 +160,8 @@ export default function CampusAdCarousel({ ads }: { ads: CampusAdSlide[] }) {
       <div
         ref={trackRef}
         onScroll={handleScroll}
+        onTouchStart={() => setIsPaused(true)}
+        onTouchEnd={() => setIsPaused(false)}
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
         onFocusCapture={() => setIsPaused(true)}
