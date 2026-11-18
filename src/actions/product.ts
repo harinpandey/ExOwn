@@ -632,6 +632,29 @@ export async function createProduct(data: {
     if (!LISTING_TYPES.has(data.listingType || "SELL")) {
       return { success: false, error: "Invalid listing type." };
     }
+
+    // Enforce ticket-transfer rules on the server, not only in the browser UI.
+    const selectedCategory = await prisma.category.findUnique({
+      where: { id: data.categoryId },
+      select: { slug: true },
+    });
+    if (selectedCategory?.slug === "tickets-events") {
+      const ticketDetails = [title, description, customSubcategory || ""].join(" ");
+      if (/\\b(train|railway|irctc|pnr)\\b/i.test(ticketDetails)) {
+        return { success: false, error: "Train tickets cannot be resold on ExOwn. Use official railway cancellation or authorised name-change rules." };
+      }
+      const transferConfirmed =
+        !!data.conditionDetails &&
+        typeof data.conditionDetails === "object" &&
+        (data.conditionDetails as Record<string, unknown>).ticketTransferAllowed === true;
+      if (!transferConfirmed) {
+        return { success: false, error: "List only tickets whose original issuer or organiser permits transfer or resale." };
+      }
+      if ((data.listingType || "SELL") !== "SELL") {
+        return { success: false, error: "Event tickets can only be listed as eligible transfers or sales, not rentals or exchanges." };
+      }
+    }
+
     if (!CONDITIONS.has(data.condition)) {
       return { success: false, error: "Invalid condition." };
     }
