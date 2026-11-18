@@ -123,9 +123,6 @@ export default function Navbar() {
               <span className="block text-[9px] font-black uppercase tracking-[0.14em] text-gray-400 dark:text-white/40">Your campus</span>
               <span className="block max-w-[180px] truncate text-xs font-extrabold text-gray-900 dark:text-white sm:max-w-[260px] sm:text-sm">
                 {campusObj.shortName}
-                <span className="ml-1.5 hidden font-medium text-gray-500 dark:text-white/45 sm:inline">
-                  · {campusObj.city}, {campusObj.state}
-                </span>
               </span>
             </span>
             <ChevronDown size={14} className="shrink-0 text-gray-400 dark:text-white/45" aria-hidden="true" />
