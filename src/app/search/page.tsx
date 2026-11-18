@@ -52,7 +52,10 @@ export default async function SearchPage({
 }) {
   const params = await searchParams;
   const rawQuery = params.q || "";
-  const categorySlug = params.category || "";
+  const requestedCategorySlug = params.category || "";
+  const categorySlug = ["bikes-transport", "cars"].includes(requestedCategorySlug)
+    ? "vehicles"
+    : requestedCategorySlug;
   const subcategorySlug = params.subcategory || "";
   const sort = params.sort || "";
   const cookieStore = await cookies();
