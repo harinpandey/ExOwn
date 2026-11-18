@@ -18,7 +18,7 @@ function getModeUrl(
   return queryStr ? `/search?${queryStr}` : "/search";
 }
 
-import { Search as SearchIcon, SlidersHorizontal } from "lucide-react";
+import { SlidersHorizontal } from "lucide-react";
 import ProductCard from "@/components/ui/ProductCard";
 import { searchProducts, getCategories } from "@/actions/product";
 import { resolveCampus } from "@/actions/location";
@@ -151,32 +151,6 @@ export default async function SearchPage({
 
         {/* Main Content */}
         <div className="flex-1">
-          {/* Search Bar */}
-          <form method="GET" action="/search" className="relative mb-2">
-            {categorySlug && <input type="hidden" name="category" value={categorySlug} />}
-            {condition && <input type="hidden" name="condition" value={condition} />}
-            {listingType && <input type="hidden" name="listingType" value={listingType} />}
-            {isExchange && <input type="hidden" name="exchange" value="true" />}
-            {isMovingOut && <input type="hidden" name="movingOut" value="true" />}
-            {params.minPrice && <input type="hidden" name="minPrice" value={params.minPrice} />}
-            {params.maxPrice && <input type="hidden" name="maxPrice" value={params.maxPrice} />}
-            {sort && <input type="hidden" name="sort" value={sort} />}
-            {rawCampus && <input type="hidden" name="campus" value={rawCampus} />}
-            <input
-              type="text"
-              name="q"
-              defaultValue={rawQuery}
-              placeholder="Search laptops, books, cycles, rooms..."
-              className="w-full rounded-xl border border-gray-200 bg-white py-4 pl-12 pr-4 text-lg font-semibold text-gray-900 shadow-sm outline-none transition-all placeholder:text-gray-400 focus:border-primary dark:border-white/10 dark:bg-white/[0.06] dark:text-white dark:placeholder:text-white/35 dark:focus:border-primary/60"
-            />
-            <SearchIcon className="absolute left-4 top-4 text-gray-400 dark:text-white/42" size={24} />
-          </form>
-
-          {/* Search Guidance */}
-          <p className="mb-4 text-xs text-gray-500 dark:text-white/45">
-            Try: <span className="font-semibold text-gray-700 dark:text-white/70">iPhone under ₹50,000</span> &middot; <span className="font-semibold text-gray-700 dark:text-white/70">laptop for rent</span> &middot; <span className="font-semibold text-gray-700 dark:text-white/70">gaming laptop 40k&ndash;70k</span>
-          </p>
-
           {/* Listing Type / Mode Filter Pills */}
           <div className="mb-6 flex flex-wrap items-center gap-2">
             {[
