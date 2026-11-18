@@ -8,14 +8,12 @@ import {
   Building2,
   Newspaper,
   Plane,
-  Store,
 } from "lucide-react";
 
 const destinations = [
-  { id: "marketplace", label: "ExOwn", href: "/", icon: Store, tone: "bg-primary text-white" },
-  { id: "rentals", label: "Rentals", href: "/search?listingType=RENT", icon: Bike, tone: "bg-emerald-600 text-white" },
-  { id: "campus-living", label: "Housing & Roommates", href: "/campus-living", icon: Building2, tone: "bg-violet-600 text-white" },
-  { id: "travel", label: "Travel & Tickets", href: "/travel", icon: Plane, tone: "bg-orange-600 text-white" },
+  { id: "rentals", label: "Rent", href: "/search?listingType=RENT", icon: Bike, tone: "bg-emerald-600 text-white" },
+  { id: "campus-living", label: "PG & Roommates", href: "/campus-living", icon: Building2, tone: "bg-violet-600 text-white" },
+  { id: "travel", label: "Travel", href: "/travel", icon: Plane, tone: "bg-orange-600 text-white" },
   { id: "news", label: "LPU News", href: "/lpu-news", icon: Newspaper, tone: "bg-blue-700 text-white" },
 ];
 
@@ -30,7 +28,7 @@ export default function ExperienceSwitcher() {
   return (
     <nav
       aria-label="ExOwn services"
-      className="flex min-w-0 flex-1 items-center justify-center gap-1 overflow-x-auto no-scrollbar sm:gap-1.5 lg:gap-2"
+      className="flex min-w-0 flex-1 items-center justify-start gap-2 overflow-x-auto no-scrollbar sm:gap-2.5 lg:gap-3"
     >
       {destinations.map((destination) => {
         const Icon = destination.icon;
@@ -49,7 +47,7 @@ export default function ExperienceSwitcher() {
             href={destination.href}
             aria-current={active ? "page" : undefined}
             onClick={() => setListingType(destination.id === "rentals" ? "RENT" : "")}
-            className={`group flex min-w-fit shrink-0 items-center gap-1.5 rounded-xl border px-2 py-1.5 transition hover:-translate-y-0.5 hover:shadow-sm sm:gap-2 sm:px-2.5 lg:px-3 ${
+            className={`group flex min-w-fit shrink-0 items-center gap-1.5 rounded-xl border px-2.5 py-1.5 transition hover:-translate-y-0.5 hover:shadow-sm sm:gap-2 sm:px-3 lg:px-3.5 ${
               active
                 ? "border-primary/25 bg-primary/10 text-primary dark:bg-primary/15"
                 : "border-gray-100 bg-gray-100/90 text-gray-700 hover:border-gray-200 hover:bg-gray-100 dark:border-white/5 dark:bg-white/[0.05] dark:text-white/75 dark:hover:bg-white/[0.09]"
@@ -58,7 +56,7 @@ export default function ExperienceSwitcher() {
             <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg sm:h-8 sm:w-8 ${destination.tone}`}>
               <Icon size={17} strokeWidth={2.1} />
             </span>
-            <span className="whitespace-nowrap text-[10px] font-extrabold sm:text-xs lg:text-sm">
+            <span className="whitespace-nowrap text-[11px] font-extrabold sm:text-xs lg:text-sm">
               {destination.label}
             </span>
             {destination.id === "news" && (
