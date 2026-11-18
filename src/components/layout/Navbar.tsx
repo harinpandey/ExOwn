@@ -6,7 +6,6 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { isCurrentUserAdmin } from "@/actions/admin";
-import { useTheme } from "next-themes";
 import {
   Bell,
   ChevronDown,
@@ -17,14 +16,12 @@ import {
   LogOut,
   MapPin,
   MessageSquare,
-  Moon,
   Package,
   Plus,
   Search,
   Settings,
   ShieldCheck,
   ShoppingBag,
-  Sun,
   User,
   UserPlus,
 } from "lucide-react";
@@ -48,8 +45,6 @@ export default function Navbar() {
   const { user, logout } = useAuth();
   const { notifications, unreadCount, markRead, markAllRead } = useNotifications();
   const { selectedCampus, setSelectedCampus, campusObj } = useLocation();
-  const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isLoginPopupOpen, setIsLoginPopupOpen] = useState(false);
@@ -61,10 +56,6 @@ export default function Navbar() {
   const loginPopupRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
   const currentUserId = user?.uid;
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   useEffect(() => {
     setSearchQuery(new URLSearchParams(window.location.search).get("q") || "");
@@ -163,19 +154,6 @@ export default function Navbar() {
 
         {/* Actions & Dropdowns */}
         <div className="flex shrink-0 items-center justify-end gap-1.5 sm:ml-auto sm:gap-2">
-          {/* Theme Switcher Toggle */}
-          {mounted && (
-            <button
-              type="button"
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="tap-target rounded-xl border border-gray-200 bg-gray-100 p-2 text-gray-700 transition hover:border-primary hover:text-primary dark:border-white/10 dark:bg-white/[0.04] dark:text-white/80 dark:hover:border-primary"
-              aria-label="Toggle Theme"
-              title={theme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"}
-            >
-              {theme === "dark" ? <Sun size={18} className="text-yellow-400" /> : <Moon size={18} className="text-indigo-600" />}
-            </button>
-          )}
-
           {/* Chat Link */}
           {user && (
             <Link
