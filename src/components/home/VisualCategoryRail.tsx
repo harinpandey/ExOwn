@@ -2,7 +2,6 @@ import Link from "next/link";
 import {
   Car,
   BookOpen,
-  Building2,
   Gamepad2,
   Headphones,
   Laptop,
@@ -32,9 +31,8 @@ const VISUAL_CATEGORIES: CategoryMeta[] = [
   { id: "fashion", label: "Fashion", href: "/search?category=fashion", icon: Shirt },
   { id: "furniture", label: "Furniture", href: "/search?category=furniture-hostel", icon: Sofa },
   { id: "gaming", label: "Gaming", href: "/search?category=gaming-entertainment", icon: Gamepad2 },
-  { id: "campus-living", label: "PG & Roommates", href: "/campus-living", icon: Building2 },
-  { id: "services", label: "Services", href: "/search?listingType=SERVICE", icon: Wrench },
-  { id: "accessories", label: "Accessories", href: "/search?category=electronics-appliances", icon: Headphones },
+  { id: "services", label: "Services", href: "/search?category=services&listingType=SERVICE", icon: Wrench },
+  { id: "accessories", label: "Accessories", href: "/search?category=accessories", icon: Headphones },
 ];
 
 export default function VisualCategoryRail() {
