@@ -13,6 +13,22 @@ import { resolveCampusId } from "@/lib/campus";
 const LISTING_TYPES = new Set(["SELL", "RENT", "SERVICE"]);
 const CONDITIONS = new Set(["LIKE_NEW", "GOOD", "FAIR", "POOR"]);
 
+function databaseActionError(operation: string, error: unknown) {
+  const code =
+    error && typeof error === "object" && "code" in error && typeof error.code === "string"
+      ? error.code
+      : undefined;
+
+  const detail = code ? ` (${code})` : "";
+  if (code === "P1001" || code === "P1002" || code === "P2024") {
+    return `${operation} failed because the database could not be reached or timed out${detail}. Check the Neon connection URL and connection pool.`;
+  }
+  if (code === "P2021" || code === "P2022") {
+    return `${operation} failed because the database schema is out of date${detail}. Apply the current Prisma schema before retrying.`;
+  }
+  return `${operation} failed. Check the database connection and schema${detail}.`;
+}
+
 export async function getTrendingProducts(campus?: string) {
   try {
     if (!process.env.DATABASE_URL) return [];
@@ -48,28 +64,24 @@ export async function getTrendingProducts(campus?: string) {
 
 export async function getCategories() {
   try {
-    const categories = await getCached("home:categories", 300, () => withRetry(() => prisma.category.findMany({
-      orderBy: {
-        name: "asc",
-      }
+    return await getCached("home:categories", 300, () => withRetry(() => prisma.category.findMany({
+      orderBy: { name: "asc" },
     })));
-    return categories;
   } catch (error) {
-    console.error("[Action:getCategories] Error:", error);
-    return [];
+    console.error("[Action:getCategories] Database query failed:", error);
+    throw new Error(databaseActionError("Loading listing categories", error));
   }
 }
 
 export async function getSubcategories(categoryId: string) {
   try {
-    const subcategories = await withRetry(() => prisma.subcategory.findMany({
+    return await withRetry(() => prisma.subcategory.findMany({
       where: { categoryId },
-      orderBy: { name: "asc" }
+      orderBy: { name: "asc" },
     }));
-    return subcategories;
   } catch (error) {
-    console.error("[Action:getSubcategories] Error:", error);
-    return [];
+    console.error("[Action:getSubcategories] Database query failed:", error);
+    throw new Error(databaseActionError("Loading listing subcategories", error));
   }
 }
 
@@ -602,6 +614,35 @@ export async function createProduct(data: {
 
     if (!Array.isArray(data.images) || data.images.length === 0 || data.images.length > 10) {
       return { success: false, error: "Add between 1 and 10 listing images." };
+    }
+
+    // Validate related records up front so a stale category/campus selection
+    // produces an actionable error instead of a generic Prisma foreign-key failure.
+    const [category, campus, subcategory] = await Promise.all([
+      withRetry(() => prisma.category.findUnique({
+        where: { id: data.categoryId },
+        select: { id: true },
+      })),
+      withRetry(() => prisma.campus.findUnique({
+        where: { id: data.campusId },
+        select: { id: true },
+      })),
+      data.subcategoryId
+        ? withRetry(() => prisma.subcategory.findUnique({
+            where: { id: data.subcategoryId! },
+            select: { id: true, categoryId: true },
+          }))
+        : Promise.resolve(null),
+    ]);
+
+    if (!category) {
+      return { success: false, error: "The selected category is missing from the marketplace database. Refresh the page or ask the admin to sync categories." };
+    }
+    if (!campus) {
+      return { success: false, error: "The selected campus is missing from the marketplace database. Please reselect your campus." };
+    }
+    if (data.subcategoryId && (!subcategory || subcategory.categoryId !== data.categoryId)) {
+      return { success: false, error: "The selected subcategory does not belong to this category. Please select it again." };
     }
 
     const seller = await prisma.user.findUnique({
