@@ -157,7 +157,7 @@ function SellPageContent() {
         selectedSubcategory?.name,
         customOtherTitle,
       ].filter(Boolean).join(" ");
-      if (/\\b(train|railway|irctc|pnr)\\b/i.test(ticketDetails)) {
+      if (/\b(train|railway|irctc|pnr)\b/i.test(ticketDetails)) {
         return toast.error("Train tickets cannot be resold on ExOwn. Use official railway cancellation or authorised name-change rules.");
       }
       if (!isTicketTransferAllowed) {
