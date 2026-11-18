@@ -92,7 +92,7 @@ export async function getConversations(userId: string) {
     return Array.from(conversationsMap.values());
   } catch (error) {
     console.error("Error fetching conversations:", error);
-    return [];
+    throw new Error("Unable to load conversations. Please try again.");
   }
 }
 
@@ -129,7 +129,7 @@ export async function getChatHistory(userId: string, partnerId: string) {
     return messages;
   } catch (error) {
     console.error("Error fetching chat history:", error);
-    return [];
+    throw new Error("Unable to load chat history. Please try again.");
   }
 }
 
@@ -170,9 +170,21 @@ export async function sendMessage(senderId: string, receiverId: string, content:
     }
 
     return { success: true, message };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error sending message:", error);
-    return { success: false, error: "Failed to send message" };
+
+    // Keep infrastructure and authentication details in server logs; return
+    // only actionable, non-sensitive feedback to the browser.
+    if (error?.message?.includes("Unauthorized")) {
+      return { success: false, error: "Your secure session has expired. Please sign in again." };
+    }
+    if (["P1001", "P2024"].includes(error?.code)) {
+      return { success: false, error: "Messaging is temporarily unavailable. Please try again shortly." };
+    }
+    if (error?.code === "P2003" || error?.code === "P2025") {
+      return { success: false, error: "The conversation participant could not be found. Reopen the listing and try again." };
+    }
+    return { success: false, error: "Message could not be sent. Please try again." };
   }
 }
 export async function getTotalUnreadCount(userId: string) {
@@ -297,6 +309,7 @@ export async function getConversationContext(userId: string, partnerId: string, 
     }
 
     return {
+      currentUserId: canonicalUserId,
       partner,
       product: product
         ? {
