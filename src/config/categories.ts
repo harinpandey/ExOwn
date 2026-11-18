@@ -180,37 +180,57 @@ export const CATEGORIES: Category[] = [
     ]
   },
   {
-    id: "bikes",
-    name: "Bikes & Transport",
-    slug: "bikes-transport",
-    icon: "Bike",
-    commonAttributes: [
-      { id: "brand", label: "Brand", type: "chips", options: ["Firefox", "Hero", "Hercules", "Decathlon", "Other"] },
-      { id: "brake_condition", label: "Brake Condition", type: "buttons", options: ["Perfect", "Tight", "Needs Service"] },
-      { id: "tyre_condition", label: "Tyre Condition", type: "buttons", options: ["New", "Good", "Worn"] }
-    ],
-    subcategories: [
-      { id: "bicycle", name: "Bicycle", attributes: [{ id: "gear_type", label: "Gear Type", type: "chips", options: ["Non-Geared", "7 Speed", "21 Speed"] }] },
-      { id: "helmet", name: "Helmet" },
-      { id: "locks", name: "Locks" },
-      { id: "accessories", name: "Accessories" },
-      { id: "other", name: "Other" }
-    ]
-  },
-  {
-    id: "cars",
-    name: "Cars",
-    slug: "cars",
+    id: "vehicles",
+    name: "Vehicles",
+    slug: "vehicles",
     icon: "Car",
     commonAttributes: [
-      { id: "brand", label: "Brand", type: "dropdown", options: ["Maruti", "Hyundai", "Tata", "Toyota", "Honda", "Other"] },
-      { id: "fuel_type", label: "Fuel Type", type: "chips", options: ["Petrol", "Diesel", "Electric", "CNG"] },
-      { id: "insurance", label: "Insurance Available", type: "toggle" }
+      { id: "brand", label: "Brand", type: "dropdown", options: ["Hero", "Hercules", "Firefox", "Decathlon", "Honda", "TVS", "Bajaj", "Royal Enfield", "Yamaha", "Suzuki", "Maruti Suzuki", "Hyundai", "Tata", "Other"] },
+      { id: "vehicle_type", label: "Vehicle Type", type: "chips", options: ["Cycle", "E-bike", "Scooter", "Motorcycle", "Car"] },
+      { id: "model_year", label: "Model / Purchase Year", type: "dropdown", options: ["2026", "2025", "2024", "2023", "2022", "2021 or older", "Not sure"] }
     ],
     subcategories: [
-      { id: "cars", name: "Cars" },
-      { id: "accessories", name: "Car Accessories" },
-      { id: "tyres", name: "Tyres" },
+      {
+        id: "cycles",
+        name: "Cycles",
+        attributes: [
+          { id: "gear_type", label: "Gear Type", type: "chips", options: ["Non-Geared", "7 Speed", "21 Speed", "Other"] },
+          { id: "frame_size", label: "Frame Size", type: "chips", options: ["Small", "Medium", "Large", "Not sure"] }
+        ]
+      },
+      {
+        id: "e-bikes",
+        name: "E-Bikes",
+        attributes: [
+          { id: "battery_range", label: "Approx. Range", type: "chips", options: ["Below 25 km", "25–50 km", "50–75 km", "75+ km", "Not sure"] }
+        ]
+      },
+      {
+        id: "motorcycles",
+        name: "Motorcycles",
+        attributes: [
+          { id: "engine_cc", label: "Engine Capacity", type: "chips", options: ["Below 125 cc", "125–200 cc", "200–350 cc", "350+ cc"] },
+          { id: "fuel_type", label: "Fuel Type", type: "chips", options: ["Petrol", "Electric"] }
+        ]
+      },
+      {
+        id: "scooters",
+        name: "Scooters",
+        attributes: [
+          { id: "fuel_type", label: "Fuel Type", type: "chips", options: ["Petrol", "Electric"] }
+        ]
+      },
+      {
+        id: "cars",
+        name: "Cars",
+        attributes: [
+          { id: "fuel_type", label: "Fuel Type", type: "chips", options: ["Petrol", "Diesel", "Electric", "CNG", "Hybrid"] },
+          { id: "transmission", label: "Transmission", type: "chips", options: ["Manual", "Automatic"] }
+        ]
+      },
+      { id: "helmets", name: "Helmets" },
+      { id: "spare-parts", name: "Spare Parts" },
+      { id: "accessories", name: "Accessories" },
       { id: "other", name: "Other" }
     ]
   },
