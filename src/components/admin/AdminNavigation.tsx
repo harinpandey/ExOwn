@@ -8,6 +8,7 @@ import {
   CreditCard,
   Flag,
   LayoutDashboard,
+  Newspaper,
   Package,
   Sparkles,
   Users,
@@ -22,6 +23,7 @@ const navigation = [
   { label: "Activity audit", href: "/admin/activity", icon: Activity },
   { label: "AI rules", href: "/admin/ai-rules", icon: Sparkles },
   { label: "Moments manager", href: "/admin/moments", icon: Sparkles },
+  { label: "LPU News", href: "/admin/lpu-news", icon: Newspaper },
 ];
 
 export default function AdminNavigation() {
