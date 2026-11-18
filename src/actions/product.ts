@@ -650,8 +650,8 @@ export async function createProduct(data: {
       if (!transferConfirmed) {
         return { success: false, error: "List only tickets whose original issuer or organiser permits transfer or resale." };
       }
-      if ((data.listingType || "SELL") !== "SELL") {
-        return { success: false, error: "Event tickets can only be listed as eligible transfers or sales, not rentals or exchanges." };
+      if ((data.listingType || "SELL") !== "SELL" || data.isExchangeAllowed) {
+        return { success: false, error: "Event tickets can only be listed as eligible sales or transfers, not rentals or exchanges." };
       }
     }
 
