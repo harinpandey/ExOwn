@@ -3,9 +3,9 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme inline {
-  --color-primary: #2F6F5E;
-  --color-primary-dark: #285E50;
-  --color-secondary: #2F6F5E;
+  --color-primary: #1E5646;
+  --color-primary-dark: #174536;
+  --color-secondary: #4A5D56;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
@@ -14,9 +14,9 @@
   --color-surface-elevated: var(--surface-elevated);
   --color-surface-soft: var(--surface-soft);
   --color-border-subtle: var(--border-subtle);
-  --color-success: #2F6F5E;
-  --color-warning: #A97835;
-  --color-danger: #B45E5E;
+  --color-success: #1E5646;
+  --color-warning: #92400E;
+  --color-danger: #A64242;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 
@@ -26,55 +26,44 @@
   --radius-lg: 10px;
   --radius-xl: 12px;
   --radius-2xl: 16px;
-  --radius-3xl: 20px;
+  --radius-3xl: 22px;
 }
 
 :root {
   color-scheme: light;
-  --background: #F8FAF9;
-  --foreground: #1A2E26;
-  --muted: #EAF2EF;
-  --muted-foreground: #4B5E57;
+  --background: #F7F9F8;
+  --foreground: #13221D;
+  --muted: #E6F2EE;
+  --muted-foreground: #4A5D56;
   --surface: #FFFFFF;
   --surface-elevated: #FFFFFF;
-  --surface-soft: #F8FAF9;
-  --border-subtle: #DCE5E1;
-  --accent: #2F6F5E;
+  --surface-soft: #F7F9F8;
+  --border-subtle: #E2E8E5;
+  --accent: #1E5646;
   --accent-contrast: #FFFFFF;
-  --shadow-sm: none;
-  --shadow-md: none;
-  --shadow-lg: none;
-  --shadow-xl: none;
-  --shadow-premium: none;
-  --shadow-25d: none;
+  --surface-shadow: 0 1px 2px rgba(19, 34, 29, 0.035), 0 3px 10px rgba(19, 34, 29, 0.035);
+  --surface-shadow-hover: 0 3px 8px rgba(19, 34, 29, 0.045), 0 8px 18px rgba(19, 34, 29, 0.055);
 }
 
-/* Keep legacy dark-mode classes visually aligned with the requested light palette. */
 .dark {
   color-scheme: light;
-  --background: #F8FAF9;
-  --foreground: #1A2E26;
-  --muted: #EAF2EF;
-  --muted-foreground: #4B5E57;
+  --background: #F7F9F8;
+  --foreground: #13221D;
+  --muted: #E6F2EE;
+  --muted-foreground: #4A5D56;
   --surface: #FFFFFF;
   --surface-elevated: #FFFFFF;
-  --surface-soft: #F8FAF9;
-  --border-subtle: #DCE5E1;
-  --accent: #2F6F5E;
+  --surface-soft: #F7F9F8;
+  --border-subtle: #E2E8E5;
+  --accent: #1E5646;
   --accent-contrast: #FFFFFF;
-  --shadow-sm: none;
-  --shadow-md: none;
-  --shadow-lg: none;
-  --shadow-xl: none;
-  --shadow-premium: none;
-  --shadow-25d: none;
 }
 
 html,
 body {
   min-height: 100%;
-  background: #F8FAF9;
-  color: #1A2E26;
+  background: #F7F9F8;
+  color: #13221D;
 }
 
 body {
@@ -87,38 +76,75 @@ body {
 }
 
 ::selection {
-  background: #EAF2EF;
-  color: #1A2E26;
+  background: #E6F2EE;
+  color: #13221D;
 }
 
 :focus-visible {
-  outline: 2px solid #2F6F5E;
+  outline: 2px solid #1E5646;
   outline-offset: 3px;
 }
 
 .exown-shell {
-  background: #F8FAF9;
+  background: #F7F9F8;
+  color: #13221D;
 }
 
 .marketplace-surface,
 .marketplace-elevated {
   background: #FFFFFF;
-  border: 1px solid #DCE5E1;
-  box-shadow: none;
+  border: 1px solid #E2E8E5;
+  box-shadow: var(--surface-shadow);
 }
 
 .marketplace-button {
-  background: #2F6F5E;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: #1E5646;
   color: #FFFFFF;
-  border: 1px solid #2F6F5E;
+  border: 1px solid #1E5646;
   box-shadow: none;
+  transition: background-color 160ms ease, border-color 160ms ease, transform 160ms ease;
 }
 
 .marketplace-button:hover {
-  background: #285E50;
+  background: #174536;
+  border-color: #174536;
 }
 
-/* Minimum touch targets remain generous on mobile. */
+.marketplace-button:active {
+  transform: translateY(1px);
+}
+
+.marketplace-button-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: #FFFFFF;
+  color: #1E5646;
+  border: 1px solid #1E5646;
+  transition: background-color 160ms ease, color 160ms ease;
+}
+
+.marketplace-button-outline:hover {
+  background: #E6F2EE;
+}
+
+.marketplace-card {
+  background: #FFFFFF;
+  border: 1px solid #E2E8E5;
+  box-shadow: var(--surface-shadow);
+  transition: box-shadow 180ms ease, border-color 180ms ease, transform 180ms ease;
+}
+
+.marketplace-card:hover {
+  border-color: #CAD8D2;
+  box-shadow: var(--surface-shadow-hover);
+}
+
 .tap-target {
   min-width: 44px;
   min-height: 44px;
@@ -161,14 +187,14 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #DCE5E1;
+  background: #D5DFDA;
   border-radius: 9999px;
   border: 2px solid transparent;
   background-clip: padding-box;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #B8C9C1;
+  background: #B9C9C1;
 }
 
 .transition-premium {
@@ -184,79 +210,91 @@ body {
 }
 
 .hover-glow {
-  transition: border-color 180ms ease, background-color 180ms ease;
+  transition: border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
 }
 
 .hover-glow:hover {
-  box-shadow: none !important;
-  border-color: #DCE5E1;
-  background-color: #EAF2EF;
+  box-shadow: var(--surface-shadow);
+  border-color: #CAD8D2;
+  background-color: #FFFFFF;
 }
 
 .glass-surface {
-  background: #FFFFFF;
-  border-bottom: 1px solid #DCE5E1;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
+  background: rgba(255, 255, 255, 0.98);
+  border-bottom: 1px solid #E2E8E5;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .premium-card {
-  border: 1px solid #DCE5E1;
-  box-shadow: none;
-  transition: border-color 180ms ease, background-color 180ms ease;
+  background: #FFFFFF;
+  border: 1px solid #E2E8E5;
+  box-shadow: var(--surface-shadow);
+  transition: box-shadow 180ms ease, border-color 180ms ease;
 }
 
 .premium-card:hover {
   transform: none;
-  box-shadow: none;
-  border-color: #B8C9C1;
+  box-shadow: var(--surface-shadow-hover);
+  border-color: #CAD8D2;
 }
 
-/* Neutral surfaces and typography are unified across legacy utility classes. */
+/* Bring legacy neutral Tailwind surfaces onto the shared warm canvas. */
 :is(.bg-gray-50, .bg-slate-50, .bg-zinc-50, .bg-stone-50, .bg-neutral-50) {
-  background-color: #F8FAF9 !important;
+  background-color: #F7F9F8 !important;
 }
 
-:is(.bg-gray-100, .bg-slate-100, .bg-zinc-100, .bg-stone-100, .bg-neutral-100, .bg-gray-200, .bg-slate-200) {
-  background-color: #EAF2EF !important;
+:is(.bg-gray-100, .bg-slate-100, .bg-zinc-100, .bg-stone-100, .bg-neutral-100) {
+  background-color: #EEF3F0 !important;
 }
 
 :is(.text-black, .text-gray-950, .text-gray-900, .text-gray-800, .text-slate-950, .text-slate-900, .text-slate-800, .text-zinc-950, .text-zinc-900, .text-neutral-900) {
-  color: #1A2E26 !important;
+  color: #13221D !important;
 }
 
-:is(.text-gray-700, .text-gray-600, .text-gray-500, .text-gray-400, .text-slate-700, .text-slate-600, .text-slate-500, .text-slate-400, .text-zinc-700, .text-zinc-600, .text-zinc-500) {
-  color: #4B5E57 !important;
+:is(.text-gray-700, .text-gray-600, .text-gray-500, .text-slate-700, .text-slate-600, .text-slate-500, .text-zinc-700, .text-zinc-600, .text-zinc-500) {
+  color: #4A5D56 !important;
 }
 
-/* Blue, indigo, violet and purple UI accents become calm sage. */
-:is(.bg-blue-600, .bg-blue-700, .bg-indigo-600, .bg-indigo-700, .bg-violet-600, .bg-violet-700, .bg-purple-600, .bg-purple-700, .bg-emerald-600, .bg-green-600, .bg-orange-600) {
-  background-color: #2F6F5E !important;
+:is(.border-gray-100, .border-gray-200, .border-gray-300, .border-slate-100, .border-slate-200, .border-slate-300) {
+  border-color: #E2E8E5 !important;
+}
+
+/* Retire synthetic blue, purple and cyan accents left in older pages. */
+:is(.bg-blue-500, .bg-blue-600, .bg-blue-700, .bg-indigo-500, .bg-indigo-600, .bg-indigo-700, .bg-violet-500, .bg-violet-600, .bg-violet-700, .bg-purple-500, .bg-purple-600, .bg-purple-700, .bg-cyan-500, .bg-cyan-600) {
+  background-color: #1E5646 !important;
   color: #FFFFFF !important;
 }
 
-:is(.bg-blue-50, .bg-blue-100, .bg-indigo-50, .bg-indigo-100, .bg-violet-50, .bg-violet-100, .bg-purple-50, .bg-purple-100, .bg-emerald-50, .bg-green-50, .bg-orange-50) {
-  background-color: #EAF2EF !important;
+:is(.text-blue-800, .text-blue-700, .text-blue-600, .text-indigo-800, .text-indigo-700, .text-indigo-600, .text-violet-800, .text-violet-700, .text-violet-600, .text-purple-800, .text-purple-700, .text-purple-600, .text-cyan-800, .text-cyan-700, .text-cyan-600) {
+  color: #1E5646 !important;
 }
 
-:is(.text-blue-800, .text-blue-700, .text-blue-600, .text-indigo-800, .text-indigo-700, .text-indigo-600, .text-violet-800, .text-violet-700, .text-violet-600, .text-purple-800, .text-purple-700, .text-purple-600, .text-emerald-800, .text-emerald-700, .text-emerald-600, .text-green-700, .text-green-600, .text-orange-800, .text-orange-700, .text-orange-600) {
-  color: #2F6F5E !important;
+:is(.bg-blue-50, .bg-blue-100, .bg-indigo-50, .bg-indigo-100, .bg-violet-50, .bg-violet-100, .bg-purple-50, .bg-purple-100, .bg-cyan-50, .bg-cyan-100, .bg-emerald-50, .bg-emerald-100) {
+  background-color: #E6F2EE !important;
 }
 
-:is(.border-gray-100, .border-gray-200, .border-gray-300, .border-slate-100, .border-slate-200, .border-slate-300, .border-blue-100, .border-blue-200, .border-blue-300, .border-indigo-100, .border-indigo-200, .border-purple-100, .border-purple-200, .border-violet-100, .border-violet-200, .border-orange-100, .border-orange-200) {
-  border-color: #DCE5E1 !important;
+:is(.border-blue-100, .border-blue-200, .border-indigo-100, .border-indigo-200, .border-violet-100, .border-violet-200, .border-purple-100, .border-purple-200, .border-cyan-100, .border-cyan-200) {
+  border-color: #E2E8E5 !important;
 }
 
-/* Remove decorative gradients, neon glows and heavy elevation from the legacy UI. */
+/* Remove legacy gradients and glow filters without flattening the entire interface. */
 [class*="bg-gradient-to-"] {
   background-image: none !important;
   background-color: #FFFFFF !important;
+  color: #13221D !important;
+  border: 1px solid #E2E8E5;
 }
 
-[class*="shadow-"],
-[class~="shadow"],
+[class*="bg-gradient-to-"] :is(.text-white, .text-blue-50, .text-blue-100, .text-cyan-100, .text-cyan-200, .text-indigo-100, .text-indigo-200) {
+  color: #13221D !important;
+}
+
+:is(.shadow, .shadow-xs, .shadow-sm, .shadow-md, .shadow-lg, .shadow-xl, .shadow-2xl, [class*="shadow-"]) {
+  box-shadow: var(--surface-shadow) !important;
+}
+
 [class*="drop-shadow"] {
-  box-shadow: none !important;
   filter: none !important;
 }
 
@@ -276,38 +314,4 @@ body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-}
-
-
-/* Cover legacy opacity-based accents, hover borders and keyboard rings. */
-:is(
-  [class~="bg-blue-500/10"], [class~="bg-blue-400/10"], [class~="bg-blue-600/10"],
-  [class~="bg-indigo-500/10"], [class~="bg-indigo-400/10"],
-  [class~="bg-violet-500/10"], [class~="bg-violet-400/10"],
-  [class~="bg-purple-500/10"], [class~="bg-purple-400/10"],
-  [class~="bg-emerald-500/10"], [class~="bg-green-500/10"],
-  [class~="bg-orange-500/10"]
-) {
-  background-color: #EAF2EF !important;
-}
-
-:is(
-  [class*="text-blue-"], [class*="text-indigo-"],
-  [class*="text-violet-"], [class*="text-purple-"]
-) {
-  color: #2F6F5E !important;
-}
-
-:is(
-  [class*="border-blue-"], [class*="border-indigo-"],
-  [class*="border-violet-"], [class*="border-purple-"]
-) {
-  border-color: #DCE5E1 !important;
-}
-
-:is(
-  [class*="ring-blue-"], [class*="ring-indigo-"],
-  [class*="ring-violet-"], [class*="ring-purple-"]
-) {
-  --tw-ring-color: #2F6F5E !important;
 }
