@@ -292,6 +292,23 @@ export const CATEGORIES: Category[] = [
     ]
   },
   {
+    id: "tickets",
+    name: "Tickets & Events",
+    slug: "tickets-events",
+    icon: "Ticket",
+    commonAttributes: [
+      { id: "ticket_class", label: "Ticket Class", type: "chips", options: ["Standard", "Premium", "VIP", "Student Pass", "Other"] },
+      { id: "transfer_method", label: "Approved Transfer Method", type: "chips", options: ["Official app transfer", "Issuer-approved name change", "Organiser-approved transfer"] }
+    ],
+    subcategories: [
+      { id: "movie-tickets", name: "Movie Tickets" },
+      { id: "concert-tickets", name: "Concerts & Festivals" },
+      { id: "sports-tickets", name: "Cricket & Sports" },
+      { id: "campus-event-tickets", name: "College Events" },
+      { id: "other-event-tickets", name: "Other Event Tickets" }
+    ]
+  },
+  {
     id: "gaming",
     name: "Gaming & Entertainment",
     slug: "gaming-entertainment",

@@ -287,13 +287,13 @@ export default function Navbar() {
             </AnimatePresence>
           </div>
 
-          {/* Sell Button */}
+          {/* Post Something Button */}
           <Link
             href={!user ? "/login?redirect=/sell" : "/sell"}
             className="marketplace-button hidden items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold active:scale-95 sm:flex"
           >
             <Plus size={16} />
-            + Sell Something
+            + Post Something
           </Link>
 
           {/* Logged In Profile Menu OR Flipkart-Style Login Popup */}

@@ -14,6 +14,7 @@ import {
   Plus,
   RefreshCw,
   Search,
+  Ticket,
   User,
   X,
 } from "lucide-react";
@@ -24,8 +25,12 @@ export default function MobileNav() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const { user, isProfileComplete } = useAuth();
 
-  const getSellHref = (type?: "RENT" | "EXCHANGE" | "SERVICE") => {
-    const destination = type ? `/sell?type=${type}` : "/sell";
+  const getSellHref = (type?: "RENT" | "EXCHANGE" | "SERVICE" | "TICKET") => {
+    const destination = type === "TICKET"
+      ? "/sell?category=tickets-events"
+      : type
+        ? `/sell?type=${type}`
+        : "/sell";
     if (!user) return `/login?redirect=${encodeURIComponent(destination)}`;
     if (!isProfileComplete) return `/complete-profile?redirect=${encodeURIComponent(destination)}`;
     return destination;
@@ -39,12 +44,14 @@ export default function MobileNav() {
   ];
 
   const createActions = [
-    { label: "Sell Item", href: getSellHref(), icon: PackagePlus },
-    { label: "Rent Item", href: getSellHref("RENT"), icon: KeyRound },
-    { label: "Exchange", href: getSellHref("EXCHANGE"), icon: RefreshCw },
+    { label: "Post an Item", href: getSellHref(), icon: PackagePlus },
+    { label: "Post a Rental", href: getSellHref("RENT"), icon: KeyRound },
+    { label: "Post an Exchange", href: getSellHref("EXCHANGE"), icon: RefreshCw },
+    { label: "Resell a Ticket", href: getSellHref("TICKET"), icon: Ticket },
     { label: "Find Student Housing", href: "/housing", icon: House },
     { label: "Roommate Finder", href: "/roommates", icon: User },
-    { label: "Offer Service", href: getSellHref("SERVICE"), icon: BriefcaseBusiness },
+    { label: "Offer a Service", href: getSellHref("SERVICE"), icon: BriefcaseBusiness },
+    { label: "Post a Request", href: user ? "/requests" : "/login?redirect=%2Frequests", icon: MessageSquare },
   ];
 
   return (
@@ -70,7 +77,7 @@ export default function MobileNav() {
             >
               <div className="mb-3 flex items-center justify-between px-1">
                 <div>
-                  <p className="text-sm font-bold text-[#13221D]">Create on ExOwn</p>
+                  <p className="text-sm font-bold text-[#13221D]">Post Something</p>
                   <p className="text-xs text-[#4A5D56]">Choose what you want to post.</p>
                 </div>
                 <button
@@ -111,7 +118,7 @@ export default function MobileNav() {
         onClick={() => setIsCreateOpen((value) => !value)}
         style={{ bottom: "calc(env(safe-area-inset-bottom) + 76px)" }}
         className="fixed left-1/2 z-50 flex h-12 w-12 -translate-x-1/2 items-center justify-center rounded-full border-4 border-[#F7F9F8] bg-[#1E5646] text-white shadow-[0_3px_10px_rgba(19,34,29,0.12)] transition hover:bg-[#174536] active:scale-95 lg:hidden"
-        aria-label="Create listing"
+        aria-label="Post something"
         aria-expanded={isCreateOpen}
       >
         <Plus size={24} className={isCreateOpen ? "rotate-45 transition-transform" : "transition-transform"} />

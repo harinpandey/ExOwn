@@ -111,7 +111,7 @@ export default function RequestBoardPage() {
               Need Something? <span className="text-primary">Request Board</span>
             </h1>
             <p className="text-gray-500 dark:text-gray-400 font-bold">
-              Post what you're looking for and let the sellers come to you.
+              Ask for any student need — items, notes, event tickets, campus help, housing leads and more.
             </p>
           </div>
           <button
@@ -142,7 +142,7 @@ export default function RequestBoardPage() {
             className="px-6 py-3.5 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl outline-none font-bold"
           >
             <option value="ALL">All Types</option>
-            <option value="SELL">Buying</option>
+            <option value="SELL">Student / Buying</option>
             <option value="RENT">Rental</option>
             <option value="SERVICE">Service</option>
           </select>
@@ -174,7 +174,7 @@ export default function RequestBoardPage() {
             <h2 className="text-2xl font-black mb-2">No requests yet</h2>
             <p className="text-gray-500 font-bold mb-8">Be the first one to post a request!</p>
             <button onClick={() => setIsModalOpen(true)} className="px-8 py-3 bg-primary text-white rounded-xl font-black">
-              Post Request
+              Post a Request
             </button>
           </div>
         ) : filteredRequests.length === 0 ? (
@@ -196,12 +196,17 @@ export default function RequestBoardPage() {
                     req.listingType === 'SERVICE' ? 'bg-purple-100 text-purple-700' :
                     'bg-blue-100 text-blue-700'
                   }`}>
-                    {req.listingType === 'RENT' ? 'Rental Request' : req.listingType === 'SERVICE' ? 'Service Request' : 'Buying Request'}
+                    {req.listingType === 'RENT' ? 'Rental Request' : req.listingType === 'SERVICE' ? 'Service Request' : 'Student Request'}
                   </span>
                   <span className="text-[10px] text-gray-400 font-bold">
                     {formatDistanceToNow(new Date(req.createdAt), { addSuffix: true })}
                   </span>
                 </div>
+                {req.category && (
+                  <span className="mb-2 inline-flex rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-primary">
+                    {req.category}
+                  </span>
+                )}
                 <h3 className="text-xl font-black mb-2 group-hover:text-primary transition-colors">{req.title}</h3>
                 <p className="text-gray-500 dark:text-gray-400 text-sm font-bold line-clamp-3 mb-6">
                   {req.description}
@@ -256,6 +261,17 @@ export default function RequestBoardPage() {
                   />
                 </div>
                 <div>
+                  <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">Topic (optional)</label>
+                  <input
+                    value={newRequest.category}
+                    maxLength={50}
+                    onChange={(e) => setNewRequest({...newRequest, category: e.target.value})}
+                    placeholder="e.g. Notes, events, housing, campus help"
+                    className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 rounded-xl outline-none font-bold border-2 border-transparent focus:border-primary transition-all"
+                  />
+                  <p className="mt-1 text-[10px] font-semibold text-gray-400">Add a topic so others can find your request more easily.</p>
+                </div>
+                <div>
                   <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">Description</label>
                   <textarea
                     required
@@ -268,7 +284,7 @@ export default function RequestBoardPage() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">Type</label>
+                    <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">Request type</label>
                     <select
                       value={newRequest.listingType}
                       onChange={(e) => setNewRequest({...newRequest, listingType: e.target.value as any})}
@@ -278,6 +294,7 @@ export default function RequestBoardPage() {
                       <option value="RENT">Rental</option>
                       <option value="SERVICE">Service</option>
                     </select>
+                    <p className="mt-1 text-[10px] font-semibold text-gray-400">Choose the closest fit; use your topic and description for anything else.</p>
                   </div>
                   <div>
                     <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">Budget (₹)</label>

@@ -69,6 +69,7 @@ async function main() {
     { name: "Properties", slug: "properties", icon: "home" },
     { name: "Jobs", slug: "jobs", icon: "briefcase" },
     { name: "Services", slug: "services", icon: "wrench" },
+    { name: "Tickets & Events", slug: "tickets-events", icon: "ticket" },
     { name: "Gaming & Entertainment", slug: "gaming-entertainment", icon: "gamepad-2" },
   ];
 
@@ -83,7 +84,18 @@ async function main() {
     "properties": ["Room", "PG", "Flat", "Hostel Transfer", "Shared Accommodation", "Other"],
     "jobs": ["Internship", "Part-Time", "Freelance", "Campus Ambassador", "Other"],
     "services": ["Repair", "Tutoring", "Printing", "Assignment Help", "Delivery Help", "Event Help", "Other"],
+    "tickets-events": ["Movie Tickets", "Concerts & Festivals", "Cricket & Sports", "College Events", "Other Event Tickets"],
     "gaming-entertainment": ["Consoles", "Controllers", "Gaming Keyboard", "Gaming Mouse", "Headsets", "Gaming Chair", "Other"],
+  };
+
+  const subcategorySlugOverrides: Record<string, Record<string, string>> = {
+    "tickets-events": {
+      "Movie Tickets": "movie-tickets",
+      "Concerts & Festivals": "concert-tickets",
+      "Cricket & Sports": "sports-tickets",
+      "College Events": "campus-event-tickets",
+      "Other Event Tickets": "other-event-tickets",
+    },
   };
 
   for (const cat of categories) {
@@ -105,7 +117,7 @@ async function main() {
         update: {},
         create: {
           name: subName,
-          slug: subName.toLowerCase().replace(/ /g, "-"),
+          slug: subcategorySlugOverrides[cat.slug]?.[subName] || subName.toLowerCase().replace(/ /g, "-"),
           categoryId: category.id,
         },
       });

@@ -32,6 +32,7 @@ function SellPageContent() {
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [isTicketTransferAllowed, setIsTicketTransferAllowed] = useState(false);
 
   // Listing Mode
   const [listingMode, setListingMode] = useState<"SELL" | "RENT" | "EXCHANGE" | "SERVICE">("SELL");
@@ -74,6 +75,15 @@ function SellPageContent() {
       setListingMode("SERVICE");
     } else if (typeParam === "WANT") {
       router.replace("/requests");
+    }
+
+    if (searchParams.get("category") === "tickets-events") {
+      const ticketCategory = CATEGORIES.find((category) => category.slug === "tickets-events");
+      if (ticketCategory) {
+        setSelectedCategory(ticketCategory);
+        setSelectedSubcategory(null);
+        setStep(2);
+      }
     }
   }, [searchParams, router]);
 
@@ -139,6 +149,25 @@ function SellPageContent() {
     if (!description || description.trim().length < 10) return toast.error("Description must be at least 10 characters");
     if (!pickupLocation || pickupLocation.trim().length < 2) return toast.error("Please provide a pickup spot on campus");
 
+    const isTicketListing = selectedCategory?.slug === "tickets-events";
+    if (isTicketListing) {
+      if (listingMode !== "SELL") {
+        return toast.error("Tickets can only be listed as eligible sales or transfers.");
+      }
+      const ticketDetails = [
+        title,
+        description,
+        selectedSubcategory?.name,
+        customOtherTitle,
+      ].filter(Boolean).join(" ");
+      if (/\b(train|railway|irctc|pnr)\b/i.test(ticketDetails)) {
+        return toast.error("Train tickets cannot be resold on ExOwn. Use official railway cancellation or authorised name-change rules.");
+      }
+      if (!isTicketTransferAllowed) {
+        return toast.error("Confirm that the original event issuer allows this ticket to be transferred or resold.");
+      }
+    }
+
     const parsedPrice = parseFloat(price);
     if (!Number.isFinite(parsedPrice) || parsedPrice <= 0) {
       return toast.error("Please enter a valid price in ₹");
@@ -184,9 +213,11 @@ function SellPageContent() {
         throw new Error("No images were successfully uploaded. Please try again.");
       }
 
-      const { createProduct, getCategories, getSubcategories } = await import("@/actions/product");
+      const { createProduct, getCategories, getSubcategories, ensureTicketCategory } = await import("@/actions/product");
       const dbCategories = await getCategories();
-      const dbCat = dbCategories.find(c => c.slug === selectedCategory?.slug);
+      const dbCat = selectedCategory?.slug === "tickets-events"
+        ? await ensureTicketCategory()
+        : dbCategories.find(c => c.slug === selectedCategory?.slug);
       if (!dbCat) throw new Error("Selected category not found in database.");
 
       const dbSubcategories = await getSubcategories(dbCat.id);
@@ -201,7 +232,9 @@ function SellPageContent() {
         subcategoryId: dbSub?.id || null,
         customSubcategory: selectedSubcategory?.id === 'other' ? customOtherTitle : selectedSubcategory?.name,
         condition: finalCondition,
-        conditionDetails,
+        conditionDetails: isTicketListing
+          ? { ...(conditionDetails && typeof conditionDetails === "object" ? conditionDetails : {}), ticketTransferAllowed: true }
+          : conditionDetails,
         price: parsedPrice,
         location: pickupLocation.trim(),
         campusId,
@@ -281,7 +314,7 @@ function SellPageContent() {
           <div className="space-y-6">
             <div>
               <h2 className="text-xl font-bold tracking-tight text-gray-900 sm:text-2xl dark:text-white">
-                What would you like to do?
+                What would you like to post?
               </h2>
               <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                 Choose the transaction model for this listing.
@@ -303,10 +336,10 @@ function SellPageContent() {
                   <ShoppingBag size={22} />
                 </div>
                 <span className="mt-3 text-base font-bold text-gray-900 dark:text-white">
-                  Sell an Item
+                  Post an Item
                 </span>
                 <span className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                  Sell books, electronics, gadgets, cycles, or hostel essentials to students.
+                  Post books, electronics, gadgets, cycles, or hostel essentials for other students.
                 </span>
               </button>
 
@@ -371,7 +404,7 @@ function SellPageContent() {
                 </span>
               </button>
 
-              {/* POST A WANT (Requests Board) */}
+              {/* POST A REQUEST (Requests Board) */}
               <button
                 type="button"
                 onClick={() => router.push("/requests")}
@@ -389,7 +422,7 @@ function SellPageContent() {
                   </span>
                 </div>
                 <span className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                  Post a student want request and let sellers on campus reach out to you.
+                  Tell students what you need and let people on campus reach out to you.
                 </span>
               </button>
             </div>
@@ -446,6 +479,10 @@ function SellPageContent() {
                     onClick={() => {
                       setSelectedCategory(cat);
                       setSelectedSubcategory(null);
+                      if (cat.slug === "tickets-events") {
+                        setListingMode("SELL");
+                        setIsTicketTransferAllowed(false);
+                      }
                     }}
                     className={`flex items-center gap-2.5 rounded-xl border p-3 text-left transition ${
                       selectedCategory?.id === cat.id
@@ -573,7 +610,7 @@ function SellPageContent() {
                     required
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    placeholder="e.g. Apple iPad 9th Gen 64GB with Pencil"
+                    placeholder={selectedCategory?.slug === "tickets-events" ? "e.g. Coldplay concert — 2 seated tickets" : "e.g. Apple iPad 9th Gen 64GB with Pencil"}
                     className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-900 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-zinc-900 dark:text-white"
                   />
                 </div>
@@ -594,10 +631,27 @@ function SellPageContent() {
                   required
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Mention usage duration, working condition, included accessories, or reasons for parting with the item..."
+                  placeholder={selectedCategory?.slug === "tickets-events" ? "Include event name, date, venue, ticket category/seat, number of tickets and the official transfer method. Do not include QR codes, barcodes, PNRs or booking references." : "Mention usage duration, working condition, included accessories, or reasons for parting with the item..."}
                   className="w-full rounded-xl border border-gray-300 bg-white p-3 text-sm text-gray-900 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-zinc-900 dark:text-white"
                 />
               </div>
+
+              {selectedCategory?.slug === "tickets-events" && (
+                <div className="rounded-xl border border-[#DCE8E2] bg-[#EAF2EF] p-4 dark:border-[#2A4136] dark:bg-[#14251D]">
+                  <label className="flex cursor-pointer items-start gap-3">
+                    <input
+                      type="checkbox"
+                      checked={isTicketTransferAllowed}
+                      onChange={(event) => setIsTicketTransferAllowed(event.target.checked)}
+                      className="mt-0.5 h-4 w-4 rounded border-[#B9CEC3] text-[#1E5646] focus:ring-[#1E5646]"
+                    />
+                    <span>
+                      <span className="block text-xs font-extrabold text-[#13221D] dark:text-[#E8F0EB]">I confirm this ticket is eligible for transfer or resale.</span>
+                      <span className="mt-1 block text-[11px] leading-5 text-[#4A5D56] dark:text-[#B4C5BC]">I checked the original organiser/provider rules and will use its approved transfer method. I will not list a train ticket or expose a live QR code, barcode, PNR or booking reference.</span>
+                    </span>
+                  </label>
+                </div>
+              )}
 
               {/* Price & Pickup Location */}
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 pt-2">
@@ -621,7 +675,7 @@ function SellPageContent() {
 
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-400 mb-1.5">
-                    Pickup Location / Spot *
+                    {selectedCategory?.slug === "tickets-events" ? "Public Handover / Meet-up Spot *" : "Pickup Location / Spot *"}
                   </label>
                   <LocationSelector
                     campusSlug={campusSlug}
@@ -629,7 +683,7 @@ function SellPageContent() {
                     onSelect={setPickupLocation}
                   />
                   <p className="mt-1 text-[11px] text-gray-400">
-                    Use public campus spots. Never provide private hostel room numbers.
+                    {selectedCategory?.slug === "tickets-events" ? "Use a public campus spot if an in-person handover is needed. Complete digital transfers only through the original issuer." : "Use public campus spots. Never provide private hostel room numbers."}
                   </p>
                 </div>
               </div>
@@ -732,7 +786,8 @@ function SellPageContent() {
                   (!title && selectedSubcategory?.id !== "other") ||
                   description.trim().length < 10 ||
                   !price ||
-                  !pickupLocation
+                  !pickupLocation ||
+                  (selectedCategory?.slug === "tickets-events" && !isTicketTransferAllowed)
                 }
                 className="flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-primary-dark disabled:opacity-50"
               >

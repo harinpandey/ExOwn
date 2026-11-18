@@ -53,6 +53,9 @@ export default function CategoryConditionForm({
 
     if (currentStep < questions.length - 1) {
       setCurrentStep(currentStep + 1);
+    } else if (categoryName === "Tickets & Events") {
+      // Tickets are not physical goods; skip the cosmetic item-condition step.
+      onComplete(newAnswers, "GOOD");
     } else {
       setShowConditionSelector(true);
     }

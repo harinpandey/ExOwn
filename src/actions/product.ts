@@ -60,6 +60,49 @@ export async function getCategories() {
   }
 }
 
+export async function ensureTicketCategory() {
+  // Ticket listings use the existing Product model; ensure the category exists
+  // on installations that have not rerun the seed script yet.
+  await requireUser();
+
+  return withRetry(async () => {
+    const category = await prisma.category.upsert({
+      where: { slug: "tickets-events" },
+      update: { name: "Tickets & Events", icon: "ticket" },
+      create: {
+        name: "Tickets & Events",
+        slug: "tickets-events",
+        icon: "ticket",
+      },
+    });
+
+    const subcategories = [
+      { name: "Movie Tickets", slug: "movie-tickets" },
+      { name: "Concerts & Festivals", slug: "concert-tickets" },
+      { name: "Cricket & Sports", slug: "sports-tickets" },
+      { name: "College Events", slug: "campus-event-tickets" },
+      { name: "Other Event Tickets", slug: "other-event-tickets" },
+    ];
+
+    for (const subcategory of subcategories) {
+      await prisma.subcategory.upsert({
+        where: {
+          name_categoryId: { name: subcategory.name, categoryId: category.id },
+        },
+        update: { slug: subcategory.slug },
+        create: {
+          name: subcategory.name,
+          slug: subcategory.slug,
+          categoryId: category.id,
+        },
+      });
+    }
+
+    invalidateCachePrefix("home:categories");
+    return category;
+  });
+}
+
 export async function getSubcategories(categoryId: string) {
   try {
     const subcategories = await withRetry(() => prisma.subcategory.findMany({
@@ -589,6 +632,29 @@ export async function createProduct(data: {
     if (!LISTING_TYPES.has(data.listingType || "SELL")) {
       return { success: false, error: "Invalid listing type." };
     }
+
+    // Enforce ticket-transfer rules on the server, not only in the browser UI.
+    const selectedCategory = await prisma.category.findUnique({
+      where: { id: data.categoryId },
+      select: { slug: true },
+    });
+    if (selectedCategory?.slug === "tickets-events") {
+      const ticketDetails = [title, description, customSubcategory || ""].join(" ");
+      if (/\b(train|railway|irctc|pnr)\b/i.test(ticketDetails)) {
+        return { success: false, error: "Train tickets cannot be resold on ExOwn. Use official railway cancellation or authorised name-change rules." };
+      }
+      const transferConfirmed =
+        !!data.conditionDetails &&
+        typeof data.conditionDetails === "object" &&
+        (data.conditionDetails as Record<string, unknown>).ticketTransferAllowed === true;
+      if (!transferConfirmed) {
+        return { success: false, error: "List only tickets whose original issuer or organiser permits transfer or resale." };
+      }
+      if ((data.listingType || "SELL") !== "SELL" || data.isExchangeAllowed) {
+        return { success: false, error: "Event tickets can only be listed as eligible sales or transfers, not rentals or exchanges." };
+      }
+    }
+
     if (!CONDITIONS.has(data.condition)) {
       return { success: false, error: "Invalid condition." };
     }
