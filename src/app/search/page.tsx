@@ -1,26 +1,6 @@
-function getModeUrl(
-  currentParams: Record<string, string | undefined>,
-  overrides: { listingType?: string; exchange?: string }
-): string {
-  const p = new URLSearchParams();
-  for (const [key, value] of Object.entries(currentParams)) {
-    if (value && key !== "listingType" && key !== "exchange" && key !== "page") {
-      p.set(key, value);
-    }
-  }
-  if (overrides.listingType) {
-    p.set("listingType", overrides.listingType);
-  }
-  if (overrides.exchange) {
-    p.set("exchange", overrides.exchange);
-  }
-  const queryStr = p.toString();
-  return queryStr ? `/search?${queryStr}` : "/search";
-}
-
 import { SlidersHorizontal } from "lucide-react";
 import ProductCard from "@/components/ui/ProductCard";
-import { searchProducts, getCategories } from "@/actions/product";
+import { searchProducts } from "@/actions/product";
 import { resolveCampus } from "@/actions/location";
 import { parseSearchIntent } from "@/lib/search-intent";
 import SortSelect from "@/components/ui/SortSelect";
@@ -32,10 +12,14 @@ import SearchMomentsTrigger from "@/components/search/SearchMomentsTrigger";
 
 export const dynamic = "force-dynamic";
 
+const formatFilterLabel = (value: string) =>
+  value.replace(/[-_]/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+
 export default async function SearchPage({
   searchParams,
 }: {
   searchParams: Promise<{
+    [key: string]: string | undefined;
     q?: string;
     category?: string;
     subcategory?: string;
@@ -64,6 +48,11 @@ export default async function SearchPage({
     "car-accessories": "accessories",
   };
   const subcategorySlug = legacyVehicleSubcategories[requestedSubcategorySlug] || requestedSubcategorySlug;
+  const detailFilters = Object.fromEntries(
+    Object.entries(params)
+      .filter(([key, value]) => key.startsWith("detail_") && value !== undefined && value !== "")
+      .map(([key, value]) => [key.slice("detail_".length), value as string])
+  );
   const sort = params.sort || "";
   const cookieStore = await cookies();
   let savedCampus = cookieStore.get("exown_selected_campus")?.value || "";
@@ -105,38 +94,39 @@ export default async function SearchPage({
 
   const activeFilters = [
     params.campus && { label: `Campus: ${campusLabel}`, param: "campus" },
-    categorySlug && { label: `Category: ${categorySlug}`, param: "category" },
-    subcategorySlug && { label: `Subcategory: ${subcategorySlug}`, param: "subcategory" },
+    categorySlug && { label: `Category: ${categorySlug === "accessories" ? "Accessories" : formatFilterLabel(categorySlug)}`, param: "category" },
+    subcategorySlug && { label: `Type: ${formatFilterLabel(subcategorySlug)}`, param: "subcategory" },
     condition && { label: `Condition: ${condition.replace("_", " ")}`, param: "condition" },
-    listingType && { label: `Type: ${listingType}`, param: "listingType" },
+    listingType && { label: `Listing: ${listingType === "SERVICE" ? "Services" : listingType === "RENT" ? "For rent" : "For sale"}`, param: "listingType" },
     isExchange && { label: "Exchange Only", param: "exchange" },
     isMovingOut && { label: "Moving Out Deals", param: "movingOut" },
     minPrice !== undefined && { label: `Min: ₹${minPrice.toLocaleString("en-IN")}`, param: "minPrice" },
     maxPrice !== undefined && { label: `Max: ₹${maxPrice.toLocaleString("en-IN")}`, param: "maxPrice" },
+    ...Object.entries(detailFilters).map(([key, value]) => ({
+      label: `${formatFilterLabel(key)}: ${value === "true" ? "Yes" : value === "false" ? "No" : value}`,
+      param: `detail_${key}`,
+    })),
   ].filter(Boolean) as { label: string; param: string }[];
 
   let results: any[] = [];
-  let categories: any[] = [];
   try {
-    [results, categories] = await Promise.all([
-      searchProducts({
-        query: effectiveQuery,
-        tokens: searchTokens,
-        categorySlug,
-        subcategorySlug,
-        condition,
-        listingType,
-        minPrice,
-        maxPrice,
-        sortBy: sort,
-        campusId: effectiveCampusId,
-        exchange: isExchange,
-        movingOut: isMovingOut,
-        page,
-        pageSize,
-      }),
-      getCategories(),
-    ]);
+    results = await searchProducts({
+      query: effectiveQuery,
+      tokens: searchTokens,
+      categorySlug,
+      subcategorySlug,
+      condition,
+      listingType,
+      minPrice,
+      maxPrice,
+      detailFilters,
+      sortBy: sort,
+      campusId: effectiveCampusId,
+      exchange: isExchange,
+      movingOut: isMovingOut,
+      page,
+      pageSize,
+    });
   } catch (err) {
     console.error("[SearchPage] DB fetch failed:", err);
   }
@@ -146,67 +136,67 @@ export default async function SearchPage({
       <SearchMomentsTrigger query={effectiveQuery} category={categorySlug} listingType={listingType} />
       <div className="flex flex-col gap-8 md:flex-row">
 
-        {/* Sidebar Filters */}
-        <SearchSidebar 
-          categories={categories}
+        {/* Category-aware filter panel */}
+        <SearchSidebar
           initialCategory={categorySlug}
+          initialSubcategory={subcategorySlug}
           initialCondition={condition}
           initialMinPrice={params.minPrice || ""}
           initialMaxPrice={params.maxPrice || ""}
           initialListingType={params.listingType || ""}
-          initialExchange={isExchange}
-          initialMovingOut={isMovingOut}
+          initialDetails={detailFilters}
           query={rawQuery}
         />
 
-        {/* Main Content */}
         <div className="flex-1">
-          {/* Listing Type / Mode Filter Pills */}
-          <div className="mb-6 flex flex-wrap items-center gap-2">
-            {[
-              { label: "All", href: getModeUrl(params, { listingType: undefined, exchange: undefined }) },
-              { label: "Buy", href: getModeUrl(params, { listingType: "SELL", exchange: undefined }) },
-              { label: "Rent", href: getModeUrl(params, { listingType: "RENT", exchange: undefined }) },
-              { label: "Exchange Only", href: getModeUrl(params, { listingType: undefined, exchange: "true" }) },
-              { label: "Services", href: getModeUrl(params, { listingType: "SERVICE", exchange: undefined }) },
-            ].map((mode) => {
-              const isActive =
-                mode.label === "All"
-                  ? !listingType && !isExchange
-                  : mode.label === "Buy"
-                  ? listingType === "SELL" && !isExchange
-                  : mode.label === "Rent"
-                  ? listingType === "RENT" && !isExchange
-                  : mode.label === "Exchange Only"
-                  ? isExchange
-                  : mode.label === "Services"
-                  ? listingType === "SERVICE" && !isExchange
-                  : false;
+          {/* Global search keeps general listing modes; category pages use their own focused filters. */}
+          {!categorySlug && (
+            <div className="mb-6 flex flex-wrap items-center gap-2">
+              {[
+                { label: "All", href: getModeUrl(params, { listingType: undefined, exchange: undefined }) },
+                { label: "Buy", href: getModeUrl(params, { listingType: "SELL", exchange: undefined }) },
+                { label: "Rent", href: getModeUrl(params, { listingType: "RENT", exchange: undefined }) },
+                { label: "Exchange Only", href: getModeUrl(params, { listingType: undefined, exchange: "true" }) },
+                { label: "Services", href: getModeUrl(params, { listingType: "SERVICE", exchange: undefined }) },
+              ].map((mode) => {
+                const isActive =
+                  mode.label === "All"
+                    ? !listingType && !isExchange
+                    : mode.label === "Buy"
+                    ? listingType === "SELL" && !isExchange
+                    : mode.label === "Rent"
+                    ? listingType === "RENT" && !isExchange
+                    : mode.label === "Exchange Only"
+                    ? isExchange
+                    : mode.label === "Services"
+                    ? listingType === "SERVICE" && !isExchange
+                    : false;
 
-              return (
-                <Link
-                  key={mode.label}
-                  href={mode.href}
-                  className={`rounded-lg px-3.5 py-1.5 text-xs font-bold transition-all ${
-                    isActive
-                      ? "bg-primary text-white shadow-sm"
-                      : "border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:bg-white/[0.04] dark:text-white/70 dark:hover:bg-white/[0.08]"
-                  }`}
-                >
-                  {mode.label}
-                </Link>
-              );
-            })}
-          </div>
+                return (
+                  <Link
+                    key={mode.label}
+                    href={mode.href}
+                    className={`rounded-lg px-3.5 py-1.5 text-xs font-bold transition-all ${
+                      isActive
+                        ? "bg-primary text-white shadow-sm"
+                        : "border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:bg-white/[0.04] dark:text-white/70 dark:hover:bg-white/[0.08]"
+                    }`}
+                  >
+                    {mode.label}
+                  </Link>
+                );
+              })}
+            </div>
+          )}
 
           {activeFilters.length > 0 && (
             <div className="mb-6 flex flex-wrap items-center gap-2">
               {activeFilters.map((filter) => {
                 const updatedParams = { ...params };
-                delete (updatedParams as any)[filter.param];
-                delete (updatedParams as any).page;
+                delete updatedParams[filter.param];
+                delete updatedParams.page;
                 const searchStr = new URLSearchParams(
-                  Object.entries(updatedParams).filter(([, v]) => Boolean(v)) as [string, string][]
+                  Object.entries(updatedParams).filter(([, value]) => Boolean(value)) as [string, string][]
                 ).toString();
 
                 return (
@@ -234,8 +224,7 @@ export default async function SearchPage({
             </div>
           )}
 
-          {/* Results Header */}
-          <div className="mb-6 flex flex-col justify-between items-start sm:flex-row sm:items-center gap-4">
+          <div className="mb-6 flex flex-col justify-between items-start gap-4 sm:flex-row sm:items-center">
             <div className="text-sm font-semibold text-gray-600 dark:text-white/52">
               Showing <span className="font-black text-gray-900 dark:text-white">{results.length}</span> results
               {rawQuery && (
@@ -253,6 +242,7 @@ export default async function SearchPage({
             <form method="GET" action="/search">
               {rawQuery && <input type="hidden" name="q" value={rawQuery} />}
               {categorySlug && <input type="hidden" name="category" value={categorySlug} />}
+              {subcategorySlug && <input type="hidden" name="subcategory" value={subcategorySlug} />}
               {condition && <input type="hidden" name="condition" value={condition} />}
               {listingType && <input type="hidden" name="listingType" value={listingType} />}
               {isExchange && <input type="hidden" name="exchange" value="true" />}
@@ -260,6 +250,9 @@ export default async function SearchPage({
               {params.minPrice && <input type="hidden" name="minPrice" value={params.minPrice} />}
               {params.maxPrice && <input type="hidden" name="maxPrice" value={params.maxPrice} />}
               {rawCampus && <input type="hidden" name="campus" value={rawCampus} />}
+              {Object.entries(detailFilters).map(([key, value]) => (
+                <input key={key} type="hidden" name={`detail_${key}`} value={value} />
+              ))}
               <div className="flex items-center gap-2">
                 <SlidersHorizontal size={18} className="text-gray-400 dark:text-white/45" />
                 <SortSelect defaultValue={sort} />
@@ -267,7 +260,6 @@ export default async function SearchPage({
             </form>
           </div>
 
-          {/* Results Grid */}
           {results.length > 0 ? (
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4">
               {results.map((product) => (
@@ -277,7 +269,6 @@ export default async function SearchPage({
                   title={product.title}
                   price={product.price}
                   image={product.images?.[0] || ""}
-
                   createdAt={product.createdAt}
                   isUrgent={product.isUrgent}
                   listingType={product.listingType as any}
@@ -330,4 +321,20 @@ export default async function SearchPage({
       </div>
     </div>
   );
+}
+
+function getModeUrl(
+  currentParams: Record<string, string | undefined>,
+  overrides: { listingType?: string; exchange?: string }
+): string {
+  const params = new URLSearchParams();
+  for (const [key, value] of Object.entries(currentParams)) {
+    if (value && key !== "listingType" && key !== "exchange" && key !== "page") {
+      params.set(key, value);
+    }
+  }
+  if (overrides.listingType) params.set("listingType", overrides.listingType);
+  if (overrides.exchange) params.set("exchange", overrides.exchange);
+  const queryString = params.toString();
+  return queryString ? `/search?${queryString}` : "/search";
 }
