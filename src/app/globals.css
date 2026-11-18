@@ -315,3 +315,49 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+
+/* Convert legacy dark panels to white/warm-canvas surfaces even when they are hard-coded. */
+:is(
+  [class*="bg-[#07090d]"],
+  [class*="bg-[#090c12]"],
+  [class*="bg-[#0c1017]"],
+  [class*="bg-[#10141b]"],
+  [class*="bg-[#161c25]"],
+  [class*="bg-gray-900"],
+  [class*="bg-slate-900"],
+  [class*="bg-zinc-900"]
+) {
+  background-color: #FFFFFF !important;
+  color: #13221D !important;
+  border-color: #E2E8E5 !important;
+}
+
+:is(
+  [class*="bg-[#07090d]"],
+  [class*="bg-[#090c12]"],
+  [class*="bg-[#0c1017]"],
+  [class*="bg-[#10141b]"],
+  [class*="bg-[#161c25]"],
+  [class*="bg-gray-900"],
+  [class*="bg-slate-900"],
+  [class*="bg-zinc-900"]
+) :is(.text-white, [class*="text-white/"]) {
+  color: #13221D !important;
+}
+
+:is([class*="bg-black"], .bg-black) {
+  background-color: rgba(19, 34, 29, 0.22) !important;
+}
+
+:is([class*="text-purple-"], [class*="text-violet-"], [class*="text-indigo-"], [class*="text-cyan-"]) {
+  color: #1E5646 !important;
+}
+
+:is([class*="bg-purple-50"], [class*="bg-purple-100"], [class*="bg-violet-50"], [class*="bg-violet-100"], [class*="bg-indigo-50"], [class*="bg-indigo-100"], [class*="bg-cyan-50"], [class*="bg-cyan-100"]) {
+  background-color: #E6F2EE !important;
+}
+
+:is([class*="border-purple-"], [class*="border-violet-"], [class*="border-indigo-"], [class*="border-cyan-"]) {
+  border-color: #E2E8E5 !important;
+}
