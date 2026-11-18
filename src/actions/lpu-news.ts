@@ -67,6 +67,10 @@ export async function createLpuNewsArticle(formData: FormData) {
     redirect("/admin/lpu-news?error=url");
   }
 
+  if (publish && (!sourceUrl || !sourceName)) {
+    redirect("/admin/lpu-news?error=source");
+  }
+
   const baseSlug = slugify(title) || `lpu-update-${Date.now()}`;
   const slug = `${baseSlug}-${Date.now().toString().slice(-6)}`;
 
