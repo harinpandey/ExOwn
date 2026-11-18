@@ -77,22 +77,22 @@ export async function ensureTicketCategory() {
     });
 
     const subcategories = [
-      "Movie Tickets",
-      "Concerts & Festivals",
-      "Cricket & Sports",
-      "College Events",
-      "Other Event Tickets",
+      { name: "Movie Tickets", slug: "movie-tickets" },
+      { name: "Concerts & Festivals", slug: "concert-tickets" },
+      { name: "Cricket & Sports", slug: "sports-tickets" },
+      { name: "College Events", slug: "campus-event-tickets" },
+      { name: "Other Event Tickets", slug: "other-event-tickets" },
     ];
 
-    for (const name of subcategories) {
+    for (const subcategory of subcategories) {
       await prisma.subcategory.upsert({
         where: {
-          name_categoryId: { name, categoryId: category.id },
+          name_categoryId: { name: subcategory.name, categoryId: category.id },
         },
-        update: { slug: name.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") },
+        update: { slug: subcategory.slug },
         create: {
-          name,
-          slug: name.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
+          name: subcategory.name,
+          slug: subcategory.slug,
           categoryId: category.id,
         },
       });
