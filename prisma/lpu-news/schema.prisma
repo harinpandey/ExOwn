@@ -1,0 +1,31 @@
+generator lpuNewsClient {
+  provider = "prisma-client-js"
+  output   = "../../src/generated/lpu-news-client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("LPU_NEWS_DATABASE_URL")
+}
+
+model LpuNewsArticle {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  excerpt     String   @db.VarChar(500)
+  content     String   @db.Text
+  category    String   @default("CAMPUS")
+  campusSlug  String   @default("lpu")
+  sourceName  String?
+  sourceUrl   String?
+  authorName  String?
+  imageUrl    String?
+  tags        String[] @default([])
+  isPublished Boolean  @default(false)
+  publishedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([campusSlug, isPublished, publishedAt])
+  @@index([category, publishedAt])
+}
