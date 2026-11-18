@@ -16,6 +16,10 @@ async function main() {
   const transportCat = await prisma.category.findFirst({ where: { slug: "vehicles" } });
   const serviceCat = await prisma.category.findFirst({ where: { slug: "services" } });
 
+  if (!laptopCat || !transportCat || !serviceCat) {
+    throw new Error("Required categories are missing. Run the main seed and Vehicles migration first.");
+  }
+
   // 1. Seed Rentals
   console.log("Adding Rentals...");
   await prisma.product.create({
