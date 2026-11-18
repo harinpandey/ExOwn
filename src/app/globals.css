@@ -371,3 +371,15 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+
+.theme-toggle-button {
+  border-color: var(--border-subtle);
+  background: var(--surface-soft);
+  color: var(--muted-foreground);
+}
+.theme-toggle-button:hover {
+  border-color: var(--accent);
+  background: var(--muted);
+  color: var(--accent);
+}
