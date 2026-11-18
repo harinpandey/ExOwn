@@ -151,6 +151,9 @@ function SellPageContent() {
 
     const isTicketListing = selectedCategory?.slug === "tickets-events";
     if (isTicketListing) {
+      if (listingMode !== "SELL") {
+        return toast.error("Tickets can only be listed as eligible sales or transfers.");
+      }
       const ticketDetails = [
         title,
         description,
@@ -476,6 +479,10 @@ function SellPageContent() {
                     onClick={() => {
                       setSelectedCategory(cat);
                       setSelectedSubcategory(null);
+                      if (cat.slug === "tickets-events") {
+                        setListingMode("SELL");
+                        setIsTicketTransferAllowed(false);
+                      }
                     }}
                     className={`flex items-center gap-2.5 rounded-xl border p-3 text-left transition ${
                       selectedCategory?.id === cat.id
