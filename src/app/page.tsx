@@ -15,7 +15,6 @@ import {
 
 import VisualCategoryRail from "@/components/home/VisualCategoryRail";
 import HeroCampaign from "@/components/home/HeroCampaign";
-import QuickActionRail from "@/components/home/QuickActionRail";
 import TrendingDeals from "@/components/home/TrendingDeals";
 import MovingOutDeals from "@/components/home/MovingOutDeals";
 import RecentlyAdded from "@/components/home/RecentlyAdded";
@@ -54,9 +53,6 @@ export default function Home() {
 
       {/* 2. Hero Campaign (Campus Tech Drop & Key Themes) */}
       <HeroCampaign />
-
-      {/* 3. Quick Action Rail (Buy, Sell, Rent, Housing, Post a Want) */}
-      <QuickActionRail />
 
       {/* 4. Trending on Campus Shelf */}
       <ProductShelf
