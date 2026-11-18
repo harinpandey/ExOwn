@@ -27,7 +27,7 @@ function getSafeLink(value: string) {
 
 function AdCard({ ad }: { ad: CampusAdSlide }) {
   const safeLink = getSafeLink(ad.linkUrl);
-  const isExternal = /^https?:\\/\\//i.test(safeLink);
+  const isExternal = safeLink.startsWith("https://") || safeLink.startsWith("http://");
   const content = (
     <article className="group relative isolate flex h-[230px] w-[min(540px,88vw)] shrink-0 snap-start overflow-hidden rounded-[22px] border border-[#E2E8E5] bg-[#14231C] shadow-[0_2px_10px_rgba(19,34,29,0.07)] transition hover:-translate-y-0.5 hover:shadow-[0_8px_22px_rgba(19,34,29,0.12)] sm:h-[260px] sm:w-[min(540px,43vw)]">
       {ad.imageUrl ? (
