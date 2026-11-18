@@ -104,7 +104,7 @@ export default function SearchSidebar({
 
   return (
     <aside className="w-full flex-shrink-0 md:w-72">
-      <form onSubmit={handleSubmit}>
+      <form key={searchParams.toString()} onSubmit={handleSubmit}>
         <div className="sticky top-24 rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
           <div className="mb-5 flex items-center justify-between border-b border-gray-200 pb-4 dark:border-gray-800">
             <div className="flex items-center gap-2">
