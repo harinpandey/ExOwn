@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { ElementType } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useTheme } from "next-themes";
 import { useAuth } from "@/context/AuthContext";
 import { isCurrentUserAdmin } from "@/actions/admin";
 import {
@@ -16,12 +17,14 @@ import {
   LogOut,
   MapPin,
   MessageSquare,
+  Moon,
   Package,
   Plus,
   Search,
   Settings,
   ShieldCheck,
   ShoppingBag,
+  Sun,
   User,
   UserPlus,
 } from "lucide-react";
@@ -45,6 +48,8 @@ export default function Navbar() {
   const { user, logout } = useAuth();
   const { notifications, unreadCount, markRead, markAllRead } = useNotifications();
   const { selectedCampus, setSelectedCampus, campusObj } = useLocation();
+  const { theme, setTheme } = useTheme();
+  const [themeMounted, setThemeMounted] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isLoginPopupOpen, setIsLoginPopupOpen] = useState(false);
@@ -56,6 +61,10 @@ export default function Navbar() {
   const loginPopupRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
   const currentUserId = user?.uid;
+
+  useEffect(() => {
+    setThemeMounted(true);
+  }, []);
 
   useEffect(() => {
     setSearchQuery(new URLSearchParams(window.location.search).get("q") || "");
@@ -163,6 +172,19 @@ export default function Navbar() {
               <MessageSquare size={18} />
               <span className="hidden xl:inline">Chat</span>
             </Link>
+          )}
+
+          {/* Theme toggle — restored to its original place before notifications. */}
+          {themeMounted && (
+            <button
+              type="button"
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="theme-toggle-button tap-target rounded-xl border p-2 transition"
+              aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+              title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+            >
+              {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
           )}
 
           {/* Notifications Dropdown Popup */}
