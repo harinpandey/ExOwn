@@ -55,7 +55,12 @@ export default function Home() {
       {/* 2. Hero Campaign */}
       <HeroCampaign />
 
-      {/* 3. LPU News (independent news database) */}
+      {/* 3. Image-led campus partner ads */}
+      <Suspense fallback={null}>
+        <CampusSpotlight />
+      </Suspense>
+
+      {/* 4. LPU News (independent news database) */}
       <LpuNewsPreview />
 
       {/* 4. Trending on Campus Shelf */}
@@ -204,11 +209,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      {/* 11. Campus Spotlight (Real Sponsored Content, gracefully collapses if none) */}
-      <Suspense fallback={null}>
-        <CampusSpotlight />
-      </Suspense>
 
       {/* 12. Trust & Safety Foundation Section */}
       <section className="container mx-auto px-4 py-14">
