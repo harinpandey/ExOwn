@@ -48,7 +48,7 @@ const trustPillars = [
 
 export default function Home() {
   return (
-    <div className="pb-16 text-gray-900 dark:text-white">
+    <div className="pb-16 text-[#13221D]">
       {/* 1. Visual Category Rail (Merchandising Top Bar) */}
       <VisualCategoryRail />
 
@@ -120,7 +120,7 @@ export default function Home() {
       {/* 9. Popular Rentals Shelf */}
       <ProductShelf
         eyebrow="Flexible Terms"
-        icon={<RefreshCw size={14} className="text-cyan-500" />}
+        icon={<RefreshCw size={14} className="text-[#1E5646]" />}
         title="Campus Rentals"
         description="Bicycles, mini-fridges, and equipment available on semester rental terms."
         href="/search?listingType=RENT"
@@ -132,11 +132,11 @@ export default function Home() {
       </ProductShelf>
 
       {/* 10. Campus Services & Housing Discovery Feature Grid */}
-      <section className="border-y border-gray-200/80 bg-gray-50/70 py-14 dark:border-white/10 dark:bg-[#0c1017]">
+      <section className="border-y border-[#E2E8E5] bg-[#F7F9F8] py-14">
         <div className="container mx-auto px-4">
           <div className="mb-8">
-            <span className="text-[11px] font-black uppercase tracking-wider text-primary">Campus Living</span>
-            <h2 className="text-2xl font-black text-gray-900 dark:text-white sm:text-3xl">
+            <span className="inline-flex rounded-full bg-[#E6F2EE] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-[#1E5646]">Campus Living</span>
+            <h2 className="mt-2 text-2xl font-extrabold tracking-tight text-[#13221D] sm:text-3xl">
               Housing & Student Services
             </h2>
           </div>
@@ -144,60 +144,60 @@ export default function Home() {
           <div className="grid gap-5 lg:grid-cols-3">
             <Link
               href="/housing"
-              className="group flex flex-col justify-between rounded-3xl border border-gray-200/80 bg-white p-6 shadow-xs transition hover:border-primary/50 hover:shadow-lg dark:border-white/10 dark:bg-[#10141b]"
+              className="group flex flex-col justify-between rounded-2xl border border-[#E2E8E5] bg-white p-6 shadow-[0_1px_3px_rgba(19,34,29,0.035)] transition hover:-translate-y-0.5 hover:border-[#CAD8D2] hover:shadow-[0_4px_14px_rgba(19,34,29,0.06)]"
             >
               <div>
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-purple-500/10 text-purple-600 mb-4">
+                <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-[#E6F2EE] text-[#1E5646]">
                   <Building2 size={24} />
                 </div>
-                <h3 className="text-lg font-black text-gray-900 group-hover:text-primary transition dark:text-white">
+                <h3 className="text-lg font-bold text-[#13221D] transition group-hover:text-[#1E5646]">
                   Student Housing & PGs
                 </h3>
-                <p className="mt-2 text-xs font-semibold leading-relaxed text-gray-600 dark:text-gray-400">
+                <p className="mt-2 text-sm leading-6 text-[#4A5D56]">
                   Browse active student accommodations, flats, and rooms around your campus.
                 </p>
               </div>
-              <span className="mt-6 inline-flex items-center gap-1.5 text-xs font-black text-primary">
+              <span className="mt-6 inline-flex items-center gap-1.5 text-xs font-bold text-[#1E5646]">
                 Explore Housing <ArrowRight size={13} className="transition-transform group-hover:translate-x-1" />
               </span>
             </Link>
 
             <Link
               href="/roommates"
-              className="group flex flex-col justify-between rounded-3xl border border-gray-200/80 bg-white p-6 shadow-xs transition hover:border-primary/50 hover:shadow-lg dark:border-white/10 dark:bg-[#10141b]"
+              className="group flex flex-col justify-between rounded-2xl border border-[#E2E8E5] bg-white p-6 shadow-[0_1px_3px_rgba(19,34,29,0.035)] transition hover:-translate-y-0.5 hover:border-[#CAD8D2] hover:shadow-[0_4px_14px_rgba(19,34,29,0.06)]"
             >
               <div>
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-500/10 text-indigo-600 mb-4">
+                <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-[#E6F2EE] text-[#1E5646]">
                   <Handshake size={24} />
                 </div>
-                <h3 className="text-lg font-black text-gray-900 group-hover:text-primary transition dark:text-white">
+                <h3 className="text-lg font-bold text-[#13221D] transition group-hover:text-[#1E5646]">
                   Roommate Finder
                 </h3>
-                <p className="mt-2 text-xs font-semibold leading-relaxed text-gray-600 dark:text-gray-400">
+                <p className="mt-2 text-sm leading-6 text-[#4A5D56]">
                   Find compatible campus peers for shared housing and flatmate connections.
                 </p>
               </div>
-              <span className="mt-6 inline-flex items-center gap-1.5 text-xs font-black text-primary">
+              <span className="mt-6 inline-flex items-center gap-1.5 text-xs font-bold text-[#1E5646]">
                 Find Roommates <ArrowRight size={13} className="transition-transform group-hover:translate-x-1" />
               </span>
             </Link>
 
             <Link
               href="/search?listingType=SERVICE"
-              className="group flex flex-col justify-between rounded-3xl border border-gray-200/80 bg-white p-6 shadow-xs transition hover:border-primary/50 hover:shadow-lg dark:border-white/10 dark:bg-[#10141b]"
+              className="group flex flex-col justify-between rounded-2xl border border-[#E2E8E5] bg-white p-6 shadow-[0_1px_3px_rgba(19,34,29,0.035)] transition hover:-translate-y-0.5 hover:border-[#CAD8D2] hover:shadow-[0_4px_14px_rgba(19,34,29,0.06)]"
             >
               <div>
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-600 mb-4">
+                <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-[#E6F2EE] text-[#1E5646]">
                   <Zap size={24} />
                 </div>
-                <h3 className="text-lg font-black text-gray-900 group-hover:text-primary transition dark:text-white">
+                <h3 className="text-lg font-bold text-[#13221D] transition group-hover:text-[#1E5646]">
                   Peer Campus Services
                 </h3>
-                <p className="mt-2 text-xs font-semibold leading-relaxed text-gray-600 dark:text-gray-400">
+                <p className="mt-2 text-sm leading-6 text-[#4A5D56]">
                   Laptop repair, OS installation, note-printing, tutoring, and student-run campus services.
                 </p>
               </div>
-              <span className="mt-6 inline-flex items-center gap-1.5 text-xs font-black text-primary">
+              <span className="mt-6 inline-flex items-center gap-1.5 text-xs font-bold text-[#1E5646]">
                 Browse Services <ArrowRight size={13} className="transition-transform group-hover:translate-x-1" />
               </span>
             </Link>
@@ -212,13 +212,13 @@ export default function Home() {
 
       {/* 12. Trust & Safety Foundation Section */}
       <section className="container mx-auto px-4 py-14">
-        <div className="rounded-3xl border border-gray-200/80 bg-white p-6 sm:p-10 shadow-xs dark:border-white/10 dark:bg-[#10141b]">
+        <div className="rounded-3xl border border-[#E2E8E5] bg-white p-6 shadow-[0_2px_10px_rgba(19,34,29,0.035)] sm:p-10">
           <div className="mb-8">
-            <span className="text-[11px] font-black uppercase tracking-wider text-primary">Marketplace Integrity</span>
-            <h2 className="mt-1 text-2xl font-black tracking-tight text-gray-900 dark:text-white sm:text-3xl">
+            <span className="inline-flex rounded-full bg-[#E6F2EE] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-[#1E5646]">Marketplace Integrity</span>
+            <h2 className="mt-3 text-2xl font-extrabold tracking-tight text-[#13221D] sm:text-3xl">
               Built for Campus Trust & Safety
             </h2>
-            <p className="mt-1 text-xs font-semibold text-gray-500 dark:text-gray-400 sm:text-sm">
+            <p className="mt-2 text-sm leading-6 text-[#4A5D56]">
               How ExOwn protects students and eliminates marketplace friction.
             </p>
           </div>
@@ -229,15 +229,15 @@ export default function Home() {
               return (
                 <div
                   key={pillar.title}
-                  className="rounded-2xl border border-gray-100 bg-gray-50/70 p-5 dark:border-white/10 dark:bg-white/[0.03]"
+                  className="rounded-2xl border border-[#E2E8E5] bg-white p-5"
                 >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary mb-3">
+                  <div className="mb-3 flex h-10 w-10 items-center justify-center text-[#1E5646]">
                     <Icon size={20} />
                   </div>
-                  <h3 className="text-sm font-black text-gray-900 dark:text-white">
+                  <h3 className="text-sm font-bold text-[#13221D]">
                     {pillar.title}
                   </h3>
-                  <p className="mt-1 text-xs font-semibold leading-relaxed text-gray-600 dark:text-gray-400">
+                  <p className="mt-1 text-sm leading-6 text-[#4A5D56]">
                     {pillar.description}
                   </p>
                 </div>
