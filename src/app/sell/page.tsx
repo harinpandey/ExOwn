@@ -314,7 +314,7 @@ function SellPageContent() {
           <div className="space-y-6">
             <div>
               <h2 className="text-xl font-bold tracking-tight text-gray-900 sm:text-2xl dark:text-white">
-                What would you like to do?
+                What would you like to post?
               </h2>
               <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                 Choose the transaction model for this listing.
@@ -336,10 +336,10 @@ function SellPageContent() {
                   <ShoppingBag size={22} />
                 </div>
                 <span className="mt-3 text-base font-bold text-gray-900 dark:text-white">
-                  Sell an Item
+                  Post an Item
                 </span>
                 <span className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                  Sell books, electronics, gadgets, cycles, or hostel essentials to students.
+                  Post books, electronics, gadgets, cycles, or hostel essentials for other students.
                 </span>
               </button>
 
@@ -404,7 +404,7 @@ function SellPageContent() {
                 </span>
               </button>
 
-              {/* POST A WANT (Requests Board) */}
+              {/* POST A REQUEST (Requests Board) */}
               <button
                 type="button"
                 onClick={() => router.push("/requests")}
@@ -422,7 +422,7 @@ function SellPageContent() {
                   </span>
                 </div>
                 <span className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                  Post a student want request and let sellers on campus reach out to you.
+                  Tell students what you need and let people on campus reach out to you.
                 </span>
               </button>
             </div>
