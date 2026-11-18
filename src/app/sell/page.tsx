@@ -212,10 +212,9 @@ function SellPageContent() {
 
       const { createProduct, getCategories, getSubcategories, ensureTicketCategory } = await import("@/actions/product");
       const dbCategories = await getCategories();
-      let dbCat = dbCategories.find(c => c.slug === selectedCategory?.slug);
-      if (!dbCat && selectedCategory?.slug === "tickets-events") {
-        dbCat = await ensureTicketCategory();
-      }
+      const dbCat = selectedCategory?.slug === "tickets-events"
+        ? await ensureTicketCategory()
+        : dbCategories.find(c => c.slug === selectedCategory?.slug);
       if (!dbCat) throw new Error("Selected category not found in database.");
 
       const dbSubcategories = await getSubcategories(dbCat.id);
