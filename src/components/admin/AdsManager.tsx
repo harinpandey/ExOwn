@@ -133,11 +133,7 @@ export default function AdsManager({ initialAds }: { initialAds: AdminAd[] }) {
 
             <label className="space-y-1.5">
               <span className="text-xs font-bold text-[#13221D]">Placement</span>
-              <select value={form.placement} onChange={(e) => updateForm("placement", e.target.value)} className="w-full rounded-xl border border-[#E2E8E5] bg-white px-3.5 py-3 text-sm text-[#13221D] outline-none focus:border-[#1E5646]">
-                <option value="HOMEPAGE">Homepage banners</option>
-                <option value="CATEGORY">Category pages</option>
-                <option value="SEARCH">Search results</option>
-              </select>
+              <div className="w-full rounded-xl border border-[#E2E8E5] bg-[#F7F9F8] px-3.5 py-3 text-sm font-semibold text-[#1E5646]">Homepage banner strip</div>
             </label>
 
             <label className="space-y-1.5 sm:col-span-2">
