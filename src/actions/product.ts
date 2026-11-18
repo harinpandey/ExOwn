@@ -640,7 +640,7 @@ export async function createProduct(data: {
     });
     if (selectedCategory?.slug === "tickets-events") {
       const ticketDetails = [title, description, customSubcategory || ""].join(" ");
-      if (/\\b(train|railway|irctc|pnr)\\b/i.test(ticketDetails)) {
+      if (/\b(train|railway|irctc|pnr)\b/i.test(ticketDetails)) {
         return { success: false, error: "Train tickets cannot be resold on ExOwn. Use official railway cancellation or authorised name-change rules." };
       }
       const transferConfirmed =
