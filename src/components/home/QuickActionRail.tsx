@@ -10,7 +10,7 @@ const marketplaceActions = [
     tone: "from-blue-600 to-indigo-600 text-white",
   },
   {
-    label: "Sell Stuff",
+    label: "Post Something",
     subtext: "List in 60 seconds",
     href: "/sell",
     icon: Plus,
@@ -31,7 +31,7 @@ const marketplaceActions = [
     tone: "from-purple-600 to-pink-600 text-white",
   },
   {
-    label: "Post a Want",
+    label: "Post a Request",
     subtext: "Ask peers for items",
     href: "/requests",
     icon: HelpCircle,
