@@ -25,22 +25,24 @@ function getSafeLink(value: string) {
   }
 }
 
-function AdCard({ ad }: { ad: CampusAdSlide }) {
+function AdCard({ ad, eager = false }: { ad: CampusAdSlide; eager?: boolean }) {
   const safeLink = getSafeLink(ad.linkUrl);
   const isExternal = safeLink.startsWith("https://") || safeLink.startsWith("http://");
   const content = (
-    <article className="group relative isolate flex h-[230px] w-[min(540px,88vw)] shrink-0 snap-start overflow-hidden rounded-[22px] border border-[#E2E8E5] bg-[#14231C] shadow-[0_2px_10px_rgba(19,34,29,0.07)] transition hover:-translate-y-0.5 hover:shadow-[0_8px_22px_rgba(19,34,29,0.12)] sm:h-[260px] sm:w-[min(540px,43vw)]">
+    <article className="group relative isolate flex h-[240px] w-[min(580px,88vw)] shrink-0 snap-start overflow-hidden rounded-[22px] border border-[#E2E8E5] bg-[#14231C] shadow-[0_2px_10px_rgba(19,34,29,0.07)] transition hover:-translate-y-0.5 hover:shadow-[0_8px_22px_rgba(19,34,29,0.12)] sm:h-[270px] sm:w-[min(580px,45vw)]">
       {ad.imageUrl ? (
         <img
           src={ad.imageUrl}
           alt=""
           loading="lazy"
-          className="absolute inset-0 -z-20 h-full w-full object-cover transition duration-700 group-hover:scale-[1.035]"
+          className="absolute inset-0 z-0 h-full w-full object-cover transition duration-700 group-hover:scale-[1.035]"
+          loading={eager ? "eager" : "lazy"}
+          fetchPriority={eager ? "high" : "auto"}
           onError={(event) => { event.currentTarget.style.display = "none"; }}
         />
       ) : null}
-      <div className="campus-ad-overlay absolute inset-0 -z-10" />
-      <div className="flex h-full w-full flex-col items-start justify-between p-5 text-white sm:p-6">
+      <div className="campus-ad-overlay absolute inset-0 z-10" />
+      <div className="relative z-20 flex h-full w-full flex-col items-start justify-between p-5 text-white sm:p-6">
         <div className="flex w-full items-start justify-between gap-3">
           <div className="min-w-0">
             <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.14em] text-white/80">
@@ -130,14 +132,14 @@ export default function CampusAdCarousel({ ads }: { ads: CampusAdSlide[] }) {
         <div>
           <div className="mb-1 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.16em] text-[#4A5D56] dark:text-[#B4C5BC]">
             <span className="h-2 w-2 rounded-full bg-[#1E5646] dark:bg-[#91CDB0]" />
-            Campus partners & offers
+            Featured on ExOwn
           </div>
           <h2 className="text-xl font-extrabold tracking-tight text-[#13221D] dark:text-[#E8F0EB] sm:text-2xl">
-            Worth a look around campus.
+            Good things are happening on campus.
           </h2>
         </div>
         <div className="hidden items-center gap-2 sm:flex">
-          <span className="mr-1 text-[10px] font-semibold text-[#4A5D56] dark:text-[#B4C5BC]">Swipe to explore</span>
+          <span className="mr-1 text-[10px] font-semibold text-[#4A5D56] dark:text-[#B4C5BC]">More to explore</span>
           <button
             type="button"
             onClick={previous}
@@ -173,7 +175,7 @@ export default function CampusAdCarousel({ ads }: { ads: CampusAdSlide[] }) {
         aria-roledescription="carousel"
         aria-label="Sponsored and featured campus banners"
       >
-        {ads.map((ad) => <AdCard key={ad.id} ad={ad} />)}
+        {ads.map((ad, index) => <AdCard key={ad.id} ad={ad} eager={index < 2} />)}
       </div>
 
       <div className="mt-2 flex items-center justify-center gap-1.5" aria-label="Choose an ad">
