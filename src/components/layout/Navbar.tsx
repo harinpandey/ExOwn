@@ -181,6 +181,7 @@ export default function Navbar() {
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
               className="theme-toggle-button tap-target rounded-xl border p-2 transition"
               aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+              aria-pressed={theme === "dark"}
               title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
             >
               {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
