@@ -13,7 +13,7 @@ async function main() {
   }
 
   const laptopCat = await prisma.category.findFirst({ where: { slug: "computers-laptops" } });
-  const transportCat = await prisma.category.findFirst({ where: { slug: "bikes-transport" } });
+  const transportCat = await prisma.category.findFirst({ where: { slug: "vehicles" } });
   const serviceCat = await prisma.category.findFirst({ where: { slug: "services" } });
 
   // 1. Seed Rentals
