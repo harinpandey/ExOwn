@@ -1,6 +1,6 @@
 import Link from "next/link";
 import {
-  Bike,
+  Car,
   BookOpen,
   Building2,
   Gamepad2,
@@ -28,11 +28,11 @@ const VISUAL_CATEGORIES: CategoryMeta[] = [
   { id: "laptops", label: "Laptops", href: "/search?category=computers-laptops", icon: Laptop },
   { id: "electronics", label: "Electronics", href: "/search?category=electronics-appliances", icon: Monitor },
   { id: "books", label: "Books", href: "/search?category=books-sports-hobbies", icon: BookOpen },
-  { id: "cycles", label: "Cycles", href: "/search?category=bikes-transport", icon: Bike },
+  { id: "vehicles", label: "Vehicles", href: "/search?category=vehicles", icon: Car },
   { id: "fashion", label: "Fashion", href: "/search?category=fashion", icon: Shirt },
   { id: "furniture", label: "Furniture", href: "/search?category=furniture-hostel", icon: Sofa },
   { id: "gaming", label: "Gaming", href: "/search?category=gaming-entertainment", icon: Gamepad2 },
-  { id: "rooms", label: "Rooms & PGs", href: "/housing", icon: Building2 },
+  { id: "campus-living", label: "PG & Roommates", href: "/campus-living", icon: Building2 },
   { id: "services", label: "Services", href: "/search?listingType=SERVICE", icon: Wrench },
   { id: "accessories", label: "Accessories", href: "/search?category=electronics-appliances", icon: Headphones },
 ];
