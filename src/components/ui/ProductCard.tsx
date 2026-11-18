@@ -163,13 +163,13 @@ export default function ProductCard({
   const displayImage = image?.trim();
 
   return (
-    <article className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition hover:shadow-md dark:border-white/10 dark:bg-[#10141b]">
+    <article className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-[#E2E8E5] bg-white shadow-[0_1px_3px_rgba(19,34,29,0.035)] transition hover:-translate-y-0.5 hover:border-[#C8D6D0] hover:shadow-[0_4px_14px_rgba(19,34,29,0.06)]">
       {/* 1. Media Section with Consistent Aspect Ratio */}
-      <div className="relative aspect-[4/3] w-full overflow-hidden bg-gray-100 dark:bg-zinc-900">
+      <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#F1F5F3]">
         {displayImage && !imgError ? (
           <>
             {imgLoading && (
-              <div className="absolute inset-0 animate-pulse bg-gray-200 dark:bg-zinc-800" />
+              <div className="absolute inset-0 animate-pulse bg-[#E9EFEC]" />
             )}
             <img
               src={displayImage}
@@ -186,7 +186,7 @@ export default function ProductCard({
             />
           </>
         ) : (
-          <div className="flex h-full w-full flex-col items-center justify-center gap-1.5 bg-gray-100 text-gray-400 dark:bg-zinc-900 dark:text-zinc-600">
+          <div className="flex h-full w-full flex-col items-center justify-center gap-1.5 bg-[#F1F5F3] text-[#4A5D56]">
             <ImageIcon size={28} strokeWidth={1.5} />
             <span className="text-[11px] font-medium tracking-wide">No image available</span>
           </div>
@@ -196,7 +196,7 @@ export default function ProductCard({
         {singleBadge && (
           <div className="absolute left-2.5 top-2.5 z-20">
             <span
-              className={`inline-flex items-center gap-1 rounded-md px-2 py-1 text-[10px] font-bold uppercase tracking-wider shadow-sm backdrop-blur-sm ${singleBadge.className}`}
+              className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[10px] font-bold tracking-wide ${singleBadge.className}`}
             >
               {singleBadge.icon}
               {singleBadge.label}
@@ -210,12 +210,12 @@ export default function ProductCard({
           onClick={handleWishlistToggle}
           aria-label={wishlisted ? "Remove from saved" : "Save listing"}
           aria-pressed={wishlisted}
-          className="absolute right-2.5 top-2.5 z-30 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-gray-700 shadow-sm backdrop-blur-sm transition hover:bg-white hover:text-red-500 active:scale-95 dark:bg-black/60 dark:text-gray-200 dark:hover:text-red-400"
+          className="absolute right-2.5 top-2.5 z-30 flex h-9 w-9 items-center justify-center rounded-full border border-[#E2E8E5] bg-white text-[#4A5D56] shadow-[0_1px_3px_rgba(19,34,29,0.06)] transition hover:border-[#C8D6D0] hover:text-red-600 active:scale-95"
         >
           <Heart
             size={16}
             fill={wishlisted ? "currentColor" : "none"}
-            className={wishlisted ? "text-red-500" : "text-gray-700 dark:text-gray-200"}
+            className={wishlisted ? "text-red-500" : "text-[#4A5D56]"}
           />
         </button>
 
@@ -224,7 +224,7 @@ export default function ProductCard({
           <div className="absolute bottom-2.5 right-2.5 z-40 flex items-center gap-1">
             <Link
               href={`/product/edit/${id}`}
-              className="flex items-center gap-1 rounded-md bg-white/95 px-2 py-1 text-[10px] font-bold text-gray-800 shadow transition hover:bg-white hover:text-primary dark:bg-zinc-800 dark:text-zinc-200"
+              className="flex items-center gap-1 rounded-md border border-[#E2E8E5] bg-white px-2 py-1 text-[10px] font-bold text-[#13221D] transition hover:border-[#1E5646] hover:text-[#1E5646]"
             >
               <Tag size={11} />
               Edit
@@ -233,7 +233,7 @@ export default function ProductCard({
               type="button"
               disabled={isMutating}
               onClick={handleMarkSold}
-              className="flex items-center gap-1 rounded-md bg-emerald-600 px-2 py-1 text-[10px] font-bold text-white shadow transition hover:bg-emerald-700"
+              className="flex items-center gap-1 rounded-md bg-[#1E5646] px-2 py-1 text-[10px] font-bold text-white transition hover:bg-[#174536]"
             >
               <CheckCircle2 size={11} />
               Sold
@@ -242,7 +242,7 @@ export default function ProductCard({
               type="button"
               disabled={isMutating}
               onClick={handleArchive}
-              className="flex items-center gap-1 rounded-md bg-rose-600 px-2 py-1 text-[10px] font-bold text-white shadow transition hover:bg-rose-700"
+              className="flex items-center gap-1 rounded-md bg-[#A64242] px-2 py-1 text-[10px] font-bold text-white transition hover:bg-[#893636]"
             >
               <Trash2 size={11} />
               Archive
@@ -255,7 +255,7 @@ export default function ProductCard({
       <div className="flex flex-1 flex-col p-3.5 sm:p-4">
         {/* Product Title */}
         <h3
-          className="line-clamp-2 min-h-[2.5rem] text-sm font-semibold leading-tight text-gray-900 group-hover:text-primary dark:text-gray-100"
+          className="line-clamp-2 min-h-[2.5rem] text-sm font-semibold leading-tight text-[#13221D] transition-colors group-hover:text-[#1E5646]"
           title={title}
         >
           {title}
@@ -264,11 +264,11 @@ export default function ProductCard({
         {/* Price & Rent indicator */}
         <div className="mt-2 flex items-baseline justify-between gap-2">
           <div className="flex items-baseline gap-1">
-            <span className="text-lg font-bold tracking-tight text-gray-900 dark:text-white">
+            <span className="text-lg font-extrabold tracking-tight text-[#13221D]">
               ₹{formattedPrice}
             </span>
             {listingType === "RENT" && (
-              <span className="text-[11px] font-medium text-gray-500 dark:text-gray-400">
+              <span className="text-[11px] font-medium text-[#4A5D56]">
                 /day
               </span>
             )}
@@ -276,20 +276,20 @@ export default function ProductCard({
 
           {/* Condition Tag */}
           {formattedCondition && (
-            <span className="rounded bg-gray-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-gray-600 dark:bg-white/10 dark:text-gray-300">
+            <span className="rounded-md bg-[#F7F9F8] px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-[#4A5D56]">
               {formattedCondition}
             </span>
           )}
         </div>
 
         {/* Location & Time Footer */}
-        <div className="mt-auto pt-3 border-t border-gray-100 text-[11px] text-gray-500 dark:border-white/10 dark:text-gray-400">
+        <div className="mt-auto border-t border-[#E2E8E5] pt-3 text-[11px] text-[#4A5D56]">
           <div className="flex items-center justify-between gap-2">
             <div className="flex min-w-0 items-center gap-1">
-              <MapPin size={12} className="shrink-0 text-gray-400 dark:text-gray-500" />
+              <MapPin size={12} className="shrink-0 text-[#4A5D56]" />
               <span className="truncate">{formattedLocation}</span>
             </div>
-            <span className="shrink-0 text-[10px] text-gray-400 dark:text-gray-500">
+            <span className="shrink-0 text-[10px] text-[#4A5D56]">
               {formatDistanceToNow(new Date(createdAt), { addSuffix: true })}
             </span>
           </div>
@@ -327,13 +327,13 @@ function getSingleBadge({
   if (listingType === "RENT") {
     return {
       label: "For Rent",
-      className: "bg-blue-600/90 text-white",
+      className: "border-[#D3E7DE] bg-[#E6F2EE] text-[#1E5646]",
     };
   }
   if (listingType === "SERVICE") {
     return {
       label: "Service",
-      className: "bg-purple-600/90 text-white",
+      className: "border-[#D3E7DE] bg-[#E6F2EE] text-[#1E5646]",
     };
   }
 
@@ -341,7 +341,7 @@ function getSingleBadge({
   if (isUrgent) {
     return {
       label: "Moving Out",
-      className: "bg-amber-600/90 text-white",
+      className: "border-[#F5E2A8] bg-[#FEF3C7] text-[#92400E]",
     };
   }
 
@@ -354,9 +354,9 @@ function getSingleBadge({
 
   if (isRealVerified) {
     return {
-      label: "Verified",
+      label: "Campus Verified",
       icon: <ShieldCheck size={11} className="shrink-0" />,
-      className: "bg-emerald-600/90 text-white",
+      className: "border-[#D3E7DE] bg-[#E6F2EE] text-[#1E5646]",
     };
   }
 
