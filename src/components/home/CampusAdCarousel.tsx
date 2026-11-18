@@ -34,7 +34,6 @@ function AdCard({ ad, eager = false }: { ad: CampusAdSlide; eager?: boolean }) {
         <img
           src={ad.imageUrl}
           alt=""
-          loading="lazy"
           className="absolute inset-0 z-0 h-full w-full object-cover transition duration-700 group-hover:scale-[1.035]"
           loading={eager ? "eager" : "lazy"}
           fetchPriority={eager ? "high" : "auto"}
