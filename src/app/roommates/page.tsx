@@ -160,18 +160,18 @@ export default function RoommatesPage() {
   });
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#07090d] py-6 px-4 transition-colors">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="min-h-screen bg-[#f7f8fc] px-4 py-8 transition-colors dark:bg-[#090c12] sm:px-6">
+      <div className="mx-auto max-w-7xl space-y-6">
         {/* Banner Hero */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-purple-700 via-indigo-700 to-blue-700 p-6 sm:p-10 text-white shadow-xl">
+        <div className="relative overflow-hidden rounded-3xl border border-gray-200 bg-white p-6 text-gray-950 shadow-sm dark:border-white/10 dark:bg-[#10141b] dark:text-white sm:p-10">
           <div className="relative z-10 max-w-2xl space-y-3">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1 text-xs font-black uppercase tracking-wider backdrop-blur">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-violet-50 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide text-violet-700 dark:bg-violet-500/10 dark:text-violet-300">
               <Users size={14} /> Student Roommate Finder
             </span>
-            <h1 className="text-2xl sm:text-4xl font-black tracking-tight leading-tight">
-              Find Compatible Roommates at {campusObj.name}
+            <h1 className="text-2xl font-black leading-tight tracking-tight text-gray-950 dark:text-white sm:text-4xl">
+              Find compatible roommates at {campusObj?.name || "your campus"}
             </h1>
-            <p className="text-xs sm:text-sm text-white/80 font-medium leading-relaxed">
+            <p className="text-sm font-medium leading-7 text-gray-600 dark:text-gray-400">
               Discover campus peers with similar budgets, move-in dates, and lifestyle preferences. Verification status is shown where available.
             </p>
 
@@ -195,9 +195,9 @@ export default function RoommatesPage() {
                   </button>
                 )}
               </div>
-              <div className="flex items-center gap-2 bg-white/10 backdrop-blur rounded-2xl px-4 py-2 border border-white/20">
+              <div className="flex items-center gap-2 rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-700 dark:border-white/10 dark:bg-white/[0.04] dark:text-gray-200">
                 <MapPin size={16} className="text-amber-300" />
-                <span className="text-xs font-bold">{campusObj.name}</span>
+                <span className="text-xs font-bold">{campusObj?.name || selectedCampus || "Selected campus"}</span>
               </div>
             </div>
           </div>
@@ -271,7 +271,7 @@ export default function RoommatesPage() {
         )}
 
         {/* Filter Toolbar */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-white dark:bg-[#10141b] p-5 rounded-3xl border border-gray-200 dark:border-white/10 shadow-sm">
+        <div className="grid grid-cols-1 gap-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-[#10141b] md:grid-cols-4">
           {/* Budget Range */}
           <div>
             <div className="flex justify-between text-xs font-bold text-gray-700 dark:text-white/80 mb-1.5">
@@ -365,7 +365,7 @@ export default function RoommatesPage() {
             {filteredProfiles.map((p) => (
               <article
                 key={p.id}
-                className="group relative flex flex-col justify-between rounded-3xl border border-gray-200 dark:border-white/10 bg-white dark:bg-[#10141b] p-5 shadow-sm transition hover:border-purple-500/40 hover:shadow-xl"
+                className="group relative flex flex-col justify-between rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-violet-500/40 hover:shadow-lg dark:border-white/10 dark:bg-[#10141b]"
               >
                 <div>
                   {/* Top Peer Info */}
@@ -464,24 +464,25 @@ export default function RoommatesPage() {
                     className="flex items-center gap-1.5 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold transition shadow-md shadow-purple-600/20"
                   >
                     <MessageSquare size={13} />
-                    {sendingId === p.id ? "Sending..." : "Connect / Send Request"}
+                    {sendingId === p.id ? "Sending..." : "Send request"}
                   </button>
                 </div>
               </article>
             ))}
           </div>
         ) : (
-          <div className="bg-white dark:bg-[#10141b] rounded-3xl border border-gray-200 dark:border-white/10 p-12 text-center shadow-sm">
+          <div className="rounded-2xl border border-gray-200 bg-white p-10 text-center shadow-sm dark:border-white/10 dark:bg-[#10141b] sm:p-12">
             <Users size={40} className="mx-auto text-gray-400 mb-3" />
-            <h3 className="text-base font-bold text-gray-900 dark:text-white">No roommate profiles matched</h3>
+            <h3 className="text-base font-black text-gray-950 dark:text-white">No roommate profiles found</h3>
             <p className="text-xs text-gray-500 max-w-sm mx-auto mt-1 mb-4">
-              Try adjusting max budget or gender preferences to discover more university peers.
+              Try increasing your budget or changing the room and gender preferences. New campus-visible profiles will appear here when students publish them.
             </p>
             <button
               onClick={() => {
                 setMaxBudget(15000);
                 setGenderPref("ANY");
                 setRoomTypePref("ANY");
+                setSearchQuery("");
               }}
               className="px-4 py-2 bg-purple-600 text-white rounded-xl text-xs font-bold"
             >
