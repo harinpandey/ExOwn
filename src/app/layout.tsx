@@ -33,7 +33,6 @@ export const metadata: Metadata = {
 import { Toaster } from "react-hot-toast";
 import { ThemeProvider } from "@/components/theme-provider";
 import ClientLayoutWrapper from "@/components/layout/ClientLayoutWrapper";
-
 import { LocationProvider } from "@/context/LocationContext";
 
 export default function RootLayout({
@@ -47,7 +46,6 @@ export default function RootLayout({
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
-          forcedTheme="light"
           enableSystem={false}
         >
           <AuthProvider>
