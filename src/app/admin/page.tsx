@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Sparkles, Users, BarChart3, CreditCard, Package, AlertCircle, ShieldCheck, Activity, Newspaper } from "lucide-react";
+import { Sparkles, Users, BarChart3, CreditCard, Package, AlertCircle, ShieldCheck, Activity, Newspaper, Megaphone } from "lucide-react";
 import { getAdminStats } from "@/actions/admin";
 
 export const dynamic = "force-dynamic";
