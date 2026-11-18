@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { ElementType } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useTheme } from "next-themes";
 import { useAuth } from "@/context/AuthContext";
 import { isCurrentUserAdmin } from "@/actions/admin";
 import {
@@ -16,12 +17,14 @@ import {
   LogOut,
   MapPin,
   MessageSquare,
+  Moon,
   Package,
   Plus,
   Search,
   Settings,
   ShieldCheck,
   ShoppingBag,
+  Sun,
   User,
   UserPlus,
 } from "lucide-react";
@@ -45,6 +48,8 @@ export default function Navbar() {
   const { user, logout } = useAuth();
   const { notifications, unreadCount, markRead, markAllRead } = useNotifications();
   const { selectedCampus, setSelectedCampus, campusObj } = useLocation();
+  const { theme, setTheme } = useTheme();
+  const [themeMounted, setThemeMounted] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isLoginPopupOpen, setIsLoginPopupOpen] = useState(false);
@@ -56,6 +61,10 @@ export default function Navbar() {
   const loginPopupRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
   const currentUserId = user?.uid;
+
+  useEffect(() => {
+    setThemeMounted(true);
+  }, []);
 
   useEffect(() => {
     setSearchQuery(new URLSearchParams(window.location.search).get("q") || "");
@@ -100,25 +109,25 @@ export default function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/95 text-gray-900 backdrop-blur-xl transition-colors dark:border-white/10 dark:bg-[#07090d]/90 dark:text-white">
+    <header className="sticky top-0 z-50 w-full border-b border-[#E2E8E5] bg-white text-[#13221D]">
       <div className="container mx-auto px-4">
         {/* Brand, service switcher and campus selector share one row */}
-        <div className="flex min-w-0 items-center gap-2 border-b border-gray-200/80 py-2.5 dark:border-white/10 sm:gap-3 lg:gap-5">
+        <div className="flex min-w-0 items-center gap-2 border-b border-[#E2E8E5] py-2.5 sm:gap-3 lg:gap-5">
           <Link href="/" className="flex shrink-0 items-center gap-2" aria-label="ExOwn home">
             <img src="/exown-logo.png" alt="ExOwn" className="h-9 w-auto sm:h-10" />
           </Link>
 
           <ExperienceSwitcher />
 
-          <label className="relative flex shrink-0 max-w-[34%] cursor-pointer items-center gap-1.5 rounded-xl px-1.5 py-1.5 text-left transition hover:bg-gray-100 focus-within:ring-2 focus-within:ring-primary/30 dark:hover:bg-white/[0.05] sm:max-w-[25%] sm:gap-2.5 sm:px-3">
-            <MapPin size={19} className="shrink-0 text-primary" aria-hidden="true" />
+          <label className="relative flex shrink-0 max-w-[34%] cursor-pointer items-center gap-1.5 rounded-xl border border-[#1E5646] bg-[#1E5646] px-2.5 py-2 text-left text-white transition hover:bg-[#174536] sm:max-w-[25%] sm:gap-2.5 sm:px-3">
+            <MapPin size={19} className="shrink-0 text-white" aria-hidden="true" />
             <span className="min-w-0">
-              <span className="block text-[9px] font-black uppercase tracking-[0.14em] text-gray-400 dark:text-white/40">Your campus</span>
-              <span className="block max-w-[180px] truncate text-xs font-extrabold text-gray-900 dark:text-white sm:max-w-[260px] sm:text-sm">
+              <span className="block text-[9px] font-bold uppercase tracking-[0.14em] text-white/75">Your campus</span>
+              <span className="block max-w-[180px] truncate text-xs font-extrabold text-white sm:max-w-[260px] sm:text-sm">
                 {campusObj.shortName}
               </span>
             </span>
-            <ChevronDown size={14} className="shrink-0 text-gray-400 dark:text-white/45" aria-hidden="true" />
+            <ChevronDown size={14} className="shrink-0 text-white/80" aria-hidden="true" />
             <select
               aria-label="Select campus"
               value={selectedCampus}
@@ -126,7 +135,7 @@ export default function Navbar() {
               className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"
             >
               {CAMPUS_DIRECTORY.map((campus) => (
-                <option key={campus.id} value={campus.name} className="bg-white text-gray-900 dark:bg-[#10141b] dark:text-white">
+                <option key={campus.id} value={campus.name} className="bg-white text-[#13221D]">
                   {campus.shortName}
                 </option>
               ))}
@@ -145,9 +154,9 @@ export default function Navbar() {
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search products, books, electronics, cycles, rooms..."
               aria-label="Search ExOwn listings"
-              className="h-12 w-full rounded-xl border border-gray-200 bg-gray-100 pl-12 pr-28 text-sm font-semibold text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-primary focus:bg-white dark:border-white/10 dark:bg-white/[0.06] dark:text-white dark:placeholder:text-white/35 dark:focus:border-primary/60 dark:focus:bg-white/[0.09] sm:text-base"
+              className="h-12 w-full rounded-xl border border-[#E2E8E5] bg-white pl-12 pr-28 text-sm font-medium text-[#13221D] outline-none transition placeholder:text-[#82918B] focus:border-[#1E5646] focus:ring-2 focus:ring-[#1E5646]/10 sm:text-base"
             />
-            <button type="submit" className="absolute right-1.5 top-1.5 h-9 rounded-lg bg-primary px-5 text-xs font-black text-white transition hover:bg-primary-dark active:scale-95">
+            <button type="submit" className="absolute right-1.5 top-1.5 h-9 rounded-lg bg-[#1E5646] px-5 text-xs font-bold text-white transition hover:bg-[#174536] active:scale-95">
               Search
             </button>
         </form>
@@ -163,6 +172,20 @@ export default function Navbar() {
               <MessageSquare size={18} />
               <span className="hidden xl:inline">Chat</span>
             </Link>
+          )}
+
+          {/* Theme toggle — restored to its original place before notifications. */}
+          {themeMounted && (
+            <button
+              type="button"
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="theme-toggle-button tap-target rounded-xl border p-2 transition"
+              aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+              aria-pressed={theme === "dark"}
+              title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+            >
+              {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
           )}
 
           {/* Notifications Dropdown Popup */}
@@ -267,10 +290,10 @@ export default function Navbar() {
           {/* Sell Button */}
           <Link
             href={!user ? "/login?redirect=/sell" : "/sell"}
-            className="hidden items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-black text-white shadow-lg transition hover:bg-primary-dark active:scale-95 sm:flex"
+            className="marketplace-button hidden items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold active:scale-95 sm:flex"
           >
             <Plus size={16} />
-            Sell
+            + Sell Something
           </Link>
 
           {/* Logged In Profile Menu OR Flipkart-Style Login Popup */}
@@ -347,7 +370,7 @@ export default function Navbar() {
                 type="button"
                 onClick={() => setIsLoginPopupOpen((v) => !v)}
                 onMouseEnter={() => setIsLoginPopupOpen(true)}
-                className="flex items-center gap-1.5 rounded-xl bg-blue-600 px-4 py-2 text-xs font-black text-white shadow-md transition hover:bg-blue-700 active:scale-95"
+                className="marketplace-button flex items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-bold active:scale-95"
               >
                 <User size={15} />
                 Login
@@ -368,7 +391,7 @@ export default function Navbar() {
                       <Link
                         href="/login"
                         onClick={() => setIsLoginPopupOpen(false)}
-                        className="flex items-center gap-1 text-xs font-black text-blue-600 hover:underline dark:text-primary"
+                        className="flex items-center gap-1 text-xs font-bold text-[#1E5646] hover:underline"
                       >
                         <UserPlus size={14} /> Sign Up
                       </Link>
@@ -393,14 +416,14 @@ export default function Navbar() {
 
       {/* Secondary navigation stays on inner pages; the homepage has its visual category rail. */}
       {pathname !== "/" && (
-        <div className="border-t border-gray-200 bg-gray-50 dark:border-white/10 dark:bg-[#07090d]/70">
+        <div className="border-t border-[#E2E8E5] bg-white">
           <nav className="container mx-auto flex items-center gap-2 overflow-x-auto px-4 py-2 no-scrollbar" aria-label="Marketplace navigation">
             {secondaryLinks.map((link) => (
               <Link
                 key={link.label}
                 href={link.href}
                 onClick={() => setSearchQuery("")}
-                className="whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-bold text-gray-600 transition hover:bg-gray-200 hover:text-primary dark:text-white/55 dark:hover:bg-white/[0.06] dark:hover:text-primary"
+                className="whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-semibold text-[#4A5D56] transition hover:bg-[#E6F2EE] hover:text-[#1E5646]"
               >
                 {link.label}
               </Link>
@@ -417,7 +440,7 @@ function ProfileLink({ href, icon: Icon, label }: { href: string; icon: ElementT
   return (
     <Link
       href={href}
-      className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-xs font-bold text-gray-700 transition hover:bg-gray-100 hover:text-primary dark:text-white/70 dark:hover:bg-white/[0.06] dark:hover:text-primary"
+      className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-xs font-semibold text-[#4A5D56] transition hover:bg-[#F7F9F8] hover:text-[#1E5646]"
     >
       <Icon size={16} />
       {label}

@@ -30,6 +30,7 @@ export default function MobileNav() {
     if (!isProfileComplete) return `/complete-profile?redirect=${encodeURIComponent(destination)}`;
     return destination;
   };
+
   const navItems = [
     { name: "Home", icon: Home, href: "/" },
     { name: "Search", icon: Search, href: "/search" },
@@ -58,23 +59,24 @@ export default function MobileNav() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsCreateOpen(false)}
-              className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden"
+              className="fixed inset-0 z-40 bg-[#13221D]/20 lg:hidden"
             />
             <motion.div
-              initial={{ opacity: 0, y: 24 }}
+              initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 24 }}
-              className="fixed bottom-20 left-3 right-3 z-50 rounded-2xl border border-white/10 bg-[#10141b] p-3 shadow-2xl lg:hidden"
+              exit={{ opacity: 0, y: 18 }}
+              style={{ bottom: "calc(env(safe-area-inset-bottom) + 138px)" }}
+              className="fixed left-3 right-3 z-50 rounded-2xl border border-[#E2E8E5] bg-white p-4 shadow-[0_8px_28px_rgba(19,34,29,0.12)] lg:hidden"
             >
-              <div className="mb-2 flex items-center justify-between px-1">
+              <div className="mb-3 flex items-center justify-between px-1">
                 <div>
-                  <p className="text-sm font-black text-white">Create on ExOwn</p>
-                  <p className="text-xs font-semibold text-white/45">Choose what you want to post.</p>
+                  <p className="text-sm font-bold text-[#13221D]">Create on ExOwn</p>
+                  <p className="text-xs text-[#4A5D56]">Choose what you want to post.</p>
                 </div>
                 <button
                   type="button"
                   onClick={() => setIsCreateOpen(false)}
-                  className="tap-target rounded-lg text-white/55 hover:bg-white/[0.06] hover:text-white"
+                  className="tap-target rounded-lg text-[#4A5D56] hover:bg-[#F7F9F8] hover:text-[#1E5646]"
                   aria-label="Close create menu"
                 >
                   <X size={19} />
@@ -89,9 +91,9 @@ export default function MobileNav() {
                       key={action.label}
                       href={action.href}
                       onClick={() => setIsCreateOpen(false)}
-                      className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm font-bold text-white transition hover:border-primary/40 hover:bg-white/[0.07]"
+                      className="flex items-center gap-3 rounded-xl border border-[#E2E8E5] bg-white px-4 py-3 text-sm font-semibold text-[#13221D] transition hover:border-[#CAD8D2] hover:bg-[#F7F9F8]"
                     >
-                      <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/15 text-primary">
+                      <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#E6F2EE] text-[#1E5646]">
                         <Icon size={19} />
                       </span>
                       {action.label}
@@ -104,26 +106,27 @@ export default function MobileNav() {
         )}
       </AnimatePresence>
 
-      <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-[#07090d]/92 pb-safe pt-1.5 shadow-2xl backdrop-blur-xl lg:hidden">
-        <div className="mx-auto grid max-w-md grid-cols-5 items-end px-2">
-          {navItems.slice(0, 2).map((item) => (
-            <MobileNavLink key={item.name} item={item} pathname={pathname} />
-          ))}
+      <button
+        type="button"
+        onClick={() => setIsCreateOpen((value) => !value)}
+        style={{ bottom: "calc(env(safe-area-inset-bottom) + 76px)" }}
+        className="fixed left-1/2 z-50 flex h-12 w-12 -translate-x-1/2 items-center justify-center rounded-full border-4 border-[#F7F9F8] bg-[#1E5646] text-white shadow-[0_3px_10px_rgba(19,34,29,0.12)] transition hover:bg-[#174536] active:scale-95 lg:hidden"
+        aria-label="Create listing"
+        aria-expanded={isCreateOpen}
+      >
+        <Plus size={24} className={isCreateOpen ? "rotate-45 transition-transform" : "transition-transform"} />
+      </button>
 
-          <button
-            type="button"
-            onClick={() => setIsCreateOpen((value) => !value)}
-            className="mx-auto -mt-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-white shadow-xl shadow-green-950/40 ring-4 ring-[#07090d] transition active:scale-95"
-            aria-label="Create listing"
-          >
-            <Plus size={28} className={`transition ${isCreateOpen ? "rotate-45" : ""}`} />
-          </button>
-
-          {navItems.slice(2).map((item) => (
+      <nav
+        aria-label="Main mobile navigation"
+        className="fixed bottom-0 left-0 right-0 z-50 border-t border-[#E2E8E5] bg-white pb-safe pt-1.5 shadow-[0_-2px_10px_rgba(19,34,29,0.04)] lg:hidden"
+      >
+        <div className="mx-auto grid max-w-md grid-cols-4 items-center px-2">
+          {navItems.map((item) => (
             <MobileNavLink key={item.name} item={item} pathname={pathname} />
           ))}
         </div>
-      </div>
+      </nav>
     </>
   );
 }
@@ -141,11 +144,15 @@ function MobileNavLink({
   return (
     <Link
       href={item.href}
-      className="relative flex min-h-[50px] flex-col items-center justify-center gap-1 rounded-lg px-2 py-1.5 text-white/45 transition active:scale-95"
+      aria-current={isActive ? "page" : undefined}
+      className={
+        "relative mx-1 flex min-h-[54px] flex-col items-center justify-center gap-1 rounded-xl px-2 py-1.5 transition active:scale-95 " +
+        (isActive ? "bg-[#E6F2EE] text-[#1E5646]" : "text-[#4A5D56] hover:bg-[#F7F9F8]")
+      }
     >
-      <Icon size={19} className={isActive ? "text-primary" : "text-white/45"} />
-      <span className={`text-[10px] font-black ${isActive ? "text-primary" : "text-white/45"}`}>{item.name}</span>
-      {isActive && <span className="absolute bottom-0 h-1 w-1 rounded-full bg-primary" />}
+      <Icon size={19} strokeWidth={isActive ? 2.2 : 1.8} />
+      <span className="text-[10px] font-bold">{item.name}</span>
+      {isActive && <span className="absolute bottom-1 h-1 w-1 rounded-full bg-[#1E5646]" />}
     </Link>
   );
 }

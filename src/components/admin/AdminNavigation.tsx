@@ -8,6 +8,7 @@ import {
   CreditCard,
   Flag,
   LayoutDashboard,
+  Megaphone,
   Newspaper,
   Package,
   Sparkles,
@@ -23,6 +24,7 @@ const navigation = [
   { label: "Activity audit", href: "/admin/activity", icon: Activity },
   { label: "AI rules", href: "/admin/ai-rules", icon: Sparkles },
   { label: "Moments manager", href: "/admin/moments", icon: Sparkles },
+  { label: "Ads manager", href: "/admin/ads", icon: Megaphone },
   { label: "LPU News", href: "/admin/lpu-news", icon: Newspaper },
 ];
 

@@ -39,12 +39,9 @@ const VISUAL_CATEGORIES: CategoryMeta[] = [
 
 export default function VisualCategoryRail() {
   return (
-    <section
-      className="border-b border-gray-200 bg-white dark:border-white/10 dark:bg-[#090c12]"
-      aria-label="Explore campus categories"
-    >
+    <section className="border-b border-[#E2E8E5] bg-white" aria-label="Explore campus categories">
       <div className="container mx-auto px-3 sm:px-4">
-        <nav className="flex items-stretch gap-2 overflow-x-auto no-scrollbar sm:justify-between sm:gap-3">
+        <nav className="flex items-stretch gap-2 overflow-x-auto py-2 no-scrollbar sm:justify-between sm:gap-3" aria-label="Product categories">
           {VISUAL_CATEGORIES.map((category, index) => {
             const Icon = category.icon;
             const isForYou = index === 0;
@@ -55,24 +52,16 @@ export default function VisualCategoryRail() {
                 href={category.href}
                 aria-current={isForYou ? "page" : undefined}
                 title={category.label}
-                className={`group relative flex min-w-[68px] shrink-0 flex-col items-center justify-center gap-1.5 px-2.5 pb-3 pt-4 text-center transition-colors sm:min-w-0 sm:flex-1 sm:px-1 ${
+                className={"group flex min-w-[68px] shrink-0 flex-col items-center justify-center gap-1.5 rounded-xl px-2.5 py-2 text-center transition-colors sm:min-w-0 sm:flex-1 sm:px-1 " + (
                   isForYou
-                    ? "text-primary"
-                    : "text-gray-700 hover:text-primary dark:text-white/70 dark:hover:text-primary"
-                }`}
+                    ? "bg-[#1E5646] text-white"
+                    : "text-[#4A5D56] hover:bg-[#F7F9F8] hover:text-[#1E5646]"
+                )}
               >
-                <Icon
-                  size={25}
-                  strokeWidth={isForYou ? 2.25 : 1.8}
-                  className="transition-transform duration-200 group-hover:-translate-y-0.5"
-                  aria-hidden="true"
-                />
-                <span className="max-w-full truncate text-[10px] font-bold sm:text-[11px]">
+                <Icon size={21} strokeWidth={isForYou ? 2 : 1.8} aria-hidden="true" />
+                <span className="max-w-full truncate text-[10px] font-semibold sm:text-[11px]">
                   {category.label}
                 </span>
-                {isForYou && (
-                  <span className="absolute inset-x-2 bottom-0 h-[3px] rounded-t-full bg-primary" />
-                )}
               </Link>
             );
           })}

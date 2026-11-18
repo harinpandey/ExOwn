@@ -11,10 +11,10 @@ import {
 } from "lucide-react";
 
 const destinations = [
-  { id: "rentals", label: "Rent", href: "/search?listingType=RENT", icon: Bike, tone: "bg-[#EAF2EF] text-[#2F6F5E]" },
-  { id: "campus-living", label: "PG & Roommates", href: "/campus-living", icon: Building2, tone: "bg-[#EAF2EF] text-[#2F6F5E]" },
-  { id: "travel", label: "Travel", href: "/travel", icon: Plane, tone: "bg-[#EAF2EF] text-[#2F6F5E]" },
-  { id: "news", label: "LPU News", href: "/lpu-news", icon: Newspaper, tone: "bg-[#EAF2EF] text-[#2F6F5E]" },
+  { id: "rentals", label: "Rent", href: "/search?listingType=RENT", icon: Bike, tone: "bg-[#E6F2EE] text-[#1E5646]" },
+  { id: "campus-living", label: "PG & Roommates", href: "/campus-living", icon: Building2, tone: "bg-[#E6F2EE] text-[#1E5646]" },
+  { id: "travel", label: "Travel", href: "/travel", icon: Plane, tone: "bg-[#E6F2EE] text-[#1E5646]" },
+  { id: "news", label: "LPU News", href: "/lpu-news", icon: Newspaper, tone: "bg-[#E6F2EE] text-[#1E5646]" },
 ];
 
 export default function ExperienceSwitcher() {
@@ -47,10 +47,10 @@ export default function ExperienceSwitcher() {
             href={destination.href}
             aria-current={active ? "page" : undefined}
             onClick={() => setListingType(destination.id === "rentals" ? "RENT" : "")}
-            className={`group flex min-w-fit shrink-0 items-center gap-1.5 rounded-xl border px-2.5 py-1.5 transition hover:-translate-y-0.5 hover:shadow-sm sm:gap-2 sm:px-3 lg:px-3.5 ${
+            className={`group flex min-w-fit shrink-0 items-center gap-1.5 rounded-xl border px-2.5 py-1.5 transition hover:border-[#CAD8D2] sm:gap-2 sm:px-3 lg:px-3.5 ${
               active
-                ? "border-[#DCE5E1] bg-[#EAF2EF] text-[#2F6F5E]"
-                : "border-[#DCE5E1] bg-white text-[#4B5E57] hover:border-[#B8C9C1] hover:bg-[#EAF2EF]"
+                ? "border-[#1E5646] bg-[#1E5646] text-white"
+                : "border-[#E2E8E5] bg-white text-[#4A5D56] hover:border-[#CAD8D2] hover:bg-[#F7F9F8]"
             }`}
           >
             <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg sm:h-8 sm:w-8 ${destination.tone}`}>
@@ -60,7 +60,7 @@ export default function ExperienceSwitcher() {
               {destination.label}
             </span>
             {destination.id === "news" && (
-              <span className="rounded-full bg-[#EAF2EF] px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wide text-[#2F6F5E]">
+              <span className="rounded-full bg-[#E6F2EE] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-[#1E5646]">
                 LPU
               </span>
             )}

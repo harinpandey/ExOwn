@@ -41,18 +41,18 @@ const trustSignals = [
 
 export default function Footer() {
   return (
-    <footer className="border-t border-gray-200 bg-white pb-20 pt-14 text-gray-900 transition-colors dark:border-white/10 dark:bg-[#07090d] dark:text-white md:pb-14">
+    <footer className="border-t border-[#E2E8E5] bg-white pb-20 pt-14 text-[#13221D] md:pb-14">
       <div className="container mx-auto px-4">
 
         {/* Top CTA Strip */}
-        <div className="mb-12 flex flex-col items-center justify-between gap-4 rounded-2xl border border-gray-200 bg-gray-50 px-6 py-5 dark:border-white/10 dark:bg-white/[0.03] sm:flex-row">
+        <div className="mb-12 flex flex-col items-center justify-between gap-4 rounded-2xl border border-[#E2E8E5] bg-[#F7F9F8] px-6 py-5 sm:flex-row">
           <div>
             <p className="text-xs font-black uppercase tracking-wider text-primary">Start trading on ExOwn</p>
-            <p className="mt-0.5 text-sm font-semibold text-gray-600 dark:text-white/55">List something and connect with students around you.</p>
+            <p className="mt-0.5 text-sm text-[#4A5D56]">List something and connect with students around you.</p>
           </div>
           <Link
             href="/sell"
-            className="marketplace-button inline-flex shrink-0 items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-black text-white transition active:scale-95"
+            className="marketplace-button inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold active:scale-95"
           >
             + Sell Something
             <ArrowRight size={16} />
@@ -67,12 +67,12 @@ export default function Footer() {
             <Link href="/" aria-label="ExOwn home">
               <img src="/exown-logo.png" alt="ExOwn" className="h-8 w-auto" />
             </Link>
-            <p className="text-sm font-semibold leading-6 text-gray-600 dark:text-white/45">
+            <p className="text-sm leading-6 text-[#4A5D56]">
               Exchange. Own. Repeat. The trusted campus marketplace for students.
             </p>
             <div className="space-y-2">
               {trustSignals.map((s) => (
-                <div key={s.label} className="flex items-center gap-2 text-xs font-bold text-gray-600 dark:text-white/50">
+                <div key={s.label} className="flex items-center gap-2 text-xs font-semibold text-[#4A5D56]">
                   <s.icon size={14} className="text-primary" />
                   {s.label}
                 </div>
@@ -84,7 +84,7 @@ export default function Footer() {
                 target="_blank"
                 rel="noreferrer"
                 aria-label="ExOwn Website"
-                className="flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200 bg-gray-100 text-gray-600 transition hover:border-primary hover:text-primary dark:border-white/10 dark:bg-white/[0.04] dark:text-white/45 dark:hover:border-primary"
+                className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#E2E8E5] bg-white text-[#4A5D56] transition hover:border-[#1E5646] hover:text-[#1E5646]"
               >
                 <Globe size={16} />
               </a>
@@ -93,13 +93,13 @@ export default function Footer() {
 
           {/* Marketplace */}
           <div>
-            <p className="mb-4 text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-white/35">Marketplace</p>
+            <p className="mb-4 text-[10px] font-bold uppercase tracking-widest text-[#4A5D56]">Marketplace</p>
             <ul className="space-y-3">
               {marketplaceLinks.map((link) => (
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-sm font-semibold text-gray-600 transition hover:text-primary dark:text-white/55 dark:hover:text-primary"
+                    className="text-sm font-medium text-[#4A5D56] transition hover:text-[#1E5646]"
                   >
                     {link.label}
                   </Link>
@@ -110,13 +110,13 @@ export default function Footer() {
 
           {/* Categories */}
           <div>
-            <p className="mb-4 text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-white/35">Categories</p>
+            <p className="mb-4 text-[10px] font-bold uppercase tracking-widest text-[#4A5D56]">Categories</p>
             <ul className="space-y-3">
               {categoryLinks.map((link) => (
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-sm font-semibold text-gray-600 transition hover:text-primary dark:text-white/55 dark:hover:text-primary"
+                    className="text-sm font-medium text-[#4A5D56] transition hover:text-[#1E5646]"
                   >
                     {link.label}
                   </Link>
@@ -127,13 +127,13 @@ export default function Footer() {
 
           {/* Company */}
           <div>
-            <p className="mb-4 text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-white/35">Company</p>
+            <p className="mb-4 text-[10px] font-bold uppercase tracking-widest text-[#4A5D56]">Company</p>
             <ul className="space-y-3">
               {companyLinks.map((link) => (
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-sm font-semibold text-gray-600 transition hover:text-primary dark:text-white/55 dark:hover:text-primary"
+                    className="text-sm font-medium text-[#4A5D56] transition hover:text-[#1E5646]"
                   >
                     {link.label}
                   </Link>
@@ -144,11 +144,11 @@ export default function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-gray-200 pt-8 dark:border-white/10 sm:flex-row">
-          <p className="text-xs font-semibold text-gray-500 dark:text-white/30">
+        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-[#E2E8E5] pt-8 sm:flex-row">
+          <p className="text-xs font-medium text-[#4A5D56]">
             &copy; {new Date().getFullYear()} ExOwn Technologies. All rights reserved.
           </p>
-          <div className="flex flex-wrap items-center gap-4 text-xs font-bold text-gray-500 dark:text-white/30">
+          <div className="flex flex-wrap items-center gap-4 text-xs font-semibold text-[#4A5D56]">
             <span>Made for students, by students</span>
             <span className="h-1 w-1 rounded-full bg-gray-300 dark:bg-white/20" aria-hidden />
             <span className="text-primary">Exchange. Own. Repeat.</span>

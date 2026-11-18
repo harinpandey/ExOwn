@@ -33,7 +33,6 @@ export const metadata: Metadata = {
 import { Toaster } from "react-hot-toast";
 import { ThemeProvider } from "@/components/theme-provider";
 import ClientLayoutWrapper from "@/components/layout/ClientLayoutWrapper";
-
 import { LocationProvider } from "@/context/LocationContext";
 
 export default function RootLayout({
@@ -43,11 +42,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`} suppressHydrationWarning>
-      <body className="min-h-full flex flex-col bg-background text-foreground transition-colors duration-300 exown-shell">
+      <body className="min-h-full flex flex-col bg-background text-foreground exown-shell">
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
-          forcedTheme="light"
           enableSystem={false}
         >
           <AuthProvider>
