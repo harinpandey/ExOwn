@@ -6,6 +6,7 @@ generator lpuNewsClient {
 datasource db {
   provider = "postgresql"
   url      = env("LPU_NEWS_DATABASE_URL")
+  directUrl = env("LPU_NEWS_DIRECT_URL")
 }
 
 model LpuNewsArticle {
