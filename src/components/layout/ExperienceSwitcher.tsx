@@ -13,7 +13,7 @@ import {
 const destinations = [
   { id: "rentals", label: "Rent", href: "/search?listingType=RENT", icon: Bike, tone: "bg-[#E6F2EE] text-[#1E5646]" },
   { id: "campus-living", label: "PG & Roommates", href: "/campus-living", icon: Building2, tone: "bg-[#E6F2EE] text-[#1E5646]" },
-  { id: "travel", label: "Tickets", href: "/travel", icon: Ticket, tone: "bg-[#E6F2EE] text-[#1E5646]" },
+  { id: "tickets", label: "Tickets", href: "/travel", icon: Ticket, tone: "bg-[#E6F2EE] text-[#1E5646]" },
   { id: "news", label: "LPU News", href: "/lpu-news", icon: Newspaper, tone: "bg-[#E6F2EE] text-[#1E5646]" },
 ];
 
