@@ -4,7 +4,7 @@ import lpuNewsPrisma from "@/lib/lpu-news-prisma";
 
 export async function getPublishedLpuNews(limit = 8, category?: string) {
   if (!process.env.LPU_NEWS_DATABASE_URL) {
-    return { configured: false, articles: [] as any[] };
+    return { configured: false, unavailable: false, articles: [] as any[] };
   }
 
   try {
@@ -29,7 +29,7 @@ export async function getPublishedLpuNews(limit = 8, category?: string) {
       },
     });
 
-    return { configured: true, articles };
+    return { configured: true, unavailable: false, articles };
   } catch (error) {
     console.error("[lpu-news] Failed to load published articles:", error);
     return { configured: true, articles: [] as any[], unavailable: true };
