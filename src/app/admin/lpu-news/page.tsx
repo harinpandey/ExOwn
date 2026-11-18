@@ -50,6 +50,7 @@ export default async function AdminLpuNewsPage({
           {params.error === "database" ? "Set LPU_NEWS_DATABASE_URL before publishing." :
            params.error === "validation" ? "Add a title, a summary of at least 20 characters and article content of at least 40 characters." :
            params.error === "url" ? "Source and image URLs must be valid HTTP or HTTPS URLs." :
+           params.error === "source" ? "To publish immediately, provide both a source name and a valid source URL. You can save without a source as a draft." :
            "Could not save the article. Check the LPU News database connection and try again."}
         </div>
       )}
