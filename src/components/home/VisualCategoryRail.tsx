@@ -21,6 +21,7 @@ interface CategoryMeta {
   icon: LucideIcon;
 }
 
+// Housing stays in the dedicated campus-living service; this rail is reserved for marketplace product categories.
 const VISUAL_CATEGORIES: CategoryMeta[] = [
   { id: "for-you", label: "For You", href: "/", icon: Sparkles },
   { id: "mobiles", label: "Mobiles", href: "/search?category=mobiles-gadgets", icon: Smartphone },
