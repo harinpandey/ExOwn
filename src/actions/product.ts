@@ -164,11 +164,12 @@ export async function searchProducts(opts: {
   campusId?: string;
   exchange?: boolean;
   movingOut?: boolean;
+  detailFilters?: Record<string, string | boolean>;
   page?: number;
   pageSize?: number;
 }) {
   try {
-    const { query, tokens, condition, listingType, minPrice, maxPrice, sortBy, campusId, exchange, movingOut } = opts;
+    const { query, tokens, condition, listingType, minPrice, maxPrice, sortBy, campusId, exchange, movingOut, detailFilters } = opts;
     const categorySlug =
       opts.categorySlug && ["bikes-transport", "cars"].includes(opts.categorySlug)
         ? "vehicles"
@@ -217,7 +218,16 @@ export async function searchProducts(opts: {
       });
     }
 
-    if (categorySlug) {
+    if (categorySlug === "accessories") {
+      // Accessories span several existing product categories, so treat this as
+      // a curated view over accessory subcategories rather than a DB category.
+      andFilters.push({
+        OR: [
+          { subcategory: { slug: "mobile-accessories" } },
+          { subcategory: { slug: "accessories" } },
+        ],
+      });
+    } else if (categorySlug) {
       andFilters.push({
         OR: [
           { categoryId: categorySlug },
@@ -225,6 +235,25 @@ export async function searchProducts(opts: {
         ],
       });
     }
+
+    // Category-specific attributes are stored in Product.conditionDetails.
+    // Match them exactly so the filter controls reflect the data collected
+    // during listing creation (brand, RAM, storage, subject, fuel, etc.).
+    Object.entries(detailFilters || {}).forEach(([field, rawValue]) => {
+      const value = rawValue === "true" ? true : rawValue === "false" ? false : rawValue;
+      if (field === "brand") {
+        andFilters.push({
+          OR: [
+            { brand: { equals: String(value), mode: "insensitive" } },
+            { conditionDetails: { path: ["brand"], equals: value } },
+          ],
+        });
+      } else {
+        andFilters.push({
+          conditionDetails: { path: [field], equals: value },
+        });
+      }
+    });
 
     if (subcategorySlug) {
       andFilters.push({
@@ -256,7 +285,7 @@ export async function searchProducts(opts: {
     const isRelevanceSearch = !sortBy && (query || searchTokens.length > 0);
     const candidateLimit = isRelevanceSearch ? Math.min(100, Math.max(page * pageSize * 2, pageSize * 2)) : pageSize;
 
-    const cacheKey = `search:${JSON.stringify({ query, tokens: searchTokens, categorySlug, subcategorySlug, condition, listingType, minPrice, maxPrice, sortBy, campusId, exchange, movingOut, page, pageSize })}`;
+    const cacheKey = `search:${JSON.stringify({ query, tokens: searchTokens, categorySlug, subcategorySlug, condition, listingType, minPrice, maxPrice, sortBy, campusId, exchange, movingOut, detailFilters, page, pageSize })}`;
     const products = await getCached(cacheKey, 30, () => withRetry(() => prisma.product.findMany({
       where: {
         status: "LIVE",
