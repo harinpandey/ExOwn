@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { ArrowUpRight, Bus, CheckCircle2, Clock3, Plane, ShieldCheck, TrainFront } from "lucide-react";
 
 export const metadata = {
