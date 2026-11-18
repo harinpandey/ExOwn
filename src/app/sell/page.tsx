@@ -134,8 +134,10 @@ function SellPageContent() {
   const handleSubmit = async () => {
     if (!user) return;
     if (!campusId) return toast.error("Please select a campus");
+    if (!selectedCategory || !selectedSubcategory) return toast.error("Please select a category and subcategory");
     if (images.length === 0) return toast.error("Please upload at least one photo");
-    if (!title && selectedSubcategory?.id !== "other") return toast.error("Please enter a title");
+    if (selectedSubcategory.id === "other" && customOtherTitle.trim().length < 3) return toast.error("Please enter a custom item title (at least 3 characters)");
+    if (!title && selectedSubcategory.id !== "other") return toast.error("Please enter a title");
     if (!description || description.trim().length < 10) return toast.error("Description must be at least 10 characters");
     if (!pickupLocation || pickupLocation.trim().length < 2) return toast.error("Please provide a pickup spot on campus");
 
@@ -148,6 +150,22 @@ function SellPageContent() {
     const loadingToast = toast.loading("Publishing listing to campus...");
 
     try {
+      // Resolve database records before uploading images to avoid orphaned Cloudinary assets.
+      const { createProduct, getCategories, getSubcategories } = await import("@/actions/product");
+      const dbCategories = await getCategories();
+      const dbCat = dbCategories.find((category) => category.slug === selectedCategory.slug);
+      if (!dbCat) {
+        throw new Error('The selected category "' + selectedCategory.name + '" is not present in the marketplace database. The admin must sync category data before publishing.');
+      }
+
+      const dbSubcategories = await getSubcategories(dbCat.id);
+      const dbSub = selectedSubcategory.id === "other"
+        ? null
+        : dbSubcategories.find((subcategory) => subcategory.slug === selectedSubcategory.id);
+      if (selectedSubcategory.id !== "other" && !dbSub) {
+        throw new Error('The selected subcategory "' + selectedSubcategory.name + '" is missing from the database. Please reselect it or ask the admin to sync category data.');
+      }
+
       const { getCloudinarySignature } = await import("@/actions/cloudinary");
       const { timestamp, signature, apiKey, cloudName, allowed_formats } = await getCloudinarySignature();
 
@@ -183,16 +201,6 @@ function SellPageContent() {
       if (uploadedImageUrls.length === 0) {
         throw new Error("No images were successfully uploaded. Please try again.");
       }
-
-      const { createProduct, getCategories, getSubcategories } = await import("@/actions/product");
-      const dbCategories = await getCategories();
-      const dbCat = dbCategories.find(c => c.slug === selectedCategory?.slug);
-      if (!dbCat) throw new Error("Selected category not found in database.");
-
-      const dbSubcategories = await getSubcategories(dbCat.id);
-      const dbSub = selectedSubcategory?.id === 'other'
-        ? null
-        : dbSubcategories.find(s => s.slug === selectedSubcategory?.id);
 
       const productData = {
         title: selectedSubcategory?.id === 'other' ? customOtherTitle : title,
