@@ -111,14 +111,15 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/95 text-gray-900 backdrop-blur-xl transition-colors dark:border-white/10 dark:bg-[#07090d]/90 dark:text-white">
       <div className="container mx-auto px-4">
-        <ExperienceSwitcher />
-        {/* Brand and campus location row */}
-        <div className="flex items-center justify-between gap-4 border-b border-gray-200/80 py-2.5 dark:border-white/10">
+        {/* Brand, service switcher and campus selector share one row */}
+        <div className="flex min-w-0 items-center gap-2 border-b border-gray-200/80 py-2.5 dark:border-white/10 sm:gap-3 lg:gap-5">
           <Link href="/" className="flex shrink-0 items-center gap-2" aria-label="ExOwn home">
             <img src="/exown-logo.png" alt="ExOwn" className="h-9 w-auto sm:h-10" />
           </Link>
 
-          <label className="relative flex max-w-[62%] cursor-pointer items-center gap-2.5 rounded-xl px-2.5 py-1.5 text-left transition hover:bg-gray-100 focus-within:ring-2 focus-within:ring-primary/30 dark:hover:bg-white/[0.05] sm:max-w-none sm:px-3">
+          <ExperienceSwitcher />
+
+          <label className="relative flex shrink-0 max-w-[34%] cursor-pointer items-center gap-1.5 rounded-xl px-1.5 py-1.5 text-left transition hover:bg-gray-100 focus-within:ring-2 focus-within:ring-primary/30 dark:hover:bg-white/[0.05] sm:max-w-[25%] sm:gap-2.5 sm:px-3">
             <MapPin size={19} className="shrink-0 text-primary" aria-hidden="true" />
             <span className="min-w-0">
               <span className="block text-[9px] font-black uppercase tracking-[0.14em] text-gray-400 dark:text-white/40">Your campus</span>
