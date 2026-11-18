@@ -13,7 +13,7 @@ import {
 
 export const metadata = {
   title: "Ticket Exchange | ExOwn",
-  description: "Find or list eligible unused movie, concert, sports and campus-event tickets with fellow students.",
+  description: "Find or list eligible unused movie, concert, sports, campus and other event tickets with fellow students.",
 };
 
 const ticketTypes = [
@@ -44,6 +44,13 @@ const ticketTypes = [
     category: "campus-event-tickets",
     icon: GraduationCap,
     tag: "On campus",
+  },
+  {
+    title: "Other event tickets",
+    description: "Pass on eligible theatre, comedy, exhibitions and local event tickets.",
+    category: "other-event-tickets",
+    icon: Ticket,
+    tag: "More events",
   },
 ];
 
@@ -154,10 +161,10 @@ export default function TicketExchangePage() {
         <aside className="rounded-2xl border border-amber-200 bg-[#FFFBEB] p-5 sm:p-6 dark:border-[#725A2D] dark:bg-[#2B2416]">
           <div className="flex items-center gap-2 text-[#92400E] dark:text-[#F2D28C]">
             <TrainFront size={19} />
-            <h2 className="text-base font-extrabold">What about train tickets?</h2>
+            <h2 className="text-base font-extrabold">Train tickets are not available for resale</h2>
           </div>
           <p className="mt-3 text-sm leading-6 text-[#78350F] dark:text-[#F2D28C]">
-            Reserved Indian Railways tickets issued in a person’s name generally cannot be resold or freely transferred. We do not allow train-ticket resale on ExOwn.
+            Reserved Indian Railways tickets are issued to a named passenger and cannot be privately resold or freely transferred. Train-ticket resale is not available on ExOwn.
           </p>
           <p className="mt-2 text-xs leading-5 text-[#78350F] dark:text-[#F2D28C]">
             Use official cancellation or check whether you qualify for an authorised name change through the railway reservation office.
