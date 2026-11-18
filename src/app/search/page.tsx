@@ -56,7 +56,14 @@ export default async function SearchPage({
   const categorySlug = ["bikes-transport", "cars"].includes(requestedCategorySlug)
     ? "vehicles"
     : requestedCategorySlug;
-  const subcategorySlug = params.subcategory || "";
+  const requestedSubcategorySlug = params.subcategory || "";
+  const legacyVehicleSubcategories: Record<string, string> = {
+    bicycle: "cycles",
+    bike: "cycles",
+    helmet: "helmets",
+    "car-accessories": "accessories",
+  };
+  const subcategorySlug = legacyVehicleSubcategories[requestedSubcategorySlug] || requestedSubcategorySlug;
   const sort = params.sort || "";
   const cookieStore = await cookies();
   let savedCampus = cookieStore.get("exown_selected_campus")?.value || "";
