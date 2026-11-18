@@ -3,13 +3,12 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { X, Sparkles } from "lucide-react";
+import { X, Megaphone } from "lucide-react";
 
 const ANNOUNCEMENTS = [
   {
     id: "launch-v2",
-    emoji: "✨",
-    label: "NEW",
+        label: "NEW",
     text: "ExOwn is live on your campus",
     cta: "Explore Marketplace",
     href: "/search",
@@ -42,11 +41,11 @@ export default function AnnouncementBar() {
   return (
     <div
       role="banner"
-      className="relative z-50 flex items-center justify-center gap-3 bg-[var(--accent)] px-4 py-2.5 text-[#071003]"
+      className="relative z-50 flex items-center justify-center gap-3 bg-[#1E5646] px-4 py-2.5 text-white"
     >
-      <Sparkles size={14} className="shrink-0" aria-hidden="true" />
+      <Megaphone size={14} className="shrink-0 text-white" aria-hidden="true" />
       <p className="text-xs font-black">
-        <span className="mr-2 rounded bg-[#071003]/15 px-1.5 py-0.5 text-[10px] uppercase tracking-wider">
+        <span className="mr-2 rounded bg-white/15 px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-white">
           {announcement.label}
         </span>
         {announcement.text}
