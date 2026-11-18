@@ -9,14 +9,12 @@ import {
   Newspaper,
   Plane,
   Store,
-  Users,
 } from "lucide-react";
 
 const destinations = [
   { id: "marketplace", label: "ExOwn", href: "/", icon: Store, tone: "bg-primary text-white" },
   { id: "rentals", label: "Rentals", href: "/search?listingType=RENT", icon: Bike, tone: "bg-emerald-600 text-white" },
-  { id: "housing", label: "PG & Housing", href: "/housing", icon: Building2, tone: "bg-violet-600 text-white" },
-  { id: "roommates", label: "Roommates", href: "/roommates", icon: Users, tone: "bg-cyan-700 text-white" },
+  { id: "campus-living", label: "Housing & Roommates", href: "/campus-living", icon: Building2, tone: "bg-violet-600 text-white" },
   { id: "travel", label: "Travel & Tickets", href: "/travel", icon: Plane, tone: "bg-orange-600 text-white" },
   { id: "news", label: "LPU News", href: "/lpu-news", icon: Newspaper, tone: "bg-blue-700 text-white" },
 ];
@@ -41,6 +39,8 @@ export default function ExperienceSwitcher() {
             ? pathname === "/" || (pathname === "/search" && listingType !== "RENT")
             : destination.id === "rentals"
               ? pathname === "/search" && listingType === "RENT"
+              : destination.id === "campus-living"
+              ? ["/campus-living", "/housing", "/roommates"].some((route) => pathname === route || pathname.startsWith(`${route}/`))
               : pathname === destination.href || pathname.startsWith(`${destination.href}/`);
 
         return (
