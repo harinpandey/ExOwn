@@ -4,10 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && next build",
-    "postinstall": "prisma generate",
+    "build": "prisma generate && prisma generate --schema=prisma/lpu-news/schema.prisma && next build",
+    "postinstall": "prisma generate && prisma generate --schema=prisma/lpu-news/schema.prisma",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:news:generate": "prisma generate --schema=prisma/lpu-news/schema.prisma",
+    "db:news:push": "prisma db push --schema=prisma/lpu-news/schema.prisma"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
