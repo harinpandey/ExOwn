@@ -261,6 +261,17 @@ export default function RequestBoardPage() {
                   />
                 </div>
                 <div>
+                  <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">Topic (optional)</label>
+                  <input
+                    value={newRequest.category}
+                    maxLength={50}
+                    onChange={(e) => setNewRequest({...newRequest, category: e.target.value})}
+                    placeholder="e.g. Notes, events, housing, campus help"
+                    className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 rounded-xl outline-none font-bold border-2 border-transparent focus:border-primary transition-all"
+                  />
+                  <p className="mt-1 text-[10px] font-semibold text-gray-400">Add a topic so others can find your request more easily.</p>
+                </div>
+                <div>
                   <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">Description</label>
                   <textarea
                     required
