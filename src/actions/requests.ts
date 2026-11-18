@@ -20,6 +20,10 @@ export async function createBuyingRequest(userId: string, data: {
     const category = data.category ? sanitizeString(data.category) : undefined;
     const budget = data.budget === undefined ? undefined : Number(data.budget);
 
+    if (category && !validateLength(category, 2, 50)) {
+      return { success: false, error: "Topic must be between 2 and 50 characters." };
+    }
+
     if (!validateLength(title, 3, 120)) {
       return { success: false, error: "Request title must be between 3 and 120 characters." };
     }
