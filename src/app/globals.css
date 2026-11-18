@@ -277,3 +277,37 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+
+/* Cover legacy opacity-based accents, hover borders and keyboard rings. */
+:is(
+  [class~="bg-blue-500/10"], [class~="bg-blue-400/10"], [class~="bg-blue-600/10"],
+  [class~="bg-indigo-500/10"], [class~="bg-indigo-400/10"],
+  [class~="bg-violet-500/10"], [class~="bg-violet-400/10"],
+  [class~="bg-purple-500/10"], [class~="bg-purple-400/10"],
+  [class~="bg-emerald-500/10"], [class~="bg-green-500/10"],
+  [class~="bg-orange-500/10"]
+) {
+  background-color: #EAF2EF !important;
+}
+
+:is(
+  [class*="text-blue-"], [class*="text-indigo-"],
+  [class*="text-violet-"], [class*="text-purple-"]
+) {
+  color: #2F6F5E !important;
+}
+
+:is(
+  [class*="border-blue-"], [class*="border-indigo-"],
+  [class*="border-violet-"], [class*="border-purple-"]
+) {
+  border-color: #DCE5E1 !important;
+}
+
+:is(
+  [class*="ring-blue-"], [class*="ring-indigo-"],
+  [class*="ring-violet-"], [class*="ring-purple-"]
+) {
+  --tw-ring-color: #2F6F5E !important;
+}
