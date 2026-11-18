@@ -1,146 +1,82 @@
 import Link from "next/link";
 import {
-  Laptop,
-  Smartphone,
-  BookOpen,
   Bike,
-  Sofa,
-  Gamepad2,
-  Shirt,
-  Headphones,
+  BookOpen,
   Building2,
+  Gamepad2,
+  Headphones,
+  Laptop,
+  Monitor,
+  Shirt,
+  Smartphone,
+  Sofa,
+  Sparkles,
   Wrench,
-  LucideIcon,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 interface CategoryMeta {
   id: string;
-  slug: string;
-  name: string;
-  shortLabel: string;
+  label: string;
+  href: string;
   icon: LucideIcon;
-  accent: string;
 }
 
 const VISUAL_CATEGORIES: CategoryMeta[] = [
-  {
-    id: "computers-laptops",
-    slug: "computers-laptops",
-    name: "Computers & Laptops",
-    shortLabel: "Laptops",
-    icon: Laptop,
-    accent: "from-blue-500/20 to-indigo-600/20 text-blue-500 border-blue-500/30",
-  },
-  {
-    id: "mobiles-gadgets",
-    slug: "mobiles-gadgets",
-    name: "Mobiles & Gadgets",
-    shortLabel: "Mobiles",
-    icon: Smartphone,
-    accent: "from-cyan-500/20 to-blue-600/20 text-cyan-500 border-cyan-500/30",
-  },
-  {
-    id: "books-sports-hobbies",
-    slug: "books-sports-hobbies",
-    name: "Books & Study Material",
-    shortLabel: "Books",
-    icon: BookOpen,
-    accent: "from-amber-500/20 to-orange-600/20 text-amber-500 border-amber-500/30",
-  },
-  {
-    id: "bikes-transport",
-    slug: "bikes-transport",
-    name: "Cycles & Transport",
-    shortLabel: "Cycles",
-    icon: Bike,
-    accent: "from-emerald-500/20 to-teal-600/20 text-emerald-500 border-emerald-500/30",
-  },
-  {
-    id: "furniture-hostel",
-    slug: "furniture-hostel",
-    name: "Hostel Furniture",
-    shortLabel: "Furniture",
-    icon: Sofa,
-    accent: "from-purple-500/20 to-pink-600/20 text-purple-500 border-purple-500/30",
-  },
-  {
-    id: "gaming-entertainment",
-    slug: "gaming-entertainment",
-    name: "Gaming & Entertainment",
-    shortLabel: "Gaming",
-    icon: Gamepad2,
-    accent: "from-rose-500/20 to-red-600/20 text-rose-500 border-rose-500/30",
-  },
-  {
-    id: "fashion",
-    slug: "fashion",
-    name: "Campus Fashion",
-    shortLabel: "Fashion",
-    icon: Shirt,
-    accent: "from-violet-500/20 to-purple-600/20 text-violet-500 border-violet-500/30",
-  },
-  {
-    id: "audio",
-    slug: "electronics-appliances",
-    name: "Audio & Accessories",
-    shortLabel: "Audio",
-    icon: Headphones,
-    accent: "from-pink-500/20 to-rose-600/20 text-pink-500 border-pink-500/30",
-  },
-  {
-    id: "properties",
-    slug: "properties",
-    name: "Hostel & Rooms",
-    shortLabel: "Rooms / PG",
-    icon: Building2,
-    accent: "from-indigo-500/20 to-blue-600/20 text-indigo-500 border-indigo-500/30",
-  },
-  {
-    id: "services",
-    slug: "services",
-    name: "Campus Services",
-    shortLabel: "Services",
-    icon: Wrench,
-    accent: "from-amber-600/20 to-yellow-500/20 text-amber-500 border-amber-500/30",
-  },
+  { id: "for-you", label: "For You", href: "/", icon: Sparkles },
+  { id: "mobiles", label: "Mobiles", href: "/search?category=mobiles-gadgets", icon: Smartphone },
+  { id: "laptops", label: "Laptops", href: "/search?category=computers-laptops", icon: Laptop },
+  { id: "electronics", label: "Electronics", href: "/search?category=electronics-appliances", icon: Monitor },
+  { id: "books", label: "Books", href: "/search?category=books-sports-hobbies", icon: BookOpen },
+  { id: "cycles", label: "Cycles", href: "/search?category=bikes-transport", icon: Bike },
+  { id: "fashion", label: "Fashion", href: "/search?category=fashion", icon: Shirt },
+  { id: "furniture", label: "Furniture", href: "/search?category=furniture-hostel", icon: Sofa },
+  { id: "gaming", label: "Gaming", href: "/search?category=gaming-entertainment", icon: Gamepad2 },
+  { id: "rooms", label: "Rooms & PGs", href: "/housing", icon: Building2 },
+  { id: "services", label: "Services", href: "/search?listingType=SERVICE", icon: Wrench },
+  { id: "accessories", label: "Accessories", href: "/search?category=electronics-appliances", icon: Headphones },
 ];
 
 export default function VisualCategoryRail() {
   return (
-    <section className="container mx-auto px-4 py-6" aria-label="Visual Categories">
-      <div className="flex items-center justify-between mb-3 px-1">
-        <h2 className="text-xs font-black uppercase tracking-wider text-gray-500 dark:text-gray-400">
-          Explore by Category
-        </h2>
-        <Link
-          href="/search"
-          className="text-xs font-black text-primary hover:underline"
-        >
-          All Categories &rarr;
-        </Link>
-      </div>
+    <section
+      className="border-b border-gray-200 bg-white dark:border-white/10 dark:bg-[#090c12]"
+      aria-label="Explore campus categories"
+    >
+      <div className="container mx-auto px-3 sm:px-4">
+        <nav className="flex items-stretch gap-2 overflow-x-auto no-scrollbar sm:justify-between sm:gap-3">
+          {VISUAL_CATEGORIES.map((category, index) => {
+            const Icon = category.icon;
+            const isForYou = index === 0;
 
-      {/* Horizontal Rail: smooth swipe on mobile, clean row on desktop */}
-      <div className="flex items-center gap-3 overflow-x-auto pb-3 pt-1 no-scrollbar sm:grid sm:grid-cols-5 md:grid-cols-10 sm:overflow-visible">
-        {VISUAL_CATEGORIES.map((cat) => {
-          const Icon = cat.icon;
-          return (
-            <Link
-              key={cat.id}
-              href={cat.id === "properties" ? "/housing" : `/search?category=${cat.slug}`}
-              className="group relative flex min-w-[76px] flex-col items-center justify-center gap-2 rounded-2xl border border-gray-200/80 bg-white p-2.5 text-center shadow-xs transition hover:border-primary/50 hover:bg-gray-50/80 hover:shadow-md dark:border-white/10 dark:bg-[#10141b] dark:hover:border-primary/50 dark:hover:bg-white/[0.04] sm:min-w-0 active:scale-95"
-            >
-              {/* 2.5D visual container */}
-              <div className={`relative flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br border shadow-xs transition-transform duration-300 group-hover:scale-110 group-hover:-translate-y-1 ${cat.accent}`}>
-                <Icon size={22} className="object-25d transition-transform group-hover:rotate-3" />
-              </div>
-
-              <span className="text-[11px] font-bold text-gray-800 transition group-hover:text-primary dark:text-gray-200 dark:group-hover:text-white truncate max-w-full">
-                {cat.shortLabel}
-              </span>
-            </Link>
-          );
-        })}
+            return (
+              <Link
+                key={category.id}
+                href={category.href}
+                aria-current={isForYou ? "page" : undefined}
+                title={category.label}
+                className={`group relative flex min-w-[68px] shrink-0 flex-col items-center justify-center gap-1.5 px-2.5 pb-3 pt-4 text-center transition-colors sm:min-w-0 sm:flex-1 sm:px-1 ${
+                  isForYou
+                    ? "text-primary"
+                    : "text-gray-700 hover:text-primary dark:text-white/70 dark:hover:text-primary"
+                }`}
+              >
+                <Icon
+                  size={25}
+                  strokeWidth={isForYou ? 2.25 : 1.8}
+                  className="transition-transform duration-200 group-hover:-translate-y-0.5"
+                  aria-hidden="true"
+                />
+                <span className="max-w-full truncate text-[10px] font-bold sm:text-[11px]">
+                  {category.label}
+                </span>
+                {isForYou && (
+                  <span className="absolute inset-x-2 bottom-0 h-[3px] rounded-t-full bg-primary" />
+                )}
+              </Link>
+            );
+          })}
+        </nav>
       </div>
     </section>
   );
