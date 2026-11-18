@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { ElementType } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { isCurrentUserAdmin } from "@/actions/admin";
 import { useTheme } from "next-themes";
@@ -64,6 +64,7 @@ export default function Navbar() {
   const [isLoginPopupOpen, setIsLoginPopupOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const pathname = usePathname();
   const router = useRouter();
   const profileRef = useRef<HTMLDivElement>(null);
   const loginPopupRef = useRef<HTMLDivElement>(null);
@@ -152,21 +153,23 @@ export default function Navbar() {
           ))}
         </nav>
 
-        {/* Global Search Input */}
-        <form onSubmit={handleSearch} className="relative hidden flex-1 md:block">
-          <Search size={18} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-white/45" />
-          <input
-            data-global-search="true"
-            type="search"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search laptops, phones, books, cycles, rooms..."
-            className="h-11 w-full rounded-xl border border-gray-200 bg-gray-100 pl-11 pr-24 text-sm font-semibold text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-primary focus:bg-white dark:border-white/10 dark:bg-white/[0.06] dark:text-white dark:placeholder:text-white/35 dark:focus:border-primary/60 dark:focus:bg-white/[0.09]"
-          />
-          <button type="submit" className="absolute right-1.5 top-1.5 h-8 rounded-lg bg-primary px-4 text-xs font-black text-white transition hover:bg-primary-dark active:scale-95">
-            Search
-          </button>
-        </form>
+        {/* Keep one search control visible: the results page has its own full-width search field. */}
+        {pathname !== "/search" && (
+          <form onSubmit={handleSearch} className="relative hidden flex-1 md:block">
+            <Search size={18} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-white/45" />
+            <input
+              data-global-search="true"
+              type="search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search laptops, phones, books, cycles, rooms..."
+              className="h-11 w-full rounded-xl border border-gray-200 bg-gray-100 pl-11 pr-24 text-sm font-semibold text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-primary focus:bg-white dark:border-white/10 dark:bg-white/[0.06] dark:text-white dark:placeholder:text-white/35 dark:focus:border-primary/60 dark:focus:bg-white/[0.09]"
+            />
+            <button type="submit" className="absolute right-1.5 top-1.5 h-8 rounded-lg bg-primary px-4 text-xs font-black text-white transition hover:bg-primary-dark active:scale-95">
+              Search
+            </button>
+          </form>
+        )}
 
         {/* Actions & Dropdowns */}
         <div className="ml-auto flex shrink-0 items-center gap-2">
