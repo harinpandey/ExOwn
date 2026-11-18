@@ -23,6 +23,7 @@ export default async function AdminPage() {
     { name: "AI Rule Engine", description: "Manage the rules used by ExOwn AI features.", href: "/admin/ai-rules", icon: Sparkles },
     { name: "Global Activity Audit", description: "Review critical account, listing, and moderation events.", href: "/admin/activity", icon: Activity },
     { name: "ExOwn Moments Manager", description: "Manage contextual in-app moments and their analytics.", href: "/admin/moments", icon: Sparkles },
+    { name: "Campus Ads Manager", description: "Create and preview image-led sponsored banners before activating campaigns.", href: "/admin/ads", icon: Megaphone },
     { name: "LPU News Manager", description: "Publish campus updates stored in the separate LPU News database.", href: "/admin/lpu-news", icon: Newspaper },
   ];
 
