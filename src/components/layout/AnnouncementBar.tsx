@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { X, Sparkles } from "lucide-react";
 
 const ANNOUNCEMENTS = [
@@ -16,6 +17,7 @@ const ANNOUNCEMENTS = [
 ];
 
 export default function AnnouncementBar() {
+  const pathname = usePathname();
   const [visible, setVisible] = useState(false);
   const announcement = ANNOUNCEMENTS[0];
 
@@ -35,7 +37,7 @@ export default function AnnouncementBar() {
     setVisible(false);
   };
 
-  if (!visible) return null;
+  if (!visible || pathname === "/") return null;
 
   return (
     <div
