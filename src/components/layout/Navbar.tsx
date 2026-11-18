@@ -9,7 +9,6 @@ import { isCurrentUserAdmin } from "@/actions/admin";
 import { useTheme } from "next-themes";
 import {
   Bell,
-  Building2,
   ChevronDown,
   GitCompare,
   Heart,
@@ -28,7 +27,6 @@ import {
   Sun,
   User,
   UserPlus,
-  Users,
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useNotifications } from "@/context/NotificationContext";
@@ -43,11 +41,8 @@ const primaryLinks = [
 const secondaryLinks = [
   { label: "Buy", href: "/search?listingType=SELL" },
   { label: "Sell", href: "/sell" },
-  { label: "Rent", href: "/search?listingType=RENT" },
   { label: "Exchange", href: "/search?exchange=true" },
-  { label: "Housing", href: "/housing" },
   { label: "Roommates", href: "/roommates" },
-  { label: "Services", href: "/search?listingType=SERVICE" },
 ];
 
 import { useLocation } from "@/context/LocationContext";
@@ -74,6 +69,10 @@ export default function Navbar() {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    setSearchQuery(new URLSearchParams(window.location.search).get("q") || "");
+  }, [pathname]);
 
   useEffect(() => {
     let active = true;
@@ -153,23 +152,21 @@ export default function Navbar() {
           ))}
         </nav>
 
-        {/* Keep one search control visible: the results page has its own full-width search field. */}
-        {pathname !== "/search" && (
-          <form onSubmit={handleSearch} className="relative hidden flex-1 md:block">
+        {/* Single global search — used across the entire marketplace. */}
+        <form onSubmit={handleSearch} className="relative hidden min-w-[240px] flex-1 md:block xl:min-w-[340px]">
             <Search size={18} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-white/45" />
             <input
               data-global-search="true"
               type="search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search laptops, phones, books, cycles, rooms..."
+              placeholder="Search products, books, electronics, rooms..."
               className="h-11 w-full rounded-xl border border-gray-200 bg-gray-100 pl-11 pr-24 text-sm font-semibold text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-primary focus:bg-white dark:border-white/10 dark:bg-white/[0.06] dark:text-white dark:placeholder:text-white/35 dark:focus:border-primary/60 dark:focus:bg-white/[0.09]"
             />
             <button type="submit" className="absolute right-1.5 top-1.5 h-8 rounded-lg bg-primary px-4 text-xs font-black text-white transition hover:bg-primary-dark active:scale-95">
               Search
             </button>
-          </form>
-        )}
+        </form>
 
         {/* Actions & Dropdowns */}
         <div className="ml-auto flex shrink-0 items-center gap-2">
@@ -185,24 +182,6 @@ export default function Navbar() {
               {theme === "dark" ? <Sun size={18} className="text-yellow-400" /> : <Moon size={18} className="text-indigo-600" />}
             </button>
           )}
-
-          {/* Housing Link */}
-          <Link
-            href="/housing"
-            className="hidden items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-bold text-gray-700 transition hover:bg-gray-100 hover:text-primary dark:text-white/65 dark:hover:bg-white/[0.06] dark:hover:text-primary md:flex"
-          >
-            <Building2 size={17} />
-            <span className="hidden lg:inline">Housing</span>
-          </Link>
-
-          {/* Roommates Link */}
-          <Link
-            href="/roommates"
-            className="hidden items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-bold text-gray-700 transition hover:bg-gray-100 hover:text-primary dark:text-white/65 dark:hover:bg-white/[0.06] dark:hover:text-primary md:flex"
-          >
-            <Users size={17} />
-            <span className="hidden lg:inline">Roommates</span>
-          </Link>
 
           {/* Chat Link */}
           {user && (
