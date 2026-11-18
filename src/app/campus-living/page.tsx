@@ -10,7 +10,6 @@ const destinations = [
     action: "Explore housing",
     icon: Building2,
     tone: "from-blue-600 to-indigo-700",
-    soft: "bg-blue-500/10 text-blue-600 dark:text-blue-300",
   },
   {
     title: "Find a Roommate",
@@ -20,7 +19,6 @@ const destinations = [
     action: "Find roommates",
     icon: Users,
     tone: "from-violet-600 to-purple-700",
-    soft: "bg-violet-500/10 text-violet-600 dark:text-violet-300",
   },
 ];
 
