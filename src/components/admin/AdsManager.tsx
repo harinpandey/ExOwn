@@ -3,7 +3,6 @@
 import { useState } from "react";
 import {
   CalendarDays,
-  Check,
   Eye,
   ImagePlus,
   Megaphone,
@@ -46,6 +45,7 @@ export default function AdsManager({ initialAds }: { initialAds: AdminAd[] }) {
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [previewAd, setPreviewAd] = useState<AdminAd | null>(null);
   const [form, setForm] = useState<AdminAdInput>(() => {
     const today = new Date();
     const end = new Date(today);
@@ -62,7 +62,8 @@ export default function AdsManager({ initialAds }: { initialAds: AdminAd[] }) {
   });
 
   const updateForm = (key: keyof AdminAdInput, value: string) => {
-    setForm((current) => ({ ...current, [key]: value }));
+    setForm((current) => ({ ...current, [key]: value } as AdminAdInput));
+    setPreviewAd(null);
     setNotice("");
     setError("");
   };
@@ -102,6 +103,8 @@ export default function AdsManager({ initialAds }: { initialAds: AdminAd[] }) {
   };
 
   const image = form.imageUrl.trim() || defaultImage;
+  const preview = previewAd ?? form;
+  const previewImage = preview.imageUrl.trim() || defaultImage;
 
   return (
     <div className="space-y-7">
@@ -165,7 +168,7 @@ export default function AdsManager({ initialAds }: { initialAds: AdminAd[] }) {
           <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-[#E2E8E5] pt-5">
             <p className="max-w-sm text-[11px] leading-5 text-[#4A5D56]">New banners are saved inactive. Preview them first, then activate when approved.</p>
             <div className="flex items-center gap-2">
-              <button type="button" onClick={() => setIsPreviewOpen(true)} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-[#1E5646] bg-white px-3.5 py-2 text-xs font-bold text-[#1E5646] transition hover:bg-[#E6F2EE]">
+              <button type="button" onClick={() => { setPreviewAd(null); setIsPreviewOpen(true); }} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-[#1E5646] bg-white px-3.5 py-2 text-xs font-bold text-[#1E5646] transition hover:bg-[#E6F2EE]">
                 <Eye size={15} /> Preview banner
               </button>
               <button type="submit" disabled={isSaving} className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-[#1E5646] px-4 py-2 text-xs font-bold text-white transition hover:bg-[#174536] disabled:opacity-60">
@@ -245,6 +248,7 @@ export default function AdsManager({ initialAds }: { initialAds: AdminAd[] }) {
                   <p className="mt-0.5 truncate text-[11px] text-[#4A5D56]">{ad.sponsorName}</p>
                   <div className="mt-2 flex items-center justify-between gap-2">
                     <span className="inline-flex items-center gap-1 text-[10px] text-[#4A5D56]"><CalendarDays size={12} /> {formatDate(ad.startDate)} – {formatDate(ad.endDate)}</span>
+                    <button type="button" onClick={() => { setPreviewAd(ad); setIsPreviewOpen(true); }} className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-[#E2E8E5] px-2.5 py-1.5 text-[10px] font-bold text-[#1E5646] hover:bg-[#E6F2EE]"><Eye size={13} /> Preview</button>
                     <button type="button" onClick={() => handleToggle(ad)} className={ad.isActive ? "inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-[#E2E8E5] px-2.5 py-1.5 text-[10px] font-bold text-[#4A5D56] hover:bg-[#F7F9F8]" : "inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-[#1E5646] px-2.5 py-1.5 text-[10px] font-bold text-white hover:bg-[#174536]"}>
                       {ad.isActive ? <><PauseCircle size={13} /> Pause</> : <><PlayCircle size={13} /> Activate</>}
                     </button>
@@ -262,24 +266,24 @@ export default function AdsManager({ initialAds }: { initialAds: AdminAd[] }) {
             <div className="mb-4 flex items-center justify-between gap-3">
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#1E5646]">Preview mode</p>
-                <h2 className="mt-1 text-lg font-extrabold text-[#13221D]">Homepage banner preview</h2>
+                <h2 className="mt-1 text-lg font-extrabold text-[#13221D]">{previewAd ? "Saved banner preview" : "Homepage banner preview"}</h2>
               </div>
               <button type="button" onClick={() => setIsPreviewOpen(false)} aria-label="Close preview" className="flex h-9 w-9 items-center justify-center rounded-full border border-[#E2E8E5] text-[#4A5D56] hover:bg-[#F7F9F8]"><X size={18} /></button>
             </div>
             <div className="relative isolate flex min-h-[250px] overflow-hidden rounded-2xl bg-[#14231C] sm:min-h-[320px]">
-              <img src={image} alt="" className="absolute inset-0 -z-20 h-full w-full object-cover" onError={(event) => { event.currentTarget.style.display = "none"; }} />
+              <img src={previewImage} alt="" className="absolute inset-0 -z-20 h-full w-full object-cover" onError={(event) => { event.currentTarget.style.display = "none"; }} />
               <div className="absolute inset-0 -z-10 bg-gradient-to-r from-[#10251C] via-[#10251C]/85 to-[#10251C]/10" />
               <div className="flex min-h-[250px] w-full flex-col items-start justify-between p-6 text-white sm:min-h-[320px] sm:p-10">
                 <div className="flex w-full items-start justify-between gap-3">
                   <div>
-                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-white/85">{form.sponsorName || "Sponsor name"}</p>
+                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-white/85">{preview.sponsorName || "Sponsor name"}</p>
                     <span className="mt-3 inline-flex rounded-full bg-white/15 px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-white">Sponsored</span>
                   </div>
                   <span className="rounded-md border border-white/25 bg-black/20 px-2.5 py-1.5 text-[10px] font-black text-white">AD</span>
                 </div>
                 <div className="max-w-xl">
-                  <h3 className="text-3xl font-extrabold leading-tight text-white sm:text-4xl">{form.title || "Your banner headline"}</h3>
-                  <p className="mt-3 text-sm text-white/85">{form.placement} placement · {form.linkUrl || "Destination link"}</p>
+                  <h3 className="text-3xl font-extrabold leading-tight text-white sm:text-4xl">{preview.title || "Your banner headline"}</h3>
+                  <p className="mt-3 text-sm text-white/85">{preview.placement} placement · {preview.linkUrl || "Destination link"}</p>
                   <span className="mt-5 inline-flex items-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-extrabold text-[#1E5646]">Learn more <ArrowRightIcon /></span>
                 </div>
               </div>
