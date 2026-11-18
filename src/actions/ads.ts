@@ -10,7 +10,7 @@ export type AdminAdInput = {
   sponsorName: string;
   imageUrl: string;
   linkUrl: string;
-  placement: "HOMEPAGE" | "CATEGORY" | "SEARCH";
+  placement: "HOMEPAGE";
   startDate: string;
   endDate: string;
 };
@@ -78,7 +78,7 @@ export async function createAdminAd(input: AdminAdInput) {
   if (Number.isNaN(startDate.getTime()) || Number.isNaN(endDate.getTime()) || endDate < startDate) {
     return { success: false as const, error: "Check the campaign start and end dates." };
   }
-  if (!["HOMEPAGE", "CATEGORY", "SEARCH"].includes(input.placement)) {
+  if (input.placement !== "HOMEPAGE") {
     return { success: false as const, error: "Choose a valid ad placement." };
   }
 
