@@ -38,27 +38,44 @@ function hasValidAudience(decoded: DecodedIdToken) {
   return true;
 }
 
-export async function verifyFirebaseIdToken(token?: string | null): Promise<DecodedIdToken | null> {
+export type FirebaseIdTokenVerification =
+  | { success: true; decoded: DecodedIdToken }
+  | { success: false; reason: "missing-token" | "admin-unavailable" | "project-mismatch" | "token-rejected"; code?: string };
+
+export async function verifyFirebaseIdTokenResult(token?: string | null): Promise<FirebaseIdTokenVerification> {
   if (!token) {
     console.log("[auth] No token provided to verifyFirebaseIdToken");
-    return null;
+    return { success: false, reason: "missing-token" };
   }
   if (!adminAuth) {
     console.error("[auth] Firebase Admin SDK not initialized (adminAuth is null)");
-    return null;
+    return { success: false, reason: "admin-unavailable" };
   }
 
   try {
     const decoded = await adminAuth.verifyIdToken(token, true);
+    if (!hasValidAudience(decoded)) {
+      return { success: false, reason: "project-mismatch" };
+    }
     console.log(`[auth] ID token verified. UID: ${decoded.uid}, Email: ${decoded.email}, Project ID: ${decoded.aud}`);
-    return hasValidAudience(decoded) ? decoded : null;
-  } catch (error: any) {
-    console.error(`[auth:security] Firebase token verification failed (${error.code || "unknown"}):`, error.message);
-    if (error.code === 'auth/id-token-expired') {
+    return { success: true, decoded };
+  } catch (error: unknown) {
+    const code =
+      error && typeof error === "object" && "code" in error && typeof error.code === "string"
+        ? error.code
+        : "unknown";
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(`[auth:security] Firebase token verification failed (${code}):`, message);
+    if (code === "auth/id-token-expired") {
       console.log("[auth] Token expired");
     }
-    return null;
+    return { success: false, reason: "token-rejected", code };
   }
+}
+
+export async function verifyFirebaseIdToken(token?: string | null): Promise<DecodedIdToken | null> {
+  const result = await verifyFirebaseIdTokenResult(token);
+  return result.success ? result.decoded : null;
 }
 
 export async function verifyFirebaseToken(token?: string | null): Promise<DecodedIdToken | null> {
