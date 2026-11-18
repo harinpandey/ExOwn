@@ -11,10 +11,10 @@ import {
 } from "lucide-react";
 
 const destinations = [
-  { id: "rentals", label: "Rent", href: "/search?listingType=RENT", icon: Bike, tone: "bg-emerald-600 text-white" },
-  { id: "campus-living", label: "PG & Roommates", href: "/campus-living", icon: Building2, tone: "bg-violet-600 text-white" },
-  { id: "travel", label: "Travel", href: "/travel", icon: Plane, tone: "bg-orange-600 text-white" },
-  { id: "news", label: "LPU News", href: "/lpu-news", icon: Newspaper, tone: "bg-blue-700 text-white" },
+  { id: "rentals", label: "Rent", href: "/search?listingType=RENT", icon: Bike, tone: "bg-[#EAF2EF] text-[#2F6F5E]" },
+  { id: "campus-living", label: "PG & Roommates", href: "/campus-living", icon: Building2, tone: "bg-[#EAF2EF] text-[#2F6F5E]" },
+  { id: "travel", label: "Travel", href: "/travel", icon: Plane, tone: "bg-[#EAF2EF] text-[#2F6F5E]" },
+  { id: "news", label: "LPU News", href: "/lpu-news", icon: Newspaper, tone: "bg-[#EAF2EF] text-[#2F6F5E]" },
 ];
 
 export default function ExperienceSwitcher() {
@@ -49,8 +49,8 @@ export default function ExperienceSwitcher() {
             onClick={() => setListingType(destination.id === "rentals" ? "RENT" : "")}
             className={`group flex min-w-fit shrink-0 items-center gap-1.5 rounded-xl border px-2.5 py-1.5 transition hover:-translate-y-0.5 hover:shadow-sm sm:gap-2 sm:px-3 lg:px-3.5 ${
               active
-                ? "border-primary/25 bg-primary/10 text-primary dark:bg-primary/15"
-                : "border-gray-100 bg-gray-100/90 text-gray-700 hover:border-gray-200 hover:bg-gray-100 dark:border-white/5 dark:bg-white/[0.05] dark:text-white/75 dark:hover:bg-white/[0.09]"
+                ? "border-[#DCE5E1] bg-[#EAF2EF] text-[#2F6F5E]"
+                : "border-[#DCE5E1] bg-white text-[#4B5E57] hover:border-[#B8C9C1] hover:bg-[#EAF2EF]"
             }`}
           >
             <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg sm:h-8 sm:w-8 ${destination.tone}`}>
@@ -60,7 +60,7 @@ export default function ExperienceSwitcher() {
               {destination.label}
             </span>
             {destination.id === "news" && (
-              <span className="rounded-full bg-blue-100 px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wide text-blue-700 dark:bg-blue-400/15 dark:text-blue-300">
+              <span className="rounded-full bg-[#EAF2EF] px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wide text-[#2F6F5E]">
                 LPU
               </span>
             )}
