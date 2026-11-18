@@ -4,7 +4,6 @@ import {
   BadgeCheck,
   Clapperboard,
   Music,
-  Info,
   ShieldCheck,
   Ticket,
   Trophy,
