@@ -229,6 +229,8 @@ export const CATEGORIES: Category[] = [
         ]
       },
       { id: "helmets", name: "Helmets" },
+      { id: "locks", name: "Locks" },
+      { id: "tyres", name: "Tyres" },
       { id: "spare-parts", name: "Spare Parts" },
       { id: "accessories", name: "Accessories" },
       { id: "other", name: "Other" }
