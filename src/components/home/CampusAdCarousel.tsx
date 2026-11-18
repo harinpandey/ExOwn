@@ -39,7 +39,7 @@ function AdCard({ ad }: { ad: CampusAdSlide }) {
           onError={(event) => { event.currentTarget.style.display = "none"; }}
         />
       ) : null}
-      <div className="absolute inset-0 -z-10 bg-gradient-to-r from-[#10251C] via-[#10251C]/90 to-[#10251C]/20" />
+      <div className="campus-ad-overlay absolute inset-0 -z-10" />
       <div className="flex h-full w-full flex-col items-start justify-between p-5 text-white sm:p-6">
         <div className="flex w-full items-start justify-between gap-3">
           <div className="min-w-0">

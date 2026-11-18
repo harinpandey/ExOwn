@@ -14,7 +14,6 @@ import {
 } from "lucide-react";
 
 import VisualCategoryRail from "@/components/home/VisualCategoryRail";
-import HeroCampaign from "@/components/home/HeroCampaign";
 import LpuNewsPreview from "@/components/home/LpuNewsPreview";
 import TrendingDeals from "@/components/home/TrendingDeals";
 import MovingOutDeals from "@/components/home/MovingOutDeals";
@@ -52,15 +51,12 @@ export default function Home() {
       {/* 1. Visual Category Rail (Merchandising Top Bar) */}
       <VisualCategoryRail />
 
-      {/* 2. Hero Campaign */}
-      <HeroCampaign />
-
-      {/* 3. Image-led campus partner ads */}
+      {/* 2. Full-width image-led campus advertising */}
       <Suspense fallback={null}>
         <CampusSpotlight />
       </Suspense>
 
-      {/* 4. LPU News (independent news database) */}
+      {/* 3. LPU News (independent news database) */}
       <LpuNewsPreview />
 
       {/* 4. Trending on Campus Shelf */}
