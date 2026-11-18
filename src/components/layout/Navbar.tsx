@@ -31,17 +31,14 @@ import {
 import { AnimatePresence, motion } from "framer-motion";
 import { useNotifications } from "@/context/NotificationContext";
 
-const primaryLinks = [
-  { label: "Marketplace", href: "/search" },
-  { label: "Rent", href: "/search?listingType=RENT" },
-  { label: "Housing", href: "/housing" },
-  { label: "Services", href: "/search?listingType=SERVICE" },
-];
-
 const secondaryLinks = [
+  { label: "Marketplace", href: "/search" },
   { label: "Buy", href: "/search?listingType=SELL" },
+  { label: "Rent", href: "/search?listingType=RENT" },
   { label: "Exchange", href: "/search?exchange=true" },
+  { label: "Housing", href: "/housing" },
   { label: "Roommates", href: "/roommates" },
+  { label: "Services", href: "/search?listingType=SERVICE" },
 ];
 
 import { useLocation } from "@/context/LocationContext";
@@ -50,7 +47,7 @@ import { CAMPUS_DIRECTORY } from "@/config/campuses";
 export default function Navbar() {
   const { user, logout } = useAuth();
   const { notifications, unreadCount, markRead, markAllRead } = useNotifications();
-  const { selectedCampus, setSelectedCampus } = useLocation();
+  const { selectedCampus, setSelectedCampus, campusObj } = useLocation();
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -113,20 +110,25 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/95 text-gray-900 backdrop-blur-xl transition-colors dark:border-white/10 dark:bg-[#07090d]/90 dark:text-white">
-      <div className="container mx-auto flex min-h-16 items-center gap-3 px-4 py-3">
-        {/* Brand Logo + Campus Selector */}
-        <div className="flex min-w-0 shrink-0 items-center gap-3">
-          <Link href="/" className="flex items-center gap-2" aria-label="ExOwn home">
-            <img src="/exown-logo.png" alt="ExOwn" className="h-8 w-auto" />
+      <div className="container mx-auto px-4">
+        {/* Brand and campus location row */}
+        <div className="flex items-center justify-between gap-4 border-b border-gray-200/80 py-2.5 dark:border-white/10">
+          <Link href="/" className="flex shrink-0 items-center gap-2" aria-label="ExOwn home">
+            <img src="/exown-logo.png" alt="ExOwn" className="h-9 w-auto sm:h-10" />
           </Link>
 
-          <label className="relative hidden cursor-pointer items-center gap-2 rounded-xl border border-gray-200 bg-gray-100 px-3 py-1.5 text-xs font-bold text-gray-700 transition hover:border-primary focus-within:ring-2 focus-within:ring-primary/30 dark:border-white/10 dark:bg-white/[0.04] dark:text-white/80 sm:flex">
-            <MapPin size={15} className="pointer-events-none text-primary" aria-hidden="true" />
-            <span className="sr-only">Campus</span>
-            <span className="max-w-44 truncate text-xs font-bold text-gray-900 dark:text-white" aria-hidden="true">
-              {CAMPUS_DIRECTORY.find((campus) => campus.name === selectedCampus)?.shortName || selectedCampus}
+          <label className="relative flex max-w-[62%] cursor-pointer items-center gap-2.5 rounded-xl px-2.5 py-1.5 text-left transition hover:bg-gray-100 focus-within:ring-2 focus-within:ring-primary/30 dark:hover:bg-white/[0.05] sm:max-w-none sm:px-3">
+            <MapPin size={19} className="shrink-0 text-primary" aria-hidden="true" />
+            <span className="min-w-0">
+              <span className="block text-[9px] font-black uppercase tracking-[0.14em] text-gray-400 dark:text-white/40">Your campus</span>
+              <span className="block max-w-[180px] truncate text-xs font-extrabold text-gray-900 dark:text-white sm:max-w-[260px] sm:text-sm">
+                {campusObj.shortName}
+                <span className="ml-1.5 hidden font-medium text-gray-500 dark:text-white/45 sm:inline">
+                  · {campusObj.city}, {campusObj.state}
+                </span>
+              </span>
             </span>
-            <ChevronDown size={12} className="pointer-events-none select-none text-gray-400 dark:text-white/45" aria-hidden="true" />
+            <ChevronDown size={14} className="shrink-0 text-gray-400 dark:text-white/45" aria-hidden="true" />
             <select
               aria-label="Select campus"
               value={selectedCampus}
@@ -142,33 +144,26 @@ export default function Navbar() {
           </label>
         </div>
 
-        {/* Navigation Links */}
-        <nav className="hidden items-center gap-5 px-2 text-xs font-black uppercase tracking-wider text-gray-600 dark:text-white/55 lg:flex">
-          {primaryLinks.map((link) => (
-            <Link key={link.label} href={link.href} onClick={() => setSearchQuery("")} className="transition hover:text-primary dark:hover:text-primary">
-              {link.label}
-            </Link>
-          ))}
-        </nav>
-
-        {/* Single global search — used across the entire marketplace. */}
-        <form onSubmit={handleSearch} className="relative hidden min-w-[240px] flex-1 md:block xl:min-w-[340px]">
+        {/* Single wide global search and essential actions */}
+        <div className="flex flex-col gap-3 py-3 sm:flex-row sm:items-center">
+        <form onSubmit={handleSearch} className="relative flex min-w-0 w-full flex-1">
             <Search size={18} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-white/45" />
             <input
               data-global-search="true"
               type="search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search products, books, electronics, rooms..."
-              className="h-11 w-full rounded-xl border border-gray-200 bg-gray-100 pl-11 pr-24 text-sm font-semibold text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-primary focus:bg-white dark:border-white/10 dark:bg-white/[0.06] dark:text-white dark:placeholder:text-white/35 dark:focus:border-primary/60 dark:focus:bg-white/[0.09]"
+              placeholder="Search products, books, electronics, cycles, rooms..."
+              aria-label="Search ExOwn listings"
+              className="h-12 w-full rounded-xl border border-gray-200 bg-gray-100 pl-12 pr-28 text-sm font-semibold text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-primary focus:bg-white dark:border-white/10 dark:bg-white/[0.06] dark:text-white dark:placeholder:text-white/35 dark:focus:border-primary/60 dark:focus:bg-white/[0.09] sm:text-base"
             />
-            <button type="submit" className="absolute right-1.5 top-1.5 h-8 rounded-lg bg-primary px-4 text-xs font-black text-white transition hover:bg-primary-dark active:scale-95">
+            <button type="submit" className="absolute right-1.5 top-1.5 h-9 rounded-lg bg-primary px-5 text-xs font-black text-white transition hover:bg-primary-dark active:scale-95">
               Search
             </button>
         </form>
 
         {/* Actions & Dropdowns */}
-        <div className="ml-auto flex shrink-0 items-center gap-2">
+        <div className="flex shrink-0 items-center justify-end gap-1.5 sm:ml-auto sm:gap-2">
           {/* Theme Switcher Toggle */}
           {mounted && (
             <button
@@ -416,23 +411,26 @@ export default function Navbar() {
             </div>
           )}
         </div>
+        </div>
       </div>
 
-      {/* Secondary Bar */}
-      <div className="hidden border-t border-gray-200 bg-gray-50 dark:border-white/10 dark:bg-[#07090d]/70 md:block">
-        <nav className="container mx-auto flex items-center gap-2 overflow-x-auto px-4 py-2 no-scrollbar">
-          {secondaryLinks.map((link) => (
-            <Link
-              key={link.label}
-              href={link.href}
-              onClick={() => setSearchQuery("")}
-              className="whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-bold text-gray-600 transition hover:bg-gray-200 hover:text-primary dark:text-white/55 dark:hover:bg-white/[0.06] dark:hover:text-primary"
-            >
-              {link.label}
-            </Link>
-          ))}
-        </nav>
-      </div>
+      {/* Secondary navigation stays on inner pages; the homepage has its visual category rail. */}
+      {pathname !== "/" && (
+        <div className="border-t border-gray-200 bg-gray-50 dark:border-white/10 dark:bg-[#07090d]/70">
+          <nav className="container mx-auto flex items-center gap-2 overflow-x-auto px-4 py-2 no-scrollbar" aria-label="Marketplace navigation">
+            {secondaryLinks.map((link) => (
+              <Link
+                key={link.label}
+                href={link.href}
+                onClick={() => setSearchQuery("")}
+                className="whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-bold text-gray-600 transition hover:bg-gray-200 hover:text-primary dark:text-white/55 dark:hover:bg-white/[0.06] dark:hover:text-primary"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+        </div>
+      )}
 
     </header>
   );
