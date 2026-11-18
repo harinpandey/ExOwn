@@ -40,7 +40,6 @@ const primaryLinks = [
 
 const secondaryLinks = [
   { label: "Buy", href: "/search?listingType=SELL" },
-  { label: "Sell", href: "/sell" },
   { label: "Exchange", href: "/search?exchange=true" },
   { label: "Roommates", href: "/roommates" },
 ];
@@ -146,7 +145,7 @@ export default function Navbar() {
         {/* Navigation Links */}
         <nav className="hidden items-center gap-5 px-2 text-xs font-black uppercase tracking-wider text-gray-600 dark:text-white/55 lg:flex">
           {primaryLinks.map((link) => (
-            <Link key={link.label} href={link.href} className="transition hover:text-primary dark:hover:text-primary">
+            <Link key={link.label} href={link.href} onClick={() => setSearchQuery("")} className="transition hover:text-primary dark:hover:text-primary">
               {link.label}
             </Link>
           ))}
@@ -426,6 +425,7 @@ export default function Navbar() {
             <Link
               key={link.label}
               href={link.href}
+              onClick={() => setSearchQuery("")}
               className="whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-bold text-gray-600 transition hover:bg-gray-200 hover:text-primary dark:text-white/55 dark:hover:bg-white/[0.06] dark:hover:text-primary"
             >
               {link.label}
