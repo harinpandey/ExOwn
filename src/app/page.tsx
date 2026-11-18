@@ -15,6 +15,7 @@ import {
 
 import VisualCategoryRail from "@/components/home/VisualCategoryRail";
 import HeroCampaign from "@/components/home/HeroCampaign";
+import LpuNewsPreview from "@/components/home/LpuNewsPreview";
 import TrendingDeals from "@/components/home/TrendingDeals";
 import MovingOutDeals from "@/components/home/MovingOutDeals";
 import RecentlyAdded from "@/components/home/RecentlyAdded";
@@ -51,8 +52,11 @@ export default function Home() {
       {/* 1. Visual Category Rail (Merchandising Top Bar) */}
       <VisualCategoryRail />
 
-      {/* 2. Hero Campaign (Campus Tech Drop & Key Themes) */}
+      {/* 2. Hero Campaign */}
       <HeroCampaign />
+
+      {/* 3. LPU News (independent news database) */}
+      <LpuNewsPreview />
 
       {/* 4. Trending on Campus Shelf */}
       <ProductShelf
