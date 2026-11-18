@@ -76,8 +76,9 @@ export async function getSubcategories(categoryId: string) {
 
 export async function getCategoryBySlug(slug: string, campusId?: string) {
   try {
+    const normalizedSlug = ["bikes-transport", "cars"].includes(slug) ? "vehicles" : slug;
     const category = await withRetry(() => prisma.category.findUnique({
-      where: { slug },
+      where: { slug: normalizedSlug },
       include: {
         subcategories: {
           orderBy: { name: "asc" },
@@ -124,7 +125,20 @@ export async function searchProducts(opts: {
   pageSize?: number;
 }) {
   try {
-    const { query, tokens, categorySlug, subcategorySlug, condition, listingType, minPrice, maxPrice, sortBy, campusId, exchange, movingOut } = opts;
+    const { query, tokens, condition, listingType, minPrice, maxPrice, sortBy, campusId, exchange, movingOut } = opts;
+    const categorySlug =
+      opts.categorySlug && ["bikes-transport", "cars"].includes(opts.categorySlug)
+        ? "vehicles"
+        : opts.categorySlug;
+    const legacySubcategoryAliases: Record<string, string> = {
+      bicycle: "cycles",
+      bike: "cycles",
+      helmet: "helmets",
+      "car-accessories": "accessories",
+    };
+    const subcategorySlug = opts.subcategorySlug
+      ? legacySubcategoryAliases[opts.subcategorySlug] || opts.subcategorySlug
+      : undefined;
     const page = Math.max(1, opts.page || 1);
     const pageSize = Math.min(Math.max(opts.pageSize || 24, 1), 50);
     const andFilters: any[] = [];
