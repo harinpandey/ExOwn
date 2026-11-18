@@ -29,6 +29,7 @@ export default function ChatInboxPage() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [convLoading, setConvLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [conversationsError, setConversationsError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -43,8 +44,10 @@ export default function ChatInboxPage() {
           const { getConversations } = await import("@/actions/chat");
           const data = await getConversations(user.uid);
           setConversations(data as Conversation[]);
+          setConversationsError(null);
         } catch (err) {
           console.error("Failed to fetch conversations:", err);
+          setConversationsError("Unable to load your conversations. Please refresh and try again.");
         } finally {
           setConvLoading(false);
         }
@@ -87,6 +90,18 @@ export default function ChatInboxPage() {
           {convLoading ? (
             <div className="flex items-center justify-center h-full">
               <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+            </div>
+          ) : conversationsError ? (
+            <div className="h-full flex flex-col items-center justify-center text-center text-amber-700 dark:text-amber-300 p-8 gap-3">
+              <MessageSquare size={40} className="opacity-60" />
+              <p className="font-semibold">{conversationsError}</p>
+              <button
+                type="button"
+                onClick={() => window.location.reload()}
+                className="px-4 py-2 rounded-xl bg-primary text-white text-sm font-semibold"
+              >
+                Retry
+              </button>
             </div>
           ) : filtered.length > 0 ? (
             <ul className="divide-y divide-gray-200 dark:divide-gray-800">
