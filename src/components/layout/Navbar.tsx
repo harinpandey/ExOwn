@@ -64,7 +64,6 @@ export default function Navbar() {
   const [isLoginPopupOpen, setIsLoginPopupOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [showMobileSearch, setShowMobileSearch] = useState(false);
   const router = useRouter();
   const profileRef = useRef<HTMLDivElement>(null);
   const loginPopupRef = useRef<HTMLDivElement>(null);
@@ -171,16 +170,6 @@ export default function Navbar() {
 
         {/* Actions & Dropdowns */}
         <div className="ml-auto flex shrink-0 items-center gap-2">
-          {/* Mobile search toggle */}
-          <button
-            type="button"
-            onClick={() => setShowMobileSearch((value) => !value)}
-            className="tap-target rounded-xl text-gray-600 transition hover:bg-gray-100 hover:text-primary dark:text-white/65 dark:hover:bg-white/[0.06] md:hidden"
-            aria-label="Open search"
-          >
-            <Search size={20} />
-          </button>
-
           {/* Theme Switcher Toggle */}
           {mounted && (
             <button
@@ -463,31 +452,6 @@ export default function Navbar() {
         </nav>
       </div>
 
-      {/* Mobile Search Dropdown */}
-      <AnimatePresence>
-        {showMobileSearch && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            className="overflow-hidden border-t border-gray-200 bg-white dark:border-white/10 dark:bg-[#07090d] md:hidden"
-          >
-            <form onSubmit={handleSearch} className="container mx-auto flex gap-2 px-4 py-3">
-              <input
-                data-global-search="true"
-                type="search"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search laptops, phones, books, cycles, rooms..."
-                className="min-w-0 flex-1 rounded-xl border border-gray-200 bg-gray-100 px-4 py-3 text-sm font-semibold text-gray-900 outline-none placeholder:text-gray-400 focus:border-primary dark:border-white/10 dark:bg-white/[0.06] dark:text-white dark:placeholder:text-white/35"
-              />
-              <button type="submit" className="rounded-xl bg-primary px-4 text-xs font-black text-white transition hover:bg-primary-dark">
-                Go
-              </button>
-            </form>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </header>
   );
 }
