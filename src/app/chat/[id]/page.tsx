@@ -49,6 +49,7 @@ function parseLiveLocationMessage(content: string): LiveLocationMessageData | nu
 }
 
 interface ConversationData {
+  currentUserId: string;
   partner: {
     id: string;
     name: string | null;
@@ -93,6 +94,7 @@ function ChatRoomContent({ partnerId }: { partnerId: string }) {
   const [messages, setMessages] = useState<any[]>([]);
   const [contextData, setContextData] = useState<ConversationData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [chatFetchError, setChatFetchError] = useState<string | null>(null);
   const [newMessage, setNewMessage] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [isActioningOffer, setIsActioningOffer] = useState(false);
@@ -135,8 +137,10 @@ function ChatRoomContent({ partnerId }: { partnerId: string }) {
       if (context) {
         setContextData(context as ConversationData);
       }
+      setChatFetchError(null);
     } catch (err) {
       console.error("Chat fetch error:", err);
+      setChatFetchError("Unable to load messages. Check your connection and retry.");
     } finally {
       setLoading(false);
     }
@@ -187,12 +191,18 @@ function ChatRoomContent({ partnerId }: { partnerId: string }) {
     if (!newMessage.trim() || !user || isSending) return;
 
     const content = newMessage.trim();
-    setNewMessage("");
     setIsSending(true);
 
     try {
       const { chatService } = await import("@/lib/chat-utils");
-      await chatService.send(user.uid, partnerId, content);
+      const result = await chatService.send(user.uid, partnerId, content);
+
+      if (!result?.success) {
+        toast.error(result?.error || "Message could not be sent. Please try again.");
+        return;
+      }
+
+      setNewMessage("");
       await fetchChatData();
     } catch (err) {
       console.error("Failed to send message:", err);
@@ -234,7 +244,8 @@ function ChatRoomContent({ partnerId }: { partnerId: string }) {
   const avatarLetter = partnerName[0].toUpperCase();
   const product = contextData?.product;
   const offer = contextData?.offer;
-  const isSeller = product && user ? product.sellerId === user.uid : false;
+  const currentDbUserId = contextData?.currentUserId || user?.uid;
+  const isSeller = product && currentDbUserId ? product.sellerId === currentDbUserId : false;
 
   return (
     <div className="container mx-auto px-4 py-4 md:py-6 max-w-4xl h-[calc(100dvh-176px)] md:h-[calc(100vh-160px)] flex flex-col min-h-0">
@@ -492,6 +503,21 @@ function ChatRoomContent({ partnerId }: { partnerId: string }) {
         )}
 
         {/* Message Thread */}
+        {chatFetchError && (
+          <div
+            role="alert"
+            className="mx-4 mt-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-200 flex items-center justify-between gap-3"
+          >
+            <span>{chatFetchError}</span>
+            <button
+              type="button"
+              onClick={() => void fetchChatData()}
+              className="font-bold underline underline-offset-2 whitespace-nowrap"
+            >
+              Retry
+            </button>
+          </div>
+        )}
         <div ref={messagesContainerRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 md:p-6 space-y-4 bg-[#f8fafc] dark:bg-[#09090b]">
           {messages.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center p-8 space-y-3">
@@ -505,7 +531,7 @@ function ChatRoomContent({ partnerId }: { partnerId: string }) {
             </div>
           ) : (
             messages.map((msg) => {
-              const isMe = msg.senderId === user?.uid;
+              const isMe = msg.senderId === currentDbUserId;
               const liveLocData = parseLiveLocationMessage(msg.content);
 
               if (liveLocData) {
