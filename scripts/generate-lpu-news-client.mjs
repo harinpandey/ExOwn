@@ -12,5 +12,5 @@ const newsEnv = {
 execFileSync(
   prismaCommand,
   ["prisma", "generate", "--schema=prisma/lpu-news/schema.prisma"],
-  { env: newsEnv, stdio: "inherit" }
+  { env: newsEnv, stdio: "inherit", shell: process.platform === "win32" }
 );
