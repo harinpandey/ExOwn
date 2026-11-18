@@ -60,6 +60,49 @@ export async function getCategories() {
   }
 }
 
+export async function ensureTicketCategory() {
+  // Ticket listings use the existing Product model; ensure the category exists
+  // on installations that have not rerun the seed script yet.
+  await requireUser();
+
+  return withRetry(async () => {
+    const category = await prisma.category.upsert({
+      where: { slug: "tickets-events" },
+      update: { name: "Tickets & Events", icon: "ticket" },
+      create: {
+        name: "Tickets & Events",
+        slug: "tickets-events",
+        icon: "ticket",
+      },
+    });
+
+    const subcategories = [
+      "Movie Tickets",
+      "Concerts & Festivals",
+      "Cricket & Sports",
+      "College Events",
+      "Other Event Tickets",
+    ];
+
+    for (const name of subcategories) {
+      await prisma.subcategory.upsert({
+        where: {
+          name_categoryId: { name, categoryId: category.id },
+        },
+        update: { slug: name.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") },
+        create: {
+          name,
+          slug: name.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
+          categoryId: category.id,
+        },
+      });
+    }
+
+    invalidateCachePrefix("home:categories");
+    return category;
+  });
+}
+
 export async function getSubcategories(categoryId: string) {
   try {
     const subcategories = await withRetry(() => prisma.subcategory.findMany({
