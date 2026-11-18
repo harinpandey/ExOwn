@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useNotifications } from "@/context/NotificationContext";
+import ExperienceSwitcher from "@/components/layout/ExperienceSwitcher";
 
 const secondaryLinks = [
   { label: "Marketplace", href: "/search" },
@@ -111,6 +112,7 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/95 text-gray-900 backdrop-blur-xl transition-colors dark:border-white/10 dark:bg-[#07090d]/90 dark:text-white">
       <div className="container mx-auto px-4">
+        <ExperienceSwitcher />
         {/* Brand and campus location row */}
         <div className="flex items-center justify-between gap-4 border-b border-gray-200/80 py-2.5 dark:border-white/10">
           <Link href="/" className="flex shrink-0 items-center gap-2" aria-label="ExOwn home">
