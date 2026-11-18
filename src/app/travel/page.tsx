@@ -3,12 +3,12 @@ import {
   ArrowRight,
   BadgeCheck,
   Clapperboard,
-  Concert,
+  Music,
   Info,
   ShieldCheck,
   Ticket,
   Trophy,
-  University,
+  GraduationCap,
   TrainFront,
 } from "lucide-react";
 
@@ -29,7 +29,7 @@ const ticketTypes = [
     title: "Concerts & festivals",
     description: "Pass on eligible music, festival and live-show tickets.",
     category: "concert-tickets",
-    icon: Concert,
+    icon: Music,
     tag: "Live events",
   },
   {
@@ -43,7 +43,7 @@ const ticketTypes = [
     title: "College events",
     description: "Share eligible fest, club and campus-event passes.",
     category: "campus-event-tickets",
-    icon: University,
+    icon: GraduationCap,
     tag: "On campus",
   },
 ];
