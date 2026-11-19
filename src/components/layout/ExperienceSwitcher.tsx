@@ -28,7 +28,7 @@ export default function ExperienceSwitcher() {
   return (
     <nav
       aria-label="ExOwn services"
-      className="grid min-w-0 flex-1 grid-cols-4 items-center gap-2 sm:gap-2.5 lg:gap-3"
+      className="grid min-w-0 max-w-[960px] flex-1 grid-cols-4 items-center gap-1.5 sm:gap-2"
     >
       {destinations.map((destination) => {
         const Icon = destination.icon;
@@ -45,20 +45,20 @@ export default function ExperienceSwitcher() {
             href={destination.href}
             aria-current={active ? "page" : undefined}
             onClick={() => setListingType(destination.id === "rentals" ? "RENT" : "")}
-            className={`flex h-12 min-w-0 w-full items-center justify-center gap-1.5 rounded-xl border px-1.5 transition-colors duration-200 sm:gap-2 sm:px-2.5 lg:h-[52px] lg:gap-2.5 lg:px-3 ${
+            className={`flex h-10 min-w-0 w-full items-center justify-center gap-1.5 rounded-xl border px-1.5 transition-colors duration-200 sm:h-11 sm:gap-2 sm:px-2 ${
               active
                 ? "border-[#C8E6D9] bg-[#DDF1E8] text-[#174536] shadow-sm"
                 : "border-[#E2E8E5] bg-white text-[#4A5D56] hover:border-[#C8D9D1] hover:bg-[#F7F9F8]"
             }`}
           >
             <span
-              className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors ${
+              className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md transition-colors ${
                 active ? "bg-[#C8E6D9] text-[#174536]" : "bg-[#E6F2EE] text-[#1E5646]"
               }`}
             >
-              <Icon size={18} strokeWidth={2} aria-hidden="true" />
+              <Icon size={16} strokeWidth={2} aria-hidden="true" />
             </span>
-            <span className="min-w-0 truncate whitespace-nowrap text-[10px] font-extrabold sm:text-[11px] lg:text-sm">
+            <span className="min-w-0 truncate whitespace-nowrap text-[10px] font-extrabold sm:text-xs lg:text-[13px]">
               {destination.label}
             </span>
             {destination.id === "news" && (
