@@ -4,17 +4,17 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
-  Bike,
-  Building2,
+  HousePlus,
+  KeyRound,
   Newspaper,
-  Ticket,
+  TicketCheck,
 } from "lucide-react";
 
 const destinations = [
-  { id: "rentals", label: "Rent", href: "/search?listingType=RENT", icon: Bike, tone: "bg-[#E6F2EE] text-[#1E5646]" },
-  { id: "campus-living", label: "PG & Roommates", href: "/campus-living", icon: Building2, tone: "bg-[#E6F2EE] text-[#1E5646]" },
-  { id: "tickets", label: "Ticket", href: "/travel", icon: Ticket, tone: "bg-[#E6F2EE] text-[#1E5646]" },
-  { id: "news", label: "LPU News", href: "/lpu-news", icon: Newspaper, tone: "bg-[#E6F2EE] text-[#1E5646]" },
+  { id: "rentals", label: "Rent", href: "/search?listingType=RENT", icon: KeyRound },
+  { id: "campus-living", label: "PG & Roommates", href: "/campus-living", icon: HousePlus },
+  { id: "tickets", label: "Ticket", href: "/travel", icon: TicketCheck },
+  { id: "news", label: "LPU News", href: "/lpu-news", icon: Newspaper },
 ];
 
 export default function ExperienceSwitcher() {
@@ -28,16 +28,14 @@ export default function ExperienceSwitcher() {
   return (
     <nav
       aria-label="ExOwn services"
-      className="flex min-w-0 flex-1 items-center justify-start gap-2 overflow-x-auto no-scrollbar sm:gap-2.5 lg:gap-3"
+      className="grid min-w-0 flex-1 grid-cols-4 items-center gap-2 sm:gap-2.5 lg:gap-3"
     >
       {destinations.map((destination) => {
         const Icon = destination.icon;
         const active =
-          destination.id === "marketplace"
-            ? pathname === "/" || (pathname === "/search" && listingType !== "RENT")
-            : destination.id === "rentals"
-              ? pathname === "/search" && listingType === "RENT"
-              : destination.id === "campus-living"
+          destination.id === "rentals"
+            ? pathname === "/search" && listingType === "RENT"
+            : destination.id === "campus-living"
               ? ["/campus-living", "/housing", "/roommates"].some((route) => pathname === route || pathname.startsWith(`${route}/`))
               : pathname === destination.href || pathname.startsWith(`${destination.href}/`);
 
@@ -47,20 +45,26 @@ export default function ExperienceSwitcher() {
             href={destination.href}
             aria-current={active ? "page" : undefined}
             onClick={() => setListingType(destination.id === "rentals" ? "RENT" : "")}
-            className={`group flex min-w-fit shrink-0 items-center gap-1.5 rounded-xl border px-2.5 py-1.5 transition hover:border-[#CAD8D2] sm:gap-2 sm:px-3 lg:px-3.5 ${
+            className={`flex h-12 min-w-0 w-full items-center justify-center gap-1.5 rounded-xl border px-1.5 transition-colors duration-200 sm:gap-2 sm:px-2.5 lg:h-[52px] lg:gap-2.5 lg:px-3 ${
               active
-                ? "border-[#1E5646] bg-[#1E5646] text-white"
-                : "border-[#E2E8E5] bg-white text-[#4A5D56] hover:border-[#CAD8D2] hover:bg-[#F7F9F8]"
+                ? "border-[#C8E6D9] bg-[#DDF1E8] text-[#174536] shadow-sm"
+                : "border-[#E2E8E5] bg-white text-[#4A5D56] hover:border-[#C8D9D1] hover:bg-[#F7F9F8]"
             }`}
           >
-            <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg sm:h-8 sm:w-8 ${destination.tone}`}>
-              <Icon size={17} strokeWidth={2.1} />
+            <span
+              className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors ${
+                active ? "bg-[#C8E6D9] text-[#174536]" : "bg-[#E6F2EE] text-[#1E5646]"
+              }`}
+            >
+              <Icon size={18} strokeWidth={2} aria-hidden="true" />
             </span>
-            <span className="whitespace-nowrap text-[11px] font-extrabold sm:text-xs lg:text-sm">
+            <span className="min-w-0 truncate whitespace-nowrap text-[10px] font-extrabold sm:text-[11px] lg:text-sm">
               {destination.label}
             </span>
             {destination.id === "news" && (
-              <span className="rounded-full bg-[#E6F2EE] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-[#1E5646]">
+              <span className={`hidden shrink-0 rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide sm:inline-flex ${
+                active ? "bg-[#C8E6D9] text-[#174536]" : "bg-[#E6F2EE] text-[#1E5646]"
+              }`}>
                 LPU
               </span>
             )}
