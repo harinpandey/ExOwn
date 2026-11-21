@@ -307,9 +307,8 @@ function LoginContent() {
     <main className="min-h-[calc(100vh-72px)] bg-[#F3F6F5] dark:bg-[#0B1511] px-4 py-8 sm:py-12 flex items-center justify-center">
       <section className="w-full max-w-5xl overflow-hidden rounded-2xl border border-[#E1E8E4] dark:border-[#26352E] bg-white dark:bg-[#111D17] shadow-sm grid md:grid-cols-[0.88fr_1.12fr]">
         <aside className="relative min-h-[230px] md:min-h-[590px] overflow-hidden bg-[#1E5646] text-white p-7 sm:p-10 flex flex-col">
-          <Link href="/" className="inline-flex items-center gap-2.5 w-fit">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/15 border border-white/20 text-white font-black text-lg">E</span>
-            <span className="text-xl font-bold tracking-tight">ExOwn</span>
+          <Link href="/" className="inline-flex items-center gap-2.5 w-fit" aria-label="ExOwn home">
+            <img src="/exown-logo.png" alt="ExOwn" className="h-10 w-auto max-w-[170px] object-contain" />
           </Link>
           <div className="relative z-10 mt-8 md:mt-12 max-w-sm">
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#D6E8DF]">Exchange. Own. Repeat.</p>
