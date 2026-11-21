@@ -7,6 +7,9 @@ import {
   signInWithRedirect, 
   getRedirectResult,
   GoogleAuthProvider,
+  sendSignInLinkToEmail,
+  isSignInWithEmailLink,
+  signInWithEmailLink,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { ensureServerSession } from "@/lib/auth-session-client";
@@ -31,6 +34,92 @@ function LoginContent() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [email, setEmail] = useState("");
+  const [emailLinkSent, setEmailLinkSent] = useState(false);
+  const [isEmailLinkSignIn, setIsEmailLinkSignIn] = useState(false);
+
+  const completeEmailLinkSignIn = async (emailAddress: string) => {
+    if (!auth || !isSignInWithEmailLink(auth, window.location.href)) return;
+    setIsLoading(true);
+    setError("");
+    try {
+      const result = await signInWithEmailLink(auth, emailAddress.trim(), window.location.href);
+      window.localStorage.removeItem("exown_email_for_signin");
+      const savedRedirect = window.localStorage.getItem("exown_email_link_redirect") || redirect;
+      window.localStorage.removeItem("exown_email_link_redirect");
+      await ensureServerSession(result.user);
+      const { syncUser } = await import("@/actions/user");
+      await syncUser({
+        id: result.user.uid,
+        email: result.user.email,
+        name: result.user.displayName,
+        image: result.user.photoURL,
+      });
+      window.history.replaceState({}, document.title, "/login");
+      window.location.href = savedRedirect.startsWith("/login") ? "/" : savedRedirect;
+    } catch (err: any) {
+      console.error("Email-link sign-in error:", err);
+      if (err.code === "auth/account-exists-with-different-credential") {
+        setError("This email already uses another sign-in method. Continue with Google using this email to access your existing ExOwn account.");
+      } else if (err.code === "auth/invalid-action-code") {
+        setError("This sign-in link has expired or was already used. Request a new email link.");
+      } else {
+        setError(err.message || "Email sign-in failed. Please request a new link.");
+      }
+      setIsLoading(false);
+    }
+  };
+
+  const handleSendEmailLink = async () => {
+    if (!agreedToTerms) {
+      setError("Please agree to the Terms & Conditions and Privacy Policy to continue.");
+      return;
+    }
+    if (!auth) {
+      setError("Firebase Authentication is not configured.");
+      return;
+    }
+    const emailAddress = email.trim().toLowerCase();
+    if (!emailAddress) {
+      setError("Enter your email address to continue.");
+      return;
+    }
+    setIsLoading(true);
+    setError("");
+    setEmailLinkSent(false);
+    try {
+      await sendSignInLinkToEmail(auth, emailAddress, {
+        url: `${window.location.origin}/login`,
+        handleCodeInApp: true,
+      });
+      window.localStorage.setItem("exown_email_for_signin", emailAddress);
+      window.localStorage.setItem("exown_email_link_redirect", redirect);
+      setEmailLinkSent(true);
+    } catch (err: any) {
+      console.error("Send email sign-in link error:", err);
+      if (err.code === "auth/operation-not-allowed") {
+        setError("Email-link sign-in is not enabled in Firebase yet. Enable Email link (passwordless sign-in) in Firebase Authentication settings.");
+      } else {
+        setError(err.message || "Could not send the sign-in link. Please try again.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!auth || !isSignInWithEmailLink(auth, window.location.href)) return;
+    setIsEmailLinkSignIn(true);
+    const savedEmail = window.localStorage.getItem("exown_email_for_signin");
+    if (savedEmail) {
+      setEmail(savedEmail);
+      void completeEmailLinkSignIn(savedEmail);
+    } else {
+      setError("Please enter the email address where you received this sign-in link.");
+    }
+  // Process a Firebase email sign-in link once on page load.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Handle redirect result after mobile sign-in returns
   useEffect(() => {
@@ -203,6 +292,50 @@ function LoginContent() {
             </>
           )}
         </button>
+
+        <div className="my-5 flex items-center gap-3 text-xs text-gray-400">
+          <span className="h-px flex-1 bg-gray-200 dark:bg-gray-700" />
+          <span>OR USE EMAIL</span>
+          <span className="h-px flex-1 bg-gray-200 dark:bg-gray-700" />
+        </div>
+
+        <div className="space-y-3 text-left">
+          <label htmlFor="email-sign-in" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+            University email
+          </label>
+          <input
+            id="email-sign-in"
+            type="email"
+            autoComplete="email"
+            inputMode="email"
+            value={email}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              setEmailLinkSent(false);
+            }}
+            placeholder="you@university.edu"
+            className="w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3 text-sm text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-primary"
+            disabled={isLoading}
+          />
+          {emailLinkSent && (
+            <div className="rounded-xl bg-green-50 dark:bg-green-900/20 p-3 text-sm text-green-700 dark:text-green-300" role="status">
+              Sign-in link sent. Check your inbox and open the link on this device.
+            </div>
+          )}
+          <button
+            type="button"
+            onClick={() => isEmailLinkSignIn ? void completeEmailLinkSignIn(email) : void handleSendEmailLink()}
+            disabled={isLoading || !auth || !agreedToTerms || !email.trim()}
+            className="w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/70 px-4 py-3 font-bold text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isLoading ? (
+              <span className="inline-block h-5 w-5 border-2 border-primary border-t-transparent rounded-full animate-spin align-middle" />
+            ) : isEmailLinkSignIn ? "Complete email sign-in" : "Email me a sign-in link"}
+          </button>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            No password required. The link verifies access to your email address.
+          </p>
+        </div>
 
         <p className="text-sm text-gray-500 mt-6">
           By signing in, you agree to our{" "}
