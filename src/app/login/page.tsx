@@ -10,6 +10,9 @@ import {
   sendSignInLinkToEmail,
   isSignInWithEmailLink,
   signInWithEmailLink,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  sendPasswordResetEmail,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { ensureServerSession } from "@/lib/auth-session-client";
@@ -37,6 +40,9 @@ function LoginContent() {
   const [email, setEmail] = useState("");
   const [emailLinkSent, setEmailLinkSent] = useState(false);
   const [isEmailLinkSignIn, setIsEmailLinkSignIn] = useState(false);
+  const [password, setPassword] = useState("");
+  const [authMode, setAuthMode] = useState<"signin" | "signup">("signin");
+  const [passwordResetSent, setPasswordResetSent] = useState(false);
 
   const completeEmailLinkSignIn = async (emailAddress: string) => {
     if (!auth || !isSignInWithEmailLink(auth, window.location.href)) return;
@@ -102,6 +108,83 @@ function LoginContent() {
       } else {
         setError(err.message || "Could not send the sign-in link. Please try again.");
       }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleEmailPasswordAuth = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!agreedToTerms) {
+      setError("Please agree to the Terms & Conditions and Privacy Policy to continue.");
+      return;
+    }
+    if (!auth) {
+      setError("Firebase Authentication is not configured.");
+      return;
+    }
+    const emailAddress = email.trim().toLowerCase();
+    if (!emailAddress || !password) {
+      setError("Enter your email address and password.");
+      return;
+    }
+    if (authMode === "signup" && password.length < 6) {
+      setError("Choose a password with at least 6 characters.");
+      return;
+    }
+    setIsLoading(true);
+    setError("");
+    setPasswordResetSent(false);
+    try {
+      const result = authMode === "signup"
+        ? await createUserWithEmailAndPassword(auth, emailAddress, password)
+        : await signInWithEmailAndPassword(auth, emailAddress, password);
+      await ensureServerSession(result.user);
+      const { syncUser } = await import("@/actions/user");
+      await syncUser({
+        id: result.user.uid,
+        email: result.user.email,
+        name: result.user.displayName,
+        image: result.user.photoURL,
+      });
+      window.location.href = redirect;
+    } catch (err: any) {
+      console.error("Email/password sign-in error:", err);
+      const code = err?.code;
+      if (code === "auth/invalid-credential" || code === "auth/wrong-password" || code === "auth/user-not-found") {
+        setError("Email or password is incorrect. If you originally signed in with Google, use Continue with Google.");
+      } else if (code === "auth/email-already-in-use") {
+        setError("This email already has an account. Sign in instead, or use Google if you registered with Google.");
+      } else if (code === "auth/weak-password") {
+        setError("Choose a stronger password (at least 6 characters).");
+      } else if (code === "auth/operation-not-allowed") {
+        setError("Email/password sign-in is not enabled in Firebase Authentication yet.");
+      } else {
+        setError(err?.message || "Email/password authentication failed. Please try again.");
+      }
+      setIsLoading(false);
+    }
+  };
+
+  const handlePasswordReset = async () => {
+    if (!auth) {
+      setError("Firebase Authentication is not configured.");
+      return;
+    }
+    const emailAddress = email.trim().toLowerCase();
+    if (!emailAddress) {
+      setError("Enter your email address first, then choose Forgot password.");
+      return;
+    }
+    setIsLoading(true);
+    setError("");
+    setPasswordResetSent(false);
+    try {
+      await sendPasswordResetEmail(auth, emailAddress);
+      setPasswordResetSent(true);
+    } catch (err: any) {
+      console.error("Password reset error:", err);
+      setError(err?.message || "Could not send a password reset email.");
     } finally {
       setIsLoading(false);
     }
@@ -272,11 +355,57 @@ function LoginContent() {
             </div>
           )}
 
-          <button
-            onClick={handleGoogleSignIn}
-            disabled={isLoading || !auth || !agreedToTerms}
-            className="flex w-full items-center justify-center gap-3 rounded-xl border border-[#DCE4DF] bg-white px-4 py-3.5 text-sm font-semibold text-[#23352D] transition hover:bg-[#F7F9F8] focus:outline-none focus:ring-2 focus:ring-[#1E5646]/30 disabled:cursor-not-allowed disabled:opacity-50 dark:border-[#34443B] dark:bg-[#17241C] dark:text-[#F1F5F2] dark:hover:bg-[#1D2C22]"
-          >
+          <form onSubmit={handleEmailPasswordAuth} className="space-y-3">
+            <label htmlFor="email-sign-in" className="block text-sm font-semibold text-[#34483D] dark:text-[#D9E3DC]">Email address</label>
+            <input
+              id="email-sign-in"
+              type="email"
+              autoComplete="email"
+              inputMode="email"
+              value={email}
+              onChange={(e) => { setEmail(e.target.value); setEmailLinkSent(false); setPasswordResetSent(false); }}
+              placeholder="you@example.com"
+              disabled={isLoading}
+              required
+              className="w-full rounded-xl border border-[#DCE4DF] bg-white px-4 py-3.5 text-sm text-[#13221D] outline-none transition placeholder:text-[#9AA7A0] focus:border-[#1E5646] focus:ring-4 focus:ring-[#1E5646]/10 disabled:opacity-60 dark:border-[#34443B] dark:bg-[#17241C] dark:text-[#F1F5F2]"
+            />
+            <label htmlFor="password-sign-in" className="block pt-1 text-sm font-semibold text-[#34483D] dark:text-[#D9E3DC]">Password</label>
+            <input
+              id="password-sign-in"
+              type="password"
+              autoComplete={authMode === "signup" ? "new-password" : "current-password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder={authMode === "signup" ? "Create a password (6+ characters)" : "Enter your password"}
+              disabled={isLoading}
+              required
+              minLength={6}
+              className="w-full rounded-xl border border-[#DCE4DF] bg-white px-4 py-3.5 text-sm text-[#13221D] outline-none transition placeholder:text-[#9AA7A0] focus:border-[#1E5646] focus:ring-4 focus:ring-[#1E5646]/10 disabled:opacity-60 dark:border-[#34443B] dark:bg-[#17241C] dark:text-[#F1F5F2]"
+            />
+            <div className="flex items-center justify-between text-xs">
+              <button type="button" onClick={() => setAuthMode(authMode === "signin" ? "signup" : "signin")} className="font-semibold text-[#1E5646] hover:underline dark:text-[#A9CDBB]">
+                {authMode === "signin" ? "Create account" : "Already have an account? Sign in"}
+              </button>
+              {authMode === "signin" && <button type="button" onClick={handlePasswordReset} disabled={isLoading} className="font-semibold text-[#1E5646] hover:underline disabled:opacity-50 dark:text-[#A9CDBB]">Forgot password?</button>}
+            </div>
+            {passwordResetSent && <p role="status" className="rounded-lg bg-emerald-50 px-3 py-2 text-xs text-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-300">If an account exists for this email, Firebase has sent a password reset link.</p>}
+            <button type="submit" disabled={isLoading || !auth || !agreedToTerms} className="w-full rounded-xl bg-[#1E5646] px-4 py-3.5 text-sm font-bold text-white transition hover:bg-[#174637] focus:outline-none focus:ring-4 focus:ring-[#1E5646]/15 disabled:cursor-not-allowed disabled:opacity-45">
+              {isLoading ? "Please wait…" : authMode === "signup" ? "Create account with email" : "Sign in with email"}
+            </button>
+          </form>
+
+          <div className="my-6 flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#9AA7A0]">
+            <span className="h-px flex-1 bg-[#E4EAE6] dark:bg-[#2B3A31]" />
+            <span>Or use another method</span>
+            <span className="h-px flex-1 bg-[#E4EAE6] dark:bg-[#2B3A31]" />
+          </div>
+
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <button
+              onClick={handleGoogleSignIn}
+              disabled={isLoading || !auth || !agreedToTerms}
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#DCE4DF] bg-white px-3 py-3 text-sm font-semibold text-[#23352D] transition hover:bg-[#F7F9F8] focus:outline-none focus:ring-2 focus:ring-[#1E5646]/30 disabled:cursor-not-allowed disabled:opacity-50 dark:border-[#34443B] dark:bg-[#17241C] dark:text-[#F1F5F2] dark:hover:bg-[#1D2C22]"
+            >
             {isLoading ? (
               <span className="h-5 w-5 animate-spin rounded-full border-2 border-[#1E5646] border-t-transparent" />
             ) : (
@@ -292,40 +421,30 @@ function LoginContent() {
             )}
           </button>
 
-          <div className="my-6 flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#9AA7A0]">
-            <span className="h-px flex-1 bg-[#E4EAE6] dark:bg-[#2B3A31]" />
-            <span>Or continue with email</span>
-            <span className="h-px flex-1 bg-[#E4EAE6] dark:bg-[#2B3A31]" />
-          </div>
-
-          <div className="space-y-2.5">
-            <label htmlFor="email-sign-in" className="block text-sm font-semibold text-[#34483D] dark:text-[#D9E3DC]">Email address</label>
-            <input
-              id="email-sign-in"
-              type="email"
-              autoComplete="email"
-              inputMode="email"
-              value={email}
-              onChange={(e) => { setEmail(e.target.value); setEmailLinkSent(false); }}
-              placeholder="you@example.com"
-              disabled={isLoading}
-              className="w-full rounded-xl border border-[#DCE4DF] bg-white px-4 py-3.5 text-sm text-[#13221D] outline-none transition placeholder:text-[#9AA7A0] focus:border-[#1E5646] focus:ring-4 focus:ring-[#1E5646]/10 disabled:opacity-60 dark:border-[#34443B] dark:bg-[#17241C] dark:text-[#F1F5F2]"
-            />
-            {emailLinkSent && (
-              <div role="status" className="rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 py-3 text-sm leading-5 text-emerald-800 dark:border-emerald-900/60 dark:bg-emerald-950/30 dark:text-emerald-300">
-                Sign-in link sent. Open it from this device to finish signing in.
-              </div>
+            {isLoading ? (
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#1E5646] border-t-transparent" />
+            ) : (
+              <>
+                <svg viewBox="0 0 48 48" aria-hidden="true" className="h-5 w-5">
+                  <path fill="#4285F4" d="M43.6 24.5c0-1.4-.1-2.8-.4-4.1H24v7.8h11a9.4 9.4 0 0 1-4.1 6.2v5.1h6.7c3.9-3.6 6-8.9 6-15Z"/>
+                  <path fill="#34A853" d="M24 44c5.5 0 10.1-1.8 13.5-4.9l-6.7-5.1c-1.8 1.2-4.1 2-6.8 2-5.2 0-9.6-3.5-11.2-8.2H5.9v5.2A20 20 0 0 0 24 44Z"/>
+                  <path fill="#FBBC05" d="M12.8 27.8a12 12 0 0 1 0-7.6V15H5.9a20 20 0 0 0 0 18l6.9-5.2Z"/>
+                  <path fill="#EA4335" d="M24 12.1c3 0 5.7 1 7.8 3.1l5.9-5.9C34.1 5.9 29.5 4 24 4A20 20 0 0 0 5.9 15l6.9 5.2c1.6-4.7 6-8.1 11.2-8.1Z"/>
+                </svg>
+                Google
+              </>
             )}
-            <button
-              type="button"
-              onClick={() => isEmailLinkSignIn ? void completeEmailLinkSignIn(email) : void handleSendEmailLink()}
-              disabled={isLoading || !auth || !agreedToTerms || !email.trim()}
-              className="w-full rounded-xl bg-[#1E5646] px-4 py-3.5 text-sm font-bold text-white transition hover:bg-[#174637] focus:outline-none focus:ring-4 focus:ring-[#1E5646]/15 disabled:cursor-not-allowed disabled:opacity-45"
-            >
-              {isLoading ? "Please wait…" : isEmailLinkSignIn ? "Complete email sign-in" : "Email me a sign-in link"}
-            </button>
-            <p className="pt-1 text-xs leading-5 text-[#74837B] dark:text-[#A3B2AA]">No password needed. The secure link confirms access to your email inbox.</p>
+          </button>
+          <button
+            type="button"
+            onClick={() => isEmailLinkSignIn ? void completeEmailLinkSignIn(email) : void handleSendEmailLink()}
+            disabled={isLoading || !auth || !agreedToTerms || !email.trim()}
+            className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#DCE4DF] bg-white px-3 py-3 text-sm font-semibold text-[#23352D] transition hover:bg-[#F7F9F8] focus:outline-none focus:ring-2 focus:ring-[#1E5646]/30 disabled:cursor-not-allowed disabled:opacity-50 dark:border-[#34443B] dark:bg-[#17241C] dark:text-[#F1F5F2] dark:hover:bg-[#1D2C22]"
+          >
+            {emailLinkSent ? "Link sent — check email" : "Email link"}
+          </button>
           </div>
+          <p className="mt-3 text-xs leading-5 text-[#74837B] dark:text-[#A3B2AA]">Google and email-link sign-in are available as alternatives. Email/password is verified securely by Firebase Authentication.</p>
 
           <div className="mt-6 rounded-xl bg-[#F7F9F8] px-4 py-3.5 dark:bg-[#17241C]">
             <label htmlFor="terms-consent-checkbox" className="flex cursor-pointer items-start gap-3 text-xs leading-5 text-[#52645A] dark:text-[#B8C7BE]">
