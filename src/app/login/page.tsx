@@ -14,7 +14,7 @@ import {
 import { auth } from "@/lib/firebase";
 import { ensureServerSession } from "@/lib/auth-session-client";
 import { useAuth } from "@/context/AuthContext";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Bike, BookOpen, ShoppingBag } from "lucide-react";
 import Link from "next/link";
 
 // Detect if browser is mobile or likely to block popups
@@ -350,7 +350,8 @@ function LoginContent() {
         </div>
       </section>
     </main>
-  );}
+  );
+}
 
 export default function LoginPage() {
   return (
