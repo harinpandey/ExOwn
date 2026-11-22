@@ -515,14 +515,23 @@ export async function getProductById(id: string) {
  */
 export async function revealSellerPhoneNumber(productId: string) {
   try {
-    await requireUser();
-
+    const actor = await requireUser();
     const product = await prisma.product.findUnique({
       where: { id: productId },
-      select: { seller: { select: { phone: true } } },
+      select: { sellerId: true, seller: { select: { phone: true } } },
     });
-
     if (!product) return { success: false, error: "Listing not found." };
+    if (product.sellerId === actor.uid) {
+      return { success: false, error: "Your phone number is managed from the listing chat." };
+    }
+
+    const grant = await prisma.phoneShare.findUnique({
+      where: { productId_buyerId: { productId, buyerId: actor.uid } },
+      select: { sellerId: true, revokedAt: true },
+    });
+    if (!grant || grant.sellerId !== product.sellerId || grant.revokedAt) {
+      return { success: false, error: "The seller has not shared their phone number with you. Ask them in chat." };
+    }
 
     const phone = product.seller.phone?.trim();
     if (!phone) return { success: false, error: "The seller has not added a contact number." };
