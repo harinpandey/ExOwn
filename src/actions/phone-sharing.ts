@@ -19,6 +19,18 @@ export async function setPhoneShare(productId: string, buyerId: string, allow: b
     if (!buyerId || buyerId === actor.uid) {
       return { success: false, error: "Choose the buyer from this conversation." };
     }
+    const conversationExists = await prisma.message.findFirst({
+      where: {
+        OR: [
+          { senderId: actor.uid, receiverId: buyerId },
+          { senderId: buyerId, receiverId: actor.uid },
+        ],
+      },
+      select: { id: true },
+    });
+    if (!conversationExists) {
+      return { success: false, error: "Phone sharing is available after you have started messaging this buyer." };
+    }
 
     if (allow) {
       await withRetry(() => prisma.phoneShare.upsert({
