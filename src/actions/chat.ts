@@ -36,7 +36,9 @@ export async function getConversations(userId: string) {
       if (msg.content.startsWith("EXOWN_CHAT_MEDIA:")) {
         try {
           const media = JSON.parse(msg.content.slice("EXOWN_CHAT_MEDIA:".length));
-          displayLastMessage = `${Array.isArray(media.images) && media.images.length ? "📷 Photo" : ""}${media.text ? `${media.images?.length ? ": " : ""}${media.text}` : ""}` || "📷 Photo";
+          const text = typeof media.text === "string" ? media.text.trim() : "";
+          const count = Array.isArray(media.images) ? media.images.length : 0;
+          displayLastMessage = count ? `📷 ${count} photo${count > 1 ? "s" : ""}${text ? ` · ${text}` : ""}` : text || "📷 Photo";
         } catch { displayLastMessage = "📷 Photo"; }
       }
       try {
@@ -145,11 +147,11 @@ export async function sendMessage(senderId: string, receiverId: string, content:
     const canonicalSenderId = actor.uid;
 
     const cleanContent = sanitizeString(content);
-    if (!cleanContent.trim() && imageUrls.length === 0) {
-      return { success: false, error: "Write a message or attach a photo." };
-    }
     if (!Array.isArray(imageUrls) || imageUrls.length > 5) {
       return { success: false, error: "Attach up to 5 images per message." };
+    }
+    if (!cleanContent.trim() && imageUrls.length === 0) {
+      return { success: false, error: "Write a message or attach a photo." };
     }
     const safeImageUrls = imageUrls.filter((url) => {
       try {
