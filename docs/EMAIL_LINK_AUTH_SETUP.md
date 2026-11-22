@@ -15,6 +15,15 @@ Before enabling this feature in production:
 
 The login page sends a Firebase sign-in link to the entered email. The user should open the link in the same browser/device where they requested it; if local email storage is unavailable, the page asks them to re-enter the same email address.
 
+## Email/password sign-in configuration
+
+The redesigned login page also offers email + password sign-in, account creation, and password reset through **Firebase Authentication**.
+
+1. In **Authentication → Sign-in method → Email/Password**, enable the **Email/Password** provider (password sign-in). Keep the separate **Email link (passwordless sign-in)** toggle enabled if you want to retain the email-link option.
+2. Passwords are sent directly to Firebase Authentication over its SDK flow. ExOwn's application database does not receive or store the user's password; Firebase Auth validates the credential and returns the authenticated Firebase user.
+3. Email/password users can create an account from the login page. Existing users can sign in, and **Forgot password?** sends Firebase's reset email.
+4. A Google-only account should continue using Google unless the user separately establishes an email/password credential through Firebase's supported flow. The page does not silently link providers or change existing credentials.
+
 ## Existing Google accounts and account safety
 
 - Google sign-in remains available and its current popup/redirect fallback is unchanged.

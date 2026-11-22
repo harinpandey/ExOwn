@@ -25,8 +25,9 @@ export const metadata: Metadata = {
   title: "ExOwn – Exchange. Own. Repeat.",
   description: "ExOwn is a student marketplace platform for exchange, ownership, reuse, and circular commerce.",
   icons: {
-    icon: "/exown-icon.png",
-    apple: "/exown-icon.png",
+    icon: [{ url: "/favicon-32.png?v=1", sizes: "32x32", type: "image/png" }],
+    shortcut: [{ url: "/favicon-32.png?v=1", type: "image/png" }],
+    apple: [{ url: "/exown-icon.png", sizes: "512x512", type: "image/png" }],
   },
 };
 
@@ -43,11 +44,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`} suppressHydrationWarning>
       <body className="min-h-full flex flex-col bg-background text-foreground exown-shell">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="light"
-          enableSystem={false}
-        >
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
           <AuthProvider>
             <LocationProvider>
               <NotificationProvider>
