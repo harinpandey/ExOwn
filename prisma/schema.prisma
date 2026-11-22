@@ -59,6 +59,10 @@ model User {
   wishlist                     Wishlist[]
   liveLocationSessionsAsSeller LiveLocationSession[] @relation("LiveLocationSeller")
   liveLocationSessionsAsBuyer  LiveLocationSession[] @relation("LiveLocationBuyer")
+  phoneSharesAsSeller          PhoneShare[]          @relation("PhoneShareSeller")
+  phoneSharesAsBuyer           PhoneShare[]          @relation("PhoneShareBuyer")
+  reviewsWritten               SellerReview[]        @relation("ReviewAuthor")
+  reviewsReceived              SellerReview[]        @relation("ReviewSeller")
 }
 
 model Profile {
