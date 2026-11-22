@@ -33,6 +33,12 @@ export async function getConversations(userId: string) {
     messages.forEach(msg => {
       const partner = msg.senderId === canonicalUserId ? msg.receiver : msg.sender;
       let displayLastMessage = msg.content;
+      if (msg.content.startsWith("EXOWN_CHAT_MEDIA:")) {
+        try {
+          const media = JSON.parse(msg.content.slice("EXOWN_CHAT_MEDIA:".length));
+          displayLastMessage = `${Array.isArray(media.images) && media.images.length ? "📷 Photo" : ""}${media.text ? `${media.images?.length ? ": " : ""}${media.text}` : ""}` || "📷 Photo";
+        } catch { displayLastMessage = "📷 Photo"; }
+      }
       try {
         if (msg.content.includes("LIVE_LOCATION_STARTED")) {
           const parsed = JSON.parse(msg.content);
@@ -180,7 +186,7 @@ export async function sendMessage(senderId: string, receiverId: string, content:
         userId: receiverId,
         type: "MESSAGE",
         title: "New Message",
-        content: `${message.sender.name || 'Someone'} sent you a message: "${content.substring(0, 50)}${content.length > 50 ? '...' : ''}"`,
+        content: `${message.sender.name || "Someone"} sent you ${safeImageUrls.length ? `${safeImageUrls.length} photo${safeImageUrls.length > 1 ? "s" : ""}` : "a message"}${cleanContent ? `: "${cleanContent.substring(0, 50)}${cleanContent.length > 50 ? "..." : ""}"` : ""}`,
         link: `/chat?partner=${canonicalSenderId}`
       });
     } catch (notifErr) {
