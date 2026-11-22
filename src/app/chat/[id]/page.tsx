@@ -214,27 +214,73 @@ function ChatRoomContent({ partnerId }: { partnerId: string }) {
     }
   }, [messages, loading, user?.uid]);
 
+  const handleSelectAttachments = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const selected = Array.from(event.target.files || []);
+    event.target.value = "";
+    const accepted: { file: File; previewUrl: string }[] = [];
+    for (const file of selected) {
+      if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+        toast.error(`${file.name}: choose a JPG, PNG, or WEBP image.`);
+        continue;
+      }
+      if (file.size > 8 * 1024 * 1024) {
+        toast.error(`${file.name}: image must be 8 MB or smaller.`);
+        continue;
+      }
+      accepted.push({ file, previewUrl: URL.createObjectURL(file) });
+    }
+    setAttachments((current) => {
+      const combined = [...current, ...accepted];
+      if (combined.length > 5) {
+        combined.slice(5).forEach((item) => URL.revokeObjectURL(item.previewUrl));
+        toast.error("You can attach up to 5 images per message.");
+      }
+      return combined.slice(0, 5);
+    });
+  };
+
+  const removeAttachment = (previewUrl: string) => {
+    URL.revokeObjectURL(previewUrl);
+    setAttachments((current) => current.filter((item) => item.previewUrl !== previewUrl));
+  };
+
+  const uploadChatImage = async (file: File): Promise<string> => {
+    const signature = await getCloudinarySignature("ExOwn_chat_attachments");
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("api_key", signature.apiKey);
+    formData.append("timestamp", String(signature.timestamp));
+    formData.append("signature", signature.signature);
+    formData.append("folder", "ExOwn_chat_attachments");
+    formData.append("allowed_formats", signature.allowed_formats);
+    const response = await fetch("https://api.cloudinary.com/v1_1/" + signature.cloudName + "/image/upload", { method: "POST", body: formData });
+    const data = await response.json();
+    if (!response.ok || !data.secure_url) throw new Error(data.error?.message || "Image upload failed.");
+    return data.secure_url as string;
+  };
+
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newMessage.trim() || !user || isSending) return;
-
+    if ((!newMessage.trim() && attachments.length === 0) || !user || isSending) return;
     const content = newMessage.trim();
+    const selectedAttachments = [...attachments];
     setIsSending(true);
-
     try {
+      const imageUrls: string[] = [];
+      for (const item of selectedAttachments) imageUrls.push(await uploadChatImage(item.file));
       const { chatService } = await import("@/lib/chat-utils");
-      const result = await chatService.send(user.uid, partnerId, content);
-
+      const result = await chatService.send(user.uid, partnerId, content, imageUrls);
       if (!result?.success) {
         toast.error(result?.error || "Message could not be sent. Please try again.");
         return;
       }
-
+      selectedAttachments.forEach((item) => URL.revokeObjectURL(item.previewUrl));
+      setAttachments([]);
       setNewMessage("");
       await fetchChatData();
     } catch (err) {
-      console.error("Failed to send message:", err);
-      toast.error("Failed to send message. Please try again.");
+      console.error("Failed to send message with attachments:", err);
+      toast.error(err instanceof Error ? err.message : "Failed to send message. Please try again.");
     } finally {
       setIsSending(false);
     }
