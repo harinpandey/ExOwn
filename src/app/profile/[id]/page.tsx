@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ShieldCheck, Package, MapPin, Calendar, ArrowLeft, CheckCircle2, User } from "lucide-react";
 import ProductCard from "@/components/ui/ProductCard";
+import SellerReviewsSection from "@/components/profile/SellerReviewsSection";
 
 export default function PublicProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -183,6 +184,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ id: st
 
         {/* Main Content: Active Listings by this seller */}
         <div className="md:col-span-2 space-y-6">
+          <SellerReviewsSection sellerId={id} />
           <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-white/10 p-6 shadow-sm">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">

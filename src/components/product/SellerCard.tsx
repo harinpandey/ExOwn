@@ -6,7 +6,6 @@ import {
   Calendar,
   User,
   MessageSquare,
-  Phone,
   ChevronDown,
   Star,
   Package,
@@ -15,7 +14,6 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
-import { revealSellerPhoneNumber } from "@/actions/product";
 
 interface SellerCardProps {
   seller: any;
@@ -24,9 +22,6 @@ interface SellerCardProps {
 
 export default function SellerCard({ seller, productId }: SellerCardProps) {
   const [expanded, setExpanded] = useState(false);
-  const [phoneNumber, setPhoneNumber] = useState<string | null>(null);
-  const [phoneLoading, setPhoneLoading] = useState(false);
-  const [phoneError, setPhoneError] = useState("");
 
   if (!seller) return null;
 
@@ -44,25 +39,6 @@ export default function SellerCard({ seller, productId }: SellerCardProps) {
     : null;
   const collegeName = profile?.collegeName;
   const course = profile?.course;
-
-  const handleRevealPhone = async () => {
-    setPhoneLoading(true);
-    setPhoneError("");
-    try {
-      const result = await revealSellerPhoneNumber(productId);
-      if ("phone" in result && typeof result.phone === "string") {
-        setPhoneNumber(result.phone);
-      } else if ("error" in result) {
-        setPhoneError(result.error || "Unable to load the seller's contact number.");
-      } else {
-        setPhoneError("Unable to load the seller's contact number.");
-      }
-    } catch {
-      setPhoneError("Unable to load the seller's contact number.");
-    } finally {
-      setPhoneLoading(false);
-    }
-  };
 
   return (
     <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-white/10 dark:bg-[#10141b]">
@@ -174,41 +150,6 @@ export default function SellerCard({ seller, productId }: SellerCardProps) {
               <Calendar size={13} /> Member since {memberSince}
             </p>
           )}
-
-          <div className="mt-4">
-            {phoneNumber ? (
-              <a
-                href={"tel:" + phoneNumber}
-                className="flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 py-2.5 text-sm font-bold text-emerald-800 transition hover:bg-emerald-100 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-300"
-              >
-                <Phone size={15} /> Call {phoneNumber}
-              </a>
-            ) : (
-              <button
-                type="button"
-                onClick={handleRevealPhone}
-                disabled={phoneLoading}
-                className="flex w-full items-center justify-center gap-2 rounded-xl border border-gray-200 bg-gray-50 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-100 disabled:cursor-wait disabled:opacity-60 dark:border-white/10 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
-              >
-                <Phone size={15} />
-                {phoneLoading ? "Loading contact..." : "Show phone number"}
-              </button>
-            )}
-            {phoneError && (
-              <p className="mt-2 text-center text-xs text-rose-600 dark:text-rose-400">
-                {phoneError}
-                {phoneError.includes("Sign in") && (
-                  <>
-                    {" "}
-                    <Link href={"/login?redirect=/product/" + productId} className="font-bold underline">Sign in</Link>
-                  </>
-                )}
-              </p>
-            )}
-            <p className="mt-2 text-center text-[10px] text-gray-400 dark:text-gray-500">
-              Contact details are shown only to signed-in ExOwn members.
-            </p>
-          </div>
 
           <Link
             href={"/chat/" + seller.id + "?product=" + productId}
