@@ -133,21 +133,39 @@ export async function getChatHistory(userId: string, partnerId: string) {
   }
 }
 
-export async function sendMessage(senderId: string, receiverId: string, content: string) {
+export async function sendMessage(senderId: string, receiverId: string, content: string, imageUrls: string[] = []) {
   try {
     const actor = await requireSameUser(senderId);
     const canonicalSenderId = actor.uid;
 
     const cleanContent = sanitizeString(content);
-    if (!cleanContent.trim()) {
-      return { success: false, error: "Message cannot be empty" };
+    if (!cleanContent.trim() && imageUrls.length === 0) {
+      return { success: false, error: "Write a message or attach a photo." };
     }
+    if (!Array.isArray(imageUrls) || imageUrls.length > 5) {
+      return { success: false, error: "Attach up to 5 images per message." };
+    }
+    const safeImageUrls = imageUrls.filter((url) => {
+      try {
+        const parsed = new URL(url);
+        return parsed.protocol === "https:" && parsed.hostname === "res.cloudinary.com" && parsed.pathname.includes("/image/upload/");
+      } catch {
+        return false;
+      }
+    });
+    if (safeImageUrls.length !== imageUrls.length) {
+      return { success: false, error: "One or more attached images are not valid ExOwn uploads." };
+    }
+    const storedContent = safeImageUrls.length
+      ? "EXOWN_CHAT_MEDIA:" + JSON.stringify({ text: cleanContent, images: safeImageUrls })
+      : cleanContent;
 
     const message = await withRetry(() => prisma.message.create({
       data: {
         senderId: canonicalSenderId,
         receiverId,
-        content: cleanContent
+        content: storedContent,
+        imageUrl: safeImageUrls[0] || null
       },
       include: {
         sender: { select: { name: true } }
