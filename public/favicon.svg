@@ -1,3 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
-  <image href="/exown-icon.png" x="0" y="0" width="256" height="256" preserveAspectRatio="xMidYMid meet"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="exown" x1="18" y1="128" x2="238" y2="128" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#075bff"/>
+      <stop offset="0.48" stop-color="#087fd6"/>
+      <stop offset="1" stop-color="#28bd42"/>
+    </linearGradient>
+  </defs>
+  <g fill="none" stroke="url(#exown)" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M128 128 C98 92 75 72 52 91 C28 111 29 148 52 168 C75 188 99 165 128 128 C157 91 181 72 204 92 C227 112 227 148 204 168 C181 188 157 165 128 128" stroke-width="17"/>
+    <path d="M101 128 C94 112 77 105 64 114 C51 123 51 139 62 149 C74 160 91 154 101 142" stroke-width="11"/>
+    <path d="M173 112 L204 145 M204 112 L173 145" stroke-width="14"/>
+  </g>
 </svg>
