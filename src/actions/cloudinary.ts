@@ -11,6 +11,7 @@ const ALLOWED_FOLDERS = new Set([
   "ExOwn_profiles",
   "ExOwn_exchange_offers",
   "ExOwn_reviews",
+  "ExOwn_chat_attachments",
 ]);
 
 cloudinary.config({
