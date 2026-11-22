@@ -19,8 +19,8 @@ export const chatService = {
    * Sends a message.
    * Can be replaced with a WebSocket emit in the future.
    */
-  async send(senderId: string, receiverId: string, content: string) {
-    return await sendMessage(senderId, receiverId, content);
+  async send(senderId: string, receiverId: string, content: string, imageUrls: string[] = []) {
+    return await sendMessage(senderId, receiverId, content, imageUrls);
   },
 
   /**
