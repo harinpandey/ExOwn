@@ -20,8 +20,11 @@ export async function getPublicSellerReviews(sellerId: string) {
         transactionRecord: { select: { product: { select: { title: true } } } },
       },
     }));
-    const total = await prisma.sellerReview.count({ where: { sellerId } });
-    const average = total ? rows.reduce((sum, review) => sum + review.rating, 0) / total : 0;
+    const [total, aggregate] = await Promise.all([
+      prisma.sellerReview.count({ where: { sellerId } }),
+      prisma.sellerReview.aggregate({ where: { sellerId }, _avg: { rating: true } }),
+    ]);
+    const average = aggregate._avg.rating || 0;
     return { reviews: rows, total, average };
   } catch (error) {
     console.error("[Reviews] Could not load seller reviews:", error);
