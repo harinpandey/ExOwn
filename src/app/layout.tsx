@@ -25,8 +25,8 @@ export const metadata: Metadata = {
   title: "ExOwn – Exchange. Own. Repeat.",
   description: "ExOwn is a student marketplace platform for exchange, ownership, reuse, and circular commerce.",
   icons: {
-    icon: [{ url: "/favicon.svg?v=4", sizes: "any", type: "image/svg+xml" }],
-    shortcut: [{ url: "/favicon.svg?v=4", type: "image/svg+xml" }],
+    icon: [{ url: "/favicon-32.png?v=1", sizes: "32x32", type: "image/png" }],
+    shortcut: [{ url: "/favicon-32.png?v=1", type: "image/png" }],
     apple: [{ url: "/exown-icon.png", sizes: "512x512", type: "image/png" }],
   },
 };
