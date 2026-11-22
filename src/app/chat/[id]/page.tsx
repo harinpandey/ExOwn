@@ -25,6 +25,7 @@ import { updateOfferStatus } from "@/actions/offer";
 import ReportButton from "@/components/ui/ReportButton";
 import { toast } from "react-hot-toast";
 import SellerLiveLocationControl from "@/components/chat/SellerLiveLocationControl";
+import PhoneShareControl from "@/components/chat/PhoneShareControl";
 import BuyerLiveLocationCard from "@/components/chat/BuyerLiveLocationCard";
 
 interface LiveLocationMessageData {
@@ -499,6 +500,12 @@ function ChatRoomContent({ partnerId }: { partnerId: string }) {
             >
               ✕
             </button>
+          </div>
+        )}
+
+        {product && (
+          <div className="shrink-0 border-b border-gray-100 bg-white px-4 py-3 dark:border-gray-800 dark:bg-gray-900 md:px-6">
+            <PhoneShareControl productId={product.id} partnerId={partnerId} isSeller={isSeller} />
           </div>
         )}
 
