@@ -16,7 +16,9 @@ import {
   AlertTriangle,
   ExternalLink,
   Sparkles,
-  ShoppingBag
+  ShoppingBag,
+  Paperclip,
+  X
 } from "lucide-react";
 import { format } from "date-fns";
 import { useAuth } from "@/context/AuthContext";
@@ -27,6 +29,7 @@ import { toast } from "react-hot-toast";
 import SellerLiveLocationControl from "@/components/chat/SellerLiveLocationControl";
 import PhoneShareControl from "@/components/chat/PhoneShareControl";
 import BuyerLiveLocationCard from "@/components/chat/BuyerLiveLocationCard";
+import { getCloudinarySignature } from "@/actions/cloudinary";
 
 interface LiveLocationMessageData {
   type: "LIVE_LOCATION_STARTED";
@@ -34,6 +37,22 @@ interface LiveLocationMessageData {
   startedAt: string;
   expiresAt: string;
   productId: string;
+}
+
+const CHAT_MEDIA_PREFIX = "EXOWN_CHAT_MEDIA:";
+
+function parseChatMediaMessage(content: string): { text: string; images: string[] } | null {
+  if (!content?.startsWith(CHAT_MEDIA_PREFIX)) return null;
+  try {
+    const data = JSON.parse(content.slice(CHAT_MEDIA_PREFIX.length));
+    if (Array.isArray(data?.images)) {
+      return {
+        text: typeof data.text === "string" ? data.text : "",
+        images: data.images.filter((url: unknown) => typeof url === "string" && url.startsWith("https://res.cloudinary.com/") && url.includes("/image/upload/")),
+      };
+    }
+  } catch { /* invalid media message */ }
+  return null;
 }
 
 function parseLiveLocationMessage(content: string): LiveLocationMessageData | null {
@@ -97,6 +116,10 @@ function ChatRoomContent({ partnerId }: { partnerId: string }) {
   const [loading, setLoading] = useState(true);
   const [chatFetchError, setChatFetchError] = useState<string | null>(null);
   const [newMessage, setNewMessage] = useState("");
+  const [attachments, setAttachments] = useState<{ file: File; previewUrl: string }[]>([]);
+  const attachmentInputRef = useRef<HTMLInputElement>(null);
+  const attachmentsRef = useRef(attachments);
+  attachmentsRef.current = attachments;
   const [isSending, setIsSending] = useState(false);
   const [isActioningOffer, setIsActioningOffer] = useState(false);
   const [showMeetupTips, setShowMeetupTips] = useState(false);
@@ -106,6 +129,10 @@ function ChatRoomContent({ partnerId }: { partnerId: string }) {
   const lastAutoScrolledMessageIdRef = useRef<string | null>(null);
   const hasInitializedMessageScrollRef = useRef(false);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => () => {
+    attachmentsRef.current.forEach((item) => URL.revokeObjectURL(item.previewUrl));
+  }, []);
 
   // Close options menu on outside click
   useEffect(() => {
