@@ -5,6 +5,11 @@ import { AuthProvider } from "@/context/AuthContext";
 import { CompareProvider } from "@/context/CompareContext";
 import { NotificationProvider } from "@/context/NotificationContext";
 import { MomentsProvider } from "@/context/MomentsContext";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
+import MobileNav from "@/components/layout/MobileNav";
+import CompareBar from "@/components/layout/CompareBar";
+import AnnouncementBar from "@/components/layout/AnnouncementBar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
