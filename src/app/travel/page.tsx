@@ -165,7 +165,19 @@ export default function TicketExchangePage() {
           </div>
         </div>
 
-        <aside className="rounded-2xl border border-[#DCE8E2] bg-[#EAF2EF] p-5 sm:p-6 dark:border-[#2A4136] dark:bg-[#14251D]"><div className="flex items-center gap-2 text-[#1E5646] dark:text-[#91CDB0]"><TrainFront size={19}/><h2 className="text-base font-extrabold">Find tickets along your route</h2></div><p className="mt-3 text-sm leading-6 text-[#4A5D56] dark:text-[#B4C5BC]">Search student-listed tickets by journey. If there is no direct destination match, ExOwn can surface listings for stations along the same train running path, so students can review relevant options and contact the ticket owner.</p><p className="mt-2 text-xs leading-5 text-[#4A5D56] dark:text-[#B4C5BC]">ExOwn connects students and does not issue or book railway tickets. Confirm ticket details with the listing owner.</p></aside></aside>
+        <aside className="rounded-2xl border border-[#DCE8E2] bg-[#EAF2EF] p-5 sm:p-6 dark:border-[#2A4136] dark:bg-[#14251D]">
+          <div className="flex items-center gap-2 text-[#1E5646] dark:text-[#91CDB0]">
+            <TrainFront size={19} />
+            <h2 className="text-base font-extrabold">Find tickets along your route</h2>
+          </div>
+          <p className="mt-3 text-sm leading-6 text-[#4A5D56] dark:text-[#B4C5BC]">
+            Search student-listed tickets by journey. If there is no direct destination match, ExOwn can surface listings for stations along the same train running path, so students can review relevant options and contact the ticket owner.
+          </p>
+          <p className="mt-2 text-xs leading-5 text-[#4A5D56] dark:text-[#B4C5BC]">
+            ExOwn connects students and does not issue or book railway tickets. Confirm ticket details with the listing owner.
+          </p>
+        </aside>
+
       </section>
 
     </main>
