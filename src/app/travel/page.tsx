@@ -18,6 +18,13 @@ export const metadata = {
 
 const ticketTypes = [
   {
+    title: "Train tickets",
+    description: "Find student ticket listings for your route, including relevant stations along a train running path.",
+    category: "train-tickets",
+    icon: TrainFront,
+    tag: "Rail journeys",
+  },
+  {
     title: "Movie tickets",
     description: "Plans changed? Let another student use your cinema seats.",
     category: "movie-tickets",
@@ -75,19 +82,13 @@ export default function TicketExchangePage() {
               </p>
               <div className="mt-7 flex flex-wrap gap-3">
                 <Link
-                  href="/search?category=tickets-events"
+                  href="/travel/search?type=events"
                   className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#1E5646] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#174536]"
                 >
-                  Find event tickets <ArrowRight size={16} />
+                  Find tickets <ArrowRight size={16} />
                 </Link>
                 <Link
-                  href="/travel/train"
-                  className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-[#1E5646] bg-white px-5 py-3 text-sm font-bold text-[#1E5646] transition hover:bg-[#E6F2EE] dark:bg-[#14231C] dark:text-[#91CDB0] dark:hover:bg-[#20362B]"
-                >
-                  <TrainFront size={16} /> Find train journey
-                </Link>
-                <Link
-                  href="/sell?category=tickets-events"
+                  href="/travel/list"
                   className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-[#1E5646] bg-white px-5 py-3 text-sm font-bold text-[#1E5646] transition hover:bg-[#E6F2EE] dark:bg-[#14231C] dark:text-[#91CDB0] dark:hover:bg-[#20362B]"
                 >
                   <Ticket size={16} /> List my ticket
@@ -112,31 +113,11 @@ export default function TicketExchangePage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 pt-8 sm:px-6">
-        <div className="grid gap-5 rounded-2xl border border-[#DCE8E2] bg-[#EAF2EF] p-5 sm:grid-cols-[1fr_auto] sm:items-center sm:p-6 dark:border-[#2A4136] dark:bg-[#14251D]">
-          <div className="flex items-start gap-4">
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white text-[#1E5646] dark:bg-[#20362B] dark:text-[#91CDB0]">
-              <TrainFront size={24} />
-            </span>
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#1E5646] dark:text-[#91CDB0]">Journey planner</p>
-              <h2 className="mt-1 text-xl font-extrabold">Travelling by train?</h2>
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-[#4A5D56] dark:text-[#B4C5BC]">
-                Enter your origin, destination and date in a separate train journey search. Explore public-transport route alternatives and verify train details with the official railway source.
-              </p>
-            </div>
-          </div>
-          <Link href="/travel/train" className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-[#1E5646] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#174536]">
-            Plan train journey <ArrowRight size={16} />
-          </Link>
-        </div>
-      </section>
-
       <section className="mx-auto max-w-7xl px-4 py-9 sm:px-6">
         <div className="mb-5">
           <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#1E5646] dark:text-[#91CDB0]">Browse by ticket type</p>
           <h2 className="mt-1 text-2xl font-extrabold tracking-tight">What are you looking for?</h2>
-          <p className="mt-2 text-sm text-[#4A5D56] dark:text-[#B4C5BC]">Only tickets already purchased by another student — no new bookings here.</p>
+          <p className="mt-2 text-sm text-[#4A5D56] dark:text-[#B4C5BC]">Browse tickets students have listed and connect directly with the ticket owner.</p>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -145,7 +126,7 @@ export default function TicketExchangePage() {
             return (
               <Link
                 key={item.category}
-                href={`/search?category=tickets-events&subcategory=${item.category}`}
+                href={item.category === "train-tickets" ? "/travel/train" : "/travel/category/" + item.category}
                 className="group flex min-h-[220px] flex-col rounded-2xl border border-[#E2E8E5] bg-white p-5 shadow-[0_1px_4px_rgba(19,34,29,0.035)] transition hover:-translate-y-0.5 hover:border-[#C8D6D0] hover:shadow-[0_6px_18px_rgba(19,34,29,0.07)] dark:border-[#2A4136] dark:bg-[#14231C]"
               >
                 <div className="flex items-center justify-between">
@@ -184,26 +165,7 @@ export default function TicketExchangePage() {
           </div>
         </div>
 
-        <aside className="rounded-2xl border border-amber-200 bg-[#FFFBEB] p-5 sm:p-6 dark:border-[#725A2D] dark:bg-[#2B2416]">
-          <div className="flex items-center gap-2 text-[#92400E] dark:text-[#F2D28C]">
-            <TrainFront size={19} />
-            <h2 className="text-base font-extrabold">Train tickets are not available for resale</h2>
-          </div>
-          <p className="mt-3 text-sm leading-6 text-[#78350F] dark:text-[#F2D28C]">
-            Reserved Indian Railways tickets are issued to a named passenger and cannot be privately resold or freely transferred. Train-ticket resale is not available on ExOwn.
-          </p>
-          <p className="mt-2 text-xs leading-5 text-[#78350F] dark:text-[#F2D28C]">
-            Use official cancellation or check whether you qualify for an authorised name change through the railway reservation office.
-          </p>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <a href="https://www.indianrail.gov.in/enquiry/StaticPages/StaticEnquiry.jsp?StaticPage=change_Name.html" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-9 items-center rounded-lg border border-[#D6A94A] bg-white px-3 py-2 text-xs font-bold text-[#78350F] hover:bg-[#FEF3C7] dark:border-[#725A2D] dark:bg-[#3B2E18] dark:text-[#F2D28C]">
-              Official name-change rules
-            </a>
-            <a href="https://contents.irctc.co.in/en/Eticket_new_cancel.html" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-9 items-center gap-1 rounded-lg px-3 py-2 text-xs font-bold text-[#92400E] underline underline-offset-2 dark:text-[#F2D28C]">
-              IRCTC cancellation <ArrowRight size={13} />
-            </a>
-          </div>
-        </aside>
+        <aside className="rounded-2xl border border-[#DCE8E2] bg-[#EAF2EF] p-5 sm:p-6 dark:border-[#2A4136] dark:bg-[#14251D]"><div className="flex items-center gap-2 text-[#1E5646] dark:text-[#91CDB0]"><TrainFront size={19}/><h2 className="text-base font-extrabold">Find tickets along your route</h2></div><p className="mt-3 text-sm leading-6 text-[#4A5D56] dark:text-[#B4C5BC]">Search student-listed tickets by journey. If there is no direct destination match, ExOwn can surface listings for stations along the same train running path, so students can review relevant options and contact the ticket owner.</p><p className="mt-2 text-xs leading-5 text-[#4A5D56] dark:text-[#B4C5BC]">ExOwn connects students and does not issue or book railway tickets. Confirm ticket details with the listing owner.</p></aside></aside>
       </section>
 
     </main>

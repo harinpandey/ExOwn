@@ -3,11 +3,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { CompareProvider } from "@/context/CompareContext";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
-import MobileNav from "@/components/layout/MobileNav";
-import CompareBar from "@/components/layout/CompareBar";
-import AnnouncementBar from "@/components/layout/AnnouncementBar";
 import { NotificationProvider } from "@/context/NotificationContext";
 import { MomentsProvider } from "@/context/MomentsContext";
 
@@ -51,16 +46,7 @@ export default function RootLayout({
                 <MomentsProvider>
                   <CompareProvider>
                     <Toaster position="top-center" reverseOrder={false} />
-                    <ClientLayoutWrapper>
-                      <AnnouncementBar />
-                      <Navbar />
-                      <main className="flex-1 pb-16 md:pb-0 page-transition">
-                        {children}
-                      </main>
-                      <Footer />
-                      <MobileNav />
-                      <CompareBar />
-                    </ClientLayoutWrapper>
+                    <ClientLayoutWrapper marketplaceShell={<><AnnouncementBar /><Navbar /><main className="flex-1 pb-16 md:pb-0 page-transition">{children}</main><Footer /><MobileNav /><CompareBar /></>}>{children}</ClientLayoutWrapper>
                   </CompareProvider>
                 </MomentsProvider>
               </NotificationProvider>
