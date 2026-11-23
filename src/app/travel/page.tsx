@@ -78,7 +78,13 @@ export default function TicketExchangePage() {
                   href="/search?category=tickets-events"
                   className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#1E5646] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#174536]"
                 >
-                  Find tickets <ArrowRight size={16} />
+                  Find event tickets <ArrowRight size={16} />
+                </Link>
+                <Link
+                  href="/travel/train"
+                  className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-[#1E5646] bg-white px-5 py-3 text-sm font-bold text-[#1E5646] transition hover:bg-[#E6F2EE] dark:bg-[#14231C] dark:text-[#91CDB0] dark:hover:bg-[#20362B]"
+                >
+                  <TrainFront size={16} /> Find train journey
                 </Link>
                 <Link
                   href="/sell?category=tickets-events"
@@ -103,6 +109,26 @@ export default function TicketExchangePage() {
               </p>
             </div>
           </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-4 pt-8 sm:px-6">
+        <div className="grid gap-5 rounded-2xl border border-[#DCE8E2] bg-[#EAF2EF] p-5 sm:grid-cols-[1fr_auto] sm:items-center sm:p-6 dark:border-[#2A4136] dark:bg-[#14251D]">
+          <div className="flex items-start gap-4">
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white text-[#1E5646] dark:bg-[#20362B] dark:text-[#91CDB0]">
+              <TrainFront size={24} />
+            </span>
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#1E5646] dark:text-[#91CDB0]">Journey planner</p>
+              <h2 className="mt-1 text-xl font-extrabold">Travelling by train?</h2>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-[#4A5D56] dark:text-[#B4C5BC]">
+                Enter your origin, destination and date in a separate train journey search. Explore public-transport route alternatives and verify train details with the official railway source.
+              </p>
+            </div>
+          </div>
+          <Link href="/travel/train" className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-[#1E5646] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#174536]">
+            Plan train journey <ArrowRight size={16} />
+          </Link>
         </div>
       </section>
 
@@ -180,17 +206,6 @@ export default function TicketExchangePage() {
         </aside>
       </section>
 
-      <section className="mx-auto mt-8 max-w-7xl px-4 sm:px-6">
-        <div className="flex flex-col items-start justify-between gap-4 rounded-2xl border border-[#DCE8E2] bg-[#EAF2EF] p-5 sm:flex-row sm:items-center sm:p-6 dark:border-[#2A4136] dark:bg-[#14251D]">
-          <div>
-            <h2 className="text-lg font-extrabold text-[#13221D] dark:text-[#E8F0EB]">Can’t make it to the event?</h2>
-            <p className="mt-1 text-sm text-[#4A5D56] dark:text-[#B4C5BC]">List your eligible ticket so another student can enjoy it.</p>
-          </div>
-          <Link href="/sell?category=tickets-events" className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl bg-[#1E5646] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#174536]">
-            List an eligible ticket <ArrowRight size={15} />
-          </Link>
-        </div>
-      </section>
     </main>
   );
 }
