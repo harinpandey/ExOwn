@@ -27,13 +27,14 @@ function formatDate(date: Date | null) {
 export default async function LpuNewsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string }>;
+  searchParams: Promise<{ category?: string; q?: string }>;
 }) {
   const params = await searchParams;
   const selectedCategory = categories.some((item) => item.value === params.category)
     ? params.category || ""
     : "";
-  const result = await getPublishedLpuNews(30, selectedCategory || undefined);
+  const searchQuery = params.q?.trim().slice(0, 100) || "";
+  const result = await getPublishedLpuNews(30, selectedCategory || undefined, searchQuery || undefined);
   const [featuredArticle, ...moreArticles] = result.articles;
 
   return (
@@ -70,6 +71,12 @@ export default async function LpuNewsPage({
             </Link>
           ))}
         </nav>
+
+        {searchQuery && (
+          <p className="pt-4 text-sm font-semibold text-[#4a5d56] dark:text-gray-400">
+            Search results for <span className="font-extrabold text-[#13221d] dark:text-white">“{searchQuery}”</span>
+          </p>
+        )}
 
         {featuredArticle ? (
           <div className="pt-6">
@@ -143,7 +150,7 @@ export default async function LpuNewsPage({
               {result.unavailable
                 ? "The campus news feed could not be reached. Please check back shortly."
                 : result.configured
-                  ? "There are no published stories in this category right now."
+                  ? searchQuery ? `No LPU news found for “${searchQuery}”. Try another keyword.` : "There are no published stories in this category right now."
                   : "Published LPU campus updates will appear here once the dedicated news feed is connected."}
             </p>
           </div>
