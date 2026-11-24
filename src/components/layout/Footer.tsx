@@ -46,14 +46,17 @@ export default function Footer() {
   const pathname = usePathname();
   const isLpuNews = pathname === "/lpu-news" || pathname.startsWith("/lpu-news/");
   const isCampusLiving = pathname === "/campus-living" || pathname.startsWith("/campus-living/");
+  const isHousingExperience = pathname === "/housing" || pathname.startsWith("/housing/");
+  const isRoommatesExperience = pathname === "/roommates" || pathname.startsWith("/roommates/");
+  const isLivingExperience = isCampusLiving || isHousingExperience || isRoommatesExperience;
   if (isLpuNews) return null;
 
   return (
     <footer className="border-t border-[#E2E8E5] bg-white pb-20 pt-14 text-[#13221D] md:pb-14">
       <div className="container mx-auto px-4">
 
-        {/* Top CTA Strip — not shown on the dedicated campus-living gateway */}
-        {!isCampusLiving && <div className="mb-12 flex flex-col items-center justify-between gap-4 rounded-2xl border border-[#E2E8E5] bg-[#F7F9F8] px-6 py-5 sm:flex-row">
+        {/* Top CTA Strip — hidden throughout the PG & Roommates experience */}
+        {!isLivingExperience && <div className="mb-12 flex flex-col items-center justify-between gap-4 rounded-2xl border border-[#E2E8E5] bg-[#F7F9F8] px-6 py-5 sm:flex-row">
           <div>
             <p className="text-xs font-black uppercase tracking-wider text-primary">Start trading on ExOwn</p>
             <p className="mt-0.5 text-sm text-[#4A5D56]">List something and connect with students around you.</p>
