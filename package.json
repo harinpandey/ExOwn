@@ -4,13 +4,16 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && node scripts/generate-lpu-news-client.mjs && next build",
-    "postinstall": "prisma generate && node scripts/generate-lpu-news-client.mjs",
+    "build": "prisma generate && node scripts/generate-lpu-news-client.mjs && node scripts/generate-tickets-client.mjs && next build",
+    "postinstall": "prisma generate && node scripts/generate-lpu-news-client.mjs && node scripts/generate-tickets-client.mjs",
     "start": "next start",
     "lint": "eslint",
     "db:news:generate": "node scripts/generate-lpu-news-client.mjs",
     "db:news:push": "prisma db push --schema=prisma/lpu-news/schema.prisma",
-    "db:migrate:vehicles": "node scripts/migrate-vehicle-category.mjs"
+    "db:migrate:vehicles": "node scripts/migrate-vehicle-category.mjs",
+    "db:tickets:generate": "node scripts/generate-tickets-client.mjs",
+    "db:tickets:push": "prisma db push --schema=prisma/tickets/schema.prisma",
+    "db:sections:smoke": "tsx scripts/smoke-test-section-databases.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
