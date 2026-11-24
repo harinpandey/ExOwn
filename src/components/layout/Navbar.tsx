@@ -98,9 +98,15 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const isLpuNews = pathname === "/lpu-news" || pathname.startsWith("/lpu-news/");
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     const trimmed = searchQuery.trim();
+    if (isLpuNews) {
+      router.push(trimmed ? `/lpu-news?q=${encodeURIComponent(trimmed)}` : "/lpu-news");
+      return;
+    }
     if (!trimmed) {
       router.push(`/search?campus=${encodeURIComponent(selectedCampus)}`);
       return;
@@ -152,7 +158,7 @@ export default function Navbar() {
               type="search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search products, books, electronics, cycles, rooms..."
+              placeholder={isLpuNews ? "Search LPU news, notices, placements, events..." : "Search anything: products, books, rooms, services..."}
               aria-label="Search ExOwn listings"
               className="h-12 w-full rounded-xl border border-[#E2E8E5] bg-white pl-12 pr-28 text-sm font-medium text-[#13221D] outline-none transition placeholder:text-[#82918B] focus:border-[#1E5646] focus:ring-2 focus:ring-[#1E5646]/10 sm:text-base"
             />
@@ -415,7 +421,7 @@ export default function Navbar() {
       </div>
 
       {/* Secondary navigation stays on inner pages; the homepage has its visual category rail. */}
-      {pathname !== "/" && (
+      {pathname !== "/" && !isLpuNews && (
         <div className="border-t border-[#E2E8E5] bg-white">
           <nav className="container mx-auto flex items-center gap-2 overflow-x-auto px-4 py-2 no-scrollbar" aria-label="Marketplace navigation">
             {secondaryLinks.map((link) => (
