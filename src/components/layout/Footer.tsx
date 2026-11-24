@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   ArrowRight,
   Building2,
@@ -40,6 +43,9 @@ const trustSignals = [
 ];
 
 export default function Footer() {
+  const pathname = usePathname();
+  if (pathname === "/lpu-news" || pathname.startsWith("/lpu-news/")) return null;
+
   return (
     <footer className="border-t border-[#E2E8E5] bg-white pb-20 pt-14 text-[#13221D] md:pb-14">
       <div className="container mx-auto px-4">
