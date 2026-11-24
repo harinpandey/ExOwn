@@ -26,7 +26,7 @@ export default function TicketExperienceHeader() {
             <img src="/exown-logo.png" alt="ExOwn" className="h-9 w-auto sm:h-10"/>
           </Link>
           <div className="min-w-0 flex-1"><ExperienceSwitcher/></div>
-          <Link href="/travel/list" className="hidden shrink-0 rounded-xl bg-[#1E5646] px-4 py-2.5 text-xs font-extrabold text-white transition hover:bg-[#174536] sm:inline-flex">List a ticket</Link>
+          {pathname !== "/travel/list" && <Link href="/travel/list" className="hidden shrink-0 rounded-xl bg-[#1E5646] px-4 py-2.5 text-xs font-extrabold text-white transition hover:bg-[#174536] sm:inline-flex">List a ticket</Link>}
         </div>
         <nav aria-label="Ticket categories" className="flex min-h-[48px] items-center gap-1 overflow-x-auto py-1.5 no-scrollbar">
           {categories.map(({href,label,icon:Icon}) => {
