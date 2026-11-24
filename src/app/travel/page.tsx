@@ -35,7 +35,7 @@ export default function TicketExchangePage() {
     <main className="min-h-screen bg-[#F7F9F8] pb-14 text-[#13221D] dark:bg-[#0E1713] dark:text-[#E8F0EB]">
       <section className="border-b border-[#DCE8E5] bg-white dark:border-[#2A4136] dark:bg-[#14231C]">
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 lg:py-14">
-          <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+          <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
             <div className="max-w-3xl">
               <div className="inline-flex items-center gap-2 rounded-full border border-[#DCE8E5] bg-[#F7F9F8] px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-[#1E5646] dark:border-[#2A4136] dark:bg-[#101D17] dark:text-[#91CDB0]"><Ticket size={14}/> ExOwn Tickets</div>
               <h1 className="mt-5 text-4xl font-extrabold leading-[1.05] tracking-[-0.045em] sm:text-6xl lg:text-[4.25rem]">Plans change.<br/><span className="text-[#1E5646] dark:text-[#91CDB0]">Tickets move on.</span></h1>
