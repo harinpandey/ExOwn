@@ -1,6 +1,44 @@
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, CalendarDays, MapPin, TrainFront } from "lucide-react";
-export default async function TrainTicketSearchPage({searchParams}:{searchParams:Promise<{from?:string;to?:string;date?:string}>}) {
- const p=await searchParams, from=p.from||"", to=p.to||"", date=p.date||"", searched=!!(from&&to&&date);
- return <main className="min-h-[65vh] bg-[#F7F9F8] px-4 py-8 text-[#13221D] dark:bg-[#0E1713] dark:text-[#E8F0EB]"><div className="mx-auto max-w-5xl"><Link href="/travel" className="inline-flex items-center gap-2 text-sm font-semibold text-[#4A5D56] dark:text-[#B4C5BC]"><ArrowLeft size={15}/> All tickets</Link><div className="mt-6 grid gap-6 lg:grid-cols-[1fr_.75fr]"><section className="rounded-2xl border border-[#DCE8E2] bg-white p-6 dark:border-[#2A4136] dark:bg-[#14231C]"><span className="inline-flex items-center gap-2 rounded-full bg-[#E6F2EE] px-3 py-1.5 text-[11px] font-bold uppercase text-[#1E5646]"><TrainFront size={14}/> Student train tickets</span><h1 className="mt-5 text-3xl font-extrabold">Find a ticket for your route</h1><p className="mt-3 text-sm leading-6 text-[#4A5D56] dark:text-[#B4C5BC]">Search tickets already listed by students. Route matching can include relevant intermediate stations along a train running path.</p><form action="/travel/search" method="GET" className="mt-7 space-y-4"><input type="hidden" name="type" value="train"/><label className="block"><span className="mb-2 block text-xs font-bold">From station or city</span><input name="from" defaultValue={from} required placeholder="e.g. Ludhiana Junction" className="h-12 w-full rounded-xl border border-[#DCE8E2] bg-[#F7F9F8] px-3 text-sm dark:border-[#2A4136] dark:bg-[#101D17]"/></label><label className="block"><span className="mb-2 block text-xs font-bold">To station or city</span><input name="to" defaultValue={to} required placeholder="e.g. Patna Junction" className="h-12 w-full rounded-xl border border-[#DCE8E2] bg-[#F7F9F8] px-3 text-sm dark:border-[#2A4136] dark:bg-[#101D17]"/></label><label className="block"><span className="mb-2 block text-xs font-bold">Journey date</span><input type="date" name="date" defaultValue={date} required min={new Date().toISOString().slice(0,10)} className="h-12 w-full rounded-xl border border-[#DCE8E2] bg-[#F7F9F8] px-3 text-sm dark:border-[#2A4136] dark:bg-[#101D17]"/></label><button className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#1E5646] px-5 py-3 text-sm font-bold text-white">Search student tickets <ArrowRight size={16}/></button></form>{searched&&<div className="mt-5 rounded-xl border border-[#DCE8E2] bg-[#EAF2EF] p-4"><p className="text-sm font-bold">Route entered</p><p className="mt-1 text-sm">{from} → {to} · {date}</p><p className="mt-2 text-xs leading-5 text-[#4A5D56]">The ticket database and train-route matching service must be connected before matching listings can be returned.</p></div>}</section><aside className="rounded-2xl border border-[#DCE8E2] bg-white p-5 dark:border-[#2A4136] dark:bg-[#14231C]"><h2 className="font-extrabold">How route matching should work</h2><ol className="mt-3 space-y-2 text-sm leading-6 text-[#4A5D56] dark:text-[#B4C5BC]"><li>1. Find student listings for this journey.</li><li>2. Compare train running paths and station order.</li><li>3. Show direct destination matches first.</li><li>4. Suggest relevant intermediate-station tickets.</li><li>5. Let the student contact the owner.</li></ol><p className="mt-5 text-sm leading-6 text-[#4A5D56] dark:text-[#B4C5BC]">ExOwn is a bridge to the ticket owner—not a railway booking or ticket-issuing service.</p></aside></div></div></main>;
+import { ArrowLeft, ArrowRight, CalendarDays, MapPin, Search, TrainFront } from "lucide-react";
+
+const inputClass = "h-14 w-full rounded-xl border border-[#DCE8E2] bg-[#F7F9F8] px-4 text-sm text-[#13221D] outline-none transition focus:border-[#1E5646] focus:ring-2 focus:ring-[#1E5646]/10 dark:border-[#2A4136] dark:bg-[#101D17] dark:text-[#E8F0EB]";
+
+export default function TrainTicketSearchPage() {
+  return (
+    <main className="min-h-screen bg-[#F7F9F8] text-[#13221D] dark:bg-[#0E1713] dark:text-[#E8F0EB]">
+      <div className="mx-auto max-w-7xl px-4 pb-14 pt-5 sm:px-6">
+        <Link href="/travel" className="inline-flex items-center gap-2 text-sm font-semibold text-[#4A5D56] hover:text-[#1E5646] dark:text-[#B4C5BC]"><ArrowLeft size={16}/> All ticket categories</Link>
+        <section className="mt-5 overflow-hidden rounded-[28px] border border-[#DCE8E2] bg-white shadow-[0_8px_28px_rgba(19,34,29,0.07)] dark:border-[#2A4136] dark:bg-[#14231C]">
+          <div className="relative overflow-hidden bg-gradient-to-r from-[#EAF2EF] via-[#F5FAF8] to-[#DCEBE5] px-6 py-8 sm:px-10 sm:py-10 dark:from-[#18372B] dark:via-[#14231C] dark:to-[#203D30]">
+            <div className="absolute -right-10 -top-16 h-56 w-56 rounded-full border-[28px] border-white/30"/>
+            <div className="relative max-w-3xl">
+              <span className="inline-flex items-center gap-2 rounded-full bg-white/75 px-3 py-1.5 text-xs font-bold text-[#1E5646] dark:bg-[#10251B] dark:text-[#91CDB0]"><TrainFront size={15}/> ExOwn Train Tickets</span>
+              <h1 className="mt-4 text-3xl font-extrabold tracking-tight sm:text-4xl">Find a ticket for your journey.</h1>
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-[#4A5D56] sm:text-base dark:text-[#B4C5BC]">Search student-listed tickets by route and travel date. If there’s no direct match, discover relevant station options along the train’s running path.</p>
+            </div>
+          </div>
+          <div className="p-4 sm:p-8">
+            <div className="mb-6 flex flex-wrap items-center gap-3">
+              <span className="rounded-full bg-[#E6F2EE] px-5 py-2.5 text-sm font-bold text-[#1E5646] dark:bg-[#20362B] dark:text-[#91CDB0]">● One Way</span>
+              <span className="ml-auto inline-flex items-center gap-1.5 text-xs font-semibold text-[#4A5D56] dark:text-[#B4C5BC]"><MapPin size={14}/> Student-to-student listings</span>
+            </div>
+            <form action="/travel/search" method="GET">
+              <input type="hidden" name="type" value="train"/>
+              <div className="grid gap-3 lg:grid-cols-[1fr_1fr_1fr]">
+                <label className="block"><span className="mb-2 block text-xs font-bold tracking-wide text-[#4A5D56] dark:text-[#B4C5BC]">FROM</span><span className="relative block"><MapPin size={17} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#82918B]"/><input name="from" required placeholder="City or railway station" className={inputClass+" pl-11"} autoComplete="off"/></span></label>
+                <label className="block"><span className="mb-2 block text-xs font-bold tracking-wide text-[#4A5D56] dark:text-[#B4C5BC]">TO</span><span className="relative block"><MapPin size={17} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#82918B]"/><input name="to" required placeholder="Destination station" className={inputClass+" pl-11"} autoComplete="off"/></span></label>
+                <label className="block"><span className="mb-2 block text-xs font-bold tracking-wide text-[#4A5D56] dark:text-[#B4C5BC]">JOURNEY DATE</span><span className="relative block"><CalendarDays size={17} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#82918B]"/><input type="date" name="date" required className={inputClass+" pl-11"}/></span></label>
+              </div>
+              <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center"><button className="inline-flex min-h-14 flex-1 items-center justify-center gap-2 rounded-xl bg-[#1E5646] px-6 text-base font-extrabold text-white transition hover:bg-[#174536]"><Search size={18}/> Find student tickets <ArrowRight size={17}/></button><p className="max-w-md text-xs leading-5 text-[#71827A]">ExOwn doesn’t book or issue railway tickets. Review the listing and contact the student who posted it.</p></div>
+            </form>
+          </div>
+        </section>
+        <section className="mt-6 grid gap-4 md:grid-cols-3">
+          <div className="rounded-2xl border border-[#DCE8E2] bg-white p-5 dark:border-[#2A4136] dark:bg-[#14231C]"><p className="text-sm font-extrabold">Direct destination match</p><p className="mt-2 text-sm leading-6 text-[#4A5D56] dark:text-[#B4C5BC]">Find student listings whose journey covers your destination.</p></div>
+          <div className="rounded-2xl border border-[#DCE8E2] bg-white p-5 dark:border-[#2A4136] dark:bg-[#14231C]"><p className="text-sm font-extrabold">Along the train route</p><p className="mt-2 text-sm leading-6 text-[#4A5D56] dark:text-[#B4C5BC]">Discover possible intermediate-station listings on the same running path.</p></div>
+          <div className="rounded-2xl border border-[#DCE8E2] bg-white p-5 dark:border-[#2A4136] dark:bg-[#14231C]"><p className="text-sm font-extrabold">Contact the ticket owner</p><p className="mt-2 text-sm leading-6 text-[#4A5D56] dark:text-[#B4C5BC]">Check details and any transfer eligibility directly with the student.</p></div>
+        </section>
+      </div>
+    </main>
+  );
 }
