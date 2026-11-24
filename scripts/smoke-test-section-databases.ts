@@ -32,16 +32,15 @@ const testUrls = {
   tickets: process.env.TICKETS_TEST_DATABASE_URL!,
 };
 
-const productionUrls = {
-  main: process.env.DATABASE_URL,
-  news: process.env.LPU_NEWS_DATABASE_URL,
-  tickets: process.env.TICKETS_DATABASE_URL,
+const productionUrls: Record<keyof typeof testUrls, string[]> = {
+  main: [process.env.DATABASE_URL, process.env.DIRECT_URL].filter(Boolean) as string[],
+  news: [process.env.LPU_NEWS_DATABASE_URL, process.env.LPU_NEWS_DIRECT_URL].filter(Boolean) as string[],
+  tickets: [process.env.TICKETS_DATABASE_URL, process.env.TICKETS_DIRECT_URL].filter(Boolean) as string[],
 };
 
 for (const key of Object.keys(testUrls) as Array<keyof typeof testUrls>) {
-  const production = productionUrls[key];
-  if (production && fingerprint(testUrls[key]) === fingerprint(production)) {
-    console.error(`Refusing to run: ${key} test database points to the production database.`);
+  if (productionUrls[key].some((production) => fingerprint(testUrls[key]) === fingerprint(production))) {
+    console.error(`Refusing to run: ${key} test database points to a configured production database.`);
     process.exit(1);
   }
 }
