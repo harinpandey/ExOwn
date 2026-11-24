@@ -1,0 +1,54 @@
+generator ticketsClient {
+  provider = "prisma-client-js"
+  output   = "../../src/generated/tickets-client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("TICKETS_DATABASE_URL")
+  directUrl = env("TICKETS_DIRECT_URL")
+}
+
+enum TicketCategory {
+  TRAIN
+  TAXI
+  MOVIE
+  SPORTS
+  CONCERT
+  CAMPUS_EVENT
+  OTHER
+}
+
+enum TicketListingStatus {
+  DRAFT
+  PENDING
+  LIVE
+  SOLD
+  REMOVED
+}
+
+model TicketListing {
+  id           String              @id @default(cuid())
+  sellerUid    String
+  campusSlug   String              @default("lpu")
+  category     TicketCategory
+  title        String              @db.VarChar(180)
+  description  String              @db.Text
+  price        Float
+  quantity     Int                 @default(1)
+  ticketDate   DateTime?
+  origin       String?
+  destination  String?
+  venue        String?
+  seatDetails  String?
+  proofImageUrl String?
+  status       TicketListingStatus @default(PENDING)
+  isTestRecord Boolean             @default(false)
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+
+  @@index([campusSlug, category, status, createdAt])
+  @@index([sellerUid, createdAt])
+  @@index([ticketDate])
+  @@index([isTestRecord, status])
+}
