@@ -54,7 +54,7 @@ export default function RootLayout({
                 <MomentsProvider>
                   <CompareProvider>
                     <Toaster position="top-center" reverseOrder={false} />
-                    <ClientLayoutWrapper marketplaceShell={<>{shell}</>}>{children}</ClientLayoutWrapper>
+                    <ClientLayoutWrapper marketplaceShell={<><AnnouncementBar /><Navbar /><main className="flex-1 pb-16 md:pb-0 page-transition">{children}</main><Footer /><MobileNav /><CompareBar /></>}>{children}</ClientLayoutWrapper>
                   </CompareProvider>
                 </MomentsProvider>
               </NotificationProvider>
