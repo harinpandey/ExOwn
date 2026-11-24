@@ -1,5 +1,4 @@
-import Link from "next/link";
-import { ArrowLeft, ArrowRight, CalendarDays, MapPin, Search, Ticket } from "lucide-react";
+import { ArrowRight, CalendarDays, MapPin, Search, Ticket } from "lucide-react";
 
 const categoryInfo: Record<string, { title: string; description: string; type: string; field: string; placeholder: string }> = {
   "taxi-tickets": { title: "Taxi & cab tickets", description: "Discover student-shared cab seats and ride listings for your route.", type: "taxi", field: "Route / pickup", placeholder: "From city, destination or pickup point" },
