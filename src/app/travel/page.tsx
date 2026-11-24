@@ -26,10 +26,7 @@ export default function TicketExchangePage() {
               <span className="inline-flex items-center gap-2 rounded-full bg-[#E6F2EE] px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide text-[#1E5646] dark:bg-[#20362B] dark:text-[#91CDB0]"><Ticket size={14}/> ExOwn Ticket</span>
               <h1 className="mt-5 text-3xl font-extrabold tracking-tight sm:text-5xl">Your next ticket.<br/><span className="text-[#1E5646] dark:text-[#91CDB0]">Found through students.</span></h1>
               <p className="mt-4 max-w-2xl text-sm leading-7 text-[#4A5D56] sm:text-base dark:text-[#B4C5BC]">Choose what you’re looking for. Each ticket type opens its own search and listings experience—separate from the ExOwn Marketplace.</p>
-              <div className="mt-6 flex flex-wrap gap-3">
-                <Link href="/travel/train" className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#1E5646] px-5 py-3 text-sm font-bold text-white hover:bg-[#174536]">Find train tickets <ArrowRight size={16}/></Link>
-                <Link href="/travel/list" className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-[#1E5646] bg-white px-5 py-3 text-sm font-bold text-[#1E5646] hover:bg-[#E6F2EE] dark:bg-[#14231C] dark:text-[#91CDB0]"><Ticket size={16}/> List a ticket</Link>
-              </div>
+              <div className="mt-6 inline-flex items-center gap-2 rounded-xl border border-[#DCE8E5] bg-[#F7F9F8] px-4 py-3 text-xs font-semibold text-[#4A5D56] dark:border-[#2A4136] dark:bg-[#101D17] dark:text-[#B4C5BC]"><Ticket size={15} className="text-[#1E5646] dark:text-[#91CDB0]"/> Choose a ticket category below to begin</div>
             </div>
             <aside className="max-w-sm rounded-2xl border border-[#DCE8E5] bg-[#F7F9F8] p-5 dark:border-[#2A4136] dark:bg-[#101D17]">
               <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#E6F2EE] text-[#1E5646] dark:bg-[#20362B] dark:text-[#91CDB0]"><ShieldCheck size={22}/></div>
@@ -52,7 +49,7 @@ export default function TicketExchangePage() {
           })}
         </div>
       </section>
-      <section className="mx-auto max-w-7xl px-4 sm:px-6"><div className="rounded-2xl border border-[#DCE8E5] bg-[#EAF2EF] p-5 sm:p-6 dark:border-[#2A4136] dark:bg-[#14251D]"><div className="flex items-start gap-3"><CalendarDays className="mt-0.5 text-[#1E5646] dark:text-[#91CDB0]" size={20}/><div><h2 className="font-extrabold">Plans changed?</h2><p className="mt-1 text-sm leading-6 text-[#4A5D56] dark:text-[#B4C5BC]">List an eligible ticket and let another student discover it. Ticket listing and transfer rules depend on the original issuer.</p></div><Link href="/travel/list" className="ml-auto hidden shrink-0 rounded-xl bg-[#1E5646] px-4 py-2.5 text-sm font-bold text-white sm:inline-flex">List a ticket <ArrowRight size={15} className="ml-1"/></Link></div></div></section>
+      <section className="mx-auto max-w-7xl px-4 sm:px-6"><div className="rounded-2xl border border-[#DCE8E5] bg-[#EAF2EF] p-5 sm:p-6 dark:border-[#2A4136] dark:bg-[#14251D]"><div className="flex items-start gap-3"><CalendarDays className="mt-0.5 text-[#1E5646] dark:text-[#91CDB0]" size={20}/><div><h2 className="font-extrabold">Student-to-student ticket discovery</h2><p className="mt-1 text-sm leading-6 text-[#4A5D56] dark:text-[#B4C5BC]">Ticket listings are shared by students. Confirm ticket details and transfer eligibility with the original issuer before making arrangements.</p></div></div></div></section>
     </main>
   );
 }
