@@ -6,8 +6,8 @@ const inputClass = "h-14 w-full rounded-xl border border-[#DCE8E2] bg-[#F7F9F8] 
 export default function TrainTicketSearchPage() {
   return (
     <main className="min-h-screen bg-[#F7F9F8] text-[#13221D] dark:bg-[#0E1713] dark:text-[#E8F0EB]">
-      <div className="mx-auto max-w-7xl px-4 pb-14 pt-5 sm:px-6">
-        <Link href="/travel" className="inline-flex items-center gap-2 text-sm font-semibold text-[#4A5D56] hover:text-[#1E5646] dark:text-[#B4C5BC]"><ArrowLeft size={16}/> All ticket categories</Link>
+      <div className="mx-auto max-w-7xl px-4 pb-14 pt-8 sm:px-6">
+        
         <section className="mt-5 overflow-hidden rounded-[28px] border border-[#DCE8E2] bg-white shadow-[0_8px_28px_rgba(19,34,29,0.07)] dark:border-[#2A4136] dark:bg-[#14231C]">
           <div className="relative overflow-hidden bg-gradient-to-r from-[#EAF2EF] via-[#F5FAF8] to-[#DCEBE5] px-6 py-8 sm:px-10 sm:py-10 dark:from-[#18372B] dark:via-[#14231C] dark:to-[#203D30]">
             <div className="absolute -right-10 -top-16 h-56 w-56 rounded-full border-[28px] border-white/30"/>
