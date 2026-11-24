@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, CalendarDays, MapPin, Search, TrainFront } from "lucide-react";
+import { ArrowRight, CalendarDays, MapPin, Search, TrainFront } from "lucide-react";
 
 const inputClass = "h-14 w-full rounded-xl border border-[#DCE8E2] bg-[#F7F9F8] px-4 text-sm text-[#13221D] outline-none transition focus:border-[#1E5646] focus:ring-2 focus:ring-[#1E5646]/10 dark:border-[#2A4136] dark:bg-[#101D17] dark:text-[#E8F0EB]";
 
