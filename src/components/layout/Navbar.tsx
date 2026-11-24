@@ -99,6 +99,7 @@ export default function Navbar() {
   }, []);
 
   const isLpuNews = pathname === "/lpu-news" || pathname.startsWith("/lpu-news/");
+  const isCampusLiving = pathname === "/campus-living" || pathname.startsWith("/campus-living/");
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -151,7 +152,7 @@ export default function Navbar() {
 
         {/* Single wide global search and essential actions */}
         <div className="flex flex-col gap-3 py-3 sm:flex-row sm:items-center">
-        <form onSubmit={handleSearch} className="relative flex min-w-0 w-full flex-1">
+        {!isCampusLiving && <form onSubmit={handleSearch} className="relative flex min-w-0 w-full flex-1">
             <Search size={18} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-white/45" />
             <input
               data-global-search="true"
@@ -165,7 +166,7 @@ export default function Navbar() {
             <button type="submit" className="absolute right-1.5 top-1.5 h-9 rounded-lg bg-[#1E5646] px-5 text-xs font-bold text-white transition hover:bg-[#174536] active:scale-95">
               Search
             </button>
-        </form>
+        </form>}
 
         {/* Actions & Dropdowns */}
         <div className="flex shrink-0 items-center justify-end gap-1.5 sm:ml-auto sm:gap-2">
@@ -421,7 +422,7 @@ export default function Navbar() {
       </div>
 
       {/* Secondary navigation stays on inner pages; the homepage has its visual category rail. */}
-      {pathname !== "/" && !isLpuNews && (
+      {pathname !== "/" && !isLpuNews && !isCampusLiving && (
         <div className="border-t border-[#E2E8E5] bg-white">
           <nav className="container mx-auto flex items-center gap-2 overflow-x-auto px-4 py-2 no-scrollbar" aria-label="Marketplace navigation">
             {secondaryLinks.map((link) => (
