@@ -2,7 +2,7 @@ import "server-only";
 
 import lpuNewsPrisma from "@/lib/lpu-news-prisma";
 
-export async function getPublishedLpuNews(limit = 8, category?: string) {
+export async function getPublishedLpuNews(limit = 8, category?: string, query?: string) {
   if (!process.env.LPU_NEWS_DATABASE_URL) {
     return { configured: false, unavailable: false, articles: [] as any[] };
   }
@@ -13,6 +13,14 @@ export async function getPublishedLpuNews(limit = 8, category?: string) {
         campusSlug: "lpu",
         isPublished: true,
         ...(category ? { category } : {}),
+        ...(query?.trim()
+          ? {
+              OR: [
+                { title: { contains: query.trim(), mode: "insensitive" as const } },
+                { excerpt: { contains: query.trim(), mode: "insensitive" as const } },
+              ],
+            }
+          : {}),
       },
       orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
       take: Math.min(Math.max(limit, 1), 30),
