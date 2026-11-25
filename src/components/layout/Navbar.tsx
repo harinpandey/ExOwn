@@ -69,9 +69,18 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    setSearchQuery(params.get("q") || "");
-    setActiveListingType(params.get("listingType") || "");
+    const syncSearchContext = () => {
+      const params = new URLSearchParams(window.location.search);
+      setSearchQuery(params.get("q") || "");
+      setActiveListingType(params.get("listingType") || "");
+    };
+    syncSearchContext();
+    window.addEventListener("popstate", syncSearchContext);
+    window.addEventListener("exown:listing-type-change", syncSearchContext);
+    return () => {
+      window.removeEventListener("popstate", syncSearchContext);
+      window.removeEventListener("exown:listing-type-change", syncSearchContext);
+    };
   }, [pathname]);
 
   useEffect(() => {
