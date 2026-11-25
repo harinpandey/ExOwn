@@ -75,11 +75,15 @@ export default function Navbar() {
       setActiveListingType(params.get("listingType") || "");
     };
     syncSearchContext();
+    const handleExperienceChange = (event: Event) => {
+      const nextType = (event as CustomEvent<string>).detail;
+      setActiveListingType(nextType || "");
+    };
     window.addEventListener("popstate", syncSearchContext);
-    window.addEventListener("exown:listing-type-change", syncSearchContext);
+    window.addEventListener("exown:listing-type-change", handleExperienceChange);
     return () => {
       window.removeEventListener("popstate", syncSearchContext);
-      window.removeEventListener("exown:listing-type-change", syncSearchContext);
+      window.removeEventListener("exown:listing-type-change", handleExperienceChange);
     };
   }, [pathname]);
 
