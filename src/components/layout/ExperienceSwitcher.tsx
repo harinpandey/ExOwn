@@ -47,7 +47,7 @@ export default function ExperienceSwitcher() {
             onClick={() => {
               const nextType = destination.id === "rentals" ? "RENT" : "";
               setListingType(nextType);
-              window.dispatchEvent(new Event("exown:listing-type-change"));
+              window.dispatchEvent(new CustomEvent("exown:listing-type-change", { detail: nextType }));
             }}
             className={`flex min-w-fit shrink-0 items-center gap-1.5 rounded-xl border px-2.5 py-1.5 transition hover:border-[#CAD8D2] sm:gap-2 sm:px-3 lg:px-3.5 ${
               active
