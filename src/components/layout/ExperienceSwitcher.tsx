@@ -44,7 +44,11 @@ export default function ExperienceSwitcher() {
             key={destination.id}
             href={destination.href}
             aria-current={active ? "page" : undefined}
-            onClick={() => setListingType(destination.id === "rentals" ? "RENT" : "")}
+            onClick={() => {
+              const nextType = destination.id === "rentals" ? "RENT" : "";
+              setListingType(nextType);
+              window.dispatchEvent(new Event("exown:listing-type-change"));
+            }}
             className={`flex min-w-fit shrink-0 items-center gap-1.5 rounded-xl border px-2.5 py-1.5 transition hover:border-[#CAD8D2] sm:gap-2 sm:px-3 lg:px-3.5 ${
               active
                 ? "border-[#C8E6D9] bg-[#DDF1E8] text-[#174536] shadow-sm"
