@@ -32,7 +32,7 @@ const ticketTypes = [
 
 export default function TicketExchangePage() {
   return (
-    <main className="min-h-screen bg-[#F7F9F8] pb-14 text-[#13221D] dark:bg-[#0E1713] dark:text-[#E8F0EB]">
+    <div className="min-h-screen bg-[#F7F9F8] pb-14 text-[#13221D] dark:bg-[#0E1713] dark:text-[#E8F0EB]">
       <section className="border-b border-[#DCE8E5] bg-white dark:border-[#2A4136] dark:bg-[#14231C]">
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 lg:py-14">
           <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
@@ -102,7 +102,6 @@ export default function TicketExchangePage() {
           })}
         </div>
       </section>
-      <section className="mx-auto max-w-7xl px-4 sm:px-6"><div className="rounded-2xl border border-[#DCE8E5] bg-white p-5 sm:p-6 dark:border-[#2A4136] dark:bg-[#14231C]"><div className="flex items-start gap-3"><ShieldCheck className="mt-0.5 text-[#1E5646] dark:text-[#91CDB0]" size={20}/><div><h2 className="font-extrabold">Keep every transfer safe</h2><p className="mt-1 text-sm leading-6 text-[#4A5D56] dark:text-[#B4C5BC]">Confirm ticket details, seller identity and transfer eligibility with the original issuer before making arrangements. Never share active QR codes or booking references publicly.</p></div></div></div></section>
-    </main>
+      <section className="mx-auto max-w-7xl px-4 sm:px-6"><div className="rounded-2xl border border-[#DCE8E5] bg-white p-5 sm:p-6 dark:border-[#2A4136] dark:bg-[#14231C]"><div className="flex items-start gap-3"><ShieldCheck className="mt-0.5 text-[#1E5646] dark:text-[#91CDB0]" size={20}/><div><h2 className="font-extrabold">Keep every transfer safe</h2><p className="mt-1 text-sm leading-6 text-[#4A5D56] dark:text-[#B4C5BC]">Confirm ticket details, seller identity and transfer eligibility with the original issuer before making arrangements. Never share active QR codes or booking references publicly.</p></div></div></div></section>    </div>
   );
 }
