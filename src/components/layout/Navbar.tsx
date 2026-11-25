@@ -56,6 +56,7 @@ export default function Navbar() {
   const [isLoginPopupOpen, setIsLoginPopupOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [activeListingType, setActiveListingType] = useState("");
   const pathname = usePathname();
   const router = useRouter();
   const profileRef = useRef<HTMLDivElement>(null);
@@ -68,7 +69,9 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
-    setSearchQuery(new URLSearchParams(window.location.search).get("q") || "");
+    const params = new URLSearchParams(window.location.search);
+    setSearchQuery(params.get("q") || "");
+    setActiveListingType(params.get("listingType") || "");
   }, [pathname]);
 
   useEffect(() => {
@@ -100,6 +103,7 @@ export default function Navbar() {
   }, []);
 
   const isLpuNews = pathname === "/lpu-news" || pathname.startsWith("/lpu-news/");
+  const isRentExperience = pathname === "/search" && activeListingType === "RENT";
   const isTicketExperience = pathname === "/travel" || pathname.startsWith("/travel/");
   const isCampusLiving = pathname === "/campus-living" || pathname.startsWith("/campus-living/");
   const isHousingExperience = pathname === "/housing" || pathname.startsWith("/housing/");
@@ -111,6 +115,11 @@ export default function Navbar() {
     const trimmed = searchQuery.trim();
     if (isTicketExperience) {
       router.push(trimmed ? `/travel/search?q=${encodeURIComponent(trimmed)}` : "/travel/search");
+      return;
+    }
+    if (isRentExperience) {
+      const query = trimmed ? `&q=${encodeURIComponent(trimmed)}` : "";
+      router.push(`/search?listingType=RENT&campus=${encodeURIComponent(selectedCampus)}${query}`);
       return;
     }
     if (isLpuNews) {
@@ -168,7 +177,7 @@ export default function Navbar() {
               type="search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={isLpuNews ? "Search LPU news, notices, placements, events..." : isTicketExperience ? "Search tickets, routes, dates, events..." : "Search anything: products, books, rooms, services..."}
+              placeholder={isLpuNews ? "Search LPU news, notices, placements, events..." : isTicketExperience ? "Search tickets, routes, dates, events..." : isRentExperience ? "Search rentals: laptops, cycles, furniture..." : "Search anything: products, books, rooms, services..."}
               aria-label="Search ExOwn listings"
               className="h-12 w-full rounded-xl border border-[#E2E8E5] bg-white pl-12 pr-28 text-sm font-medium text-[#13221D] outline-none transition placeholder:text-[#82918B] focus:border-[#1E5646] focus:ring-2 focus:ring-[#1E5646]/10 sm:text-base"
             />
@@ -429,24 +438,6 @@ export default function Navbar() {
         </div>
         </div>
       </div>
-
-      {/* Secondary navigation stays on inner pages; the homepage has its visual category rail. */}
-      {pathname !== "/" && !isLpuNews && !isLivingExperience && !isTicketExperience && (
-        <div className="border-t border-[#E2E8E5] bg-white">
-          <nav className="container mx-auto flex items-center gap-2 overflow-x-auto px-4 py-2 no-scrollbar" aria-label="Marketplace navigation">
-            {secondaryLinks.map((link) => (
-              <Link
-                key={link.label}
-                href={link.href}
-                onClick={() => setSearchQuery("")}
-                className="whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-semibold text-[#4A5D56] transition hover:bg-[#E6F2EE] hover:text-[#1E5646]"
-              >
-                {link.label}
-              </Link>
-            ))}
-          </nav>
-        </div>
-      )}
 
     </header>
   );
