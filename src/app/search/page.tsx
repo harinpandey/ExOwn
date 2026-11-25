@@ -97,7 +97,7 @@ export default async function SearchPage({
     categorySlug && { label: `Category: ${categorySlug === "accessories" ? "Accessories" : formatFilterLabel(categorySlug)}`, param: "category" },
     subcategorySlug && { label: `Type: ${formatFilterLabel(subcategorySlug)}`, param: "subcategory" },
     condition && { label: `Condition: ${condition.replace("_", " ")}`, param: "condition" },
-    listingType && { label: `Listing: ${listingType === "SERVICE" ? "Services" : listingType === "RENT" ? "For rent" : "For sale"}`, param: "listingType" },
+    listingType && listingType !== "RENT" && { label: `Listing: ${listingType === "SERVICE" ? "Services" : "For sale"}`, param: "listingType" },
     isExchange && { label: "Exchange Only", param: "exchange" },
     isMovingOut && { label: "Moving Out Deals", param: "movingOut" },
     minPrice !== undefined && { label: `Min: ₹${minPrice.toLocaleString("en-IN")}`, param: "minPrice" },
@@ -150,7 +150,7 @@ export default async function SearchPage({
 
         <div className="flex-1">
           {/* Global search keeps general listing modes; category pages use their own focused filters. */}
-          {!categorySlug && (
+          {!categorySlug && listingType !== "RENT" && (
             <div className="mb-6 flex flex-wrap items-center gap-2">
               {[
                 { label: "All", href: getModeUrl(params, { listingType: undefined, exchange: undefined }) },
@@ -216,7 +216,9 @@ export default async function SearchPage({
                 );
               })}
               <Link
-                href={rawQuery ? `/search?q=${encodeURIComponent(rawQuery)}` : "/search"}
+                href={listingType === "RENT"
+                  ? `/search?listingType=RENT${rawQuery ? `&q=${encodeURIComponent(rawQuery)}` : ""}${rawCampus ? `&campus=${encodeURIComponent(rawCampus)}` : ""}`
+                  : rawQuery ? `/search?q=${encodeURIComponent(rawQuery)}` : "/search"}
                 className="rounded-lg px-3 py-1.5 text-xs font-black text-primary hover:bg-primary/10"
               >
                 Clear all filters
