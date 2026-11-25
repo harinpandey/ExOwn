@@ -24,6 +24,7 @@ import {
   Settings,
   ShieldCheck,
   ShoppingBag,
+  Ticket,
   Sun,
   User,
   UserPlus,
@@ -99,6 +100,7 @@ export default function Navbar() {
   }, []);
 
   const isLpuNews = pathname === "/lpu-news" || pathname.startsWith("/lpu-news/");
+  const isTicketExperience = pathname === "/travel" || pathname.startsWith("/travel/");
   const isCampusLiving = pathname === "/campus-living" || pathname.startsWith("/campus-living/");
   const isHousingExperience = pathname === "/housing" || pathname.startsWith("/housing/");
   const isRoommatesExperience = pathname === "/roommates" || pathname.startsWith("/roommates/");
@@ -107,6 +109,10 @@ export default function Navbar() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     const trimmed = searchQuery.trim();
+    if (isTicketExperience) {
+      router.push(trimmed ? `/travel/search?q=${encodeURIComponent(trimmed)}` : "/travel/search");
+      return;
+    }
     if (isLpuNews) {
       router.push(trimmed ? `/lpu-news?q=${encodeURIComponent(trimmed)}` : "/lpu-news");
       return;
@@ -162,7 +168,7 @@ export default function Navbar() {
               type="search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={isLpuNews ? "Search LPU news, notices, placements, events..." : "Search anything: products, books, rooms, services..."}
+              placeholder={isLpuNews ? "Search LPU news, notices, placements, events..." : isTicketExperience ? "Search tickets, routes, dates, events..." : "Search anything: products, books, rooms, services..."}
               aria-label="Search ExOwn listings"
               className="h-12 w-full rounded-xl border border-[#E2E8E5] bg-white pl-12 pr-28 text-sm font-medium text-[#13221D] outline-none transition placeholder:text-[#82918B] focus:border-[#1E5646] focus:ring-2 focus:ring-[#1E5646]/10 sm:text-base"
             />
@@ -299,11 +305,11 @@ export default function Navbar() {
 
           {/* Post Something Button */}
           <Link
-            href={!user ? "/login?redirect=/sell" : "/sell"}
+            href={!user ? (isTicketExperience ? "/login?redirect=/travel/list" : "/login?redirect=/sell") : (isTicketExperience ? "/travel/list" : "/sell")}
             className="marketplace-button hidden items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold active:scale-95 sm:flex"
           >
-            <Plus size={16} />
-            + Post Something
+            {isTicketExperience ? <Ticket size={16} /> : <Plus size={16} />}
+            {isTicketExperience ? "List a ticket" : "+ Post Something"}
           </Link>
 
           {/* Logged In Profile Menu OR Flipkart-Style Login Popup */}
@@ -425,7 +431,7 @@ export default function Navbar() {
       </div>
 
       {/* Secondary navigation stays on inner pages; the homepage has its visual category rail. */}
-      {pathname !== "/" && !isLpuNews && !isLivingExperience && (
+      {pathname !== "/" && !isLpuNews && !isLivingExperience && !isTicketExperience && (
         <div className="border-t border-[#E2E8E5] bg-white">
           <nav className="container mx-auto flex items-center gap-2 overflow-x-auto px-4 py-2 no-scrollbar" aria-label="Marketplace navigation">
             {secondaryLinks.map((link) => (
