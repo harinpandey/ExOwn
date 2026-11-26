@@ -16,7 +16,9 @@ import {
   AlertTriangle,
   ExternalLink,
   Sparkles,
-  ShoppingBag
+  ShoppingBag,
+  Paperclip,
+  X
 } from "lucide-react";
 import { format } from "date-fns";
 import { useAuth } from "@/context/AuthContext";
@@ -27,6 +29,7 @@ import { toast } from "react-hot-toast";
 import SellerLiveLocationControl from "@/components/chat/SellerLiveLocationControl";
 import PhoneShareControl from "@/components/chat/PhoneShareControl";
 import BuyerLiveLocationCard from "@/components/chat/BuyerLiveLocationCard";
+import { getCloudinarySignature } from "@/actions/cloudinary";
 
 interface LiveLocationMessageData {
   type: "LIVE_LOCATION_STARTED";
@@ -34,6 +37,22 @@ interface LiveLocationMessageData {
   startedAt: string;
   expiresAt: string;
   productId: string;
+}
+
+const CHAT_MEDIA_PREFIX = "EXOWN_CHAT_MEDIA:";
+
+function parseChatMediaMessage(content: string): { text: string; images: string[] } | null {
+  if (!content?.startsWith(CHAT_MEDIA_PREFIX)) return null;
+  try {
+    const data = JSON.parse(content.slice(CHAT_MEDIA_PREFIX.length));
+    if (Array.isArray(data?.images)) {
+      return {
+        text: typeof data.text === "string" ? data.text : "",
+        images: data.images.filter((url: unknown) => typeof url === "string" && url.startsWith("https://res.cloudinary.com/") && url.includes("/image/upload/")),
+      };
+    }
+  } catch { /* invalid media message */ }
+  return null;
 }
 
 function parseLiveLocationMessage(content: string): LiveLocationMessageData | null {
@@ -97,6 +116,10 @@ function ChatRoomContent({ partnerId }: { partnerId: string }) {
   const [loading, setLoading] = useState(true);
   const [chatFetchError, setChatFetchError] = useState<string | null>(null);
   const [newMessage, setNewMessage] = useState("");
+  const [attachments, setAttachments] = useState<{ file: File; previewUrl: string }[]>([]);
+  const attachmentInputRef = useRef<HTMLInputElement>(null);
+  const attachmentsRef = useRef(attachments);
+  attachmentsRef.current = attachments;
   const [isSending, setIsSending] = useState(false);
   const [isActioningOffer, setIsActioningOffer] = useState(false);
   const [showMeetupTips, setShowMeetupTips] = useState(false);
@@ -106,6 +129,10 @@ function ChatRoomContent({ partnerId }: { partnerId: string }) {
   const lastAutoScrolledMessageIdRef = useRef<string | null>(null);
   const hasInitializedMessageScrollRef = useRef(false);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => () => {
+    attachmentsRef.current.forEach((item) => URL.revokeObjectURL(item.previewUrl));
+  }, []);
 
   // Close options menu on outside click
   useEffect(() => {
@@ -187,27 +214,73 @@ function ChatRoomContent({ partnerId }: { partnerId: string }) {
     }
   }, [messages, loading, user?.uid]);
 
+  const handleSelectAttachments = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const selected = Array.from(event.target.files || []);
+    event.target.value = "";
+    const accepted: { file: File; previewUrl: string }[] = [];
+    for (const file of selected) {
+      if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+        toast.error(`${file.name}: choose a JPG, PNG, or WEBP image.`);
+        continue;
+      }
+      if (file.size > 8 * 1024 * 1024) {
+        toast.error(`${file.name}: image must be 8 MB or smaller.`);
+        continue;
+      }
+      accepted.push({ file, previewUrl: URL.createObjectURL(file) });
+    }
+    setAttachments((current) => {
+      const combined = [...current, ...accepted];
+      if (combined.length > 5) {
+        combined.slice(5).forEach((item) => URL.revokeObjectURL(item.previewUrl));
+        toast.error("You can attach up to 5 images per message.");
+      }
+      return combined.slice(0, 5);
+    });
+  };
+
+  const removeAttachment = (previewUrl: string) => {
+    URL.revokeObjectURL(previewUrl);
+    setAttachments((current) => current.filter((item) => item.previewUrl !== previewUrl));
+  };
+
+  const uploadChatImage = async (file: File): Promise<string> => {
+    const signature = await getCloudinarySignature("ExOwn_chat_attachments");
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("api_key", signature.apiKey);
+    formData.append("timestamp", String(signature.timestamp));
+    formData.append("signature", signature.signature);
+    formData.append("folder", "ExOwn_chat_attachments");
+    formData.append("allowed_formats", signature.allowed_formats);
+    const response = await fetch("https://api.cloudinary.com/v1_1/" + signature.cloudName + "/image/upload", { method: "POST", body: formData });
+    const data = await response.json();
+    if (!response.ok || !data.secure_url) throw new Error(data.error?.message || "Image upload failed.");
+    return data.secure_url as string;
+  };
+
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newMessage.trim() || !user || isSending) return;
-
+    if ((!newMessage.trim() && attachments.length === 0) || !user || isSending) return;
     const content = newMessage.trim();
+    const selectedAttachments = [...attachments];
     setIsSending(true);
-
     try {
+      const imageUrls: string[] = [];
+      for (const item of selectedAttachments) imageUrls.push(await uploadChatImage(item.file));
       const { chatService } = await import("@/lib/chat-utils");
-      const result = await chatService.send(user.uid, partnerId, content);
-
+      const result = await chatService.send(user.uid, partnerId, content, imageUrls);
       if (!result?.success) {
         toast.error(result?.error || "Message could not be sent. Please try again.");
         return;
       }
-
+      selectedAttachments.forEach((item) => URL.revokeObjectURL(item.previewUrl));
+      setAttachments([]);
       setNewMessage("");
       await fetchChatData();
     } catch (err) {
-      console.error("Failed to send message:", err);
-      toast.error("Failed to send message. Please try again.");
+      console.error("Failed to send message with attachments:", err);
+      toast.error(err instanceof Error ? err.message : "Failed to send message. Please try again.");
     } finally {
       setIsSending(false);
     }
@@ -540,6 +613,9 @@ function ChatRoomContent({ partnerId }: { partnerId: string }) {
             messages.map((msg) => {
               const isMe = msg.senderId === currentDbUserId;
               const liveLocData = parseLiveLocationMessage(msg.content);
+              const mediaData = parseChatMediaMessage(msg.content);
+              const messageText = mediaData?.text ?? msg.content;
+              const messageImages = mediaData?.images ?? (msg.imageUrl ? [msg.imageUrl] : []);
 
               if (liveLocData) {
                 const isLiveLocFeatureEnabled = process.env.NEXT_PUBLIC_ENABLE_LIVE_LOCATION === "true";
@@ -580,7 +656,16 @@ function ChatRoomContent({ partnerId }: { partnerId: string }) {
                       ? "bg-primary text-white rounded-br-sm shadow-sm"
                       : "bg-white dark:bg-gray-800 border border-gray-200/80 dark:border-gray-700/80 text-gray-900 dark:text-gray-100 rounded-bl-sm shadow-sm"
                   }`}>
-                    <p className="text-sm whitespace-pre-wrap break-words">{msg.content}</p>
+                    {messageText && <p className="text-sm whitespace-pre-wrap break-words">{messageText}</p>}
+                    {messageImages.length > 0 && (
+                      <div className={`mt-1 grid gap-2 ${messageImages.length > 1 ? "grid-cols-2" : "grid-cols-1"}`}>
+                        {messageImages.map((url: string, imageIndex: number) => (
+                          <a key={`${msg.id}-image-${imageIndex}`} href={url} target="_blank" rel="noopener noreferrer" className="block overflow-hidden rounded-xl border border-black/10">
+                            <img src={url} alt={`Chat attachment ${imageIndex + 1}`} loading="lazy" className="max-h-64 w-full object-cover" />
+                          </a>
+                        ))}
+                      </div>
+                    )}
                     <p className={`text-[10px] text-right mt-1 font-medium ${isMe ? "text-orange-200" : "text-gray-400"}`}>
                       {format(new Date(msg.createdAt), "h:mm a")}
                     </p>
@@ -593,32 +678,26 @@ function ChatRoomContent({ partnerId }: { partnerId: string }) {
 
         {/* Input Composer */}
         <div className="shrink-0 p-3 md:p-4 border-t border-gray-200/80 dark:border-gray-800 bg-white dark:bg-gray-900">
-          <form onSubmit={handleSend} className="flex items-end gap-2 max-w-4xl mx-auto">
-            <div className="flex-1 relative">
-              <textarea
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSend(e);
-                  }
-                }}
-                placeholder="Type a message... (Press Enter to send)"
-                className="w-full px-4 py-3 max-h-32 rounded-2xl border border-gray-300/80 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/80 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all resize-none text-sm placeholder:text-gray-400"
-                rows={1}
-                disabled={isSending}
-              />
+          {attachments.length > 0 && (
+            <div className="max-w-4xl mx-auto mb-3 flex flex-wrap gap-2">
+              {attachments.map((item) => (
+                <div key={item.previewUrl} className="relative h-16 w-16 overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700">
+                  <img src={item.previewUrl} alt="Selected attachment preview" className="h-full w-full object-cover" />
+                  <button type="button" onClick={() => removeAttachment(item.previewUrl)} disabled={isSending} aria-label="Remove attached image" className="absolute right-1 top-1 rounded-full bg-black/70 p-1 text-white disabled:opacity-50"><X size={12} /></button>
+                </div>
+              ))}
+              <p className="self-center text-xs text-gray-500">{attachments.length}/5 photos · Max 8 MB each</p>
             </div>
-            <button
-              type="submit"
-              disabled={!newMessage.trim() || isSending}
-              className="p-3 bg-primary text-white rounded-2xl hover:bg-orange-600 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-md shadow-primary/20 flex-shrink-0"
-              aria-label="Send message"
-            >
-              <Send size={18} className={isSending ? "animate-pulse" : "translate-x-0.5 -translate-y-0.5"} />
-            </button>
+          )}
+          <form onSubmit={handleSend} className="flex items-end gap-2 max-w-4xl mx-auto">
+            <input ref={attachmentInputRef} type="file" accept="image/jpeg,image/png,image/webp" multiple className="hidden" onChange={handleSelectAttachments} />
+            <button type="button" onClick={() => attachmentInputRef.current?.click()} disabled={isSending || attachments.length >= 5} className="p-3 rounded-2xl border border-gray-300/80 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-40 flex-shrink-0" aria-label="Attach images" title="Attach photos"><Paperclip size={18} /></button>
+            <div className="flex-1 relative">
+              <textarea value={newMessage} onChange={(e) => setNewMessage(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(e); } }} placeholder="Type a message... (Press Enter to send)" className="w-full px-4 py-3 max-h-32 rounded-2xl border border-gray-300/80 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/80 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all resize-none text-sm placeholder:text-gray-400" rows={1} disabled={isSending} />
+            </div>
+            <button type="submit" disabled={(!newMessage.trim() && attachments.length === 0) || isSending} className="p-3 bg-primary text-white rounded-2xl hover:bg-orange-600 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-md shadow-primary/20 flex-shrink-0" aria-label="Send message"><Send size={18} className={isSending ? "animate-pulse" : "translate-x-0.5 -translate-y-0.5"} /></button>
           </form>
+          {isSending && attachments.length > 0 && <p className="max-w-4xl mx-auto mt-2 text-xs text-gray-500">Uploading and sending photos…</p>}
         </div>
       </div>
     </div>
