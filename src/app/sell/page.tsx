@@ -123,8 +123,8 @@ function SellPageContent() {
         toast.error("Only JPG, PNG, or WEBP images up to 5MB are allowed");
       }
 
-      if (images.length + validFiles.length > 10) {
-        toast.error("Maximum 10 images allowed");
+      if (images.length + validFiles.length > 20) {
+        toast.error("Maximum 20 images allowed");
         return;
       }
       setImages((prev) => [...prev, ...validFiles]);
@@ -305,23 +305,32 @@ function SellPageContent() {
               <X size={18} />
             </button>
             <h1 className="text-base font-bold text-gray-900 dark:text-white">
-              Create Listing
+              Post a Listing
             </h1>
           </div>
 
-          <div className="flex items-center gap-3">
-            <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">
-              Step {step} of 5
+          <div className="flex items-center gap-2">
+            <span className="hidden rounded-full bg-[#EAF2EF] px-2.5 py-1 text-[11px] font-bold text-[#1E5646] sm:inline-flex dark:bg-[#14251D] dark:text-[#9BC5B1]">
+              Free listing
+            </span>
+            <span className="text-xs font-semibold tabular-nums text-gray-500 dark:text-gray-400">
+              {step} / 6
             </span>
           </div>
         </div>
 
-        {/* Step Progress Bar */}
-        <div className="h-1 w-full bg-gray-100 dark:bg-zinc-800">
-          <div
-            className="h-full bg-primary transition-all duration-300"
-            style={{ width: `${(step / 5) * 100}%` }}
-          />
+        {/* Step Progress */}
+        <div className="mx-auto max-w-4xl px-4 pt-3">
+          <div className="grid grid-cols-6 gap-1.5" aria-label="Listing progress">
+            {["Type", "Category", "Subcategory", "Details", "Ad info", "Photos"].map((label, index) => (
+              <div key={label} className="min-w-0">
+                <div className={`h-1.5 rounded-full transition-colors ${step > index ? "bg-[#1E5646]" : "bg-gray-200 dark:bg-zinc-800"}`} />
+                <span className={`mt-1.5 hidden truncate text-[10px] font-semibold sm:block ${step === index + 1 ? "text-[#1E5646] dark:text-[#9BC5B1]" : "text-gray-400"}`}>
+                  {label}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -458,7 +467,7 @@ function SellPageContent() {
                 Category & Campus Location
               </h2>
               <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Choose the category and university campus where this listing is located.
+                Choose the category and campus so nearby students can discover your listing.
               </p>
             </div>
 
@@ -670,15 +679,19 @@ function SellPageContent() {
               {/* Title */}
               {selectedSubcategory?.id !== "other" && (
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-400 mb-1.5">
-                    Title *
-                  </label>
+                  <div className="mb-1.5 flex items-center justify-between gap-3">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-400">
+                      Ad title *
+                    </label>
+                    <span className={`text-[11px] font-semibold tabular-nums ${title.length > 70 ? "text-rose-600" : "text-gray-400"}`}>{title.length}/70</span>
+                  </div>
                   <input
                     type="text"
                     required
+                    maxLength={70}
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    placeholder={selectedCategory?.slug === "tickets-events" ? "e.g. Coldplay concert — 2 seated tickets" : "e.g. Apple iPad 9th Gen 64GB with Pencil"}
+                    placeholder={selectedCategory?.slug === "tickets-events" ? "e.g. Concert ticket — 2 seated tickets" : "e.g. iPhone 13 128GB in good condition"}
                     className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-900 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-zinc-900 dark:text-white"
                   />
                 </div>
@@ -691,11 +704,12 @@ function SellPageContent() {
                     Description *
                   </label>
                   <span className={`text-[11px] font-semibold ${description.length < 10 ? "text-amber-500" : "text-gray-400"}`}>
-                    {description.length} characters (min 10)
+                    {description.length}/1500 characters
                   </span>
                 </div>
                 <textarea
-                  rows={4}
+                  rows={5}
+                  maxLength={1500}
                   required
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
@@ -873,11 +887,15 @@ function SellPageContent() {
                 Photos & Publish
               </h2>
               <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Add 1 to 10 photos of your item. The first photo is your listing cover.
+                Add up to 20 clear photos. Your first photo is the cover image buyers see first.
               </p>
             </div>
 
             <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:p-7 dark:border-white/10 dark:bg-[#10141b]">
+              <div className="mb-4 flex items-center justify-between gap-3">
+                <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Photos</p>
+                <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-bold tabular-nums text-gray-600 dark:bg-zinc-800 dark:text-gray-300">{images.length} / 20</span>
+              </div>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
                 {imageUrls.map((url, index) => (
                   <div
@@ -914,11 +932,11 @@ function SellPageContent() {
                   </div>
                 ))}
 
-                {images.length < 10 && (
+                {images.length < 20 && (
                   <label className="flex aspect-square cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50/50 text-gray-500 transition hover:border-primary hover:bg-primary/5 dark:border-white/10 dark:bg-zinc-900 dark:text-zinc-400">
                     <Upload size={24} className="mb-1 text-gray-400" />
-                    <span className="text-xs font-semibold">Upload Photo</span>
-                    <span className="text-[10px] text-gray-400">Up to 5MB</span>
+                    <span className="text-xs font-semibold">Add photos</span>
+                    <span className="text-[10px] text-gray-400">JPG, PNG or WEBP · 5MB max</span>
                     <input
                       type="file"
                       accept="image/jpeg,image/png,image/webp"
@@ -935,11 +953,27 @@ function SellPageContent() {
                 <span className="font-bold text-gray-700 dark:text-gray-300 block mb-2">
                   Listing Summary
                 </span>
-                <div className="grid grid-cols-2 gap-2 text-gray-600 dark:text-gray-400">
+                <div className="grid grid-cols-1 gap-2 text-gray-600 dark:text-gray-400 sm:grid-cols-2">
                   <div>Title: <strong className="text-gray-900 dark:text-white">{title || customOtherTitle}</strong></div>
-                  <div>Price: <strong className="text-gray-900 dark:text-white">₹{price}</strong></div>
+                  <div>Price: <strong className="text-gray-900 dark:text-white">₹{price}{listingMode === "RENT" ? "/day" : ""}</strong></div>
+                  <div>Category: <strong className="text-gray-900 dark:text-white">{selectedCategory?.name} · {selectedSubcategory?.name}</strong></div>
+                  <div>Condition: <strong className="text-gray-900 dark:text-white">{finalCondition.replaceAll("_", " ")}</strong></div>
                   <div>Format: <strong className="text-gray-900 dark:text-white">{listingMode}</strong></div>
-                  <div>Location: <strong className="text-gray-900 dark:text-white">{pickupLocation}</strong></div>
+                  <div>Campus spot: <strong className="text-gray-900 dark:text-white">{pickupLocation}</strong></div>
+                </div>
+              </div>
+
+              <div className="mt-4 rounded-xl border border-[#DCE8E2] bg-[#F4F8F6] p-4 dark:border-[#2A4136] dark:bg-[#14251D]/70">
+                <div className="flex items-start gap-3">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#E2EEE8] text-[#1E5646] dark:bg-[#20392E] dark:text-[#9BC5B1]">
+                    <HelpCircle size={17} />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-[#13221D] dark:text-[#E8F0EB]">Before you publish</p>
+                    <p className="mt-1 text-xs leading-5 text-[#4A5D56] dark:text-[#B4C5BC]">
+                      Your ExOwn profile and campus help buyers know who they are contacting. Your phone number stays private unless you choose to share it in chat. Listings may be reviewed before going live.
+                    </p>
+                  </div>
                 </div>
               </div>
 
