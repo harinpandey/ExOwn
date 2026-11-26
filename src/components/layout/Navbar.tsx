@@ -15,7 +15,6 @@ import {
   HelpCircle,
   LayoutDashboard,
   LogOut,
-  MapPin,
   MessageSquare,
   Moon,
   Package,
@@ -32,6 +31,7 @@ import {
 import { AnimatePresence, motion } from "framer-motion";
 import { useNotifications } from "@/context/NotificationContext";
 import ExperienceSwitcher from "@/components/layout/ExperienceSwitcher";
+import CampusSelector from "@/components/layout/CampusSelector";
 
 const secondaryLinks = [
   { label: "Marketplace", href: "/search" },
@@ -43,7 +43,6 @@ const secondaryLinks = [
 ];
 
 import { useLocation } from "@/context/LocationContext";
-import { CAMPUS_DIRECTORY } from "@/config/campuses";
 
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -157,28 +156,7 @@ export default function Navbar() {
 
           <ExperienceSwitcher />
 
-          <label className="relative ml-auto flex shrink-0 max-w-[34%] cursor-pointer items-center gap-1.5 rounded-xl border border-[#1E5646] bg-[#1E5646] px-2.5 py-2 text-left text-white transition hover:bg-[#174536] sm:max-w-[25%] sm:gap-2.5 sm:px-3">
-            <MapPin size={19} className="shrink-0 text-white" aria-hidden="true" />
-            <span className="min-w-0">
-              <span className="block text-[9px] font-bold uppercase tracking-[0.14em] text-white/75">Your campus</span>
-              <span className="block max-w-[180px] truncate text-xs font-extrabold text-white sm:max-w-[260px] sm:text-sm">
-                {campusObj.shortName}
-              </span>
-            </span>
-            <ChevronDown size={14} className="shrink-0 text-white/80" aria-hidden="true" />
-            <select
-              aria-label="Select campus"
-              value={selectedCampus}
-              onChange={(e) => setSelectedCampus(e.target.value)}
-              className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"
-            >
-              {CAMPUS_DIRECTORY.map((campus) => (
-                <option key={campus.id} value={campus.name} className="bg-white text-[#13221D]">
-                  {campus.shortName}
-                </option>
-              ))}
-            </select>
-          </label>
+          <CampusSelector selectedCampus={selectedCampus} setSelectedCampus={setSelectedCampus} campusName={campusObj.shortName} />
         </div>
 
         {/* Single wide global search and essential actions */}
