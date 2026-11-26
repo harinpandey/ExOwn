@@ -59,6 +59,10 @@ model User {
   wishlist                     Wishlist[]
   liveLocationSessionsAsSeller LiveLocationSession[] @relation("LiveLocationSeller")
   liveLocationSessionsAsBuyer  LiveLocationSession[] @relation("LiveLocationBuyer")
+  phoneSharesAsSeller          PhoneShare[]          @relation("PhoneShareSeller")
+  phoneSharesAsBuyer           PhoneShare[]          @relation("PhoneShareBuyer")
+  reviewsWritten               SellerReview[]        @relation("ReviewAuthor")
+  reviewsReceived              SellerReview[]        @relation("ReviewSeller")
 }
 
 model Profile {
@@ -196,6 +200,7 @@ model Product {
   transactions         TransactionRecord[]
   wishlistedBy         Wishlist[]
   liveLocationSessions LiveLocationSession[]
+  phoneShares         PhoneShare[]
 
   @@index([sellerId])
   @@index([categoryId])
@@ -656,6 +661,7 @@ model TransactionRecord {
   metadata           Json?
   createdAt          DateTime          @default(now())
   updatedAt          DateTime          @updatedAt
+  review             SellerReview?
   buyer              User              @relation("TransactionBuyer", fields: [buyerId], references: [id], onDelete: Cascade)
   exchangeOffer      ExchangeOffer?    @relation(fields: [exchangeOfferId], references: [id], onDelete: SetNull)
   offer              Offer?            @relation(fields: [offerId], references: [id], onDelete: SetNull)
@@ -958,4 +964,36 @@ enum LiveLocationStatus {
   ACTIVE
   STOPPED
   EXPIRED
+}
+
+
+model PhoneShare {
+  id        String    @id @default(cuid())
+  productId String
+  sellerId  String
+  buyerId   String
+  grantedAt  DateTime  @default(now())
+  revokedAt  DateTime?
+  product   Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  seller    User      @relation("PhoneShareSeller", fields: [sellerId], references: [id], onDelete: Cascade)
+  buyer     User      @relation("PhoneShareBuyer", fields: [buyerId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, buyerId])
+  @@index([sellerId, buyerId])
+}
+
+model SellerReview {
+  id                  String            @id @default(cuid())
+  transactionRecordId String            @unique
+  authorId            String
+  sellerId            String
+  rating              Int
+  comment             String?
+  createdAt           DateTime          @default(now())
+  transactionRecord   TransactionRecord @relation(fields: [transactionRecordId], references: [id], onDelete: Cascade)
+  author              User              @relation("ReviewAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  seller              User              @relation("ReviewSeller", fields: [sellerId], references: [id], onDelete: Cascade)
+
+  @@index([sellerId, createdAt])
+  @@index([authorId])
 }
