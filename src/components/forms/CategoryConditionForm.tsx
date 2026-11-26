@@ -43,9 +43,16 @@ export default function CategoryConditionForm({
     setCurrentStep(0);
     setAnswers({});
     setOtherTitle("");
+    setShowConditionSelector(false);
   }, [categoryName, subcategoryName]);
 
   const [showConditionSelector, setShowConditionSelector] = useState(false);
+
+  useEffect(() => {
+    if (questions.length === 0 && !isOther) {
+      setShowConditionSelector(true);
+    }
+  }, [questions.length, isOther]);
 
   const handleAnswer = (qId: string, value: any) => {
     const newAnswers = { ...answers, [qId]: value };
@@ -94,13 +101,7 @@ export default function CategoryConditionForm({
           autoFocus
         />
 
-        <button
-          onClick={() => otherTitle.trim() && setOtherTitle(otherTitle.trim())}
-          disabled={!otherTitle.trim()}
-          className="w-full py-4 bg-primary text-white rounded-2xl font-black text-lg shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50"
-        >
-          Continue
-        </button>
+        <p className="text-xs text-gray-500">Your title is saved as you type. Add a few words to continue to item details.</p>
       </motion.div>
     );
   }
@@ -140,13 +141,7 @@ export default function CategoryConditionForm({
       <div className="p-8 text-center bg-gray-50 dark:bg-gray-800/50 rounded-[2.5rem] border-2 border-dashed border-gray-200 dark:border-gray-700">
         <Check className="mx-auto text-emerald-500 mb-4" size={48} />
         <h3 className="text-xl font-black">All set!</h3>
-        <p className="text-sm text-gray-500 mb-6">We've gathered the key details for your listing.</p>
-        <button 
-          onClick={() => setShowConditionSelector(true)}
-          className="px-8 py-3 bg-primary text-white rounded-xl font-bold"
-        >
-          Proceed to Condition
-        </button>
+        <p className="text-sm text-gray-500">No extra specifications are needed for this subcategory.</p>
       </div>
     );
   }
