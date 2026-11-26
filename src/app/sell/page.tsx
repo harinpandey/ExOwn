@@ -11,6 +11,21 @@ import { CATEGORIES, Category, Subcategory } from "@/config/categories";
 import { toast } from "react-hot-toast";
 import * as LucideIcons from "lucide-react";
 
+const CATEGORY_DESCRIPTIONS: Record<string, string> = {
+  "mobiles-gadgets": "Phones, tablets, smartwatches and mobile accessories.",
+  "electronics-appliances": "Cameras, speakers, appliances and everyday electronics.",
+  "computers-laptops": "Laptops, desktops, monitors and computer accessories.",
+  "furniture-hostel": "Study tables, chairs, lamps and hostel essentials.",
+  fashion: "Clothing, shoes, bags, watches and accessories.",
+  "books-sports-hobbies": "Textbooks, notes, calculators, sports and hobby gear.",
+  vehicles: "Cycles, e-bikes, scooters, motorcycles and vehicle accessories.",
+  properties: "Rooms, PGs, flats and shared accommodation.",
+  jobs: "Internships, part-time work and freelance opportunities.",
+  services: "Tutoring, repairs, printing and student services.",
+  "tickets-events": "Eligible movie, concert, sports and campus event tickets.",
+  gaming: "Gaming consoles, games and gaming accessories.",
+};
+
 export default function SellPage() {
   return (
     <Suspense fallback={
@@ -472,7 +487,7 @@ function SellPageContent() {
                 placeholder="Search categories..."
                 className="mb-4 w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 dark:border-white/10 dark:bg-zinc-900 dark:text-white"
               />
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {CATEGORIES.filter((cat) => cat.name.toLowerCase().includes(categorySearch.toLowerCase())).map((cat) => (
                   <button
                     key={cat.id}
@@ -487,14 +502,19 @@ function SellPageContent() {
                       }
                       setStep(3);
                     }}
-                    className={`flex items-center gap-2.5 rounded-xl border p-3 text-left transition ${
+                    className={`flex min-h-[150px] flex-col items-start rounded-2xl border-2 p-5 text-left transition ${
                       selectedCategory?.id === cat.id
-                        ? "border-primary bg-primary/10 text-primary font-bold"
-                        : "border-gray-200 bg-gray-50/50 text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:bg-zinc-900 dark:text-gray-300 dark:hover:bg-zinc-800"
+                        ? "border-primary bg-primary/5 shadow-sm dark:bg-primary/10"
+                        : "border-gray-200 bg-white hover:border-gray-300 dark:border-white/10 dark:bg-[#10141b] dark:hover:border-white/20"
                     }`}
                   >
-                    <DynamicIcon name={cat.icon} size={18} />
-                    <span className="truncate text-xs font-semibold">{cat.name}</span>
+                    <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#EAF2EF] text-[#1E5646] dark:bg-[#14251D] dark:text-[#9BC5B1]">
+                      <DynamicIcon name={cat.icon} size={22} />
+                    </span>
+                    <span className="mt-3 text-sm font-bold text-gray-900 dark:text-white">{cat.name}</span>
+                    <span className="mt-1 text-xs leading-5 text-gray-500 dark:text-gray-400">
+                      {CATEGORY_DESCRIPTIONS[cat.slug] || "Find the right listing type for your campus community."}
+                    </span>
                   </button>
                 ))}
               </div>
