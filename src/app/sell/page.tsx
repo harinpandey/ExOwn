@@ -325,7 +325,7 @@ function SellPageContent() {
               {/* SELL */}
               <button
                 type="button"
-                onClick={() => setListingMode("SELL"); setStep(2)}
+                onClick={() => { setListingMode("SELL"); setStep(2); }}
                 className={`flex flex-col items-start rounded-2xl border-2 p-5 text-left transition ${
                   listingMode === "SELL"
                     ? "border-primary bg-primary/5 shadow-sm dark:bg-primary/10"
