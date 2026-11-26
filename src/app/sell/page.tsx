@@ -346,7 +346,7 @@ function SellPageContent() {
               {/* RENT */}
               <button
                 type="button"
-                onClick={() => setListingMode("RENT")}
+                onClick={() => { setListingMode("RENT"); setStep(2); }}
                 className={`flex flex-col items-start rounded-2xl border-2 p-5 text-left transition ${
                   listingMode === "RENT"
                     ? "border-primary bg-primary/5 shadow-sm dark:bg-primary/10"
@@ -367,7 +367,7 @@ function SellPageContent() {
               {/* EXCHANGE */}
               <button
                 type="button"
-                onClick={() => setListingMode("EXCHANGE")}
+                onClick={() => { setListingMode("EXCHANGE"); setStep(2); }}
                 className={`flex flex-col items-start rounded-2xl border-2 p-5 text-left transition ${
                   listingMode === "EXCHANGE"
                     ? "border-primary bg-primary/5 shadow-sm dark:bg-primary/10"
@@ -388,7 +388,7 @@ function SellPageContent() {
               {/* SERVICE */}
               <button
                 type="button"
-                onClick={() => setListingMode("SERVICE")}
+                onClick={() => { setListingMode("SERVICE"); setStep(2); }}
                 className={`flex flex-col items-start rounded-2xl border-2 p-5 text-left transition ${
                   listingMode === "SERVICE"
                     ? "border-primary bg-primary/5 shadow-sm dark:bg-primary/10"
