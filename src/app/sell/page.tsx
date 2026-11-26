@@ -11,6 +11,40 @@ import { CATEGORIES, Category, Subcategory } from "@/config/categories";
 import { toast } from "react-hot-toast";
 import * as LucideIcons from "lucide-react";
 
+const SEARCH_ALIASES: Record<string, string[]> = {
+  "mobiles-gadgets": ["mobile", "phone", "phones", "smartphone", "iphone", "android", "handset", "telephone"],
+  "computers-laptops": ["computer", "laptop", "notebook", "pc", "macbook"],
+  "electronics-appliances": ["electronic", "tv", "television", "fridge", "refrigerator", "camera", "speaker", "air conditioner"],
+  "furniture-hostel": ["furniture", "hostel item", "chair", "table", "bed", "mattress"],
+  "books-sports-hobbies": ["book", "textbook", "notes", "study material", "calculator"],
+  vehicles: ["cycle", "bicycle", "bike", "motorbike", "motorcycle", "scooty", "car"],
+  properties: ["room", "pg", "paying guest", "housing", "flat", "apartment", "roommate"],
+  "tickets-events": ["ticket", "concert", "movie ticket", "match ticket"],
+  gaming: ["game", "console", "playstation", "xbox"],
+};
+const SUBCATEGORY_ALIASES: Record<string, string[]> = {
+  iphones: ["iphone", "apple phone"], "android-phones": ["android", "samsung", "oneplus", "xiaomi", "redmi"],
+  laptop: ["notebook", "macbook"], cycles: ["bicycle", "pedal cycle"], motorcycles: ["motorbike", "two wheeler"],
+  scooters: ["scooty"], pg: ["paying guest"], shared: ["roommate", "flatmate", "shared room"],
+  textbooks: ["text book", "course book"], tutoring: ["tuition", "tutor"],
+};
+const matchesSearch = (query: string, values: string[]) => {
+  const q = query.toLowerCase().trim().replace(/[^a-z0-9 ]/g, "");
+  if (!q) return true;
+  const text = values.join(" ").toLowerCase().replace(/[^a-z0-9 ]/g, "");
+  return q.split(/\s+/).every((part) => text.includes(part) || (part.length > 4 && text.split(/\s+/).some((word) => {
+    if (Math.abs(word.length - part.length) > 1) return false;
+    let edits = 0, i = 0, j = 0;
+    while (i < part.length && j < word.length) {
+      if (part[i] === word[j]) { i++; j++; }
+      else if (++edits > 1) return false;
+      else if (part.length > word.length) i++;
+      else if (word.length > part.length) j++;
+      else { i++; j++; }
+    }
+    return edits + (part.length - i) + (word.length - j) <= 1;
+  })));
+};
 const CATEGORY_DESCRIPTIONS: Record<string, string> = {
   "mobiles-gadgets": "Phones, tablets, smartwatches and mobile accessories.",
   "electronics-appliances": "Cameras, speakers, appliances and everyday electronics.",
@@ -499,7 +533,7 @@ function SellPageContent() {
                 className="mb-4 w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 dark:border-white/10 dark:bg-zinc-900 dark:text-white"
               />
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                {CATEGORIES.filter((cat) => cat.name.toLowerCase().includes(categorySearch.toLowerCase())).map((cat) => (
+                {CATEGORIES.filter((cat) => matchesSearch(categorySearch, [cat.name, cat.slug, CATEGORY_DESCRIPTIONS[cat.slug] || "", ...(SEARCH_ALIASES[cat.slug] || []), ...cat.subcategories.flatMap((sub) => [sub.name, sub.id, ...(SUBCATEGORY_ALIASES[sub.id] || [])])])).map((cat) => (
                   <button
                     key={cat.id}
                     type="button"
@@ -594,7 +628,7 @@ function SellPageContent() {
 
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               {(selectedCategory?.subcategories || [])
-                .filter((sub) => sub.name.toLowerCase().includes(subcategorySearch.toLowerCase()))
+                .filter((sub) => matchesSearch(subcategorySearch, [sub.name, sub.id, ...(SUBCATEGORY_ALIASES[sub.id] || [])]))
                 .map((sub) => (
                   <button
                     key={sub.id}
