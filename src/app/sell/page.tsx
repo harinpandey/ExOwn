@@ -673,6 +673,9 @@ function SellPageContent() {
                 onComplete={(details, cond) => {
                   setConditionDetails(details);
                   setFinalCondition(cond);
+                  // Selecting the final condition completes this step and moves
+                  // directly to ad details; no separate Continue button needed.
+                  setStep(5);
                 }}
               />
             </div>
@@ -685,14 +688,9 @@ function SellPageContent() {
               >
                 <ChevronLeft size={16} /> Back
               </button>
-              <button
-                type="button"
-                onClick={() => setStep(5)}
-                disabled={!conditionDetails}
-                className="flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-primary-dark disabled:opacity-50"
-              >
-                Continue <ArrowRight size={16} />
-              </button>
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                Choose your condition to continue automatically
+              </span>
             </div>
           </div>
         )}
