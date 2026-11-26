@@ -62,6 +62,8 @@ function SellPageContent() {
   const [customOtherTitle, setCustomOtherTitle] = useState("");
   const [campusId, setCampusId] = useState("");
   const [campusSlug, setCampusSlug] = useState("");
+  const [categorySearch, setCategorySearch] = useState("");
+  const [subcategorySearch, setSubcategorySearch] = useState("");
 
   // Technical Condition & Attributes
   const [conditionDetails, setConditionDetails] = useState<any>(null);
