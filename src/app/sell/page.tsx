@@ -463,20 +463,29 @@ function SellPageContent() {
             {/* Category Grid */}
             <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-[#10141b]">
               <label className="block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-400 mb-3">
-                Select Category
+                What are you listing?
               </label>
+              <input
+                type="search"
+                value={categorySearch}
+                onChange={(event) => setCategorySearch(event.target.value)}
+                placeholder="Search categories..."
+                className="mb-4 w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 dark:border-white/10 dark:bg-zinc-900 dark:text-white"
+              />
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-                {CATEGORIES.map((cat) => (
+                {CATEGORIES.filter((cat) => cat.name.toLowerCase().includes(categorySearch.toLowerCase())).map((cat) => (
                   <button
                     key={cat.id}
                     type="button"
                     onClick={() => {
                       setSelectedCategory(cat);
                       setSelectedSubcategory(null);
+                      setSubcategorySearch("");
                       if (cat.slug === "tickets-events") {
                         setListingMode("SELL");
                         setIsTicketTransferAllowed(false);
                       }
+                      setStep(3);
                     }}
                     className={`flex items-center gap-2.5 rounded-xl border p-3 text-left transition ${
                       selectedCategory?.id === cat.id
@@ -490,37 +499,6 @@ function SellPageContent() {
                 ))}
               </div>
 
-              {/* Subcategory Pills */}
-              {selectedCategory && (
-                <div className="mt-5 border-t border-gray-100 pt-4 dark:border-white/10">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-400 mb-2.5">
-                    Subcategory
-                  </label>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedCategory.subcategories.map((sub) => (
-                      <button
-                        key={sub.id}
-                        type="button"
-                        onClick={() => {
-                          if (!campusId) {
-                            toast.error("Please select your campus first");
-                            return;
-                          }
-                          setSelectedSubcategory(sub);
-                          setStep(3);
-                        }}
-                        className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
-                          selectedSubcategory?.id === sub.id
-                            ? "bg-primary text-white"
-                            : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-zinc-800 dark:text-gray-300 dark:hover:bg-zinc-700"
-                        }`}
-                      >
-                        {sub.name}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
 
             <div className="flex items-center justify-between pt-4">
@@ -532,7 +510,7 @@ function SellPageContent() {
                 <ChevronLeft size={16} /> Back
               </button>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                Select a subcategory to continue
+                Tap a category to view its subcategories
               </p>
             </div>
           </div>
