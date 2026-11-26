@@ -43,6 +43,7 @@ export default function CategoryConditionForm({
     setCurrentStep(0);
     setAnswers({});
     setOtherTitle("");
+    setShowConditionSelector(false);
   }, [categoryName, subcategoryName]);
 
   const [showConditionSelector, setShowConditionSelector] = useState(false);
@@ -100,7 +101,7 @@ export default function CategoryConditionForm({
           autoFocus
         />
 
-        <p className="text-xs text-gray-500">Your title is saved as you type. Continue to the item details when you're ready.</p>
+        <p className="text-xs text-gray-500">Your title is saved as you type. Add a few words to continue to item details.</p>
       </motion.div>
     );
   }
