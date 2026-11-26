@@ -371,37 +371,43 @@ function ChatRoomContent({ partnerId }: { partnerId: string }) {
             </div>
           </div>
 
-          {/* Action Menu (Report listing/seller, Safety) */}
-          <div className="relative" ref={menuRef}>
-            <button
-              onClick={() => setMenuOpen(!menuOpen)}
-              className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 transition-colors"
-              aria-label="Conversation options"
-            >
-              <MoreVertical size={20} />
-            </button>
-
-            {menuOpen && (
-              <div className="absolute right-0 top-full mt-2 w-52 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-xl py-2 z-50 animate-in fade-in zoom-in-95">
-                <button
-                  onClick={() => {
-                    setShowMeetupTips(true);
-                    setMenuOpen(false);
-                  }}
-                  className="w-full text-left px-4 py-2.5 text-xs font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center gap-2"
-                >
-                  <ShieldCheck size={15} className="text-primary" />
-                  Campus Meetup Guide
-                </button>
-                <div className="px-4 py-1">
-                  <div className="h-px bg-gray-100 dark:bg-gray-800 my-1" />
-                  <ReportButton
-                    productId={product?.id}
-                    reportedId={partner?.id}
-                  />
-                </div>
-              </div>
+          <div className="flex items-center gap-2">
+            {product && (
+              <PhoneShareControl productId={product.id} partnerId={partnerId} isSeller={isSeller} />
             )}
+
+            {/* Action Menu (Report listing/seller, Safety) */}
+            <div className="relative" ref={menuRef}>
+              <button
+                onClick={() => setMenuOpen(!menuOpen)}
+                className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 transition-colors"
+                aria-label="Conversation options"
+              >
+                <MoreVertical size={20} />
+              </button>
+
+              {menuOpen && (
+                <div className="absolute right-0 top-full mt-2 w-52 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-xl py-2 z-50 animate-in fade-in zoom-in-95">
+                  <button
+                    onClick={() => {
+                      setShowMeetupTips(true);
+                      setMenuOpen(false);
+                    }}
+                    className="w-full text-left px-4 py-2.5 text-xs font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center gap-2"
+                  >
+                    <ShieldCheck size={15} className="text-primary" />
+                    Campus Meetup Guide
+                  </button>
+                  <div className="px-4 py-1">
+                    <div className="h-px bg-gray-100 dark:bg-gray-800 my-1" />
+                    <ReportButton
+                      productId={product?.id}
+                      reportedId={partner?.id}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -573,12 +579,6 @@ function ChatRoomContent({ partnerId }: { partnerId: string }) {
             >
               ✕
             </button>
-          </div>
-        )}
-
-        {product && (
-          <div className="shrink-0 flex items-center justify-end border-b border-gray-100 bg-white px-4 py-1.5 dark:border-gray-800 dark:bg-gray-900 md:px-6">
-            <PhoneShareControl productId={product.id} partnerId={partnerId} isSeller={isSeller} />
           </div>
         )}
 
