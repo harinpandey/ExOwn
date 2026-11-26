@@ -516,8 +516,80 @@ function SellPageContent() {
           </div>
         )}
 
-        {/* STEP 3: TECHNICAL DETAILS & CONDITION */}
+        {/* STEP 3: CHOOSE A SUBCATEGORY */}
         {step === 3 && (
+          <div className="space-y-6">
+            <div className="flex items-start gap-3">
+              <button
+                type="button"
+                onClick={() => setStep(2)}
+                className="mt-1 rounded-full p-2 text-gray-600 transition hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-zinc-800"
+                aria-label="Back to categories"
+              >
+                <ChevronLeft size={20} />
+              </button>
+              <div className="flex-1">
+                <span className="inline-flex rounded-md bg-primary/10 px-2 py-1 text-[10px] font-extrabold uppercase tracking-wider text-primary">
+                  {listingMode === "SELL" ? "SELLING" : listingMode === "RENT" ? "RENTING OUT" : listingMode === "EXCHANGE" ? "EXCHANGE" : "SERVICE"}
+                </span>
+                <h2 className="mt-2 text-xl font-bold tracking-tight text-gray-900 sm:text-2xl dark:text-white">
+                  {selectedCategory?.name || "Choose a category"}
+                </h2>
+                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">What type of item or listing is it?</p>
+              </div>
+            </div>
+
+            {!campusId && (
+              <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-900/50 dark:bg-amber-950/20">
+                <p className="mb-3 text-sm font-semibold text-amber-900 dark:text-amber-200">Choose your campus to continue</p>
+                <CampusSelector
+                  onSelect={(id, slug) => {
+                    setCampusId(id);
+                    setCampusSlug(slug);
+                    setPickupLocation("");
+                  }}
+                  selectedId={campusId}
+                />
+              </div>
+            )}
+
+            <input
+              type="search"
+              value={subcategorySearch}
+              onChange={(event) => setSubcategorySearch(event.target.value)}
+              placeholder="Search items..."
+              className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 dark:border-white/10 dark:bg-[#10141b] dark:text-white"
+            />
+
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              {(selectedCategory?.subcategories || [])
+                .filter((sub) => sub.name.toLowerCase().includes(subcategorySearch.toLowerCase()))
+                .map((sub) => (
+                  <button
+                    key={sub.id}
+                    type="button"
+                    disabled={!campusId}
+                    onClick={() => {
+                      if (!campusId) {
+                        toast.error("Please select your campus first");
+                        return;
+                      }
+                      setSelectedSubcategory(sub);
+                      setStep(4);
+                    }}
+                    className="group flex items-center justify-between rounded-xl border border-gray-200 bg-white p-4 text-left transition hover:border-primary/50 hover:bg-primary/5 disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/10 dark:bg-[#10141b] dark:hover:border-primary/40"
+                  >
+                    <span className="text-sm font-semibold text-gray-900 dark:text-white">{sub.name}</span>
+                    <ArrowRight size={16} className="text-gray-400 transition group-hover:translate-x-0.5 group-hover:text-primary" />
+                  </button>
+                ))}
+            </div>
+            <p className="text-center text-xs text-gray-500 dark:text-gray-400">Select a subcategory to open its listing form</p>
+          </div>
+        )}
+
+        {/* STEP 4: CATEGORY-SPECIFIC DETAILS & CONDITION */}
+        {step === 4 && (
           <div className="space-y-6">
             <div>
               <h2 className="text-xl font-bold tracking-tight text-gray-900 sm:text-2xl dark:text-white">
@@ -543,14 +615,14 @@ function SellPageContent() {
             <div className="flex items-center justify-between pt-4">
               <button
                 type="button"
-                onClick={() => setStep(2)}
+                onClick={() => setStep(3)}
                 className="flex items-center gap-1.5 text-xs font-bold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
               >
                 <ChevronLeft size={16} /> Back
               </button>
               <button
                 type="button"
-                onClick={() => setStep(4)}
+                onClick={() => setStep(5)}
                 disabled={!conditionDetails}
                 className="flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-primary-dark disabled:opacity-50"
               >
@@ -560,8 +632,8 @@ function SellPageContent() {
           </div>
         )}
 
-        {/* STEP 4: TITLE, DESCRIPTION, PRICE & LOCATION */}
-        {step === 4 && (
+        {/* STEP 5: TITLE, DESCRIPTION, PRICE & LOCATION */}
+        {step === 5 && (
           <div className="space-y-6">
             <div>
               <h2 className="text-xl font-bold tracking-tight text-gray-900 sm:text-2xl dark:text-white">
@@ -748,14 +820,14 @@ function SellPageContent() {
             <div className="flex items-center justify-between pt-4">
               <button
                 type="button"
-                onClick={() => setStep(3)}
+                onClick={() => setStep(4)}
                 className="flex items-center gap-1.5 text-xs font-bold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
               >
                 <ChevronLeft size={16} /> Back
               </button>
               <button
                 type="button"
-                onClick={() => setStep(5)}
+                onClick={() => setStep(6)}
                 disabled={
                   (!title && selectedSubcategory?.id !== "other") ||
                   description.trim().length < 10 ||
@@ -771,8 +843,8 @@ function SellPageContent() {
           </div>
         )}
 
-        {/* STEP 5: PHOTOS & FINAL PUBLISH */}
-        {step === 5 && (
+        {/* STEP 6: PHOTOS & FINAL PUBLISH */}
+        {step === 6 && (
           <div className="space-y-6">
             <div>
               <h2 className="text-xl font-bold tracking-tight text-gray-900 sm:text-2xl dark:text-white">
@@ -852,7 +924,7 @@ function SellPageContent() {
               <div className="mt-6 flex flex-col sm:flex-row gap-3">
                 <button
                   type="button"
-                  onClick={() => setStep(4)}
+                  onClick={() => setStep(5)}
                   className="rounded-xl border border-gray-200 px-5 py-3 text-xs font-bold text-gray-700 transition hover:bg-gray-50 dark:border-white/10 dark:bg-zinc-800 dark:text-zinc-200"
                 >
                   <ChevronLeft size={14} className="inline mr-1" /> Back
