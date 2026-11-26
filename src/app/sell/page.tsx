@@ -11,6 +11,21 @@ import { CATEGORIES, Category, Subcategory } from "@/config/categories";
 import { toast } from "react-hot-toast";
 import * as LucideIcons from "lucide-react";
 
+const CATEGORY_DESCRIPTIONS: Record<string, string> = {
+  "mobiles-gadgets": "Phones, tablets, smartwatches and mobile accessories.",
+  "electronics-appliances": "Cameras, speakers, appliances and everyday electronics.",
+  "computers-laptops": "Laptops, desktops, monitors and computer accessories.",
+  "furniture-hostel": "Study tables, chairs, lamps and hostel essentials.",
+  fashion: "Clothing, shoes, bags, watches and accessories.",
+  "books-sports-hobbies": "Textbooks, notes, calculators, sports and hobby gear.",
+  vehicles: "Cycles, e-bikes, scooters, motorcycles and vehicle accessories.",
+  properties: "Rooms, PGs, flats and shared accommodation.",
+  jobs: "Internships, part-time work and freelance opportunities.",
+  services: "Tutoring, repairs, printing and student services.",
+  "tickets-events": "Eligible movie, concert, sports and campus event tickets.",
+  gaming: "Gaming consoles, games and gaming accessories.",
+};
+
 export default function SellPage() {
   return (
     <Suspense fallback={
@@ -47,6 +62,8 @@ function SellPageContent() {
   const [customOtherTitle, setCustomOtherTitle] = useState("");
   const [campusId, setCampusId] = useState("");
   const [campusSlug, setCampusSlug] = useState("");
+  const [categorySearch, setCategorySearch] = useState("");
+  const [subcategorySearch, setSubcategorySearch] = useState("");
 
   // Technical Condition & Attributes
   const [conditionDetails, setConditionDetails] = useState<any>(null);
@@ -463,64 +480,47 @@ function SellPageContent() {
             {/* Category Grid */}
             <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-[#10141b]">
               <label className="block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-400 mb-3">
-                Select Category
+                What are you listing?
               </label>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-                {CATEGORIES.map((cat) => (
+              <input
+                type="search"
+                value={categorySearch}
+                onChange={(event) => setCategorySearch(event.target.value)}
+                placeholder="Search categories..."
+                className="mb-4 w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 dark:border-white/10 dark:bg-zinc-900 dark:text-white"
+              />
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                {CATEGORIES.filter((cat) => cat.name.toLowerCase().includes(categorySearch.toLowerCase())).map((cat) => (
                   <button
                     key={cat.id}
                     type="button"
                     onClick={() => {
                       setSelectedCategory(cat);
                       setSelectedSubcategory(null);
+                      setSubcategorySearch("");
                       if (cat.slug === "tickets-events") {
                         setListingMode("SELL");
                         setIsTicketTransferAllowed(false);
                       }
+                      setStep(3);
                     }}
-                    className={`flex items-center gap-2.5 rounded-xl border p-3 text-left transition ${
+                    className={`flex min-h-[150px] flex-col items-start rounded-2xl border-2 p-5 text-left transition ${
                       selectedCategory?.id === cat.id
-                        ? "border-primary bg-primary/10 text-primary font-bold"
-                        : "border-gray-200 bg-gray-50/50 text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:bg-zinc-900 dark:text-gray-300 dark:hover:bg-zinc-800"
+                        ? "border-primary bg-primary/5 shadow-sm dark:bg-primary/10"
+                        : "border-gray-200 bg-white hover:border-gray-300 dark:border-white/10 dark:bg-[#10141b] dark:hover:border-white/20"
                     }`}
                   >
-                    <DynamicIcon name={cat.icon} size={18} />
-                    <span className="truncate text-xs font-semibold">{cat.name}</span>
+                    <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#EAF2EF] text-[#1E5646] dark:bg-[#14251D] dark:text-[#9BC5B1]">
+                      <DynamicIcon name={cat.icon} size={22} />
+                    </span>
+                    <span className="mt-3 text-sm font-bold text-gray-900 dark:text-white">{cat.name}</span>
+                    <span className="mt-1 text-xs leading-5 text-gray-500 dark:text-gray-400">
+                      {CATEGORY_DESCRIPTIONS[cat.slug] || "Find the right listing type for your campus community."}
+                    </span>
                   </button>
                 ))}
               </div>
 
-              {/* Subcategory Pills */}
-              {selectedCategory && (
-                <div className="mt-5 border-t border-gray-100 pt-4 dark:border-white/10">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-400 mb-2.5">
-                    Subcategory
-                  </label>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedCategory.subcategories.map((sub) => (
-                      <button
-                        key={sub.id}
-                        type="button"
-                        onClick={() => {
-                          if (!campusId) {
-                            toast.error("Please select your campus first");
-                            return;
-                          }
-                          setSelectedSubcategory(sub);
-                          setStep(3);
-                        }}
-                        className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
-                          selectedSubcategory?.id === sub.id
-                            ? "bg-primary text-white"
-                            : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-zinc-800 dark:text-gray-300 dark:hover:bg-zinc-700"
-                        }`}
-                      >
-                        {sub.name}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
 
             <div className="flex items-center justify-between pt-4">
@@ -532,14 +532,86 @@ function SellPageContent() {
                 <ChevronLeft size={16} /> Back
               </button>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                Select a subcategory to continue
+                Tap a category to view its subcategories
               </p>
             </div>
           </div>
         )}
 
-        {/* STEP 3: TECHNICAL DETAILS & CONDITION */}
+        {/* STEP 3: CHOOSE A SUBCATEGORY */}
         {step === 3 && (
+          <div className="space-y-6">
+            <div className="flex items-start gap-3">
+              <button
+                type="button"
+                onClick={() => setStep(2)}
+                className="mt-1 rounded-full p-2 text-gray-600 transition hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-zinc-800"
+                aria-label="Back to categories"
+              >
+                <ChevronLeft size={20} />
+              </button>
+              <div className="flex-1">
+                <span className="inline-flex rounded-md bg-primary/10 px-2 py-1 text-[10px] font-extrabold uppercase tracking-wider text-primary">
+                  {listingMode === "SELL" ? "SELLING" : listingMode === "RENT" ? "RENTING OUT" : listingMode === "EXCHANGE" ? "EXCHANGE" : "SERVICE"}
+                </span>
+                <h2 className="mt-2 text-xl font-bold tracking-tight text-gray-900 sm:text-2xl dark:text-white">
+                  {selectedCategory?.name || "Choose a category"}
+                </h2>
+                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">What type of item or listing is it?</p>
+              </div>
+            </div>
+
+            {!campusId && (
+              <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-900/50 dark:bg-amber-950/20">
+                <p className="mb-3 text-sm font-semibold text-amber-900 dark:text-amber-200">Choose your campus to continue</p>
+                <CampusSelector
+                  onSelect={(id, slug) => {
+                    setCampusId(id);
+                    setCampusSlug(slug);
+                    setPickupLocation("");
+                  }}
+                  selectedId={campusId}
+                />
+              </div>
+            )}
+
+            <input
+              type="search"
+              value={subcategorySearch}
+              onChange={(event) => setSubcategorySearch(event.target.value)}
+              placeholder="Search items..."
+              className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 dark:border-white/10 dark:bg-[#10141b] dark:text-white"
+            />
+
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              {(selectedCategory?.subcategories || [])
+                .filter((sub) => sub.name.toLowerCase().includes(subcategorySearch.toLowerCase()))
+                .map((sub) => (
+                  <button
+                    key={sub.id}
+                    type="button"
+                    disabled={!campusId}
+                    onClick={() => {
+                      if (!campusId) {
+                        toast.error("Please select your campus first");
+                        return;
+                      }
+                      setSelectedSubcategory(sub);
+                      setStep(4);
+                    }}
+                    className="group flex items-center justify-between rounded-xl border border-gray-200 bg-white p-4 text-left transition hover:border-primary/50 hover:bg-primary/5 disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/10 dark:bg-[#10141b] dark:hover:border-primary/40"
+                  >
+                    <span className="text-sm font-semibold text-gray-900 dark:text-white">{sub.name}</span>
+                    <ArrowRight size={16} className="text-gray-400 transition group-hover:translate-x-0.5 group-hover:text-primary" />
+                  </button>
+                ))}
+            </div>
+            <p className="text-center text-xs text-gray-500 dark:text-gray-400">Select a subcategory to open its listing form</p>
+          </div>
+        )}
+
+        {/* STEP 4: CATEGORY-SPECIFIC DETAILS & CONDITION */}
+        {step === 4 && (
           <div className="space-y-6">
             <div>
               <h2 className="text-xl font-bold tracking-tight text-gray-900 sm:text-2xl dark:text-white">
@@ -565,14 +637,14 @@ function SellPageContent() {
             <div className="flex items-center justify-between pt-4">
               <button
                 type="button"
-                onClick={() => setStep(2)}
+                onClick={() => setStep(3)}
                 className="flex items-center gap-1.5 text-xs font-bold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
               >
                 <ChevronLeft size={16} /> Back
               </button>
               <button
                 type="button"
-                onClick={() => setStep(4)}
+                onClick={() => setStep(5)}
                 disabled={!conditionDetails}
                 className="flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-primary-dark disabled:opacity-50"
               >
@@ -582,8 +654,8 @@ function SellPageContent() {
           </div>
         )}
 
-        {/* STEP 4: TITLE, DESCRIPTION, PRICE & LOCATION */}
-        {step === 4 && (
+        {/* STEP 5: TITLE, DESCRIPTION, PRICE & LOCATION */}
+        {step === 5 && (
           <div className="space-y-6">
             <div>
               <h2 className="text-xl font-bold tracking-tight text-gray-900 sm:text-2xl dark:text-white">
@@ -770,14 +842,14 @@ function SellPageContent() {
             <div className="flex items-center justify-between pt-4">
               <button
                 type="button"
-                onClick={() => setStep(3)}
+                onClick={() => setStep(4)}
                 className="flex items-center gap-1.5 text-xs font-bold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
               >
                 <ChevronLeft size={16} /> Back
               </button>
               <button
                 type="button"
-                onClick={() => setStep(5)}
+                onClick={() => setStep(6)}
                 disabled={
                   (!title && selectedSubcategory?.id !== "other") ||
                   description.trim().length < 10 ||
@@ -793,8 +865,8 @@ function SellPageContent() {
           </div>
         )}
 
-        {/* STEP 5: PHOTOS & FINAL PUBLISH */}
-        {step === 5 && (
+        {/* STEP 6: PHOTOS & FINAL PUBLISH */}
+        {step === 6 && (
           <div className="space-y-6">
             <div>
               <h2 className="text-xl font-bold tracking-tight text-gray-900 sm:text-2xl dark:text-white">
@@ -874,7 +946,7 @@ function SellPageContent() {
               <div className="mt-6 flex flex-col sm:flex-row gap-3">
                 <button
                   type="button"
-                  onClick={() => setStep(4)}
+                  onClick={() => setStep(5)}
                   className="rounded-xl border border-gray-200 px-5 py-3 text-xs font-bold text-gray-700 transition hover:bg-gray-50 dark:border-white/10 dark:bg-zinc-800 dark:text-zinc-200"
                 >
                   <ChevronLeft size={14} className="inline mr-1" /> Back
