@@ -1,17 +1,23 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { useSearchParams } from "next/navigation";
 import { 
   signInWithPopup, 
   signInWithRedirect, 
   getRedirectResult,
   GoogleAuthProvider,
+  sendSignInLinkToEmail,
+  isSignInWithEmailLink,
+  signInWithEmailLink,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  sendPasswordResetEmail,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { ensureServerSession } from "@/lib/auth-session-client";
 import { useAuth } from "@/context/AuthContext";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Bike, BookOpen, ShoppingBag } from "lucide-react";
 import Link from "next/link";
 
 // Detect if browser is mobile or likely to block popups
@@ -31,6 +37,172 @@ function LoginContent() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [email, setEmail] = useState("");
+  const [emailLinkSent, setEmailLinkSent] = useState(false);
+  const [isEmailLinkSignIn, setIsEmailLinkSignIn] = useState(false);
+  const [password, setPassword] = useState("");
+  const [authMode, setAuthMode] = useState<"signin" | "signup">("signin");
+  const [passwordResetSent, setPasswordResetSent] = useState(false);
+
+  const completeEmailLinkSignIn = async (emailAddress: string) => {
+    if (!auth || !isSignInWithEmailLink(auth, window.location.href)) return;
+    setIsLoading(true);
+    setError("");
+    try {
+      const result = await signInWithEmailLink(auth, emailAddress.trim(), window.location.href);
+      window.localStorage.removeItem("exown_email_for_signin");
+      const savedRedirect = window.localStorage.getItem("exown_email_link_redirect") || redirect;
+      window.localStorage.removeItem("exown_email_link_redirect");
+      await ensureServerSession(result.user);
+      const { syncUser } = await import("@/actions/user");
+      await syncUser({
+        id: result.user.uid,
+        email: result.user.email,
+        name: result.user.displayName,
+        image: result.user.photoURL,
+      });
+      window.history.replaceState({}, document.title, "/login");
+      window.location.href = savedRedirect.startsWith("/login") ? "/" : savedRedirect;
+    } catch (err: any) {
+      console.error("Email-link sign-in error:", err);
+      if (err.code === "auth/account-exists-with-different-credential") {
+        setError("This email already uses another sign-in method. Continue with Google using this email to access your existing ExOwn account.");
+      } else if (err.code === "auth/invalid-action-code") {
+        setError("This sign-in link has expired or was already used. Request a new email link.");
+      } else {
+        setError(err.message || "Email sign-in failed. Please request a new link.");
+      }
+      setIsLoading(false);
+    }
+  };
+
+  const handleSendEmailLink = async () => {
+    if (!agreedToTerms) {
+      setError("Please agree to the Terms & Conditions and Privacy Policy to continue.");
+      return;
+    }
+    if (!auth) {
+      setError("Firebase Authentication is not configured.");
+      return;
+    }
+    const emailAddress = email.trim().toLowerCase();
+    if (!emailAddress) {
+      setError("Enter your email address to continue.");
+      return;
+    }
+    setIsLoading(true);
+    setError("");
+    setEmailLinkSent(false);
+    try {
+      await sendSignInLinkToEmail(auth, emailAddress, {
+        url: `${window.location.origin}/login`,
+        handleCodeInApp: true,
+      });
+      window.localStorage.setItem("exown_email_for_signin", emailAddress);
+      window.localStorage.setItem("exown_email_link_redirect", redirect);
+      setEmailLinkSent(true);
+    } catch (err: any) {
+      console.error("Send email sign-in link error:", err);
+      if (err.code === "auth/operation-not-allowed") {
+        setError("Email-link sign-in is not enabled in Firebase yet. Enable Email link (passwordless sign-in) in Firebase Authentication settings.");
+      } else {
+        setError(err.message || "Could not send the sign-in link. Please try again.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleEmailPasswordAuth = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!agreedToTerms) {
+      setError("Please agree to the Terms & Conditions and Privacy Policy to continue.");
+      return;
+    }
+    if (!auth) {
+      setError("Firebase Authentication is not configured.");
+      return;
+    }
+    const emailAddress = email.trim().toLowerCase();
+    if (!emailAddress || !password) {
+      setError("Enter your email address and password.");
+      return;
+    }
+    if (authMode === "signup" && password.length < 6) {
+      setError("Choose a password with at least 6 characters.");
+      return;
+    }
+    setIsLoading(true);
+    setError("");
+    setPasswordResetSent(false);
+    try {
+      const result = authMode === "signup"
+        ? await createUserWithEmailAndPassword(auth, emailAddress, password)
+        : await signInWithEmailAndPassword(auth, emailAddress, password);
+      await ensureServerSession(result.user);
+      const { syncUser } = await import("@/actions/user");
+      await syncUser({
+        id: result.user.uid,
+        email: result.user.email,
+        name: result.user.displayName,
+        image: result.user.photoURL,
+      });
+      window.location.href = redirect;
+    } catch (err: any) {
+      console.error("Email/password sign-in error:", err);
+      const code = err?.code;
+      if (code === "auth/invalid-credential" || code === "auth/wrong-password" || code === "auth/user-not-found") {
+        setError("Email or password is incorrect. If you originally signed in with Google, use Continue with Google.");
+      } else if (code === "auth/email-already-in-use") {
+        setError("This email already has an account. Sign in instead, or use Google if you registered with Google.");
+      } else if (code === "auth/weak-password") {
+        setError("Choose a stronger password (at least 6 characters).");
+      } else if (code === "auth/operation-not-allowed") {
+        setError("Email/password sign-in is not enabled in Firebase Authentication yet.");
+      } else {
+        setError(err?.message || "Email/password authentication failed. Please try again.");
+      }
+      setIsLoading(false);
+    }
+  };
+
+  const handlePasswordReset = async () => {
+    if (!auth) {
+      setError("Firebase Authentication is not configured.");
+      return;
+    }
+    const emailAddress = email.trim().toLowerCase();
+    if (!emailAddress) {
+      setError("Enter your email address first, then choose Forgot password.");
+      return;
+    }
+    setIsLoading(true);
+    setError("");
+    setPasswordResetSent(false);
+    try {
+      await sendPasswordResetEmail(auth, emailAddress);
+      setPasswordResetSent(true);
+    } catch (err: any) {
+      console.error("Password reset error:", err);
+      setError(err?.message || "Could not send a password reset email.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!auth || !isSignInWithEmailLink(auth, window.location.href)) return;
+    setIsEmailLinkSignIn(true);
+    const savedEmail = window.localStorage.getItem("exown_email_for_signin");
+    if (savedEmail) {
+      setEmail(savedEmail);
+      void completeEmailLinkSignIn(savedEmail);
+    } else {
+      setError("Please enter the email address where you received this sign-in link.");
+    }
+  // Process a Firebase email sign-in link once on page load.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Handle redirect result after mobile sign-in returns
   useEffect(() => {
@@ -132,90 +304,150 @@ function LoginContent() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-16 max-w-md flex flex-col justify-center min-h-[calc(100vh-200px)]">
-      <div className="bg-white dark:bg-gray-900 rounded-3xl border border-gray-200 dark:border-gray-800 p-8 shadow-sm text-center">
-        <div className="mb-6">
-          <img src="/exown-logo.png" alt="ExOwn Logo" className="h-16 mx-auto" />
-        </div>
-        <h1 className="text-3xl font-extrabold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
-          Welcome to ExOwn
-        </h1>
-        <p className="text-gray-500 mb-8">Exchange. Own. Repeat. Sign in with your university email to access the marketplace safely.</p>
-
-        {error && (
-          <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-4 rounded-xl text-sm mb-6 text-left">
-            {error}
+    <main className="min-h-[calc(100vh-72px)] bg-[#F3F6F5] dark:bg-[#0B1511] px-4 py-8 sm:py-12 flex items-center justify-center">
+      <section className="w-full max-w-5xl overflow-hidden rounded-2xl border border-[#E1E8E4] dark:border-[#26352E] bg-white dark:bg-[#111D17] shadow-sm grid md:grid-cols-[0.88fr_1.12fr]">
+        <aside className="relative min-h-[230px] md:min-h-[590px] overflow-hidden bg-[#1E5646] text-white p-7 sm:p-10 flex flex-col">
+          <Link href="/" className="inline-flex items-center gap-2.5 w-fit" aria-label="ExOwn home">
+            <img src="/exown-logo.png" alt="ExOwn" className="h-10 w-auto max-w-[170px] object-contain" />
+          </Link>
+          <div className="relative z-10 mt-8 md:mt-12 max-w-sm">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#D6E8DF]">Exchange. Own. Repeat.</p>
+            <h1 className="mt-3 text-3xl sm:text-4xl font-bold leading-tight tracking-tight">Your campus.<br />Your marketplace.</h1>
+            <p className="mt-4 max-w-xs text-sm sm:text-base leading-7 text-white/80">Find useful things around you, pass on what you no longer need, and make student life a little easier.</p>
           </div>
-        )}
-
-        {!auth && !error && (
-          <div className="bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 p-4 rounded-xl text-sm mb-6 text-left font-medium">
-            Authentication service unavailable. Please check your configuration.
+          <div aria-hidden="true" className="relative mt-8 md:mt-auto md:pt-12">
+            <div className="absolute bottom-2 left-1/2 h-40 w-64 -translate-x-1/2 rounded-full bg-[#EAF2EF]/10 blur-2xl" />
+            <div className="relative mx-auto flex max-w-[310px] items-end justify-center gap-3">
+              <div className="mb-3 rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur-sm -rotate-6">
+                <BookOpen size={34} strokeWidth={1.6} />
+                <span className="mt-2 block text-[10px] font-semibold tracking-wide text-white/80">BOOKS</span>
+              </div>
+              <div className="rounded-3xl border border-white/20 bg-[#F7F9F8] p-5 text-[#1E5646] shadow-sm">
+                <ShoppingBag size={64} strokeWidth={1.4} />
+                <span className="mt-3 block text-center text-xs font-bold tracking-wide">EXOWN</span>
+              </div>
+              <div className="mb-3 rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur-sm rotate-6">
+                <Bike size={34} strokeWidth={1.6} />
+                <span className="mt-2 block text-[10px] font-semibold tracking-wide text-white/80">CAMPUS</span>
+              </div>
+            </div>
+            <div className="mx-auto mt-3 h-1.5 max-w-[280px] rounded-full bg-white/20" />
           </div>
-        )}
+          <p className="mt-6 text-xs text-white/60">A marketplace made for student life.</p>
+        </aside>
 
-        {/* Mandatory Terms & Privacy Consent */}
-        <div className="mb-6 text-left bg-gray-50 dark:bg-gray-800/40 p-4 rounded-xl border border-gray-200 dark:border-gray-800">
-          <label htmlFor="terms-consent-checkbox" className="flex items-start gap-3 cursor-pointer text-xs font-semibold text-gray-700 dark:text-gray-300">
+        <div className="flex flex-col justify-center px-6 py-8 sm:px-10 md:px-14 md:py-12">
+          <div className="mb-7">
+            <p className="text-sm font-semibold text-[#1E5646] dark:text-[#A9CDBB]">Welcome back</p>
+            <h2 className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-[#13221D] dark:text-[#F1F5F2]">Sign in to ExOwn</h2>
+            <p className="mt-2 text-sm leading-6 text-[#66766F] dark:text-[#A3B2AA]">Use your email to continue to your campus marketplace.</p>
+          </div>
+
+          {error && (
+            <div role="alert" className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm leading-5 text-red-700 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-300">
+              {error}
+            </div>
+          )}
+          {!auth && !error && (
+            <div className="mb-5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-300">
+              Authentication service is unavailable. Please check your configuration.
+            </div>
+          )}
+
+          <form onSubmit={handleEmailPasswordAuth} className="space-y-3">
+            <label htmlFor="email-sign-in" className="block text-sm font-semibold text-[#34483D] dark:text-[#D9E3DC]">Email address</label>
             <input
-              id="terms-consent-checkbox"
-              type="checkbox"
-              checked={agreedToTerms}
-              onChange={(e) => {
-                setAgreedToTerms(e.target.checked);
-                if (e.target.checked && error.includes("Terms & Conditions")) {
-                  setError("");
-                }
-              }}
-              className="mt-0.5 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary focus:ring-offset-0 cursor-pointer shrink-0"
+              id="email-sign-in"
+              type="email"
+              autoComplete="email"
+              inputMode="email"
+              value={email}
+              onChange={(e) => { setEmail(e.target.value); setEmailLinkSent(false); setPasswordResetSent(false); }}
+              placeholder="you@example.com"
+              disabled={isLoading}
+              required
+              className="w-full rounded-xl border border-[#DCE4DF] bg-white px-4 py-3.5 text-sm text-[#13221D] outline-none transition placeholder:text-[#9AA7A0] focus:border-[#1E5646] focus:ring-4 focus:ring-[#1E5646]/10 disabled:opacity-60 dark:border-[#34443B] dark:bg-[#17241C] dark:text-[#F1F5F2]"
             />
-            <span className="leading-relaxed select-none">
-              I agree to the ExOwn{" "}
-              <Link href="/terms" target="_blank" rel="noopener noreferrer" className="text-primary font-bold underline hover:text-primary-dark">
-                Terms &amp; Conditions
-              </Link>{" "}
-              and{" "}
-              <Link href="/privacy" target="_blank" rel="noopener noreferrer" className="text-primary font-bold underline hover:text-primary-dark">
-                Privacy Policy
-              </Link>.
-            </span>
-          </label>
-        </div>
+            <label htmlFor="password-sign-in" className="block pt-1 text-sm font-semibold text-[#34483D] dark:text-[#D9E3DC]">Password</label>
+            <input
+              id="password-sign-in"
+              type="password"
+              autoComplete={authMode === "signup" ? "new-password" : "current-password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder={authMode === "signup" ? "Create a password (6+ characters)" : "Enter your password"}
+              disabled={isLoading}
+              required
+              minLength={6}
+              className="w-full rounded-xl border border-[#DCE4DF] bg-white px-4 py-3.5 text-sm text-[#13221D] outline-none transition placeholder:text-[#9AA7A0] focus:border-[#1E5646] focus:ring-4 focus:ring-[#1E5646]/10 disabled:opacity-60 dark:border-[#34443B] dark:bg-[#17241C] dark:text-[#F1F5F2]"
+            />
+            <div className="flex items-center justify-between text-xs">
+              <button type="button" onClick={() => setAuthMode(authMode === "signin" ? "signup" : "signin")} className="font-semibold text-[#1E5646] hover:underline dark:text-[#A9CDBB]">
+                {authMode === "signin" ? "Create account" : "Already have an account? Sign in"}
+              </button>
+              {authMode === "signin" && <button type="button" onClick={handlePasswordReset} disabled={isLoading} className="font-semibold text-[#1E5646] hover:underline disabled:opacity-50 dark:text-[#A9CDBB]">Forgot password?</button>}
+            </div>
+            {passwordResetSent && <p role="status" className="rounded-lg bg-emerald-50 px-3 py-2 text-xs text-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-300">If an account exists for this email, Firebase has sent a password reset link.</p>}
+            <button type="submit" disabled={isLoading || !auth || !agreedToTerms} className="w-full rounded-xl bg-[#1E5646] px-4 py-3.5 text-sm font-bold text-white transition hover:bg-[#174637] focus:outline-none focus:ring-4 focus:ring-[#1E5646]/15 disabled:cursor-not-allowed disabled:opacity-45">
+              {isLoading ? "Please wait…" : authMode === "signup" ? "Create account with email" : "Sign in with email"}
+            </button>
+          </form>
 
-        <button
-          onClick={handleGoogleSignIn}
-          disabled={isLoading || !auth || !agreedToTerms}
-          className="w-full py-4 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-700 rounded-xl font-bold text-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all flex items-center justify-center gap-3 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed mb-4"
-        >
-          {isLoading ? (
-            <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-          ) : (
-            <>
-              <svg viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
-                <g transform="matrix(1, 0, 0, 1, 27.009001, -39.238998)">
-                  <path fill="#4285F4" d="M -3.264 51.509 C -3.264 50.719 -3.334 49.969 -3.454 49.239 L -14.754 49.239 L -14.754 53.749 L -8.284 53.749 C -8.574 55.229 -9.424 56.479 -10.684 57.329 L -10.684 60.329 L -6.824 60.329 C -4.564 58.239 -3.264 55.159 -3.264 51.509 Z"/>
-                  <path fill="#34A853" d="M -14.754 63.239 C -11.514 63.239 -8.804 62.159 -6.824 60.329 L -10.684 57.329 C -11.764 58.049 -13.134 58.489 -14.754 58.489 C -17.884 58.489 -20.534 56.379 -21.484 53.529 L -25.464 53.529 L -25.464 56.619 C -23.494 60.539 -19.444 63.239 -14.754 63.239 Z"/>
-                  <path fill="#FBBC05" d="M -21.484 53.529 C -21.734 52.809 -21.864 52.039 -21.864 51.239 C -21.864 50.439 -21.724 49.669 -21.484 48.949 L -21.484 45.859 L -25.464 45.859 C -26.284 47.479 -26.754 49.299 -26.754 51.239 C -26.754 53.179 -26.284 54.999 -25.464 56.619 L -21.484 53.529 Z"/>
-                  <path fill="#EA4335" d="M -14.754 43.989 C -12.984 43.989 -11.404 44.599 -10.154 45.789 L -6.734 42.369 C -8.804 40.429 -11.514 39.239 -14.754 39.239 C -19.444 39.239 -23.494 41.939 -25.464 45.859 L -21.484 48.949 C -20.534 46.099 -17.884 43.989 -14.754 43.989 Z"/>
-                </g>
+          <div className="my-6 flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#9AA7A0]">
+            <span className="h-px flex-1 bg-[#E4EAE6] dark:bg-[#2B3A31]" />
+            <span>Or use another method</span>
+            <span className="h-px flex-1 bg-[#E4EAE6] dark:bg-[#2B3A31]" />
+          </div>
+
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <button
+              type="button"
+              onClick={handleGoogleSignIn}
+              disabled={isLoading || !auth || !agreedToTerms}
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#DCE4DF] bg-white px-3 py-3 text-sm font-semibold text-[#23352D] transition hover:bg-[#F7F9F8] focus:outline-none focus:ring-2 focus:ring-[#1E5646]/30 disabled:cursor-not-allowed disabled:opacity-50 dark:border-[#34443B] dark:bg-[#17241C] dark:text-[#F1F5F2] dark:hover:bg-[#1D2C22]"
+            >
+              <svg viewBox="0 0 48 48" aria-hidden="true" className="h-5 w-5">
+                <path fill="#4285F4" d="M43.6 24.5c0-1.4-.1-2.8-.4-4.1H24v7.8h11a9.4 9.4 0 0 1-4.1 6.2v5.1h6.7c3.9-3.6 6-8.9 6-15Z"/>
+                <path fill="#34A853" d="M24 44c5.5 0 10.1-1.8 13.5-4.9l-6.7-5.1c-1.8 1.2-4.1 2-6.8 2-5.2 0-9.6-3.5-11.2-8.2H5.9v5.2A20 20 0 0 0 24 44Z"/>
+                <path fill="#FBBC05" d="M12.8 27.8a12 12 0 0 1 0-7.6V15H5.9a20 20 0 0 0 0 18l6.9-5.2Z"/>
+                <path fill="#EA4335" d="M24 12.1c3 0 5.7 1 7.8 3.1l5.9-5.9C34.1 5.9 29.5 4 24 4A20 20 0 0 0 5.9 15l6.9 5.2c1.6-4.7 6-8.1 11.2-8.1Z"/>
               </svg>
               Continue with Google
-            </>
-          )}
-        </button>
+            </button>
+            <button
+              type="button"
+              onClick={() => isEmailLinkSignIn ? void completeEmailLinkSignIn(email) : void handleSendEmailLink()}
+              disabled={isLoading || !auth || !agreedToTerms || !email.trim()}
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#DCE4DF] bg-white px-3 py-3 text-sm font-semibold text-[#23352D] transition hover:bg-[#F7F9F8] focus:outline-none focus:ring-2 focus:ring-[#1E5646]/30 disabled:cursor-not-allowed disabled:opacity-50 dark:border-[#34443B] dark:bg-[#17241C] dark:text-[#F1F5F2] dark:hover:bg-[#1D2C22]"
+            >
+              {emailLinkSent ? "Link sent — check email" : "Email link"}
+            </button>
+          </div>
+          <p className="mt-3 text-xs leading-5 text-[#74837B] dark:text-[#A3B2AA]">Google and email-link sign-in are available as alternatives. Email/password is verified securely by Firebase Authentication.</p>
 
-        <p className="text-sm text-gray-500 mt-6">
-          By signing in, you agree to our{" "}
-          <Link href="/terms" className="text-primary hover:underline">Terms of Service</Link>{" "}
-          and{" "}
-          <Link href="/privacy" className="text-primary hover:underline">Privacy Policy</Link>.
-        </p>
-      </div>
+          <div className="mt-6 rounded-xl bg-[#F7F9F8] px-4 py-3.5 dark:bg-[#17241C]">
+            <label htmlFor="terms-consent-checkbox" className="flex cursor-pointer items-start gap-3 text-xs leading-5 text-[#52645A] dark:text-[#B8C7BE]">
+              <input
+                id="terms-consent-checkbox"
+                type="checkbox"
+                checked={agreedToTerms}
+                onChange={(e) => {
+                  setAgreedToTerms(e.target.checked);
+                  if (e.target.checked && error.includes("Terms & Conditions")) setError("");
+                }}
+                className="mt-0.5 h-4 w-4 shrink-0 rounded border-[#C8D4CC] accent-[#1E5646] focus:ring-[#1E5646]"
+              />
+              <span>I agree to ExOwn’s <Link href="/terms" target="_blank" rel="noopener noreferrer" className="font-semibold text-[#1E5646] underline underline-offset-2 dark:text-[#A9CDBB]">Terms &amp; Conditions</Link> and <Link href="/privacy" target="_blank" rel="noopener noreferrer" className="font-semibold text-[#1E5646] underline underline-offset-2 dark:text-[#A9CDBB]">Privacy Policy</Link>.</span>
+            </label>
+          </div>
 
-      <Link href="/" className="mt-8 text-center text-gray-500 hover:text-primary transition-colors flex items-center justify-center gap-2">
-        <ArrowRight className="rotate-180" size={16} /> Back to Home
-      </Link>
-    </div>
+          <div className="mt-7 flex items-center justify-between text-xs text-[#7A8981] dark:text-[#A3B2AA]">
+            <Link href="/" className="inline-flex items-center gap-1.5 transition hover:text-[#1E5646] dark:hover:text-[#A9CDBB]"><ArrowRight size={14} className="rotate-180" /> Back to ExOwn</Link>
+            <span>Secure student access</span>
+          </div>
+        </div>
+      </section>
+    </main>
   );
 }
 
