@@ -577,7 +577,7 @@ function ChatRoomContent({ partnerId }: { partnerId: string }) {
         )}
 
         {product && (
-          <div className="shrink-0 border-b border-gray-100 bg-white px-4 py-3 dark:border-gray-800 dark:bg-gray-900 md:px-6">
+          <div className="shrink-0 flex items-center justify-end border-b border-gray-100 bg-white px-4 py-1.5 dark:border-gray-800 dark:bg-gray-900 md:px-6">
             <PhoneShareControl productId={product.id} partnerId={partnerId} isSeller={isSeller} />
           </div>
         )}
@@ -677,7 +677,7 @@ function ChatRoomContent({ partnerId }: { partnerId: string }) {
         </div>
 
         {/* Input Composer */}
-        <div className="shrink-0 p-3 md:p-4 border-t border-gray-200/80 dark:border-gray-800 bg-white dark:bg-gray-900">
+        <div className="shrink-0 p-2 md:p-3 border-t border-gray-200/80 dark:border-gray-800 bg-white dark:bg-gray-900">
           {attachments.length > 0 && (
             <div className="max-w-4xl mx-auto mb-3 flex flex-wrap gap-2">
               {attachments.map((item) => (
@@ -691,11 +691,11 @@ function ChatRoomContent({ partnerId }: { partnerId: string }) {
           )}
           <form onSubmit={handleSend} className="flex items-end gap-2 max-w-4xl mx-auto">
             <input ref={attachmentInputRef} type="file" accept="image/jpeg,image/png,image/webp" multiple className="hidden" onChange={handleSelectAttachments} />
-            <button type="button" onClick={() => attachmentInputRef.current?.click()} disabled={isSending || attachments.length >= 5} className="p-3 rounded-2xl border border-gray-300/80 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-40 flex-shrink-0" aria-label="Attach images" title="Attach photos"><Paperclip size={18} /></button>
+            <button type="button" onClick={() => attachmentInputRef.current?.click()} disabled={isSending || attachments.length >= 5} className="p-2.5 rounded-xl border border-gray-300/80 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-40 flex-shrink-0" aria-label="Attach images" title="Attach photos"><Paperclip size={18} /></button>
             <div className="flex-1 relative">
-              <textarea value={newMessage} onChange={(e) => setNewMessage(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(e); } }} placeholder="Type a message... (Press Enter to send)" className="w-full px-4 py-3 max-h-32 rounded-2xl border border-gray-300/80 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/80 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all resize-none text-sm placeholder:text-gray-400" rows={1} disabled={isSending} />
+              <textarea value={newMessage} onChange={(e) => setNewMessage(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(e); } }} placeholder="Type a message... (Press Enter to send)" className="w-full min-h-[42px] px-3 py-2 max-h-24 rounded-xl border border-gray-300/80 dark:border-gray-700 bg-white dark:bg-gray-900 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all resize-none text-sm placeholder:text-gray-400" rows={1} disabled={isSending} />
             </div>
-            <button type="submit" disabled={(!newMessage.trim() && attachments.length === 0) || isSending} className="p-3 bg-primary text-white rounded-2xl hover:bg-orange-600 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-md shadow-primary/20 flex-shrink-0" aria-label="Send message"><Send size={18} className={isSending ? "animate-pulse" : "translate-x-0.5 -translate-y-0.5"} /></button>
+            <button type="submit" disabled={(!newMessage.trim() && attachments.length === 0) || isSending} className="p-2.5 bg-primary text-white rounded-xl hover:bg-orange-600 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-sm flex-shrink-0" aria-label="Send message"><Send size={18} className={isSending ? "animate-pulse" : "translate-x-0.5 -translate-y-0.5"} /></button>
           </form>
           {isSending && attachments.length > 0 && <p className="max-w-4xl mx-auto mt-2 text-xs text-gray-500">Uploading and sending photos…</p>}
         </div>

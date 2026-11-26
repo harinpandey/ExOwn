@@ -47,31 +47,32 @@ export default function PhoneShareControl({ productId, partnerId, isSeller }: {
 
   if (isSeller) {
     return (
-      <div className="flex flex-col gap-2 rounded-xl border border-[#DDE6E0] bg-[#F7F9F8] p-3 dark:border-white/10 dark:bg-zinc-800/50">
-        <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-300">
-          <ShieldCheck size={15} className="text-primary" />
-          <span>{shared ? "Phone number access is enabled for this buyer." : "Your phone number stays private unless you share it."}</span>
-        </div>
-        <button type="button" onClick={toggle} disabled={saving} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-white hover:bg-primary-dark disabled:opacity-60">
-          {shared ? <PhoneOff size={15} /> : <Phone size={15} />}
-          {saving ? "Updating…" : shared ? "Revoke phone access" : "Share phone number with buyer"}
-        </button>
-      </div>
+      <button
+        type="button"
+        onClick={toggle}
+        disabled={saving}
+        title={shared ? "Revoke this buyer's phone access" : "Share your phone number with this buyer"}
+        aria-label={shared ? "Revoke phone access" : "Share phone number"}
+        className={`inline-flex min-h-8 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors disabled:opacity-60 ${
+          shared
+            ? "border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-300"
+            : "border-[#DDE6E0] bg-[#F7F9F8] text-[#1E5646] hover:bg-[#EAF2EF] dark:border-white/10 dark:bg-zinc-800/50 dark:text-emerald-300"
+        }`}
+      >
+        {shared ? <PhoneOff size={14} /> : <Phone size={14} />}
+        {saving ? "Updating…" : shared ? "Shared · Revoke" : "Share phone"}
+      </button>
     );
   }
 
-  return (
-    <div className="rounded-xl border border-[#DDE6E0] bg-[#F7F9F8] p-3 dark:border-white/10 dark:bg-zinc-800/50">
-      {shared && phone ? (
-        <a href={"tel:" + phone} className="flex min-h-10 items-center justify-center gap-2 rounded-lg bg-emerald-700 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-800">
-          <Phone size={15} /> Call seller: {phone}
-        </a>
-      ) : (
-        <p className="flex items-center gap-2 text-xs leading-5 text-gray-600 dark:text-gray-300">
-          <ShieldCheck size={15} className="shrink-0 text-primary" />
-          The seller has not shared their phone number yet. You can continue messaging here.
-        </p>
-      )}
-    </div>
+  return shared && phone ? (
+    <a href={"tel:" + phone} className="inline-flex min-h-8 items-center gap-1.5 rounded-full bg-emerald-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-800">
+      <Phone size={14} /> Call seller
+    </a>
+  ) : (
+    <span className="inline-flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400" title="Your phone number remains private until the seller shares it">
+      <ShieldCheck size={14} className="text-primary" />
+      Waiting for seller to share phone
+    </span>
   );
 }
