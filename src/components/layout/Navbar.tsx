@@ -116,7 +116,7 @@ export default function Navbar() {
   }, []);
 
   const isLpuNews = pathname === "/lpu-news" || pathname.startsWith("/lpu-news/");
-  const isRentExperience = pathname === "/search" && activeListingType === "RENT";
+  const isRentExperience = pathname === "/rent" || (pathname === "/search" && activeListingType === "RENT");
   const isTicketExperience = pathname === "/travel" || pathname.startsWith("/travel/");
   const isCampusLiving = pathname === "/campus-living" || pathname.startsWith("/campus-living/");
   const isHousingExperience = pathname === "/housing" || pathname.startsWith("/housing/");
@@ -325,13 +325,35 @@ export default function Navbar() {
             </AnimatePresence>
           </div>
 
-          {/* Post Something Button */}
+          {/* Context-aware listing action: each experience stays in its own workflow */}
           <Link
-            href={!user ? (isTicketExperience ? "/login?redirect=/travel/list" : "/login?redirect=/sell") : (isTicketExperience ? "/travel/list" : "/sell")}
+            href={
+              isTicketExperience
+                ? (!user ? "/login?redirect=/travel/list" : "/travel/list")
+                : isLpuNews
+                  ? (!user ? "/login?redirect=/admin/lpu-news" : "/admin/lpu-news")
+                  : isRentExperience
+                    ? (!user ? "/login?redirect=/sell?listingType=RENT" : "/sell?listingType=RENT")
+                    : isHousingExperience
+                      ? (!user ? "/login?redirect=/housing" : "/housing")
+                      : isRoommatesExperience
+                        ? (!user ? "/login?redirect=/roommates" : "/roommates")
+                        : (!user ? "/login?redirect=/sell" : "/sell")
+            }
             className="marketplace-button hidden items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold active:scale-95 sm:flex"
           >
             {isTicketExperience ? <Ticket size={16} /> : <Plus size={16} />}
-            {isTicketExperience ? "List a ticket" : "+ Post Something"}
+            {isTicketExperience
+              ? "List a Ticket"
+              : isLpuNews
+                ? "List News"
+                : isRentExperience
+                  ? "Offer for Rent"
+                  : isHousingExperience
+                    ? "List PG / Room"
+                    : isRoommatesExperience
+                      ? "List Roomie"
+                      : "+ Post Something"}
           </Link>
 
           {/* Logged In Profile Menu OR Flipkart-Style Login Popup */}
