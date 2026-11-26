@@ -501,7 +501,14 @@ function SellPageContent() {
                       <button
                         key={sub.id}
                         type="button"
-                        onClick={() => setSelectedSubcategory(sub)}
+                        onClick={() => {
+                          if (!campusId) {
+                            toast.error("Please select your campus first");
+                            return;
+                          }
+                          setSelectedSubcategory(sub);
+                          setStep(3);
+                        }}
                         className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
                           selectedSubcategory?.id === sub.id
                             ? "bg-primary text-white"
@@ -524,14 +531,9 @@ function SellPageContent() {
               >
                 <ChevronLeft size={16} /> Back
               </button>
-              <button
-                type="button"
-                onClick={() => setStep(3)}
-                disabled={!campusId || !selectedSubcategory}
-                className="flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-primary-dark disabled:opacity-50"
-              >
-                Continue <ArrowRight size={16} />
-              </button>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                Select a subcategory to continue
+              </p>
             </div>
           </div>
         )}
