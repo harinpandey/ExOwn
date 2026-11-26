@@ -68,11 +68,11 @@ function SellPageContent() {
   useEffect(() => {
     const typeParam = searchParams.get("type")?.toUpperCase();
     if (typeParam === "RENT") {
-      setListingMode("RENT");
+      setListingMode("RENT"); setStep(2);
     } else if (typeParam === "EXCHANGE") {
-      setListingMode("EXCHANGE");
+      setListingMode("EXCHANGE"); setStep(2);
     } else if (typeParam === "SERVICE") {
-      setListingMode("SERVICE");
+      setListingMode("SERVICE"); setStep(2);
     } else if (typeParam === "WANT") {
       router.replace("/requests");
     }
@@ -325,7 +325,7 @@ function SellPageContent() {
               {/* SELL */}
               <button
                 type="button"
-                onClick={() => setListingMode("SELL")}
+                onClick={() => setListingMode("SELL"); setStep(2)}
                 className={`flex flex-col items-start rounded-2xl border-2 p-5 text-left transition ${
                   listingMode === "SELL"
                     ? "border-primary bg-primary/5 shadow-sm dark:bg-primary/10"
@@ -427,15 +427,9 @@ function SellPageContent() {
               </button>
             </div>
 
-            <div className="pt-4 flex justify-end">
-              <button
-                type="button"
-                onClick={() => setStep(2)}
-                className="flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-primary-dark"
-              >
-                Continue <ArrowRight size={16} />
-              </button>
-            </div>
+            <p className="text-center text-xs text-gray-500 dark:text-gray-400">
+              Select an option to continue directly to its listing categories.
+            </p>
           </div>
         )}
 
