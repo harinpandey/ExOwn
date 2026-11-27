@@ -170,7 +170,7 @@ export default function Navbar() {
               aria-label="Select campus"
               value={selectedCampus}
               onChange={(e) => setSelectedCampus(e.target.value)}
-              className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"
+              className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0 focus-visible:rounded-xl focus-visible:outline-2 focus-visible:outline-[#FF6845]"
             >
               {CAMPUS_DIRECTORY.map((campus) => (
                 <option key={campus.id} value={campus.name} className="bg-[#EFE5DA] text-[#183B38]">
@@ -205,7 +205,7 @@ export default function Navbar() {
           {user && (
             <Link
               href="/chat"
-              className="hidden items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold text-[#526663] transition hover:bg-[#E6DACE] hover:text-primary dark:text-white/65 dark:hover:bg-[#EFE5DA]/[0.06] dark:hover:text-primary sm:flex"
+              className="hidden min-h-11 items-center gap-2 rounded-xl border border-[#D9CBBE] bg-[#E6DACE] px-3 py-2 text-xs font-bold text-[#183B38] transition hover:border-[#17645F] hover:bg-[#DCCFC2] hover:text-[#124F4B] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#17645F] dark:border-[#34504C] dark:bg-[#1D3835] dark:text-[#F3EEE8] dark:hover:bg-[#25413D] dark:hover:text-[#F3EEE8] sm:flex"
             >
               <MessageSquare size={18} />
               <span className="hidden md:inline">Chat</span>
@@ -367,7 +367,7 @@ export default function Navbar() {
                   setIsProfileOpen((v) => !v);
                   setIsNotificationsOpen(false);
                 }}
-                className="flex items-center gap-1.5 rounded-xl border border-[#E4DCD3] bg-gray-100 p-1.5 transition hover:border-primary dark:border-white/10 dark:bg-[#EFE5DA]/[0.04]"
+                className="flex min-h-11 items-center gap-1.5 rounded-xl border border-[#D9CBBE] bg-[#E6DACE] p-1.5 text-[#183B38] transition hover:border-[#17645F] hover:bg-[#DCCFC2] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#17645F] dark:border-[#34504C] dark:bg-[#1D3835] dark:text-[#F3EEE8] dark:hover:bg-[#25413D]"
                 aria-label="Open profile menu"
               >
                 <span className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg bg-gray-200 dark:bg-[#EFE5DA]/10">
