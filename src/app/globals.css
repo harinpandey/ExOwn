@@ -249,7 +249,7 @@ body {
 }
 
 /* ExOwn design system: warm, calm surfaces; deep teal actions; coral emphasis. */
-:root:not(.dark) :is(.bg-white, .bg-gray-50, .bg-slate-50, .bg-zinc-50, .bg-stone-50, .bg-neutral-50, [class*="bg-[#EFE5DA]"]) {
+:root:not(.dark) :is(.bg-white, .bg-gray-50, .bg-slate-50, .bg-zinc-50, .bg-stone-50, .bg-neutral-50, [class~="bg-[#EFE5DA]"]) {
   background-color: var(--surface) !important;
 }
 :root:not(.dark) :is(.bg-gray-100, .bg-slate-100, .bg-zinc-100, .bg-stone-100, .bg-neutral-100) {
@@ -305,7 +305,7 @@ body {
 .dark :is([class*="border-[#E2E8E5]"], [class*="border-gray-100"], [class*="border-gray-200"], [class*="border-slate-200"]) {
   border-color: var(--border-subtle) !important;
 }
-.dark :is([class*="bg-[#EFE5DA]"], [class*="bg-[#E9DED2]"], [class*="bg-[#E6DACE]"], [class*="bg-[#E1D3C5]"], [class*="bg-[#F3EEE8]"]) {
+.dark :is([class~="bg-[#EFE5DA]"], [class~="dark:bg-[#EFE5DA]"], [class~="bg-[#E9DED2]"], [class~="dark:bg-[#E9DED2]"], [class~="bg-[#E6DACE]"], [class~="dark:bg-[#E6DACE]"], [class~="bg-[#E1D3C5]"], [class~="dark:bg-[#E1D3C5]"], [class~="bg-[#F3EEE8]"], [class~="dark:bg-[#F3EEE8]"]) {
   background-color: var(--surface-soft) !important;
 }
 .dark :is([class*="text-[#183B38]"]) {
@@ -317,7 +317,7 @@ body {
 .dark :is([class*="border-[#E4DCD3]"], [class*="border-[#D9CBBE]"]) {
   border-color: var(--border-subtle) !important;
 }
-.dark :is([class*="bg-[#17645F]"]) {
+.dark :is([class~="bg-[#17645F]"], [class~="dark:bg-[#17645F]"]) {
   background-color: var(--accent) !important;
 }
 .dark :is([class*="text-[#17645F]"]) {
