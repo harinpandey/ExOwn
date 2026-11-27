@@ -323,14 +323,14 @@ function ChatRoomContent({ partnerId }: { partnerId: string }) {
 
   return (
     <div className="container mx-auto px-4 py-4 md:py-6 max-w-4xl h-[calc(100dvh-176px)] md:h-[calc(100vh-160px)] flex flex-col min-h-0">
-      <div className="bg-white dark:bg-gray-900 rounded-3xl border border-gray-200/80 dark:border-gray-800 shadow-sm flex-1 flex flex-col overflow-hidden">
+      <div className="bg-[#EFE5DA] dark:bg-[#182D2A] rounded-3xl border border-[#E4DCD3]/80 dark:border-gray-800 shadow-sm flex-1 flex flex-col overflow-hidden">
 
         {/* Header 1: User & Verification */}
-        <div className="px-4 py-3 md:px-6 md:py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between bg-white dark:bg-gray-900 z-20">
+        <div className="px-4 py-3 md:px-6 md:py-4 border-b border-[#E4DCD3] dark:border-gray-800 flex items-center justify-between bg-[#EFE5DA] dark:bg-[#182D2A] z-20">
           <div className="flex items-center gap-3">
             <Link
               href="/chat"
-              className="p-2 -ml-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 transition-colors"
+              className="p-2 -ml-2 rounded-xl hover:bg-[#E1D3C5] dark:hover:bg-gray-800 text-gray-500 transition-colors"
               aria-label="Back to messages"
             >
               <ArrowLeft size={20} />
@@ -356,7 +356,7 @@ function ChatRoomContent({ partnerId }: { partnerId: string }) {
 
             <div>
               <div className="flex items-center gap-1.5">
-                <h2 className="font-bold text-gray-900 dark:text-white text-base tracking-tight leading-tight">
+                <h2 className="font-bold text-[#183B38] dark:text-white text-base tracking-tight leading-tight">
                   {partnerName}
                 </h2>
                 {partner?.isVerified && (
@@ -380,26 +380,26 @@ function ChatRoomContent({ partnerId }: { partnerId: string }) {
             <div className="relative" ref={menuRef}>
               <button
                 onClick={() => setMenuOpen(!menuOpen)}
-                className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 transition-colors"
+                className="p-2 rounded-xl hover:bg-[#E1D3C5] dark:hover:bg-gray-800 text-gray-500 transition-colors"
                 aria-label="Conversation options"
               >
                 <MoreVertical size={20} />
               </button>
 
               {menuOpen && (
-                <div className="absolute right-0 top-full mt-2 w-52 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-xl py-2 z-50 animate-in fade-in zoom-in-95">
+                <div className="absolute right-0 top-full mt-2 w-52 bg-[#EFE5DA] dark:bg-[#182D2A] rounded-2xl border border-[#E4DCD3] dark:border-gray-800 shadow-xl py-2 z-50 animate-in fade-in zoom-in-95">
                   <button
                     onClick={() => {
                       setShowMeetupTips(true);
                       setMenuOpen(false);
                     }}
-                    className="w-full text-left px-4 py-2.5 text-xs font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center gap-2"
+                    className="w-full text-left px-4 py-2.5 text-xs font-semibold text-[#526663] dark:text-gray-300 hover:bg-[#E6DACE] dark:hover:bg-gray-800 flex items-center gap-2"
                   >
                     <ShieldCheck size={15} className="text-primary" />
                     Campus Meetup Guide
                   </button>
                   <div className="px-4 py-1">
-                    <div className="h-px bg-gray-100 dark:bg-gray-800 my-1" />
+                    <div className="h-px bg-[#E1D3C5] dark:bg-[#25413D] my-1" />
                     <ReportButton
                       productId={product?.id}
                       reportedId={partner?.id}
@@ -413,10 +413,10 @@ function ChatRoomContent({ partnerId }: { partnerId: string }) {
 
         {/* Header 2: Linked Listing Context Card */}
         {product && (
-          <div className="bg-orange-50/50 dark:bg-gray-800/40 border-b border-orange-100/60 dark:border-gray-800 px-4 py-2.5 md:px-6 md:py-3 transition-all">
+          <div className="bg-orange-50/50 dark:bg-[#25413D]/40 border-b border-orange-100/60 dark:border-gray-800 px-4 py-2.5 md:px-6 md:py-3 transition-all">
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-3 min-w-0">
-                <div className="w-12 h-12 rounded-xl bg-gray-100 dark:bg-gray-800 overflow-hidden relative flex-shrink-0 border border-gray-200 dark:border-gray-700">
+                <div className="w-12 h-12 rounded-xl bg-[#E1D3C5] dark:bg-[#25413D] overflow-hidden relative flex-shrink-0 border border-[#E4DCD3] dark:border-gray-700">
                   {product.images?.[0] ? (
                     <Image
                       src={product.images[0]}
@@ -440,7 +440,7 @@ function ChatRoomContent({ partnerId }: { partnerId: string }) {
                     <span className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${
                       product.status === "LIVE"
                         ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400"
-                        : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400"
+                        : "bg-[#E1D3C5] text-gray-600 dark:bg-[#25413D] dark:text-gray-400"
                     }`}>
                       {product.status}
                     </span>
@@ -449,14 +449,14 @@ function ChatRoomContent({ partnerId }: { partnerId: string }) {
                   <Link
                     href={`/product/${product.id}`}
                     target="_blank"
-                    className="group flex items-center gap-1 font-bold text-gray-900 dark:text-white text-sm hover:text-primary transition-colors truncate mt-0.5"
+                    className="group flex items-center gap-1 font-bold text-[#183B38] dark:text-white text-sm hover:text-primary transition-colors truncate mt-0.5"
                   >
                     <span className="truncate">{product.title}</span>
                     <ExternalLink size={12} className="opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
                   </Link>
 
                   <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-                    <span className="font-extrabold text-gray-900 dark:text-white">₹{product.price.toLocaleString("en-IN")}</span>
+                    <span className="font-extrabold text-[#183B38] dark:text-white">₹{product.price.toLocaleString("en-IN")}</span>
                     {product.pickupLocation && (
                       <span className="hidden sm:inline-flex items-center gap-1 truncate text-[11px]">
                         • <MapPin size={11} /> {product.pickupLocation}
@@ -477,7 +477,7 @@ function ChatRoomContent({ partnerId }: { partnerId: string }) {
                 )}
                 <Link
                   href={`/product/${product.id}`}
-                  className="px-3 py-1.5 text-xs font-bold text-primary bg-white dark:bg-gray-900 hover:bg-orange-50 rounded-xl border border-orange-200 dark:border-gray-700 transition-colors shadow-2xl shadow-primary/5"
+                  className="px-3 py-1.5 text-xs font-bold text-primary bg-[#EFE5DA] dark:bg-[#182D2A] hover:bg-orange-50 rounded-xl border border-orange-200 dark:border-gray-700 transition-colors shadow-2xl shadow-primary/5"
                 >
                   View Listing
                 </Link>
@@ -504,7 +504,7 @@ function ChatRoomContent({ partnerId }: { partnerId: string }) {
                 <div>
                   <div className="flex items-center gap-2">
                     <p className="text-xs font-black uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                      Offer: <span className="font-extrabold text-gray-900 dark:text-white">₹{offer.price.toLocaleString("en-IN")}</span>
+                      Offer: <span className="font-extrabold text-[#183B38] dark:text-white">₹{offer.price.toLocaleString("en-IN")}</span>
                     </p>
                     <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${
                       offer.status === "ACCEPTED"
@@ -530,7 +530,7 @@ function ChatRoomContent({ partnerId }: { partnerId: string }) {
                   <button
                     onClick={() => handleOfferStatusChange(offer.id, "REJECTED")}
                     disabled={isActioningOffer}
-                    className="px-3 py-1.5 text-xs font-bold text-rose-600 bg-white dark:bg-gray-900 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-rose-200 dark:border-rose-900/40 rounded-xl transition-all disabled:opacity-50"
+                    className="px-3 py-1.5 text-xs font-bold text-rose-600 bg-[#EFE5DA] dark:bg-[#182D2A] hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-rose-200 dark:border-rose-900/40 rounded-xl transition-all disabled:opacity-50"
                   >
                     Decline
                   </button>
@@ -601,10 +601,10 @@ function ChatRoomContent({ partnerId }: { partnerId: string }) {
         <div ref={messagesContainerRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 md:p-6 space-y-4 bg-[#f8fafc] dark:bg-[#09090b]">
           {messages.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center p-8 space-y-3">
-              <div className="w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center text-gray-400">
+              <div className="w-12 h-12 bg-[#E1D3C5] dark:bg-[#25413D] rounded-full flex items-center justify-center text-gray-400">
                 <Clock size={20} />
               </div>
-              <p className="text-sm font-bold text-gray-700 dark:text-gray-300">No messages yet</p>
+              <p className="text-sm font-bold text-[#526663] dark:text-gray-300">No messages yet</p>
               <p className="text-xs text-gray-400 max-w-sm">
                 Start the conversation with {partnerName}. Discuss meetup times, location on campus, or clarify item condition.
               </p>
@@ -633,7 +633,7 @@ function ChatRoomContent({ partnerId }: { partnerId: string }) {
                         <div className={`rounded-2xl px-4 py-2.5 ${
                           isMe
                             ? "bg-primary text-white rounded-br-sm shadow-sm"
-                            : "bg-white dark:bg-gray-800 border border-gray-200/80 dark:border-gray-700/80 text-gray-900 dark:text-gray-100 rounded-bl-sm shadow-sm"
+                            : "bg-[#EFE5DA] dark:bg-[#25413D] border border-[#E4DCD3]/80 dark:border-gray-700/80 text-[#183B38] dark:text-gray-100 rounded-bl-sm shadow-sm"
                         }`}>
                           <div className="flex items-center gap-2">
                             <MapPin size={15} className="flex-shrink-0" />
@@ -654,7 +654,7 @@ function ChatRoomContent({ partnerId }: { partnerId: string }) {
                   <div className={`max-w-[78%] sm:max-w-[65%] rounded-2xl px-4 py-2.5 ${
                     isMe
                       ? "bg-primary text-white rounded-br-sm shadow-sm"
-                      : "bg-white dark:bg-gray-800 border border-gray-200/80 dark:border-gray-700/80 text-gray-900 dark:text-gray-100 rounded-bl-sm shadow-sm"
+                      : "bg-[#EFE5DA] dark:bg-[#25413D] border border-[#E4DCD3]/80 dark:border-gray-700/80 text-[#183B38] dark:text-gray-100 rounded-bl-sm shadow-sm"
                   }`}>
                     {messageText && <p className="text-sm whitespace-pre-wrap break-words">{messageText}</p>}
                     {messageImages.length > 0 && (
@@ -677,11 +677,11 @@ function ChatRoomContent({ partnerId }: { partnerId: string }) {
         </div>
 
         {/* Input Composer */}
-        <div className="shrink-0 p-2 md:p-3 border-t border-gray-200/80 dark:border-gray-800 bg-white dark:bg-gray-900">
+        <div className="shrink-0 p-2 md:p-3 border-t border-[#E4DCD3]/80 dark:border-gray-800 bg-[#EFE5DA] dark:bg-[#182D2A]">
           {attachments.length > 0 && (
             <div className="max-w-4xl mx-auto mb-3 flex flex-wrap gap-2">
               {attachments.map((item) => (
-                <div key={item.previewUrl} className="relative h-16 w-16 overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700">
+                <div key={item.previewUrl} className="relative h-16 w-16 overflow-hidden rounded-xl border border-[#E4DCD3] dark:border-gray-700">
                   <img src={item.previewUrl} alt="Selected attachment preview" className="h-full w-full object-cover" />
                   <button type="button" onClick={() => removeAttachment(item.previewUrl)} disabled={isSending} aria-label="Remove attached image" className="absolute right-1 top-1 rounded-full bg-black/70 p-1 text-white disabled:opacity-50"><X size={12} /></button>
                 </div>
@@ -691,9 +691,9 @@ function ChatRoomContent({ partnerId }: { partnerId: string }) {
           )}
           <form onSubmit={handleSend} className="flex items-end gap-2 max-w-4xl mx-auto">
             <input ref={attachmentInputRef} type="file" accept="image/jpeg,image/png,image/webp" multiple className="hidden" onChange={handleSelectAttachments} />
-            <button type="button" onClick={() => attachmentInputRef.current?.click()} disabled={isSending || attachments.length >= 5} className="p-2.5 rounded-xl border border-gray-300/80 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-40 flex-shrink-0" aria-label="Attach images" title="Attach photos"><Paperclip size={18} /></button>
+            <button type="button" onClick={() => attachmentInputRef.current?.click()} disabled={isSending || attachments.length >= 5} className="p-2.5 rounded-xl border border-gray-300/80 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-[#E1D3C5] dark:hover:bg-gray-800 disabled:opacity-40 flex-shrink-0" aria-label="Attach images" title="Attach photos"><Paperclip size={18} /></button>
             <div className="flex-1 relative">
-              <textarea value={newMessage} onChange={(e) => setNewMessage(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(e); } }} placeholder="Type a message... (Press Enter to send)" className="w-full min-h-[42px] px-3 py-2 max-h-24 rounded-xl border border-gray-300/80 dark:border-gray-700 bg-white dark:bg-gray-900 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all resize-none text-sm placeholder:text-gray-400" rows={1} disabled={isSending} />
+              <textarea value={newMessage} onChange={(e) => setNewMessage(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(e); } }} placeholder="Type a message... (Press Enter to send)" className="w-full min-h-[42px] px-3 py-2 max-h-24 rounded-xl border border-gray-300/80 dark:border-gray-700 bg-[#EFE5DA] dark:bg-[#182D2A] focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all resize-none text-sm placeholder:text-gray-400" rows={1} disabled={isSending} />
             </div>
             <button type="submit" disabled={(!newMessage.trim() && attachments.length === 0) || isSending} className="p-2.5 bg-primary text-white rounded-xl hover:bg-orange-600 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-sm flex-shrink-0" aria-label="Send message"><Send size={18} className={isSending ? "animate-pulse" : "translate-x-0.5 -translate-y-0.5"} /></button>
           </form>
