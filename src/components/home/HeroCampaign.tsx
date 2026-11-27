@@ -57,7 +57,7 @@ export default function HeroCampaign() {
               Campus-focused community
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <Users size={14} className="text-[#17645F] dark:text-[#91CDB0]" />
+              <Users size={14} className="text-[#FFB19D] dark:text-[#FFB19D]" />
               Student-to-student exchange
             </span>
             <span className="inline-flex items-center gap-1.5">
