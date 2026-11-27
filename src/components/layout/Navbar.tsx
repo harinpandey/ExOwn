@@ -147,7 +147,7 @@ export default function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-[#E4DCD3] bg-[#F3EEE8] text-[#183B38]">
+    <header className="sticky top-0 z-50 w-full border-b border-[#E4DCD3] bg-[var(--background)] text-[var(--foreground)]">
       <div className="container mx-auto px-4">
         {/* Brand, service switcher and campus selector share one row */}
         <div className="flex min-w-0 items-center gap-2 border-b border-[#E4DCD3] py-2.5 sm:gap-3 lg:gap-5">
