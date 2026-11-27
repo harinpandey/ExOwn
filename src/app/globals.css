@@ -504,3 +504,35 @@ a:focus-visible,
 .dark :is([class*="bg-[#FF6845]"], [class*="bg-orange-"], [class*="bg-pink-"], [class*="bg-red-"]) .text-white {
   color: var(--accent-coral-contrast) !important;
 }
+
+/* Normalize the older Sage/Campus palette still used by legacy routes such as LPU News. */
+:root:not(.dark) :is([class*="bg-[#eaf2ef]"], [class*="bg-[#EAF2EF]"]) {
+  background-color: var(--muted) !important;
+}
+:root:not(.dark) :is([class*="border-[#e2e8e5]"], [class*="border-[#E2E8E5]"]) {
+  border-color: var(--border-subtle) !important;
+}
+:root:not(.dark) :is([class*="text-[#1e5646]"], [class*="text-[#1E5646]"]) {
+  color: var(--accent) !important;
+}
+:root:not(.dark) :is([class*="text-[#13221d]"], [class*="text-[#13221D]"]) {
+  color: var(--foreground) !important;
+}
+:root:not(.dark) :is([class*="text-[#4a5d56]"], [class*="text-[#4A5D56]"]) {
+  color: var(--muted-foreground) !important;
+}
+.dark :is([class*="bg-[#eaf2ef]"], [class*="bg-[#EAF2EF]"]) {
+  background-color: var(--muted) !important;
+}
+.dark :is([class*="border-[#e2e8e5]"], [class*="border-[#E2E8E5]"]) {
+  border-color: var(--border-subtle) !important;
+}
+.dark :is([class*="text-[#1e5646]"], [class*="text-[#1E5646]"]) {
+  color: #91CDB0 !important;
+}
+.dark :is([class*="text-[#13221d]"], [class*="text-[#13221D]"]) {
+  color: var(--foreground) !important;
+}
+.dark :is([class*="text-[#4a5d56]"], [class*="text-[#4A5D56]"]) {
+  color: var(--muted-foreground) !important;
+}
