@@ -429,6 +429,23 @@ a:focus-visible,
 }
 
 
+/* Final site-wide overrides: warm every remaining cool canvas and keep text/buttons legible. */
+:root:not(.dark) :is([class*="bg-[#f7f8fc]"], [class*="bg-[#F7F9F8]"], [class*="bg-[#f7f9f8]"]) {
+  background-color: var(--background) !important;
+}
+.dark :is([class*="bg-[#f7f8fc]"], [class*="bg-[#F7F9F8]"], [class*="bg-[#f7f9f8]"]) {
+  background-color: var(--background) !important;
+}
+/* White text on a neutral/light surface was unreadable; branded buttons and image overlays retain ivory text. */
+:root:not(.dark) :is([class~="bg-white"], [class*="bg-[#F7F9F8]"], [class*="bg-[#f7f8fc]"], [class*="bg-[#F3EEE8]"], [class*="bg-[#F7F1E9]"]) .text-white,
+:root:not(.dark) :is([class~="bg-white"], [class*="bg-[#F7F9F8]"], [class*="bg-[#f7f8fc]"], [class*="bg-[#F3EEE8]"], [class*="bg-[#F7F1E9]"]).text-white {
+  color: var(--foreground) !important;
+}
+:root:not(.dark) :is([class~="bg-white"], [class*="bg-[#F7F9F8]"], [class*="bg-[#f7f8fc]"], [class*="bg-[#F3EEE8]"], [class*="bg-[#F7F1E9]"]) .text-white\/70,
+:root:not(.dark) :is([class~="bg-white"], [class*="bg-[#F7F9F8]"], [class*="bg-[#f7f8fc]"], [class*="bg-[#F3EEE8]"], [class*="bg-[#F7F1E9]"]) .text-white\/80 {
+  color: var(--muted-foreground) !important;
+}
+
 /* Keep image-led campus ads cinematic and readable in both themes. */
 .campus-ad-overlay {
   background-image: linear-gradient(
