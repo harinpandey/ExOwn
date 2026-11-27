@@ -53,7 +53,7 @@ export default function HeroCampaign() {
 
           <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-[#F3EEE8]/25 pt-4 text-[11px] font-medium text-[#F3EEE8]/80 dark:border-[#2A4136] dark:text-[#B4C5BC] sm:text-xs">
             <span className="inline-flex items-center gap-1.5">
-              <ShieldCheck size={14} className="text-[#17645F] dark:text-[#91CDB0]" />
+              <ShieldCheck size={14} className="text-[#FFB19D] dark:text-[#FFB19D]" />
               Campus-focused community
             </span>
             <span className="inline-flex items-center gap-1.5">
