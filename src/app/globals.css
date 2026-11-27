@@ -635,3 +635,21 @@ a:focus-visible,
 .exown-coral-surface :is(p, span, strong, small, svg) {
   color: inherit;
 }
+
+/* Existing marketplace primary buttons follow the 10% coral action rule;
+   outline/secondary buttons remain deep teal. */
+.marketplace-button {
+  background: var(--cta-primary) !important;
+  color: var(--cta-primary-contrast) !important;
+  border-color: var(--cta-primary) !important;
+}
+.marketplace-button:hover {
+  background: var(--cta-primary) !important;
+  border-color: var(--cta-primary) !important;
+  filter: brightness(0.97);
+}
+.marketplace-button-outline {
+  background: var(--surface) !important;
+  color: var(--secondary) !important;
+  border-color: var(--secondary) !important;
+}
