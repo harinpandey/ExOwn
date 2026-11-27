@@ -142,7 +142,7 @@ export default function HousingPage() {
         {/* Banner Hero */}
         <div className="relative overflow-hidden rounded-3xl border border-[#E4DCD3] bg-[#EFE5DA] p-6 text-[#183B38] shadow-sm dark:border-white/10 dark:bg-[#1B302D] dark:text-white sm:p-10">
           <div className="relative z-10 max-w-2xl space-y-3">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide text-blue-700 dark:bg-blue-500/10 dark:text-blue-300">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-teal-50 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide text-teal-700 dark:bg-teal-500/10 dark:text-teal-300">
               <ShieldCheck size={14} /> Campus Housing
             </span>
             <h1 className="text-2xl font-black leading-tight tracking-tight text-[#183B38] dark:text-white sm:text-4xl">
@@ -179,7 +179,7 @@ export default function HousingPage() {
             </div>
           </div>
 
-          <div className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-blue-100/80 blur-3xl dark:bg-blue-500/10" />
+          <div className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-teal-100/80 blur-3xl dark:bg-teal-500/10" />
         </div>
 
         {/* Housing Type Pills */}
@@ -193,8 +193,8 @@ export default function HousingPage() {
                 onClick={() => setSelectedType(t.id)}
                 className={`flex shrink-0 items-center gap-2 rounded-2xl px-4 py-2.5 text-xs font-bold transition-all ${
                   active
-                    ? "bg-[#17645F] text-white shadow-lg shadow-blue-500/25"
-                    : "bg-[#EFE5DA] dark:bg-[#1B302D] text-[#526663] dark:text-white/80 border border-[#E4DCD3] dark:border-white/10 hover:border-blue-400"
+                    ? "bg-[#17645F] text-white shadow-lg shadow-teal-500/25"
+                    : "bg-[#EFE5DA] dark:bg-[#1B302D] text-[#526663] dark:text-white/80 border border-[#E4DCD3] dark:border-white/10 hover:border-teal-400"
                 }`}
               >
                 <Icon size={15} />
@@ -209,13 +209,13 @@ export default function HousingPage() {
           <div className="bg-[#EFE5DA] dark:bg-[#1B302D] rounded-2xl p-4 border border-[#E4DCD3] dark:border-white/10 shadow-sm space-y-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-xs font-bold text-[#526663] dark:text-gray-300">
-                <MapPin size={14} className="text-blue-500" />
+                <MapPin size={14} className="text-teal-500" />
                 <span>Campus Localities near {campusConfig.campusName}</span>
               </div>
               {selectedLocality !== "ALL" && (
                 <button
                   onClick={() => setSelectedLocality("ALL")}
-                  className="text-[11px] font-semibold text-blue-600 dark:text-blue-400 hover:underline"
+                  className="text-[11px] font-semibold text-teal-600 dark:text-teal-400 hover:underline"
                 >
                   Clear Locality
                 </button>
@@ -266,7 +266,7 @@ export default function HousingPage() {
           <aside className="h-max space-y-5 rounded-2xl border border-[#E4DCD3] bg-[#EFE5DA] p-5 shadow-sm dark:border-white/10 dark:bg-[#1B302D] lg:sticky lg:top-24 lg:col-span-1">
             <div className="flex items-center justify-between border-b border-[#E4DCD3] dark:border-white/10 pb-3">
               <h3 className="flex items-center gap-2 text-sm font-black text-[#183B38] dark:text-white">
-                <SlidersHorizontal size={16} className="text-blue-600" /> Filters
+                <SlidersHorizontal size={16} className="text-teal-600" /> Filters
               </h3>
               <button
                 onClick={() => {
@@ -277,7 +277,7 @@ export default function HousingPage() {
                   setSelectedAmenities([]);
                   setSearchQuery("");
                 }}
-                className="text-[11px] font-bold text-blue-600 dark:text-blue-400 hover:underline"
+                className="text-[11px] font-bold text-teal-600 dark:text-teal-400 hover:underline"
               >
                 Reset
               </button>
@@ -287,7 +287,7 @@ export default function HousingPage() {
             <div>
               <div className="flex justify-between text-xs font-bold text-[#526663] dark:text-white/80 mb-2">
                 <span>Max Monthly Rent</span>
-                <span className="text-blue-600 dark:text-blue-400">₹{maxRent.toLocaleString("en-IN")}</span>
+                <span className="text-teal-600 dark:text-teal-400">₹{maxRent.toLocaleString("en-IN")}</span>
               </div>
               <input
                 type="range"
@@ -296,7 +296,7 @@ export default function HousingPage() {
                 step={1000}
                 value={maxRent}
                 onChange={(e) => setMaxRent(Number(e.target.value))}
-                className="w-full accent-blue-600 cursor-pointer"
+                className="w-full accent-teal-600 cursor-pointer"
               />
               <div className="flex justify-between text-[10px] text-gray-400 font-semibold mt-1">
                 <span>₹3,000</span>
@@ -341,7 +341,7 @@ export default function HousingPage() {
                       onClick={() => toggleAmenity(a.name)}
                       className={`w-full flex items-center justify-between p-2.5 text-xs font-medium rounded-xl border transition ${
                         active
-                          ? "bg-blue-50 dark:bg-blue-950/40 border-blue-400 text-blue-600 dark:text-blue-400 font-bold"
+                          ? "bg-teal-50 dark:bg-teal-950/40 border-teal-400 text-teal-600 dark:text-teal-400 font-bold"
                           : "border-[#E4DCD3] dark:border-white/10 text-gray-600 dark:text-white/70 hover:border-gray-300"
                       }`}
                     >
@@ -349,7 +349,7 @@ export default function HousingPage() {
                         <Icon size={14} />
                         {a.name}
                       </span>
-                      {active && <CheckCircle2 size={14} className="text-blue-600" />}
+                      {active && <CheckCircle2 size={14} className="text-teal-600" />}
                     </button>
                   );
                 })}
@@ -399,12 +399,12 @@ export default function HousingPage() {
                 {filteredListings.map((item) => (
                   <article
                     key={item.id}
-                    className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-[#E4DCD3] bg-[#EFE5DA] p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-500/40 hover:shadow-lg dark:border-white/10 dark:bg-[#1B302D]"
+                    className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-[#E4DCD3] bg-[#EFE5DA] p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-teal-500/40 hover:shadow-lg dark:border-white/10 dark:bg-[#1B302D]"
                   >
                     <div>
                       {/* Top Header */}
                       <div className="flex items-start justify-between gap-2 mb-2">
-                        <span className="rounded-full bg-blue-500/10 px-2.5 py-1 text-[10px] font-black uppercase text-blue-600 dark:text-blue-400">
+                        <span className="rounded-full bg-teal-500/10 px-2.5 py-1 text-[10px] font-black uppercase text-teal-600 dark:text-teal-400">
                           {item.type.replace("_", " ")}
                         </span>
                         {item.isVerifiedByAdmin && (
@@ -415,20 +415,20 @@ export default function HousingPage() {
                       </div>
 
                       {/* Title */}
-                      <h3 className="text-base font-black text-[#183B38] dark:text-white line-clamp-1 group-hover:text-blue-600 transition">
+                      <h3 className="text-base font-black text-[#183B38] dark:text-white line-clamp-1 group-hover:text-teal-600 transition">
                         {item.title}
                       </h3>
 
                       {/* Address & Distance */}
                       <div className="mt-1 flex items-center gap-2 text-xs text-gray-500 dark:text-white/50">
-                        <MapPin size={13} className="shrink-0 text-blue-500" />
+                        <MapPin size={13} className="shrink-0 text-teal-500" />
                         <span className="truncate">{item.address}</span>
                       </div>
 
                       {/* Rent details */}
                       <div className="mt-3 flex items-baseline gap-2 bg-slate-50 dark:bg-[#EFE5DA]/[0.03] p-3 rounded-2xl">
                         <div>
-                          <span className="text-xl font-black text-blue-600 dark:text-blue-400">
+                          <span className="text-xl font-black text-teal-600 dark:text-teal-400">
                             ₹{item.monthlyRent.toLocaleString("en-IN")}
                           </span>
                           <span className="text-xs font-bold text-gray-400"> /month</span>
@@ -462,7 +462,7 @@ export default function HousingPage() {
                     {/* Footer Contact */}
                     <div className="mt-4 border-t border-[#E4DCD3] dark:border-white/[0.06] pt-3 flex items-center justify-between text-xs">
                       <div className="flex items-center gap-2">
-                        <div className="h-7 w-7 rounded-full bg-[#17645F]/10 text-blue-600 flex items-center justify-center font-bold text-xs">
+                        <div className="h-7 w-7 rounded-full bg-[#17645F]/10 text-teal-600 flex items-center justify-center font-bold text-xs">
                           {item.owner?.name ? item.owner.name.charAt(0) : "O"}
                         </div>
                         <div>
@@ -484,7 +484,7 @@ export default function HousingPage() {
                           type="button"
                           onClick={() => handleRevealOwnerPhone(item.id)}
                           disabled={phoneLoadingFor === item.id}
-                          className="flex items-center gap-1.5 rounded-xl bg-[#17645F] px-3 py-2 text-xs font-bold text-white shadow-md shadow-blue-600/20 transition hover:bg-[#124F4B] disabled:cursor-wait disabled:opacity-60"
+                          className="flex items-center gap-1.5 rounded-xl bg-[#17645F] px-3 py-2 text-xs font-bold text-white shadow-md shadow-teal-600/20 transition hover:bg-[#124F4B] disabled:cursor-wait disabled:opacity-60"
                         >
                           <Phone size={13} />
                           {phoneLoadingFor === item.id ? "Loading..." : user ? "Show phone number" : "Sign in to contact"}
