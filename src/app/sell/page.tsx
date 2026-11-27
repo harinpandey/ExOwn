@@ -392,7 +392,7 @@ function SellPageContent() {
                     : "border-[#E4DCD3] bg-[#EFE5DA] hover:border-gray-300 dark:border-white/10 dark:bg-[#1B302D] dark:hover:border-white/20"
                 }`}
               >
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-teal-50 text-teal-600 dark:bg-teal-950/40 dark:text-teal-400">
                   <ShoppingBag size={22} />
                 </div>
                 <span className="mt-3 text-base font-bold text-[#183B38] dark:text-white">
@@ -455,7 +455,7 @@ function SellPageContent() {
                     : "border-[#E4DCD3] bg-[#EFE5DA] hover:border-gray-300 dark:border-white/10 dark:bg-[#1B302D] dark:hover:border-white/20"
                 }`}
               >
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-purple-50 text-purple-600 dark:bg-purple-950/40 dark:text-purple-400">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-teal-50 text-teal-600 dark:bg-teal-950/40 dark:text-teal-400">
                   <BriefcaseBusiness size={22} />
                 </div>
                 <span className="mt-3 text-base font-bold text-[#183B38] dark:text-white">Offer a Service</span>
@@ -470,14 +470,14 @@ function SellPageContent() {
                 onClick={() => router.push("/requests")}
                 className="flex flex-col items-start rounded-2xl border-2 border-dashed border-[#E4DCD3] bg-[#EFE5DA] p-5 text-left transition hover:border-gray-300 dark:border-white/10 dark:bg-[#1B302D] dark:hover:border-white/20"
               >
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-purple-50 text-purple-600 dark:bg-purple-950/40 dark:text-purple-400">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-teal-50 text-teal-600 dark:bg-teal-950/40 dark:text-teal-400">
                   <HelpCircle size={22} />
                 </div>
                 <div className="mt-3 flex items-center gap-1.5">
                   <span className="text-base font-bold text-[#183B38] dark:text-white">
                     Looking to Buy?
                   </span>
-                  <span className="rounded bg-purple-100 px-1.5 py-0.5 text-[10px] font-bold text-purple-700 dark:bg-purple-950 dark:text-purple-300">
+                  <span className="rounded bg-teal-100 px-1.5 py-0.5 text-[10px] font-bold text-teal-700 dark:bg-teal-950 dark:text-teal-300">
                     Requests Board
                   </span>
                 </div>
