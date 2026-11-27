@@ -248,128 +248,71 @@ body {
   border-color: var(--border-subtle);
 }
 
-/* Legacy neutral utility cleanup in the light theme only. */
-:root:not(.dark) :is(.bg-gray-50, .bg-slate-50, .bg-zinc-50, .bg-stone-50, .bg-neutral-50) {
-  background-color: #F7F9F8 !important;
+/* ExOwn design system: warm, calm surfaces; deep teal actions; coral emphasis. */
+:root:not(.dark) :is(.bg-white, .bg-gray-50, .bg-slate-50, .bg-zinc-50, .bg-stone-50, .bg-neutral-50) {
+  background-color: var(--surface) !important;
 }
-
 :root:not(.dark) :is(.bg-gray-100, .bg-slate-100, .bg-zinc-100, .bg-stone-100, .bg-neutral-100) {
-  background-color: #EEF3F0 !important;
+  background-color: var(--surface-soft) !important;
 }
-
+:root:not(.dark) :is(.bg-gray-200, .bg-slate-200, .bg-zinc-200, .bg-stone-200, .bg-neutral-200) {
+  background-color: #DCCFC2 !important;
+}
 :root:not(.dark) :is(.text-black, .text-gray-950, .text-gray-900, .text-gray-800, .text-slate-950, .text-slate-900, .text-slate-800, .text-zinc-950, .text-zinc-900, .text-neutral-900) {
-  color: #13221D !important;
+  color: var(--foreground) !important;
 }
-
 :root:not(.dark) :is(.text-gray-700, .text-gray-600, .text-gray-500, .text-slate-700, .text-slate-600, .text-slate-500, .text-zinc-700, .text-zinc-600, .text-zinc-500) {
-  color: #4A5D56 !important;
+  color: var(--muted-foreground) !important;
 }
-
 :root:not(.dark) :is(.border-gray-100, .border-gray-200, .border-gray-300, .border-slate-100, .border-slate-200, .border-slate-300) {
-  border-color: #E2E8E5 !important;
+  border-color: var(--border-subtle) !important;
 }
-
 :root:not(.dark) :is(.bg-blue-500, .bg-blue-600, .bg-blue-700, .bg-indigo-500, .bg-indigo-600, .bg-indigo-700, .bg-violet-500, .bg-violet-600, .bg-violet-700, .bg-purple-500, .bg-purple-600, .bg-purple-700, .bg-cyan-500, .bg-cyan-600) {
-  background-color: #1E5646 !important;
-  color: #FFFFFF !important;
+  background-color: var(--accent) !important;
+  color: var(--accent-contrast) !important;
 }
-
+:root:not(.dark) :is(.bg-orange-500, .bg-orange-600, .bg-pink-500, .bg-red-500) {
+  background-color: var(--accent-coral) !important;
+  color: var(--accent-coral-contrast) !important;
+}
 :root:not(.dark) :is(.text-blue-800, .text-blue-700, .text-blue-600, .text-indigo-800, .text-indigo-700, .text-indigo-600, .text-violet-800, .text-violet-700, .text-violet-600, .text-purple-800, .text-purple-700, .text-purple-600, .text-cyan-800, .text-cyan-700, .text-cyan-600) {
-  color: #1E5646 !important;
+  color: var(--accent) !important;
 }
-
 :root:not(.dark) :is(.bg-blue-50, .bg-blue-100, .bg-indigo-50, .bg-indigo-100, .bg-violet-50, .bg-violet-100, .bg-purple-50, .bg-purple-100, .bg-cyan-50, .bg-cyan-100, .bg-emerald-50, .bg-emerald-100) {
-  background-color: #E6F2EE !important;
+  background-color: var(--muted) !important;
 }
-
 :root:not(.dark) :is(.border-blue-100, .border-blue-200, .border-indigo-100, .border-indigo-200, .border-violet-100, .border-violet-200, .border-purple-100, .border-purple-200, .border-cyan-100, .border-cyan-200) {
-  border-color: #E2E8E5 !important;
+  border-color: var(--border-subtle) !important;
 }
-
-/* Make the specified warm-canvas palette adapt cleanly to dark mode. */
 .dark :is([class*="bg-white"], [class~="bg-white"]) {
   background-color: var(--surface) !important;
 }
-
-.dark :is([class*="bg-[#F7F9F8]"], [class*="bg-gray-50"], [class*="bg-slate-50"]) {
+.dark :is([class*="bg-gray-50"], [class*="bg-slate-50"], [class*="bg-[#F7F9F8]"]) {
   background-color: var(--surface-soft) !important;
 }
-
 .dark :is([class*="bg-[#E6F2EE]"], [class*="bg-[#EEF3F0]"], [class*="bg-emerald-50"], [class*="bg-green-50"]) {
   background-color: var(--muted) !important;
 }
-
 .dark :is([class*="bg-[#1E5646]"], [class*="bg-primary"]) {
   background-color: var(--accent) !important;
 }
-
 .dark :is([class*="text-[#13221D]"], [class*="text-gray-950"], [class*="text-gray-900"], [class*="text-gray-800"], [class*="text-slate-900"]) {
   color: var(--foreground) !important;
 }
-
 .dark :is([class*="text-[#4A5D56]"], [class*="text-gray-700"], [class*="text-gray-600"], [class*="text-gray-500"], [class*="text-slate-600"]) {
   color: var(--muted-foreground) !important;
 }
-
-.dark :is([class*="text-[#1E5646]"], [class*="text-primary"], [class*="text-emerald-700"], [class*="text-green-700"]) {
-  color: #91CDB0 !important;
-}
-
-.dark :is([class*="border-[#E2E8E5]"], [class*="border-[#DCE5E1]"], [class*="border-gray-100"], [class*="border-gray-200"], [class*="border-slate-200"]) {
+.dark :is([class*="border-[#E2E8E5]"], [class*="border-gray-100"], [class*="border-gray-200"], [class*="border-slate-200"]) {
   border-color: var(--border-subtle) !important;
 }
-
-.dark :is([class*="bg-[#FEF3C7]"], [class*="bg-amber-100"]) {
-  background-color: #493A1D !important;
-  border-color: #725A2D !important;
-}
-
-.dark :is([class*="text-[#92400E]"], [class*="text-amber-800"]) {
-  color: #F2D28C !important;
-}
-
 .dark :is([class*="bg-[#07090d]"], [class*="bg-[#090c12]"], [class*="bg-[#0c1017]"], [class*="bg-[#10141b]"], [class*="bg-[#161c25]"], [class*="bg-gray-950"], [class*="bg-gray-900"], [class*="bg-slate-900"], [class*="bg-zinc-900"]) {
   background-color: var(--surface) !important;
   color: var(--foreground) !important;
   border-color: var(--border-subtle) !important;
 }
-
-.dark [class*="bg-gradient-to-"] {
-  background-image: none !important;
-  background-color: var(--surface) !important;
-  color: var(--foreground) !important;
-  border-color: var(--border-subtle) !important;
-}
-
-.dark [class*="bg-gradient-to-"] :is(.text-white, [class*="text-white/"]) {
-  color: var(--foreground) !important;
-}
-
-:root:not(.dark) [class*="bg-gradient-to-"] {
-  background-image: none !important;
-  background-color: #FFFFFF !important;
-  color: #13221D !important;
-  border: 1px solid #E2E8E5;
-}
-
-:root:not(.dark) [class*="bg-gradient-to-"] :is(.text-white, .text-blue-50, .text-blue-100, .text-cyan-100, .text-cyan-200, .text-indigo-100, .text-indigo-200) {
-  color: #13221D !important;
-}
-
-[class*="shadow-"] {
-  box-shadow: var(--surface-shadow) !important;
-}
-
-[class*="drop-shadow"] {
-  filter: none !important;
-}
-
-.object-25d,
-.group:hover .object-25d,
-.object-25d:hover {
-  transform: none !important;
-  filter: none !important;
-}
+[class~="bg-white"] { background-color: #EFE5DA !important; }
+[class~="text-white"] { color: #F3EEE8 !important; }
+[class~="border-white"] { border-color: #D9CBBE !important; }
 
 @media (prefers-reduced-motion: reduce) {
   *,
