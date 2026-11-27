@@ -84,7 +84,7 @@ body {
 
 /* ExOwn warm palette: avoid stark white surfaces across shared Tailwind utilities */
 .bg-white { background-color: #F7F1E9 !important; }
-.hover\\:bg-white:hover { background-color: #E6DACE !important; }
+[class~="hover:bg-white"]:hover { background-color: #E6DACE !important; }
 .text-white { color: #F3EEE8 !important; }
 .border-white { border-color: #D9CBBE !important; }
 
