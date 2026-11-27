@@ -76,7 +76,7 @@ export default function CampusSelector({ onSelect, selectedId }: Props) {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 motion-dropdown">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Country */}
         <div className="space-y-1">
