@@ -27,18 +27,18 @@ export default function SectionHeader({
         {eyebrow && (
           <div className="mb-2">
             <span className={"inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] " + (
-              isMovingOut ? "bg-[#FEF3C7] text-[#92400E]" : "bg-[#E6F2EE] text-[#1E5646]"
+              isMovingOut ? "bg-[#FEF3C7] text-[#92400E]" : "bg-[#E5EFEC] text-[#17645F]"
             )}>
               {icon}
               {eyebrow}
             </span>
           </div>
         )}
-        <h2 className="text-2xl font-extrabold tracking-tight text-[#13221D] sm:text-3xl">
+        <h2 className="text-2xl font-extrabold tracking-tight text-[#183B38] sm:text-3xl">
           {title}
         </h2>
         {description && (
-          <p className="mt-1.5 max-w-2xl text-sm leading-6 text-[#4A5D56]">
+          <p className="mt-1.5 max-w-2xl text-sm leading-6 text-[#526663]">
             {description}
           </p>
         )}
