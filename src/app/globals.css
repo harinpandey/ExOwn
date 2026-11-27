@@ -799,3 +799,16 @@ textarea:invalid:focus {
   }
   .motion-reveal { opacity: 1; transform: none; }
 }
+
+/* Ensure brand surfaces never fall back to pure white in either theme. */
+.dark [class*="text-white"] { color: var(--foreground) !important; }
+.dark :is([class*="bg-white/"], [class*="bg-[#fff"], [class*="bg-[#FFF"], [class*="bg-[#ffffff"], [class*="bg-[#FFFFFF"]) {
+  background-color: var(--surface-elevated) !important;
+}
+.category-pill[aria-current="page"] { animation: exown-pill-settle 220ms var(--motion-ease) both; }
+.motion-notification-badge { animation: exown-badge-arc 360ms var(--motion-ease) both; }
+@keyframes exown-badge-arc {
+  0% { opacity: 0; transform: translate(-5px, 5px) scale(0.75); }
+  65% { opacity: 1; transform: translate(2px, -3px) scale(1.08); }
+  100% { opacity: 1; transform: translate(0, 0) scale(1); }
+}
