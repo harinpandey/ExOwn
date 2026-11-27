@@ -87,16 +87,16 @@ const heroSlides = [
 ];
 
 const subCategories = [
-  { name: "Laptops", icon: Laptop, href: "/search?category=computers-laptops", color: "bg-blue-500/15 text-blue-500" },
-  { name: "Gadgets", icon: Cpu, href: "/search?category=mobiles-gadgets", color: "bg-purple-500/15 text-purple-500" },
-  { name: "Books & Swap", icon: BookOpen, href: "/search?category=books-sports-hobbies", color: "bg-emerald-500/15 text-emerald-500" },
-  { name: "Gaming", icon: Gamepad2, href: "/search?category=gaming-entertainment", color: "bg-red-500/15 text-red-500" },
-  { name: "PG & Rooms", icon: Building2, href: "/search?category=properties", color: "bg-amber-500/15 text-amber-500" },
-  { name: "Rentals", icon: RefreshCw, href: "/search?listingType=RENT", color: "bg-cyan-500/15 text-cyan-500" },
-  { name: "Audio", icon: Headphones, href: "/search?q=headphones", color: "bg-pink-500/15 text-pink-500" },
-  { name: "Watches", icon: Watch, href: "/search?q=watch", color: "bg-indigo-500/15 text-indigo-500" },
-  { name: "Fashion", icon: Shirt, href: "/search?q=clothing", color: "bg-teal-500/15 text-teal-500" },
-  { name: "Services", icon: Zap, href: "/search?listingType=SERVICE", color: "bg-yellow-500/15 text-yellow-500" },
+  { name: "Laptops", icon: Laptop, href: "/search?category=computers-laptops", color: "bg-[#E5EFEC] text-[#17645F]" },
+  { name: "Gadgets", icon: Cpu, href: "/search?category=mobiles-gadgets", color: "bg-[#FCE2D8] text-[#B94A32]" },
+  { name: "Books & Swap", icon: BookOpen, href: "/search?category=books-sports-hobbies", color: "bg-[#E5EFEC] text-[#17645F]" },
+  { name: "Gaming", icon: Gamepad2, href: "/search?category=gaming-entertainment", color: "bg-[#FCE2D8] text-[#B94A32]" },
+  { name: "PG & Rooms", icon: Building2, href: "/search?category=properties", color: "bg-[#FCE2D8] text-[#B94A32]" },
+  { name: "Rentals", icon: RefreshCw, href: "/search?listingType=RENT", color: "bg-[#E5EFEC] text-[#17645F]" },
+  { name: "Audio", icon: Headphones, href: "/search?q=headphones", color: "bg-[#FCE2D8] text-[#B94A32]" },
+  { name: "Watches", icon: Watch, href: "/search?q=watch", color: "bg-[#E5EFEC] text-[#17645F]" },
+  { name: "Fashion", icon: Shirt, href: "/search?q=clothing", color: "bg-[#E5EFEC] text-[#17645F]" },
+  { name: "Services", icon: Zap, href: "/search?listingType=SERVICE", color: "bg-[#FCE2D8] text-[#B94A32]" },
 ];
 
 export default function HeroBanner() {
@@ -130,7 +130,7 @@ export default function HeroBanner() {
       <div className="container mx-auto px-4 pt-4 pb-6">
 
         {/* ── Top Search Bar Strip (Flipkart style header inline search) ── */}
-        <div className="mb-4 flex flex-col gap-3 rounded-2xl border border-gray-200 bg-[#EFE5DA] p-3 shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/5 sm:flex-row sm:items-center">
+        <div className="mb-4 flex flex-col gap-3 rounded-2xl border border-gray-200 bg-[#EFE5DA] p-3 shadow-sm backdrop-blur dark:border-white/10 dark:bg-[#F3EEE8]/5 sm:flex-row sm:items-center">
           <form onSubmit={handleSearch} className="relative flex-1">
             <Search size={18} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-white/40" />
             <input
@@ -138,7 +138,7 @@ export default function HeroBanner() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search laptops, books, cycles, PG rooms, services..."
-              className="h-11 w-full rounded-xl border border-gray-200 bg-[#E6DACE] pl-10 pr-24 text-sm font-semibold text-gray-900 placeholder-gray-400 outline-none transition focus:border-primary focus:bg-[#EFE5DA] dark:border-white/10 dark:bg-white/10 dark:text-white dark:placeholder-white/40 dark:focus:border-primary dark:focus:bg-[#EFE5DA]/15"
+              className="h-11 w-full rounded-xl border border-gray-200 bg-[#E6DACE] pl-10 pr-24 text-sm font-semibold text-gray-900 placeholder-gray-400 outline-none transition focus:border-primary focus:bg-[#EFE5DA] dark:border-white/10 dark:bg-[#F3EEE8]/10 dark:text-white dark:placeholder-white/40 dark:focus:border-primary dark:focus:bg-[#EFE5DA]/15"
             />
             <button
               type="submit"
@@ -149,7 +149,7 @@ export default function HeroBanner() {
           </form>
 
           <div className="flex shrink-0 items-center justify-between gap-2 text-xs font-bold">
-            <span className="flex items-center gap-1.5 rounded-xl border border-gray-200 bg-gray-100 px-3 py-2 text-gray-700 dark:border-white/10 dark:bg-white/5 dark:text-white/80">
+            <span className="flex items-center gap-1.5 rounded-xl border border-gray-200 bg-gray-100 px-3 py-2 text-gray-700 dark:border-white/10 dark:bg-[#F3EEE8]/5 dark:text-white/80">
               <MapPin size={14} className="text-primary" />
               {campusObj.shortName}
             </span>
@@ -180,20 +180,20 @@ export default function HeroBanner() {
                   idx === currentSlide ? "opacity-100 z-10" : "opacity-0 z-0"
                 }`}
               >
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,255,255,0.15),transparent_70%)]" />
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(243,238,232,0.12),transparent_70%)]" />
                 {/* 3D Decorative Composition (Marketplace Items: Laptop, Phone, Books, Headphones, Cycle, Housing) */}
                 <div className="pointer-events-none absolute right-4 bottom-2 top-2 z-5 hidden w-1/2 items-center justify-end overflow-hidden sm:flex opacity-40 dark:opacity-50">
                   <div className="relative h-64 w-64 animate-pulse duration-1000">
-                    <div className="absolute top-2 right-4 flex h-16 w-24 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-md shadow-2xl ring-1 ring-white/30 transform rotate-6 transition-transform">
+                    <div className="absolute top-2 right-4 flex h-16 w-24 items-center justify-center rounded-2xl bg-[#F3EEE8]/15 backdrop-blur-md shadow-2xl ring-1 ring-[#F3EEE8]/25 transform rotate-6 transition-transform">
                       <Laptop size={32} className="text-white drop-shadow" />
                     </div>
-                    <div className="absolute bottom-6 right-16 flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-500/30 backdrop-blur-md shadow-2xl ring-1 ring-white/30 transform -rotate-12">
+                    <div className="absolute bottom-6 right-16 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#17645F]/30 backdrop-blur-md shadow-2xl ring-1 ring-[#F3EEE8]/25 transform -rotate-12">
                       <Headphones size={24} className="text-cyan-300 drop-shadow" />
                     </div>
-                    <div className="absolute top-20 right-28 flex h-12 w-20 items-center justify-center rounded-2xl bg-amber-400/30 backdrop-blur-md shadow-2xl ring-1 ring-white/30 transform rotate-12">
+                    <div className="absolute top-20 right-28 flex h-12 w-20 items-center justify-center rounded-2xl bg-amber-400/30 backdrop-blur-md shadow-2xl ring-1 ring-[#F3EEE8]/25 transform rotate-12">
                       <BookOpen size={22} className="text-amber-200 drop-shadow" />
                     </div>
-                    <div className="absolute bottom-16 right-2 flex h-12 w-12 items-center justify-center rounded-2xl bg-purple-500/30 backdrop-blur-md shadow-2xl ring-1 ring-white/30 transform -rotate-6">
+                    <div className="absolute bottom-16 right-2 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#FF6845]/25 backdrop-blur-md shadow-2xl ring-1 ring-[#F3EEE8]/25 transform -rotate-6">
                       <Building2 size={22} className="text-purple-200 drop-shadow" />
                     </div>
                   </div>
@@ -269,7 +269,7 @@ export default function HeroBanner() {
                   key={idx}
                   onClick={() => setCurrentSlide(idx)}
                   className={`h-2 rounded-full transition-all ${
-                    idx === currentSlide ? "w-7 bg-white" : "w-2 bg-white/40 hover:bg-white/70"
+                    idx === currentSlide ? "w-7 bg-white" : "w-2 bg-[#F3EEE8]/35 hover:bg-[#F3EEE8]/65"
                   }`}
                   aria-label={`Go to slide ${idx + 1}`}
                 />
