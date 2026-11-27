@@ -37,7 +37,7 @@ const VISUAL_CATEGORIES: CategoryMeta[] = [
 
 export default function VisualCategoryRail() {
   return (
-    <section className="border-b border-[#E2E8E5] bg-white" aria-label="Explore campus categories">
+    <section className="border-b border-[#E4DCD3] bg-white" aria-label="Explore campus categories">
       <div className="container mx-auto px-3 sm:px-4">
         <nav className="flex items-stretch gap-2 overflow-x-auto py-2 no-scrollbar sm:justify-between sm:gap-3" aria-label="Product categories">
           {VISUAL_CATEGORIES.map((category, index) => {
@@ -52,8 +52,8 @@ export default function VisualCategoryRail() {
                 title={category.label}
                 className={"group flex min-w-[68px] shrink-0 flex-col items-center justify-center gap-1.5 rounded-xl px-2.5 py-2 text-center transition-colors sm:min-w-0 sm:flex-1 sm:px-1 " + (
                   isForYou
-                    ? "bg-[#1E5646] text-white"
-                    : "text-[#4A5D56] hover:bg-[#F7F9F8] hover:text-[#1E5646]"
+                    ? "bg-[#17645F] text-white"
+                    : "text-[#526663] hover:bg-[#F3EEE8] hover:text-[#17645F]"
                 )}
               >
                 <Icon size={21} strokeWidth={isForYou ? 2 : 1.8} aria-hidden="true" />
