@@ -93,7 +93,7 @@ export default function Home() {
       {/* 7. Verified Sellers Shelf */}
       <ProductShelf
         eyebrow="Trusted Members"
-        icon={<ShieldCheck size={14} className="text-blue-500" />}
+        icon={<ShieldCheck size={14} className="text-teal-500" />}
         title="Verified Seller Listings"
         description="Listings posted by peers with institutional identity verification."
         href="/search"
@@ -145,7 +145,7 @@ export default function Home() {
           <div className="grid gap-5 lg:grid-cols-3">
             <Link
               href="/housing"
-              className="group flex flex-col justify-between rounded-2xl border border-[#E4DCD3] bg-white p-6 shadow-[0_1px_3px_rgba(19,34,29,0.035)] transition hover:-translate-y-0.5 hover:border-[#D2C6BB] hover:shadow-[0_4px_14px_rgba(19,34,29,0.06)]"
+              className="group flex flex-col justify-between rounded-2xl border border-[#E4DCD3] bg-[#EFE5DA] p-6 shadow-[0_1px_3px_rgba(19,34,29,0.035)] transition hover:-translate-y-0.5 hover:border-[#D2C6BB] hover:shadow-[0_4px_14px_rgba(19,34,29,0.06)]"
             >
               <div>
                 <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-[#E5EFEC] text-[#17645F]">
@@ -165,7 +165,7 @@ export default function Home() {
 
             <Link
               href="/roommates"
-              className="group flex flex-col justify-between rounded-2xl border border-[#E4DCD3] bg-white p-6 shadow-[0_1px_3px_rgba(19,34,29,0.035)] transition hover:-translate-y-0.5 hover:border-[#D2C6BB] hover:shadow-[0_4px_14px_rgba(19,34,29,0.06)]"
+              className="group flex flex-col justify-between rounded-2xl border border-[#E4DCD3] bg-[#EFE5DA] p-6 shadow-[0_1px_3px_rgba(19,34,29,0.035)] transition hover:-translate-y-0.5 hover:border-[#D2C6BB] hover:shadow-[0_4px_14px_rgba(19,34,29,0.06)]"
             >
               <div>
                 <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-[#E5EFEC] text-[#17645F]">
@@ -185,7 +185,7 @@ export default function Home() {
 
             <Link
               href="/search?listingType=SERVICE"
-              className="group flex flex-col justify-between rounded-2xl border border-[#E4DCD3] bg-white p-6 shadow-[0_1px_3px_rgba(19,34,29,0.035)] transition hover:-translate-y-0.5 hover:border-[#D2C6BB] hover:shadow-[0_4px_14px_rgba(19,34,29,0.06)]"
+              className="group flex flex-col justify-between rounded-2xl border border-[#E4DCD3] bg-[#EFE5DA] p-6 shadow-[0_1px_3px_rgba(19,34,29,0.035)] transition hover:-translate-y-0.5 hover:border-[#D2C6BB] hover:shadow-[0_4px_14px_rgba(19,34,29,0.06)]"
             >
               <div>
                 <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-[#E5EFEC] text-[#17645F]">
@@ -208,7 +208,7 @@ export default function Home() {
 
       {/* 12. Trust & Safety Foundation Section */}
       <section className="container mx-auto px-4 py-14">
-        <div className="rounded-3xl border border-[#E4DCD3] bg-white p-6 shadow-[0_2px_10px_rgba(19,34,29,0.035)] sm:p-10">
+        <div className="rounded-3xl border border-[#E4DCD3] bg-[#EFE5DA] p-6 shadow-[0_2px_10px_rgba(19,34,29,0.035)] sm:p-10">
           <div className="mb-8">
             <span className="inline-flex rounded-full bg-[#E5EFEC] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-[#17645F]">Marketplace Integrity</span>
             <h2 className="mt-3 text-2xl font-extrabold tracking-tight text-[#183B38] sm:text-3xl">
@@ -225,7 +225,7 @@ export default function Home() {
               return (
                 <div
                   key={pillar.title}
-                  className="rounded-2xl border border-[#E4DCD3] bg-white p-5"
+                  className="rounded-2xl border border-[#E4DCD3] bg-[#EFE5DA] p-5"
                 >
                   <div className="mb-3 flex h-10 w-10 items-center justify-center text-[#17645F]">
                     <Icon size={20} />
