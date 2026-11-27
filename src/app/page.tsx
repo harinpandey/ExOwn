@@ -137,7 +137,7 @@ export default function Home() {
       <section className="border-y border-[#E4DCD3] bg-[#F3EEE8] py-14">
         <div className="container mx-auto px-4">
           <div className="mb-8">
-            <span className="inline-flex rounded-full bg-[#E5EFEC] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-[#17645F]">Campus Living</span>
+            <span className="inline-flex rounded-full bg-[#124F4B] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-[#F3EEE8]">Campus Living</span>
             <h2 className="exown-section-title mt-2 font-extrabold tracking-tight text-[#183B38]">
               Housing & Student Services
             </h2>
@@ -209,10 +209,10 @@ export default function Home() {
 
       {/* 12. Trust & Safety Foundation Section */}
       <section className="container mx-auto px-4 py-14">
-        <div className="rounded-3xl border border-[#E4DCD3] bg-[#EFE5DA] p-6 shadow-[0_2px_10px_rgba(19,34,29,0.035)] sm:p-10">
+        <div className="rounded-3xl border border-[#17645F] bg-[#17645F] p-6 text-[#F3EEE8] shadow-[0_2px_10px_rgba(19,34,29,0.035)] sm:p-10">
           <div className="mb-8">
-            <span className="inline-flex rounded-full bg-[#E5EFEC] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-[#17645F]">Marketplace Integrity</span>
-            <h2 className="mt-3 text-2xl font-extrabold tracking-tight text-[#183B38] sm:text-3xl">
+            <span className="inline-flex rounded-full bg-[#124F4B] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-[#F3EEE8]">Marketplace Integrity</span>
+            <h2 className="mt-3 text-2xl font-extrabold tracking-tight text-[#F3EEE8] sm:text-3xl">
               Built for Campus Trust & Safety
             </h2>
             <p className="mt-2 text-sm leading-6 text-[#526663]">
@@ -225,7 +225,7 @@ export default function Home() {
               const Icon = pillar.icon;
               return (
                 <ScrollReveal key={pillar.title} delay={trustPillars.indexOf(pillar) * 70}>
-                  <div className="rounded-2xl border border-[#E4DCD3] bg-[#EFE5DA] p-5">
+                  <div className="rounded-2xl border border-[#F3EEE8]/20 bg-[#124F4B] p-5">
                     <div className="mb-3 flex h-10 w-10 items-center justify-center text-[#17645F]">
                       <Icon size={20} />
                     </div>

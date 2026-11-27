@@ -117,7 +117,7 @@ export default function MobileNav() {
         type="button"
         onClick={() => setIsCreateOpen((value) => !value)}
         style={{ bottom: "calc(env(safe-area-inset-bottom) + 76px)" }}
-        className="fixed left-1/2 z-50 flex h-12 w-12 -translate-x-1/2 items-center justify-center rounded-full border-4 border-[#F3EEE8] bg-[#17645F] text-white shadow-[0_3px_10px_rgba(19,34,29,0.12)] transition hover:bg-[#124F4B] active:scale-95 lg:hidden"
+        className="fixed left-1/2 z-50 flex h-12 w-12 -translate-x-1/2 items-center justify-center rounded-full border-4 border-[#F3EEE8] bg-[#FF6845] text-[#102A28] shadow-[0_3px_10px_rgba(19,34,29,0.12)] transition hover:bg-[#E95736] active:scale-95 lg:hidden"
         aria-label="Post something"
         aria-expanded={isCreateOpen}
       >
@@ -126,7 +126,7 @@ export default function MobileNav() {
 
       <nav
         aria-label="Main mobile navigation"
-        className="fixed bottom-0 left-0 right-0 z-50 border-t border-[#E4DCD3] bg-[#EFE5DA] pb-safe pt-1.5 shadow-[0_-2px_10px_rgba(19,34,29,0.04)] lg:hidden"
+        className="fixed bottom-0 left-0 right-0 z-50 border-t border-[#E4DCD3] bg-[#F3EEE8] pb-safe pt-1.5 shadow-[0_-2px_10px_rgba(19,34,29,0.04)] lg:hidden"
       >
         <div className="mx-auto grid max-w-md grid-cols-4 items-center px-2">
           {navItems.map((item) => (
@@ -154,7 +154,7 @@ function MobileNavLink({
       aria-current={isActive ? "page" : undefined}
       className={
         "mobile-nav-item relative mx-1 flex min-h-[54px] flex-col items-center justify-center gap-1 rounded-xl px-2 py-1.5 transition active:scale-95 " +
-        (isActive ? "bg-[#E5EFEC] text-[#17645F]" : "text-[#526663] hover:bg-[#F3EEE8]")
+        (isActive ? "bg-[#FF6845] text-[#102A28]" : "text-[#526663] hover:bg-[#E6DACE]")
       }
     >
       <Icon size={19} strokeWidth={isActive ? 2.2 : 1.8} />

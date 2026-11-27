@@ -126,7 +126,7 @@ export default function HeroBanner() {
   const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + heroSlides.length) % heroSlides.length);
 
   return (
-    <section className="relative overflow-hidden bg-[#F3EEE8] text-[#183B38] transition-colors dark:bg-[#07090d] dark:text-white">
+    <section className="relative overflow-hidden bg-[#F3EEE8] text-[#183B38] transition-colors dark:bg-[#122321] dark:text-white">
       <div className="container mx-auto px-4 pt-4 pb-6">
 
         {/* ── Top Search Bar Strip (Flipkart style header inline search) ── */}
@@ -138,24 +138,24 @@ export default function HeroBanner() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search laptops, books, cycles, PG rooms, services..."
-              className="h-11 w-full rounded-xl border border-gray-200 bg-[#E6DACE] pl-10 pr-24 text-sm font-semibold text-gray-900 placeholder-gray-400 outline-none transition focus:border-primary focus:bg-[#EFE5DA] dark:border-white/10 dark:bg-[#F3EEE8]/10 dark:text-white dark:placeholder-white/40 dark:focus:border-primary dark:focus:bg-[#EFE5DA]/15"
+              className="h-11 w-full rounded-xl border border-gray-200 bg-[#E6DACE] pl-10 pr-24 text-sm font-semibold text-[#183B38] placeholder-[#82918B] outline-none transition focus:border-primary focus:bg-[#EFE5DA] dark:border-white/10 dark:bg-[#F3EEE8]/10 dark:text-white dark:placeholder-white/40 dark:focus:border-primary dark:focus:bg-[#EFE5DA]/15"
             />
             <button
               type="submit"
-              className="absolute right-1 top-1 h-9 rounded-lg bg-primary px-4 text-xs font-black text-white transition hover:bg-primary-dark active:scale-95"
+              className="action-coral absolute right-1 top-1 h-9 rounded-lg px-4 text-xs font-black transition active:scale-95"
             >
               Search
             </button>
           </form>
 
           <div className="flex shrink-0 items-center justify-between gap-2 text-xs font-bold">
-            <span className="flex items-center gap-1.5 rounded-xl border border-gray-200 bg-gray-100 px-3 py-2 text-gray-700 dark:border-white/10 dark:bg-[#F3EEE8]/5 dark:text-white/80">
+            <span className="flex items-center gap-1.5 rounded-xl border border-gray-200 bg-[#E6DACE] px-3 py-2 text-[#183B38] dark:border-white/10 dark:bg-[#F3EEE8]/5 dark:text-white/80">
               <MapPin size={14} className="text-primary" />
               {campusObj.shortName}
             </span>
             <Link
               href={!user ? "/login?redirect=/sell" : "/sell"}
-              className="flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 font-black text-white shadow-lg transition hover:bg-primary-dark active:scale-95"
+              className="action-coral flex items-center gap-1.5 rounded-xl px-4 py-2 font-black shadow-lg transition active:scale-95"
             >
               <Plus size={16} />
               + Sell Item
@@ -228,7 +228,7 @@ export default function HeroBanner() {
               <div className="mt-6 flex items-center justify-between">
                 <Link
                   href={heroSlides[currentSlide].href}
-                  className="inline-flex items-center gap-2 rounded-xl bg-[#F3EEE8] px-6 py-3 text-xs font-black text-gray-900 shadow-xl transition hover:bg-gray-100 hover:scale-105 active:scale-95"
+                  className="action-coral inline-flex items-center gap-2 rounded-xl px-6 py-3 text-xs font-black shadow-xl transition hover:scale-105 active:scale-95"
                 >
                   {heroSlides[currentSlide].cta}
                   <ArrowRight size={15} />
@@ -308,13 +308,13 @@ export default function HeroBanner() {
               className="group relative flex flex-1 flex-col justify-between overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-emerald-900 via-teal-950 to-black p-5 transition hover:scale-[1.02] hover:border-emerald-400/40 shadow-xl"
             >
               <div className="flex items-start justify-between">
-                <span className="rounded-md bg-emerald-500 px-2 py-0.5 text-[9px] font-black uppercase text-white">
+                <span className="rounded-md bg-[#17645F] px-2 py-0.5 text-[9px] font-black uppercase text-white">
                   ✓ Verified Leads
                 </span>
                 <ShieldCheck size={16} className="text-emerald-400" />
               </div>
               <div>
-                <p className="text-xs font-black text-emerald-300 uppercase tracking-wide">Campus Services</p>
+                <p className="text-xs font-black text-[#FFB19D] uppercase tracking-wide">Campus Services</p>
                 <h3 className="text-lg font-black leading-tight text-white group-hover:text-emerald-300 transition">
                   Tutors & Printing
                 </h3>
@@ -340,7 +340,7 @@ export default function HeroBanner() {
                 <Link
                   key={cat.name}
                   href={cat.href}
-                  className="group flex flex-col items-center justify-center gap-1.5 rounded-2xl p-2 text-center transition hover:-translate-y-1 hover:bg-gray-100 dark:hover:bg-white/10 active:scale-95"
+                  className="group flex flex-col items-center justify-center gap-1.5 rounded-2xl p-2 text-center transition hover:-translate-y-1 hover:bg-[#E6DACE] dark:hover:bg-white/10 active:scale-95"
                 >
                   <span className={`flex h-12 w-12 items-center justify-center rounded-2xl ${cat.color} transition group-hover:scale-110 shadow-sm`}>
                     <Icon size={22} />

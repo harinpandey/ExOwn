@@ -30,11 +30,18 @@
 
 :root {
   color-scheme: light;
-  --background: #F3EEE8;
+  /* ExOwn semantic brand tokens: ivory canvas, teal structure, coral action. */
+  --bg-canvas: #F3EEE8;
+  --surface-card: #F7F1E9; /* Warm elevated surface; pure white intentionally avoided. */
+  --brand-primary: #17645F;
+  --brand-accent: #FF6845;
+  --brand-accent-ink: #102A28;
+  --brand-ink: #183B38;
+  --background: var(--bg-canvas);
   --foreground: #183B38;
   --muted: #E5EFEC;
   --muted-foreground: #526663;
-  --surface: #F7F1E9;
+  --surface: var(--surface-card);
   --surface-elevated: #EDE2D6;
   --surface-soft: #E6DACE;
   --border-subtle: #E4DCD3;
@@ -42,18 +49,24 @@
   --accent-hover: #124F4B;
   --accent-contrast: #F3EEE8;
   --accent-coral: #FF6845;
-  --accent-coral-contrast: #183B38;
+  --accent-coral-contrast: var(--brand-accent-ink);
   --surface-shadow: 0 1px 2px rgba(19, 34, 29, 0.035), 0 3px 10px rgba(19, 34, 29, 0.035);
   --surface-shadow-hover: 0 3px 8px rgba(19, 34, 29, 0.045), 0 8px 18px rgba(19, 34, 29, 0.055);
 }
 
 .dark {
   color-scheme: dark;
-  --background: #122321;
+  --bg-canvas: #122321;
+  --surface-card: #1B302D;
+  --brand-primary: #17645F;
+  --brand-accent: #FF6845;
+  --brand-accent-ink: #102A28;
+  --brand-ink: #F3EEE8;
+  --background: var(--bg-canvas);
   --foreground: #F3EEE8;
   --muted: #1D3835;
   --muted-foreground: #B8C9C4;
-  --surface: #1B302D;
+  --surface: var(--surface-card);
   --surface-elevated: #25413D;
   --surface-soft: #172C29;
   --border-subtle: #34504C;
@@ -115,16 +128,20 @@ body {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  background: var(--accent);
-  color: var(--accent-contrast);
-  border: 1px solid var(--accent);
+  background: var(--brand-accent);
+  color: var(--brand-accent-ink);
+  border: 1px solid var(--brand-accent);
   box-shadow: none;
   transition: background-color 160ms ease, border-color 160ms ease, transform 160ms ease;
 }
 
 .marketplace-button:hover {
-  background: var(--accent-hover);
-  border-color: var(--accent-hover);
+  background: color-mix(in srgb, var(--brand-accent) 88%, #000);
+  border-color: color-mix(in srgb, var(--brand-accent) 88%, #000);
+}
+.marketplace-button:focus-visible {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 3px;
 }
 
 .marketplace-button:active {
@@ -884,3 +901,17 @@ textarea:invalid:focus {
   border-color: #B42332 !important;
   box-shadow: 0 0 0 2px rgba(180, 35, 50, 0.14) !important;
 }
+
+/* 60-30-10 refinement: coral is an action surface, never small text on light surfaces. */
+:root { --color-action: var(--brand-accent); --color-action-ink: var(--brand-accent-ink); }
+.dark { --surface-card: #1B302D; }
+.action-coral {
+  background: var(--brand-accent) !important;
+  color: var(--brand-accent-ink) !important;
+  border-color: var(--brand-accent) !important;
+}
+.action-coral:hover {
+  background: color-mix(in srgb, var(--brand-accent) 88%, #000) !important;
+  border-color: color-mix(in srgb, var(--brand-accent) 88%, #000) !important;
+}
+.action-coral :is(svg, span) { color: inherit; }
