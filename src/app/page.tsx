@@ -24,6 +24,7 @@ import RecentlyViewedSection from "@/components/home/RecentlyViewedSection";
 import CampusSpotlight from "@/components/home/CampusSpotlight";
 import ProductShelf from "@/components/ui/ProductShelf";
 import { SectionSkeleton } from "@/components/ui/ProductSkeleton";
+import ScrollReveal from "@/components/ui/ScrollReveal";
 
 export const dynamic = "force-dynamic";
 
@@ -223,20 +224,19 @@ export default function Home() {
             {trustPillars.map((pillar) => {
               const Icon = pillar.icon;
               return (
-                <div
-                  key={pillar.title}
-                  className="rounded-2xl border border-[#E4DCD3] bg-[#EFE5DA] p-5"
-                >
-                  <div className="mb-3 flex h-10 w-10 items-center justify-center text-[#17645F]">
-                    <Icon size={20} />
+                <ScrollReveal key={pillar.title} delay={trustPillars.indexOf(pillar) * 70}>
+                  <div className="rounded-2xl border border-[#E4DCD3] bg-[#EFE5DA] p-5">
+                    <div className="mb-3 flex h-10 w-10 items-center justify-center text-[#17645F]">
+                      <Icon size={20} />
+                    </div>
+                    <h3 className="text-sm font-bold text-[#183B38]">
+                      {pillar.title}
+                    </h3>
+                    <p className="mt-1 text-sm leading-6 text-[#526663]">
+                      {pillar.description}
+                    </p>
                   </div>
-                  <h3 className="text-sm font-bold text-[#183B38]">
-                    {pillar.title}
-                  </h3>
-                  <p className="mt-1 text-sm leading-6 text-[#526663]">
-                    {pillar.description}
-                  </p>
-                </div>
+                </ScrollReveal>
               );
             })}
           </div>

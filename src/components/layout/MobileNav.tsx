@@ -73,7 +73,7 @@ export default function MobileNav() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 18 }}
               style={{ bottom: "calc(env(safe-area-inset-bottom) + 138px)" }}
-              className="fixed left-3 right-3 z-50 rounded-2xl border border-[#E4DCD3] bg-[#EFE5DA] p-4 shadow-[0_8px_28px_rgba(19,34,29,0.12)] lg:hidden"
+              className="motion-dropdown fixed left-3 right-3 z-50 rounded-2xl border border-[#E4DCD3] bg-[#EFE5DA] p-4 shadow-[0_8px_28px_rgba(19,34,29,0.12)] lg:hidden"
             >
               <div className="mb-3 flex items-center justify-between px-1">
                 <div>
@@ -153,7 +153,7 @@ function MobileNavLink({
       href={item.href}
       aria-current={isActive ? "page" : undefined}
       className={
-        "relative mx-1 flex min-h-[54px] flex-col items-center justify-center gap-1 rounded-xl px-2 py-1.5 transition active:scale-95 " +
+        "mobile-nav-item relative mx-1 flex min-h-[54px] flex-col items-center justify-center gap-1 rounded-xl px-2 py-1.5 transition active:scale-95 " +
         (isActive ? "bg-[#E5EFEC] text-[#17645F]" : "text-[#526663] hover:bg-[#F3EEE8]")
       }
     >

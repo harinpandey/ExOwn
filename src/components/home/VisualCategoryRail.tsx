@@ -50,7 +50,7 @@ export default function VisualCategoryRail() {
                 href={category.href}
                 aria-current={isForYou ? "page" : undefined}
                 title={category.label}
-                className={"group flex min-w-[68px] shrink-0 flex-col items-center justify-center gap-1.5 rounded-xl px-2.5 py-2 text-center transition-colors sm:min-w-0 sm:flex-1 sm:px-1 " + (
+                className={"category-pill group flex min-w-[68px] shrink-0 flex-col items-center justify-center gap-1.5 rounded-xl px-2.5 py-2 text-center transition-colors sm:min-w-0 sm:flex-1 sm:px-1 " + (
                   isForYou
                     ? "bg-[#17645F] text-white"
                     : "text-[#526663] hover:bg-[#F3EEE8] hover:text-[#17645F]"
