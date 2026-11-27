@@ -71,6 +71,9 @@ export default function LuxuryCampusHero() {
             <Link href="/sell" className="inline-flex items-center gap-2 rounded-full border border-white/90 bg-white/55 px-5 py-3.5 text-sm font-semibold text-[#254B3D] backdrop-blur-xl transition-colors hover:bg-white/85">
               List something
             </Link>
+            <Link href="/login" className="inline-flex items-center gap-2 rounded-full px-3 py-3 text-sm font-semibold text-[#426257] transition-colors hover:text-[#1E5646]">
+              Join ExOwn Circle <ArrowUpRight size={15} />
+            </Link>
           </motion.div>
 
           <motion.div
