@@ -34,11 +34,11 @@ export default function SectionHeader({
             </span>
           </div>
         )}
-        <h2 className="text-2xl font-extrabold tracking-tight text-[#183B38] sm:text-3xl">
+        <h2 className="exown-section-title font-extrabold tracking-tight text-[#183B38]">
           {title}
         </h2>
         {description && (
-          <p className="mt-1.5 max-w-2xl text-sm leading-6 text-[#526663]">
+          <p className="exown-hero-support mt-1.5 max-w-2xl text-sm leading-6 text-[#526663]">
             {description}
           </p>
         )}
