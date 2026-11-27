@@ -195,7 +195,7 @@ export default function RoommatesPage() {
                   </button>
                 )}
               </div>
-              <div className="flex items-center gap-2 rounded-2xl border border-[#E4DCD3] bg-[#E6DACE] px-4 py-3 text-[#526663] dark:border-white/10 dark:bg-[#EFE5DA]/[0.04] dark:text-gray-200">
+              <div className="flex items-center gap-2 rounded-2xl border border-[#E4DCD3] bg-[#E6DACE] px-4 py-3 text-[#526663] dark:border-white/10 dark:bg-[#F3EEE8]/[0.04] dark:text-gray-200">
                 <MapPin size={16} className="text-amber-300" />
                 <span className="text-xs font-bold">{campusObj?.name || selectedCampus || "Selected campus"}</span>
               </div>
@@ -218,7 +218,7 @@ export default function RoommatesPage() {
             </div>
 
             {requestsLoading ? (
-              <div className="h-20 animate-pulse rounded-2xl bg-[#E1D3C5] dark:bg-[#EFE5DA]/[0.04]" />
+              <div className="h-20 animate-pulse rounded-2xl bg-[#E1D3C5] dark:bg-[#F3EEE8]/[0.04]" />
             ) : (
               <div className="grid gap-3 md:grid-cols-2">
                 {receivedRequests.map((request) => (
@@ -346,7 +346,7 @@ export default function RoommatesPage() {
                 setRoomTypePref("ANY");
                 setSearchQuery("");
               }}
-              className="w-full py-2.5 bg-[#E1D3C5] dark:bg-[#EFE5DA]/[0.05] hover:bg-gray-200 dark:hover:bg-[#EFE5DA]/[0.08] text-[#526663] dark:text-white text-xs font-bold rounded-xl transition"
+              className="w-full py-2.5 bg-[#E1D3C5] dark:bg-[#F3EEE8]/[0.05] hover:bg-gray-200 dark:hover:bg-[#F3EEE8]/[0.08] text-[#526663] dark:text-white text-xs font-bold rounded-xl transition"
             >
               Reset Filters
             </button>
@@ -417,7 +417,7 @@ export default function RoommatesPage() {
                   )}
 
                   {/* Budget & Room type row */}
-                  <div className="grid grid-cols-2 gap-2 bg-slate-50 dark:bg-[#EFE5DA]/[0.03] p-3 rounded-2xl mb-3 text-xs">
+                  <div className="grid grid-cols-2 gap-2 bg-slate-50 dark:bg-[#F3EEE8]/[0.03] p-3 rounded-2xl mb-3 text-xs">
                     <div>
                       <p className="text-[10px] text-gray-400 font-semibold uppercase">Budget</p>
                       <p className="font-black text-teal-600 dark:text-teal-400">
@@ -443,7 +443,7 @@ export default function RoommatesPage() {
                       {p.interests.map((tag: string) => (
                         <span
                           key={tag}
-                          className="rounded-lg bg-[#E1D3C5] dark:bg-[#EFE5DA]/[0.05] px-2 py-0.5 text-[10px] font-bold text-gray-600 dark:text-white/70"
+                          className="rounded-lg bg-[#E1D3C5] dark:bg-[#F3EEE8]/[0.05] px-2 py-0.5 text-[10px] font-bold text-gray-600 dark:text-white/70"
                         >
                           #{tag}
                         </span>
