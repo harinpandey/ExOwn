@@ -211,7 +211,7 @@ export default function Home() {
       <section className="container mx-auto px-4 py-14">
         <div className="rounded-3xl border border-[#17645F] bg-[#17645F] p-6 text-[#F3EEE8] shadow-[0_2px_10px_rgba(19,34,29,0.035)] sm:p-10">
           <div className="mb-8">
-            <span className="inline-flex rounded-full bg-[#E5EFEC] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-[#17645F]">Marketplace Integrity</span>
+            <span className="inline-flex rounded-full bg-[#124F4B] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-[#F3EEE8]">Marketplace Integrity</span>
             <h2 className="mt-3 text-2xl font-extrabold tracking-tight text-[#F3EEE8] sm:text-3xl">
               Built for Campus Trust & Safety
             </h2>
