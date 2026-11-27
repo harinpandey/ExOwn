@@ -39,10 +39,10 @@ export default async function LpuNewsPreview() {
             <Link
               key={article.id}
               href={`/lpu-news/${article.slug}`}
-              className="group overflow-hidden rounded-2xl border border-gray-200 bg-white transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md dark:border-white/10 dark:bg-[#10141b]"
+              className="group overflow-hidden rounded-2xl border border-[#E4DCD3] bg-[#EFE5DA] transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md dark:border-white/10 dark:bg-[#10141b]"
             >
               {article.imageUrl ? (
-                <div className="aspect-[16/9] overflow-hidden bg-gray-100 dark:bg-white/[0.04]">
+                <div className="aspect-[16/9] overflow-hidden bg-[#E1D3C5] dark:bg-[#EFE5DA]/[0.04]">
                   <img src={article.imageUrl} alt="" className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]" />
                 </div>
               ) : (
@@ -54,7 +54,7 @@ export default async function LpuNewsPreview() {
                 <span className="rounded-full bg-primary/10 px-2 py-1 text-[9px] font-black uppercase tracking-wide text-primary">
                   {article.category.replace(/_/g, " ")}
                 </span>
-                <h3 className="mt-3 line-clamp-2 text-sm font-black text-gray-900 group-hover:text-primary dark:text-white">
+                <h3 className="mt-3 line-clamp-2 text-sm font-black text-[#183B38] group-hover:text-primary dark:text-white">
                   {article.title}
                 </h3>
                 <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-gray-500 dark:text-white/50">
@@ -68,9 +68,9 @@ export default async function LpuNewsPreview() {
           ))}
         </div>
       ) : (
-        <div className="flex flex-col items-start gap-3 rounded-2xl border border-dashed border-gray-300 bg-gray-50/70 p-5 dark:border-white/15 dark:bg-white/[0.025] sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col items-start gap-3 rounded-2xl border border-dashed border-gray-300 bg-[#E6DACE]/70 p-5 dark:border-white/15 dark:bg-[#EFE5DA]/[0.025] sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-sm font-extrabold text-gray-900 dark:text-white">
+            <p className="text-sm font-extrabold text-[#183B38] dark:text-white">
               {result.unavailable ? "LPU News is temporarily unavailable" : "LPU News is being set up"}
             </p>
             <p className="mt-1 max-w-2xl text-xs leading-relaxed text-gray-500 dark:text-white/50">
