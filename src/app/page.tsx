@@ -47,7 +47,7 @@ const trustPillars = [
 
 export default function Home() {
   return (
-    <div className="pb-16 text-[#13221D]">
+    <div className="pb-16 text-[#183B38]">
       {/* 1. Visual Category Rail (Merchandising Top Bar) */}
       <VisualCategoryRail />
 
@@ -62,7 +62,7 @@ export default function Home() {
       {/* 4. Trending on Campus Shelf */}
       <ProductShelf
         eyebrow="Campus Activity"
-        icon={<Flame size={14} className="text-orange-500" />}
+        icon={<Flame size={14} className="text-[#FF6845]" />}
         title="Trending on Campus"
         description="Most viewed and active student listings across your university."
         href="/search?sort=trending"
@@ -76,7 +76,7 @@ export default function Home() {
       {/* 5. Moving Out Clearance Shelf (Signature ExOwn Campus Experience) */}
       <ProductShelf
         eyebrow="Graduating Seniors"
-        icon={<Zap size={14} className="text-amber-500" />}
+        icon={<Zap size={14} className="text-[#FF6845]" />}
         title="Moving Out Deals"
         description="Seniors and relocating students clearing their rooms with instant hostel pickup."
         href="/search?movingOut=true"
@@ -121,7 +121,7 @@ export default function Home() {
       {/* 9. Popular Rentals Shelf */}
       <ProductShelf
         eyebrow="Flexible Terms"
-        icon={<RefreshCw size={14} className="text-[#1E5646]" />}
+        icon={<RefreshCw size={14} className="text-[#17645F]" />}
         title="Campus Rentals"
         description="Bicycles, mini-fridges, and equipment available on semester rental terms."
         href="/search?listingType=RENT"
@@ -133,11 +133,11 @@ export default function Home() {
       </ProductShelf>
 
       {/* 10. Campus Services & Housing Discovery Feature Grid */}
-      <section className="border-y border-[#E2E8E5] bg-[#F7F9F8] py-14">
+      <section className="border-y border-[#E4DCD3] bg-[#F3EEE8] py-14">
         <div className="container mx-auto px-4">
           <div className="mb-8">
-            <span className="inline-flex rounded-full bg-[#E6F2EE] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-[#1E5646]">Campus Living</span>
-            <h2 className="mt-2 text-2xl font-extrabold tracking-tight text-[#13221D] sm:text-3xl">
+            <span className="inline-flex rounded-full bg-[#E5EFEC] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-[#17645F]">Campus Living</span>
+            <h2 className="mt-2 text-2xl font-extrabold tracking-tight text-[#183B38] sm:text-3xl">
               Housing & Student Services
             </h2>
           </div>
@@ -145,60 +145,60 @@ export default function Home() {
           <div className="grid gap-5 lg:grid-cols-3">
             <Link
               href="/housing"
-              className="group flex flex-col justify-between rounded-2xl border border-[#E2E8E5] bg-white p-6 shadow-[0_1px_3px_rgba(19,34,29,0.035)] transition hover:-translate-y-0.5 hover:border-[#CAD8D2] hover:shadow-[0_4px_14px_rgba(19,34,29,0.06)]"
+              className="group flex flex-col justify-between rounded-2xl border border-[#E4DCD3] bg-white p-6 shadow-[0_1px_3px_rgba(19,34,29,0.035)] transition hover:-translate-y-0.5 hover:border-[#D2C6BB] hover:shadow-[0_4px_14px_rgba(19,34,29,0.06)]"
             >
               <div>
-                <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-[#E6F2EE] text-[#1E5646]">
+                <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-[#E5EFEC] text-[#17645F]">
                   <Building2 size={24} />
                 </div>
-                <h3 className="text-lg font-bold text-[#13221D] transition group-hover:text-[#1E5646]">
+                <h3 className="text-lg font-bold text-[#183B38] transition group-hover:text-[#17645F]">
                   Student Housing & PGs
                 </h3>
-                <p className="mt-2 text-sm leading-6 text-[#4A5D56]">
+                <p className="mt-2 text-sm leading-6 text-[#526663]">
                   Browse active student accommodations, flats, and rooms around your campus.
                 </p>
               </div>
-              <span className="mt-6 inline-flex items-center gap-1.5 text-xs font-bold text-[#1E5646]">
+              <span className="mt-6 inline-flex items-center gap-1.5 text-xs font-bold text-[#17645F]">
                 Explore Housing <ArrowRight size={13} className="transition-transform group-hover:translate-x-1" />
               </span>
             </Link>
 
             <Link
               href="/roommates"
-              className="group flex flex-col justify-between rounded-2xl border border-[#E2E8E5] bg-white p-6 shadow-[0_1px_3px_rgba(19,34,29,0.035)] transition hover:-translate-y-0.5 hover:border-[#CAD8D2] hover:shadow-[0_4px_14px_rgba(19,34,29,0.06)]"
+              className="group flex flex-col justify-between rounded-2xl border border-[#E4DCD3] bg-white p-6 shadow-[0_1px_3px_rgba(19,34,29,0.035)] transition hover:-translate-y-0.5 hover:border-[#D2C6BB] hover:shadow-[0_4px_14px_rgba(19,34,29,0.06)]"
             >
               <div>
-                <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-[#E6F2EE] text-[#1E5646]">
+                <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-[#E5EFEC] text-[#17645F]">
                   <Handshake size={24} />
                 </div>
-                <h3 className="text-lg font-bold text-[#13221D] transition group-hover:text-[#1E5646]">
+                <h3 className="text-lg font-bold text-[#183B38] transition group-hover:text-[#17645F]">
                   Roommate Finder
                 </h3>
-                <p className="mt-2 text-sm leading-6 text-[#4A5D56]">
+                <p className="mt-2 text-sm leading-6 text-[#526663]">
                   Find compatible campus peers for shared housing and flatmate connections.
                 </p>
               </div>
-              <span className="mt-6 inline-flex items-center gap-1.5 text-xs font-bold text-[#1E5646]">
+              <span className="mt-6 inline-flex items-center gap-1.5 text-xs font-bold text-[#17645F]">
                 Find Roommates <ArrowRight size={13} className="transition-transform group-hover:translate-x-1" />
               </span>
             </Link>
 
             <Link
               href="/search?listingType=SERVICE"
-              className="group flex flex-col justify-between rounded-2xl border border-[#E2E8E5] bg-white p-6 shadow-[0_1px_3px_rgba(19,34,29,0.035)] transition hover:-translate-y-0.5 hover:border-[#CAD8D2] hover:shadow-[0_4px_14px_rgba(19,34,29,0.06)]"
+              className="group flex flex-col justify-between rounded-2xl border border-[#E4DCD3] bg-white p-6 shadow-[0_1px_3px_rgba(19,34,29,0.035)] transition hover:-translate-y-0.5 hover:border-[#D2C6BB] hover:shadow-[0_4px_14px_rgba(19,34,29,0.06)]"
             >
               <div>
-                <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-[#E6F2EE] text-[#1E5646]">
+                <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-[#E5EFEC] text-[#17645F]">
                   <Zap size={24} />
                 </div>
-                <h3 className="text-lg font-bold text-[#13221D] transition group-hover:text-[#1E5646]">
+                <h3 className="text-lg font-bold text-[#183B38] transition group-hover:text-[#17645F]">
                   Peer Campus Services
                 </h3>
-                <p className="mt-2 text-sm leading-6 text-[#4A5D56]">
+                <p className="mt-2 text-sm leading-6 text-[#526663]">
                   Laptop repair, OS installation, note-printing, tutoring, and student-run campus services.
                 </p>
               </div>
-              <span className="mt-6 inline-flex items-center gap-1.5 text-xs font-bold text-[#1E5646]">
+              <span className="mt-6 inline-flex items-center gap-1.5 text-xs font-bold text-[#17645F]">
                 Browse Services <ArrowRight size={13} className="transition-transform group-hover:translate-x-1" />
               </span>
             </Link>
@@ -208,13 +208,13 @@ export default function Home() {
 
       {/* 12. Trust & Safety Foundation Section */}
       <section className="container mx-auto px-4 py-14">
-        <div className="rounded-3xl border border-[#E2E8E5] bg-white p-6 shadow-[0_2px_10px_rgba(19,34,29,0.035)] sm:p-10">
+        <div className="rounded-3xl border border-[#E4DCD3] bg-white p-6 shadow-[0_2px_10px_rgba(19,34,29,0.035)] sm:p-10">
           <div className="mb-8">
-            <span className="inline-flex rounded-full bg-[#E6F2EE] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-[#1E5646]">Marketplace Integrity</span>
-            <h2 className="mt-3 text-2xl font-extrabold tracking-tight text-[#13221D] sm:text-3xl">
+            <span className="inline-flex rounded-full bg-[#E5EFEC] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-[#17645F]">Marketplace Integrity</span>
+            <h2 className="mt-3 text-2xl font-extrabold tracking-tight text-[#183B38] sm:text-3xl">
               Built for Campus Trust & Safety
             </h2>
-            <p className="mt-2 text-sm leading-6 text-[#4A5D56]">
+            <p className="mt-2 text-sm leading-6 text-[#526663]">
               How ExOwn protects students and eliminates marketplace friction.
             </p>
           </div>
@@ -225,15 +225,15 @@ export default function Home() {
               return (
                 <div
                   key={pillar.title}
-                  className="rounded-2xl border border-[#E2E8E5] bg-white p-5"
+                  className="rounded-2xl border border-[#E4DCD3] bg-white p-5"
                 >
-                  <div className="mb-3 flex h-10 w-10 items-center justify-center text-[#1E5646]">
+                  <div className="mb-3 flex h-10 w-10 items-center justify-center text-[#17645F]">
                     <Icon size={20} />
                   </div>
-                  <h3 className="text-sm font-bold text-[#13221D]">
+                  <h3 className="text-sm font-bold text-[#183B38]">
                     {pillar.title}
                   </h3>
-                  <p className="mt-1 text-sm leading-6 text-[#4A5D56]">
+                  <p className="mt-1 text-sm leading-6 text-[#526663]">
                     {pillar.description}
                   </p>
                 </div>
