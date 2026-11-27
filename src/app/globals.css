@@ -653,3 +653,149 @@ a:focus-visible,
   color: var(--secondary) !important;
   border-color: var(--secondary) !important;
 }
+
+
+/* ExOwn: consistent motion language and warm surfaces (no pure-white panels). */
+:root {
+  --motion-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --motion-fast: 180ms;
+  --motion-base: 220ms;
+  --motion-ivory: #F3EEE8;
+  --motion-ink: #183B38;
+  --motion-teal: #17645F;
+  --motion-coral: #FF6845;
+  --surface: color-mix(in srgb, var(--motion-teal) 7%, var(--background));
+  --surface-elevated: color-mix(in srgb, var(--motion-teal) 10%, var(--background));
+  --surface-soft: color-mix(in srgb, var(--motion-teal) 14%, var(--background));
+}
+.dark {
+  --surface: #1B302D;
+  --surface-elevated: #25413D;
+  --surface-soft: #172C29;
+}
+
+/* Neutralize pure-white backgrounds and legacy cool/white surface utilities. */
+:is(.bg-white, [class*="bg-white/"], [class*="bg-[#fff"], [class*="bg-[#FFF"], [class*="bg-[#ffffff"], [class*="bg-[#FFFFFF"]) {
+  background-color: var(--surface) !important;
+}
+:root:not(.dark) :is([class*="bg-gray-50"], [class*="bg-slate-50"], [class*="bg-zinc-50"], [class*="bg-neutral-50"]) {
+  background-color: var(--background) !important;
+}
+:root:not(.dark) :is([class*="bg-gray-100"], [class*="bg-slate-100"], [class*="bg-zinc-100"], [class*="bg-neutral-100"]) {
+  background-color: var(--surface) !important;
+}
+.dark :is([class*="bg-white/"], [class*="bg-[#fff"], [class*="bg-[#FFF"], [class*="bg-[#ffffff"], [class*="bg-[#FFFFFF"]) {
+  background-color: var(--surface-elevated) !important;
+}
+
+/* Global exponential ease-out. Keep navigation/category micro-interactions 150–220ms. */
+:where(button, a, [role="button"], input, select, textarea, .marketplace-card, .premium-card) {
+  transition-timing-function: var(--motion-ease);
+}
+.marketplace-button,
+.marketplace-button-outline,
+.category-pill,
+.mobile-nav-item,
+.campus-switcher-trigger {
+  transition-duration: 180ms !important;
+}
+.marketplace-button:hover,
+.exown-primary-cta:hover,
+[data-motion="primary-cta"]:hover {
+  animation: exown-cta-anticipate 60ms ease-out both;
+  transform: scale(1.02);
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--motion-teal) 16%, transparent);
+}
+.marketplace-button:active,
+.exown-primary-cta:active,
+[data-motion="primary-cta"]:active {
+  animation: none;
+  transform: scaleX(1.03) scaleY(0.95);
+}
+@keyframes exown-cta-anticipate {
+  0% { transform: scale(0.98); }
+  100% { transform: scale(1.02); }
+}
+
+/* Product listing cards: lift + image zoom + small secondary badge motion. */
+.motion-listing-card,
+.marketplace-card,
+.premium-card {
+  transition: transform 200ms var(--motion-ease), box-shadow 200ms var(--motion-ease), border-color 180ms var(--motion-ease);
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .motion-listing-card:hover,
+  .marketplace-card:hover,
+  .premium-card:hover { transform: translateY(-4px); }
+  .motion-listing-card:hover img,
+  .marketplace-card:hover img,
+  .premium-card:hover img { transform: scale(1.04); }
+  .motion-listing-card:hover [data-motion="seller-badge"],
+  .marketplace-card:hover [data-motion="seller-badge"] { transform: rotate(12deg) translateX(1px); }
+  .motion-listing-card:hover [data-motion="action-arrow"],
+  .marketplace-card:hover [data-motion="action-arrow"] { transform: translateX(3px); }
+}
+.motion-product-image { transition: transform 220ms var(--motion-ease); }
+.motion-wishlist { transform-origin: center; transition: transform 180ms var(--motion-ease), color 180ms var(--motion-ease); }
+.motion-wishlist:active { transform: scale(1.22) rotate(-8deg); }
+
+/* Category selection follows the active tab with a quick, spring-like settle. */
+.category-pill,
+[role="tab"] {
+  transition: background-color 180ms var(--motion-ease), color 180ms var(--motion-ease), transform 180ms var(--motion-ease);
+}
+.category-pill[aria-selected="true"],
+[role="tab"][aria-selected="true"] { animation: exown-pill-settle 220ms var(--motion-ease) both; }
+@keyframes exown-pill-settle {
+  0% { transform: translateY(2px); }
+  72% { transform: translateY(-2px); }
+  100% { transform: translateY(0); }
+}
+
+/* Dropdowns/campus selectors: pose-to-pose opening. */
+.motion-dropdown,
+[data-motion="dropdown"][data-state="open"],
+[role="listbox"][data-state="open"] {
+  animation: exown-dropdown-in 220ms var(--motion-ease) both;
+  transform-origin: top center;
+}
+@keyframes exown-dropdown-in {
+  0% { opacity: 0; transform: translateY(-6px) scale(0.94); }
+  70% { opacity: 1; transform: translateY(2px) scale(1.01); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Reveal elements after IntersectionObserver adds .is-visible. */
+.motion-reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 420ms var(--motion-ease), transform 420ms var(--motion-ease);
+  transition-delay: var(--motion-delay, 0ms);
+}
+.motion-reveal.is-visible { opacity: 1; transform: translateY(0); }
+
+/* Invalid fields and explicit validation shake class. */
+.motion-shake { animation: exown-validation-shake 300ms ease-out both; }
+input:invalid:focus,
+select:invalid:focus,
+textarea:invalid:focus {
+  border-color: #B42332 !important;
+  box-shadow: 0 0 0 2px rgba(180, 35, 50, 0.14);
+}
+@keyframes exown-validation-shake {
+  0%, 100% { transform: translateX(0); }
+  16% { transform: translateX(-6px); }
+  32% { transform: translateX(6px); }
+  48% { transform: translateX(-5px); }
+  64% { transform: translateX(5px); }
+  80% { transform: translateX(-2px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+  .motion-reveal { opacity: 1; transform: none; }
+}
