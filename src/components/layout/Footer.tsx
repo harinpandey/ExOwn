@@ -60,8 +60,8 @@ export default function Footer() {
             </p>
             <div className="space-y-2">
               {trustSignals.map((s) => (
-                <div key={s.label} className="flex items-center gap-2 text-xs font-semibold text-[#526663]">
-                  <s.icon size={14} className="text-primary" />
+                <div key={s.label} className="flex items-center gap-2 text-xs font-semibold text-[#F3EEE8]/75">
+                  <s.icon size={14} className="text-[#FFB19D]" />
                   {s.label}
                 </div>
               ))}
@@ -87,7 +87,7 @@ export default function Footer() {
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-sm font-medium text-[#526663] transition hover:text-[#17645F]"
+                    className="text-sm font-medium text-[#526663] transition hover:text-[#FFB19D]"
                   >
                     {link.label}
                   </Link>
