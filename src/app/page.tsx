@@ -14,7 +14,6 @@ import {
 } from "lucide-react";
 
 import VisualCategoryRail from "@/components/home/VisualCategoryRail";
-import LuxuryCampusHero from "@/components/home/LuxuryCampusHero";
 import LpuNewsPreview from "@/components/home/LpuNewsPreview";
 import TrendingDeals from "@/components/home/TrendingDeals";
 import MovingOutDeals from "@/components/home/MovingOutDeals";
@@ -51,9 +50,6 @@ export default function Home() {
     <div className="pb-16 text-[#13221D]">
       {/* 1. Visual Category Rail (Merchandising Top Bar) */}
       <VisualCategoryRail />
-
-      {/* 2. Premium editorial hero with liquid-glass surfaces and motion */}
-      <LuxuryCampusHero />
 
       {/* 3. Full-width image-led campus advertising */}
       <Suspense fallback={null}>
