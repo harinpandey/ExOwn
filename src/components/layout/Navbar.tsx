@@ -147,17 +147,17 @@ export default function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-[#E2E8E5] bg-white text-[#13221D]">
+    <header className="sticky top-0 z-50 w-full border-b border-[#E4DCD3] bg-[#EFE5DA] text-[#183B38]">
       <div className="container mx-auto px-4">
         {/* Brand, service switcher and campus selector share one row */}
-        <div className="flex min-w-0 items-center gap-2 border-b border-[#E2E8E5] py-2.5 sm:gap-3 lg:gap-5">
+        <div className="flex min-w-0 items-center gap-2 border-b border-[#E4DCD3] py-2.5 sm:gap-3 lg:gap-5">
           <Link href="/" className="flex shrink-0 items-center gap-2" aria-label="ExOwn home">
             <img src="/exown-logo.png" alt="ExOwn" className="h-9 w-auto sm:h-10" />
           </Link>
 
           <ExperienceSwitcher />
 
-          <label className="relative ml-auto flex shrink-0 max-w-[34%] cursor-pointer items-center gap-1.5 rounded-xl border border-[#1E5646] bg-[#1E5646] px-2.5 py-2 text-left text-white transition hover:bg-[#174536] sm:max-w-[25%] sm:gap-2.5 sm:px-3">
+          <label className="relative ml-auto flex shrink-0 max-w-[34%] cursor-pointer items-center gap-1.5 rounded-xl border border-[#17645F] bg-[#17645F] px-2.5 py-2 text-left text-white transition hover:bg-[#124F4B] sm:max-w-[25%] sm:gap-2.5 sm:px-3">
             <MapPin size={19} className="shrink-0 text-white" aria-hidden="true" />
             <span className="min-w-0">
               <span className="block text-[9px] font-bold uppercase tracking-[0.14em] text-white/75">Your campus</span>
@@ -173,7 +173,7 @@ export default function Navbar() {
               className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"
             >
               {CAMPUS_DIRECTORY.map((campus) => (
-                <option key={campus.id} value={campus.name} className="bg-white text-[#13221D]">
+                <option key={campus.id} value={campus.name} className="bg-[#EFE5DA] text-[#183B38]">
                   {campus.shortName}
                 </option>
               ))}
@@ -192,9 +192,9 @@ export default function Navbar() {
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={isLpuNews ? "Search LPU news, notices, placements, events..." : isTicketExperience ? "Search tickets, routes, dates, events..." : isRentExperience ? "Search rentals: laptops, cycles, furniture..." : "Search anything: products, books, rooms, services..."}
               aria-label="Search ExOwn listings"
-              className="h-12 w-full rounded-xl border border-[#E2E8E5] bg-white pl-12 pr-28 text-sm font-medium text-[#13221D] outline-none transition placeholder:text-[#82918B] focus:border-[#1E5646] focus:ring-2 focus:ring-[#1E5646]/10 sm:text-base"
+              className="h-12 w-full rounded-xl border border-[#E4DCD3] bg-[#EFE5DA] pl-12 pr-28 text-sm font-medium text-[#183B38] outline-none transition placeholder:text-[#82918B] focus:border-[#17645F] focus:ring-2 focus:ring-[#17645F]/10 sm:text-base"
             />
-            <button type="submit" className="absolute right-1.5 top-1.5 h-9 rounded-lg bg-[#1E5646] px-5 text-xs font-bold text-white transition hover:bg-[#174536] active:scale-95">
+            <button type="submit" className="absolute right-1.5 top-1.5 h-9 rounded-lg bg-[#17645F] px-5 text-xs font-bold text-white transition hover:bg-[#124F4B] active:scale-95">
               Search
             </button>
         </form>}
@@ -205,7 +205,7 @@ export default function Navbar() {
           {user && (
             <Link
               href="/chat"
-              className="hidden items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold text-gray-700 transition hover:bg-gray-100 hover:text-primary dark:text-white/65 dark:hover:bg-white/[0.06] dark:hover:text-primary sm:flex"
+              className="hidden items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold text-[#526663] transition hover:bg-[#E6DACE] hover:text-primary dark:text-white/65 dark:hover:bg-[#EFE5DA]/[0.06] dark:hover:text-primary sm:flex"
             >
               <MessageSquare size={18} />
               <span className="hidden xl:inline">Chat</span>
@@ -234,7 +234,7 @@ export default function Navbar() {
                 setIsNotificationsOpen((v) => !v);
                 setIsProfileOpen(false);
               }}
-              className="tap-target relative rounded-xl text-gray-700 transition hover:bg-gray-100 hover:text-primary dark:text-white/65 dark:hover:bg-white/[0.06]"
+              className="tap-target relative rounded-xl text-[#526663] transition hover:bg-[#E6DACE] hover:text-primary dark:text-white/65 dark:hover:bg-[#EFE5DA]/[0.06]"
               aria-label="Open notifications"
             >
               <Bell size={20} />
@@ -251,11 +251,11 @@ export default function Navbar() {
                   initial={{ opacity: 0, y: 8, scale: 0.98 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 8, scale: 0.98 }}
-                  className="absolute right-0 top-full mt-3 w-80 rounded-2xl border border-gray-200 bg-white p-4 shadow-2xl dark:border-white/10 dark:bg-[#10141b]"
+                  className="absolute right-0 top-full mt-3 w-80 rounded-2xl border border-[#E4DCD3] bg-[#EFE5DA] p-4 shadow-2xl dark:border-white/10 dark:bg-[#10141b]"
                 >
                   <div className="mb-3 flex items-center justify-between border-b border-gray-100 pb-2 dark:border-white/10">
                     <div className="flex items-center gap-2">
-                      <h3 className="text-sm font-black text-gray-900 dark:text-white">Notifications</h3>
+                      <h3 className="text-sm font-black text-[#183B38] dark:text-white">Notifications</h3>
                       {unreadCount > 0 && (
                         <span className="rounded-full bg-blue-500/10 px-2 py-0.5 text-[10px] font-bold text-blue-600 dark:bg-blue-400/10 dark:text-blue-400">
                           {unreadCount} new
@@ -269,7 +269,7 @@ export default function Navbar() {
 
                   <div className="max-h-64 space-y-2 overflow-y-auto pr-1">
                     {notifications.length === 0 ? (
-                      <div className="rounded-xl bg-gray-50 px-4 py-6 text-center text-xs font-semibold text-gray-500 dark:bg-white/[0.03] dark:text-white/50">
+                      <div className="rounded-xl bg-[#E6DACE] px-4 py-6 text-center text-xs font-semibold text-gray-500 dark:bg-[#EFE5DA]/[0.03] dark:text-white/50">
                         You&apos;re all caught up! No notifications.
                       </div>
                     ) : (
@@ -284,8 +284,8 @@ export default function Navbar() {
                           aria-label={`Open notification: ${n.title}`}
                           className={`group relative block cursor-pointer rounded-xl p-3 text-xs transition ${
                             n.isRead || n.read
-                              ? "bg-gray-50 text-gray-600 dark:bg-white/[0.02] dark:text-white/60"
-                              : "border border-primary/20 bg-blue-50/60 text-gray-900 font-bold dark:bg-primary/10 dark:text-white"
+                              ? "bg-[#E6DACE] text-gray-600 dark:bg-[#EFE5DA]/[0.02] dark:text-white/60"
+                              : "border border-primary/20 bg-blue-50/60 text-[#183B38] font-bold dark:bg-primary/10 dark:text-white"
                           }`}
                         >
                           <div className="flex items-start justify-between gap-2">
@@ -365,10 +365,10 @@ export default function Navbar() {
                   setIsProfileOpen((v) => !v);
                   setIsNotificationsOpen(false);
                 }}
-                className="flex items-center gap-1.5 rounded-xl border border-gray-200 bg-gray-100 p-1.5 transition hover:border-primary dark:border-white/10 dark:bg-white/[0.04]"
+                className="flex items-center gap-1.5 rounded-xl border border-[#E4DCD3] bg-gray-100 p-1.5 transition hover:border-primary dark:border-white/10 dark:bg-[#EFE5DA]/[0.04]"
                 aria-label="Open profile menu"
               >
-                <span className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg bg-gray-200 dark:bg-white/10">
+                <span className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg bg-gray-200 dark:bg-[#EFE5DA]/10">
                   {user.photoURL ? (
                     <img src={user.photoURL} alt="" className="h-full w-full object-cover" />
                   ) : (
@@ -384,10 +384,10 @@ export default function Navbar() {
                     initial={{ opacity: 0, y: 8, scale: 0.98 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 8, scale: 0.98 }}
-                    className="absolute right-0 top-full mt-3 w-72 rounded-2xl border border-gray-200 bg-white p-3 shadow-2xl dark:border-white/10 dark:bg-[#10141b]"
+                    className="absolute right-0 top-full mt-3 w-72 rounded-2xl border border-[#E4DCD3] bg-[#EFE5DA] p-3 shadow-2xl dark:border-white/10 dark:bg-[#10141b]"
                   >
-                    <div className="mb-2 flex items-center gap-3 rounded-xl bg-gray-50 p-3 dark:bg-white/[0.04]">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gray-200 dark:bg-white/10">
+                    <div className="mb-2 flex items-center gap-3 rounded-xl bg-[#E6DACE] p-3 dark:bg-[#EFE5DA]/[0.04]">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gray-200 dark:bg-[#EFE5DA]/10">
                         {user.photoURL ? (
                           <img src={user.photoURL} alt="" className="h-full w-full object-cover" />
                         ) : (
@@ -395,7 +395,7 @@ export default function Navbar() {
                         )}
                       </div>
                       <div className="min-w-0">
-                        <p className="truncate text-sm font-black text-gray-900 dark:text-white">{user.displayName || "ExOwn member"}</p>
+                        <p className="truncate text-sm font-black text-[#183B38] dark:text-white">{user.displayName || "ExOwn member"}</p>
                         <p className="truncate text-[11px] font-semibold text-gray-500 dark:text-white/45">{user.email}</p>
                       </div>
                     </div>
@@ -409,7 +409,7 @@ export default function Navbar() {
                       <ProfileLink href="/settings" icon={Settings} label="Settings" />
                       {isAdmin && <ProfileLink href="/admin" icon={ShieldCheck} label="Admin Console" />}
 
-                      <div className="my-1.5 h-px bg-gray-100 dark:bg-white/10" />
+                      <div className="my-1.5 h-px bg-gray-100 dark:bg-[#EFE5DA]/10" />
                       <button
                         type="button"
                         onClick={() => logout()}
@@ -444,14 +444,14 @@ export default function Navbar() {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 8, scale: 0.98 }}
                     onMouseLeave={() => setIsLoginPopupOpen(false)}
-                    className="absolute right-0 top-full mt-3 w-72 rounded-2xl border border-gray-200 bg-white p-4 shadow-2xl dark:border-white/10 dark:bg-[#10141b]"
+                    className="absolute right-0 top-full mt-3 w-72 rounded-2xl border border-[#E4DCD3] bg-[#EFE5DA] p-4 shadow-2xl dark:border-white/10 dark:bg-[#10141b]"
                   >
                     <div className="mb-3 flex items-center justify-between border-b border-gray-100 pb-3 dark:border-white/10">
                       <span className="text-xs font-bold text-gray-600 dark:text-white/60">New to ExOwn?</span>
                       <Link
                         href="/login"
                         onClick={() => setIsLoginPopupOpen(false)}
-                        className="flex items-center gap-1 text-xs font-bold text-[#1E5646] hover:underline"
+                        className="flex items-center gap-1 text-xs font-bold text-[#17645F] hover:underline"
                       >
                         <UserPlus size={14} /> Sign Up
                       </Link>
@@ -482,7 +482,7 @@ function ProfileLink({ href, icon: Icon, label }: { href: string; icon: ElementT
   return (
     <Link
       href={href}
-      className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-xs font-semibold text-[#4A5D56] transition hover:bg-[#F7F9F8] hover:text-[#1E5646]"
+      className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-xs font-semibold text-[#526663] transition hover:bg-[#F3EEE8] hover:text-[#17645F]"
     >
       <Icon size={16} />
       {label}
