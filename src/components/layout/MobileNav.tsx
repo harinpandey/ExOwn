@@ -126,7 +126,7 @@ export default function MobileNav() {
 
       <nav
         aria-label="Main mobile navigation"
-        className="fixed bottom-0 left-0 right-0 z-50 border-t border-[#E4DCD3] bg-[#EFE5DA] pb-safe pt-1.5 shadow-[0_-2px_10px_rgba(19,34,29,0.04)] lg:hidden"
+        className="fixed bottom-0 left-0 right-0 z-50 border-t border-[#E4DCD3] bg-[#F3EEE8] pb-safe pt-1.5 shadow-[0_-2px_10px_rgba(19,34,29,0.04)] lg:hidden"
       >
         <div className="mx-auto grid max-w-md grid-cols-4 items-center px-2">
           {navItems.map((item) => (
@@ -159,7 +159,7 @@ function MobileNavLink({
     >
       <Icon size={19} strokeWidth={isActive ? 2.2 : 1.8} />
       <span className="text-[10px] font-bold">{item.name}</span>
-      {isActive && <span className="absolute bottom-1 h-1 w-1 rounded-full bg-[#FF6845]" />}
+      {isActive && <span className="absolute bottom-1 h-1 w-1 rounded-full bg-[#17645F]" />}
     </Link>
   );
 }
