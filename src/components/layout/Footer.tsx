@@ -72,7 +72,7 @@ export default function Footer() {
                 target="_blank"
                 rel="noreferrer"
                 aria-label="ExOwn Website"
-                className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#E4DCD3] bg-[#EFE5DA] text-[#526663] transition hover:border-[#FF6845] hover:text-[#FFB19D]"
+                className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#E4DCD3] bg-[#124F4B] text-[#F3EEE8]/75 transition hover:border-[#FF6845] hover:text-[#FFB19D]"
               >
                 <Globe size={16} />
               </a>
@@ -81,13 +81,13 @@ export default function Footer() {
 
           {/* Marketplace */}
           <div>
-            <p className="mb-4 text-[10px] font-bold uppercase tracking-widest text-[#526663]">Marketplace</p>
+            <p className="mb-4 text-[10px] font-bold uppercase tracking-widest text-[#F3EEE8]/75">Marketplace</p>
             <ul className="space-y-3">
               {marketplaceLinks.map((link) => (
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-sm font-medium text-[#526663] transition hover:text-[#FFB19D]"
+                    className="text-sm font-medium text-[#F3EEE8]/75 transition hover:text-[#FFB19D]"
                   >
                     {link.label}
                   </Link>
@@ -98,13 +98,13 @@ export default function Footer() {
 
           {/* Categories */}
           <div>
-            <p className="mb-4 text-[10px] font-bold uppercase tracking-widest text-[#526663]">Categories</p>
+            <p className="mb-4 text-[10px] font-bold uppercase tracking-widest text-[#F3EEE8]/75">Categories</p>
             <ul className="space-y-3">
               {categoryLinks.map((link) => (
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-sm font-medium text-[#526663] transition hover:text-[#17645F]"
+                    className="text-sm font-medium text-[#F3EEE8]/75 transition hover:text-[#FFB19D]"
                   >
                     {link.label}
                   </Link>
@@ -115,13 +115,13 @@ export default function Footer() {
 
           {/* Company */}
           <div>
-            <p className="mb-4 text-[10px] font-bold uppercase tracking-widest text-[#526663]">Company</p>
+            <p className="mb-4 text-[10px] font-bold uppercase tracking-widest text-[#F3EEE8]/75">Company</p>
             <ul className="space-y-3">
               {companyLinks.map((link) => (
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-sm font-medium text-[#526663] transition hover:text-[#17645F]"
+                    className="text-sm font-medium text-[#F3EEE8]/75 transition hover:text-[#FFB19D]"
                   >
                     {link.label}
                   </Link>
@@ -133,13 +133,13 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-[#E4DCD3] pt-8 sm:flex-row">
-          <p className="text-xs font-medium text-[#526663]">
+          <p className="text-xs font-medium text-[#F3EEE8]/75">
             &copy; {new Date().getFullYear()} ExOwn Technologies. All rights reserved.
           </p>
-          <div className="flex flex-wrap items-center gap-4 text-xs font-semibold text-[#526663]">
+          <div className="flex flex-wrap items-center gap-4 text-xs font-semibold text-[#F3EEE8]/75">
             <span>Made for students, by students</span>
-            <span className="h-1 w-1 rounded-full bg-gray-300 dark:bg-[#EFE5DA]/20" aria-hidden />
-            <span className="text-primary">Exchange. Own. Repeat.</span>
+            <span className="h-1 w-1 rounded-full bg-[#F3EEE8]/30" aria-hidden />
+            <span className="text-[#FFB19D]">Exchange. Own. Repeat.</span>
           </div>
         </div>
       </div>
