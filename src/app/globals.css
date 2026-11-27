@@ -284,7 +284,7 @@ body {
 :root:not(.dark) :is(.border-blue-100, .border-blue-200, .border-indigo-100, .border-indigo-200, .border-violet-100, .border-violet-200, .border-purple-100, .border-purple-200, .border-cyan-100, .border-cyan-200) {
   border-color: var(--border-subtle) !important;
 }
-.dark :is([class*="bg-white"], [class~="bg-white"]) {
+.dark :is([class~="bg-white"], [class~="dark:bg-white"]) {
   background-color: var(--surface) !important;
 }
 .dark :is([class*="bg-gray-50"], [class*="bg-slate-50"], [class*="bg-[#F7F9F8]"]) {
@@ -337,6 +337,20 @@ body {
 [class~="bg-white"] { background-color: #F7F1E9 !important; }
 [class~="text-white"] { color: #F3EEE8 !important; }
 [class~="border-white"] { border-color: #D9CBBE !important; }
+
+/* Replace translucent white glass with translucent warm ivory, preserving opacity. */
+[class*="bg-white/5"] { background-color: rgba(243, 238, 232, 0.05) !important; }
+[class*="bg-white/10"] { background-color: rgba(243, 238, 232, 0.10) !important; }
+[class*="bg-white/15"] { background-color: rgba(243, 238, 232, 0.15) !important; }
+[class*="bg-white/20"] { background-color: rgba(243, 238, 232, 0.20) !important; }
+[class*="bg-white/25"] { background-color: rgba(243, 238, 232, 0.25) !important; }
+[class*="bg-white/30"] { background-color: rgba(243, 238, 232, 0.30) !important; }
+[class*="bg-white/40"] { background-color: rgba(243, 238, 232, 0.40) !important; }
+[class*="bg-white/50"] { background-color: rgba(243, 238, 232, 0.50) !important; }
+[class*="bg-white/[0."] { background-color: rgba(243, 238, 232, 0.08) !important; }
+[class*="text-white/"] { color: #F3EEE8 !important; }
+[class*="border-white/"] { border-color: rgba(243, 238, 232, 0.24) !important; }
+[class*="ring-white/"] { --tw-ring-color: rgba(243, 238, 232, 0.24) !important; }
 
 @media (prefers-reduced-motion: reduce) {
   *,
