@@ -30,53 +30,53 @@
 
 :root {
   color-scheme: light;
-  /* ExOwn semantic brand tokens: ivory canvas, teal structure, coral action. */
+  /* Luxury editorial palette adapted to ExOwn: warm ivory, ink, and restrained gold. */
   --bg-canvas: #F3EEE8;
-  --surface-card: #F7F1E9; /* Warm elevated surface; pure white intentionally avoided. */
-  --brand-primary: #17645F;
-  --brand-accent: #FF6845;
-  --brand-accent-ink: #102A28;
-  --brand-ink: #183B38;
+  --surface-card: #EAE2D8;
+  --brand-primary: #151413;
+  --brand-accent: #C7A76D;
+  --brand-accent-ink: #151413;
+  --brand-ink: #1A1A1A;
   --background: var(--bg-canvas);
-  --foreground: #183B38;
-  --muted: #E5EFEC;
-  --muted-foreground: #526663;
+  --foreground: #1A1A1A;
+  --muted: #E5DCD1;
+  --muted-foreground: #6B6257;
   --surface: var(--surface-card);
-  --surface-elevated: #EDE2D6;
+  --surface-elevated: #E2D7CA;
   --surface-soft: #E6DACE;
-  --border-subtle: #E4DCD3;
-  --accent: #17645F;
-  --accent-hover: #124F4B;
+  --border-subtle: #D7CBBE;
+  --accent: #151413;
+  --accent-hover: #30271C;
   --accent-contrast: #F3EEE8;
-  --accent-coral: #FF6845;
-  --accent-coral-contrast: var(--brand-accent-ink);
-  --surface-shadow: 0 1px 2px rgba(19, 34, 29, 0.035), 0 3px 10px rgba(19, 34, 29, 0.035);
-  --surface-shadow-hover: 0 3px 8px rgba(19, 34, 29, 0.045), 0 8px 18px rgba(19, 34, 29, 0.055);
+  --accent-coral: #C7A76D;
+  --accent-coral-contrast: #151413;
+  --surface-shadow: 0 1px 2px rgba(21, 20, 19, 0.04), 0 3px 10px rgba(21, 20, 19, 0.045);
+  --surface-shadow-hover: 0 3px 8px rgba(21, 20, 19, 0.06), 0 8px 18px rgba(21, 20, 19, 0.075);
 }
 
 .dark {
   color-scheme: dark;
-  --bg-canvas: #122321;
-  --surface-card: #1B302D;
-  --brand-primary: #17645F;
-  --brand-accent: #FF6845;
-  --brand-accent-ink: #102A28;
+  --bg-canvas: #11100F;
+  --surface-card: #1B1916;
+  --brand-primary: #D4AF37;
+  --brand-accent: #D4AF37;
+  --brand-accent-ink: #151413;
   --brand-ink: #F3EEE8;
   --background: var(--bg-canvas);
   --foreground: #F3EEE8;
-  --muted: #1D3835;
-  --muted-foreground: #B8C9C4;
+  --muted: #25211B;
+  --muted-foreground: #C5B9A8;
   --surface: var(--surface-card);
-  --surface-elevated: #25413D;
-  --surface-soft: #172C29;
-  --border-subtle: #34504C;
-  --accent: #17645F;
-  --accent-hover: #1D766F;
-  --accent-contrast: #F3EEE8;
-  --accent-coral: #FF6845;
-  --accent-coral-contrast: #183B38;
-  --surface-shadow: 0 1px 2px rgba(0, 0, 0, 0.18), 0 4px 12px rgba(0, 0, 0, 0.12);
-  --surface-shadow-hover: 0 4px 14px rgba(0, 0, 0, 0.24);
+  --surface-elevated: #30271C;
+  --surface-soft: #211E19;
+  --border-subtle: #4B4030;
+  --accent: #D4AF37;
+  --accent-hover: #E5C45B;
+  --accent-contrast: #151413;
+  --accent-coral: #D4AF37;
+  --accent-coral-contrast: #151413;
+  --surface-shadow: 0 1px 2px rgba(0, 0, 0, 0.24), 0 4px 12px rgba(0, 0, 0, 0.18);
+  --surface-shadow-hover: 0 4px 14px rgba(0, 0, 0, 0.32);
 }
 
 html,
@@ -578,7 +578,7 @@ a:focus-visible,
   --muted: color-mix(in srgb, var(--secondary) 12%, var(--dominant));
   --border-subtle: color-mix(in srgb, var(--secondary) 20%, var(--dominant));
 
-  --accent-hover: #124F4B;
+  --accent-hover: #30271C;
   --accent-contrast: #F3EEE8;
   --accent-coral: var(--accent);
   --accent-coral-contrast: #122321;
@@ -600,7 +600,7 @@ a:focus-visible,
   --muted: #203B37;
   --border-subtle: #34504C;
 
-  --accent-hover: #1D766F;
+  --accent-hover: #E5C45B;
   --accent-contrast: #F3EEE8;
   --accent-coral: var(--accent);
   --accent-coral-contrast: #122321;
@@ -904,7 +904,7 @@ textarea:invalid:focus {
 
 /* 60-30-10 refinement: coral is an action surface, never small text on light surfaces. */
 :root { --color-action: var(--brand-accent); --color-action-ink: var(--brand-accent-ink); }
-.dark { --surface-card: #1B302D; }
+.dark { --surface-card: #1B1916; }
 .action-coral {
   background: var(--brand-accent) !important;
   color: var(--brand-accent-ink) !important;
@@ -915,3 +915,61 @@ textarea:invalid:focus {
   border-color: color-mix(in srgb, var(--brand-accent) 88%, #000) !important;
 }
 .action-coral :is(svg, span) { color: inherit; }
+
+/* Luxury ink-and-gold mapping for older hard-coded component utility classes.
+   Gold is used as a surface/highlight; small text uses deeper gold for contrast. */
+:root {
+  --luxury-ink: #151413;
+  --luxury-gold: #C7A76D;
+  --luxury-gold-strong: #D4AF37;
+  --luxury-gold-text: #765719;
+  --luxury-canvas: #F3EEE8;
+}
+[class~="bg-[#17645F]"] { background-color: #151413 !important; }
+[class~="bg-[#124F4B]"] { background-color: #30271C !important; }
+[class~="border-[#17645F]"] { border-color: #C7A76D !important; }
+[class~="text-[#17645F]"] { color: #151413 !important; }
+[class~="bg-[#FF6845]"] { background-color: #C7A76D !important; }
+[class~="border-[#FF6845]"] { border-color: #C7A76D !important; }
+[class~="text-[#FF6845]"] { color: #765719 !important; }
+[class~="bg-[#E5EFEC]"] { background-color: #E6DACE !important; }
+[class~="text-[#526663]"] { color: #6B6257 !important; }
+[class~="text-[#FFB19D]"] { color: #765719 !important; }
+[class~="hover:bg-[#124F4B]"]:hover { background-color: #30271C !important; }
+[class~="hover:bg-[#E95736]"]:hover { background-color: #B18C50 !important; }
+.dark [class~="bg-[#17645F]"] { background-color: #24211C !important; }
+.dark [class~="bg-[#124F4B]"] { background-color: #30271C !important; }
+.dark [class~="text-[#17645F]"],
+.dark [class~="text-[#FF6845]"],
+.dark [class~="text-[#FFB19D]"] { color: #D4AF37 !important; }
+.dark [class~="text-[#526663]"] { color: #C5B9A8 !important; }
+.dark [class~="bg-[#E5EFEC]"] { background-color: #30271C !important; }
+.dark [class~="border-[#17645F]"] { border-color: #C7A76D !important; }
+.dark [class~="bg-[#FF6845]"] { background-color: #D4AF37 !important; }
+.dark [class~="border-[#FF6845]"] { border-color: #D4AF37 !important; }
+.dark [class~="hover:bg-[#124F4B]"]:hover { background-color: #403323 !important; }
+.dark [class~="hover:bg-[#E95736]"]:hover { background-color: #B18C50 !important; }
+.marketplace-button,
+.action-coral {
+  background: #C7A76D !important;
+  color: #151413 !important;
+  border-color: #C7A76D !important;
+}
+.marketplace-button:hover,
+.action-coral:hover {
+  background: #B18C50 !important;
+  border-color: #B18C50 !important;
+}
+.dark .marketplace-button,
+.dark .action-coral {
+  background: #D4AF37 !important;
+  color: #151413 !important;
+  border-color: #D4AF37 !important;
+}
+
+/* Ensure descendants formerly using teal text remain legible on newly ink-colored feature panels. */
+[class~="bg-[#17645F]"] [class~="text-[#17645F]"],
+[class~="bg-[#124F4B]"] [class~="text-[#17645F]"],
+[class~="bg-[#183B38]"] [class~="text-[#17645F]"] { color: #D4AF37 !important; }
+.dark [class~="bg-[#17645F]"] [class~="text-[#17645F]"],
+.dark [class~="bg-[#124F4B]"] [class~="text-[#17645F]"] { color: #D4AF37 !important; }
