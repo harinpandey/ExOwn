@@ -165,7 +165,7 @@ export default function RoommatesPage() {
         {/* Banner Hero */}
         <div className="relative overflow-hidden rounded-3xl border border-[#E4DCD3] bg-[#EFE5DA] p-6 text-[#183B38] shadow-sm dark:border-white/10 dark:bg-[#1B302D] dark:text-white sm:p-10">
           <div className="relative z-10 max-w-2xl space-y-3">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-violet-50 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide text-violet-700 dark:bg-violet-500/10 dark:text-violet-300">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-teal-50 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide text-teal-700 dark:bg-teal-500/10 dark:text-teal-300">
               <Users size={14} /> Student Roommate Finder
             </span>
             <h1 className="text-2xl font-black leading-tight tracking-tight text-[#183B38] dark:text-white sm:text-4xl">
@@ -184,7 +184,7 @@ export default function RoommatesPage() {
                   placeholder="Search by course, interests, bio keywords..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full rounded-2xl bg-[#EFE5DA] dark:bg-[#182D2A] pl-10 pr-4 py-3 text-xs sm:text-sm text-[#183B38] dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-400 shadow-sm"
+                  className="w-full rounded-2xl bg-[#EFE5DA] dark:bg-[#182D2A] pl-10 pr-4 py-3 text-xs sm:text-sm text-[#183B38] dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-400 shadow-sm"
                 />
                 {searchQuery && (
                   <button
@@ -211,7 +211,7 @@ export default function RoommatesPage() {
                 <p className="mt-1 text-xs text-gray-500 dark:text-white/50">Roommate interests sent to your campus profile.</p>
               </div>
               {receivedRequests.filter((item) => item.status === "PENDING").length > 0 && (
-                <span className="rounded-full bg-purple-500/10 px-3 py-1 text-[11px] font-bold text-purple-600 dark:text-purple-300">
+                <span className="rounded-full bg-teal-500/10 px-3 py-1 text-[11px] font-bold text-teal-600 dark:text-teal-300">
                   {receivedRequests.filter((item) => item.status === "PENDING").length} pending
                 </span>
               )}
@@ -224,7 +224,7 @@ export default function RoommatesPage() {
                 {receivedRequests.map((request) => (
                   <article key={request.id} className="rounded-2xl border border-[#E4DCD3] p-4 dark:border-white/10">
                     <div className="flex items-start gap-3">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-purple-500/10 text-sm font-black text-purple-600 dark:text-purple-300">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-teal-500/10 text-sm font-black text-teal-600 dark:text-teal-300">
                         {request.sender?.image ? (
                           <img src={request.sender.image} alt="" className="h-full w-full object-cover" />
                         ) : (
@@ -276,7 +276,7 @@ export default function RoommatesPage() {
           <div>
             <div className="flex justify-between text-xs font-bold text-[#526663] dark:text-white/80 mb-1.5">
               <span>Max Budget</span>
-              <span className="text-purple-600 dark:text-purple-400">₹{maxBudget.toLocaleString("en-IN")}/mo</span>
+              <span className="text-teal-600 dark:text-teal-400">₹{maxBudget.toLocaleString("en-IN")}/mo</span>
             </div>
             <input
               type="range"
@@ -285,7 +285,7 @@ export default function RoommatesPage() {
               step={1000}
               value={maxBudget}
               onChange={(e) => setMaxBudget(Number(e.target.value))}
-              className="w-full accent-purple-600 cursor-pointer"
+              className="w-full accent-teal-600 cursor-pointer"
             />
           </div>
 
@@ -365,13 +365,13 @@ export default function RoommatesPage() {
             {filteredProfiles.map((p) => (
               <article
                 key={p.id}
-                className="group relative flex flex-col justify-between rounded-2xl border border-[#E4DCD3] bg-[#EFE5DA] p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-violet-500/40 hover:shadow-lg dark:border-white/10 dark:bg-[#1B302D]"
+                className="group relative flex flex-col justify-between rounded-2xl border border-[#E4DCD3] bg-[#EFE5DA] p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-teal-500/40 hover:shadow-lg dark:border-white/10 dark:bg-[#1B302D]"
               >
                 <div>
                   {/* Top Peer Info */}
                   <div className="flex items-start justify-between gap-3 mb-3">
                     <div className="flex items-center gap-3">
-                      <div className="relative h-12 w-12 rounded-2xl bg-[#17645F]/10 text-purple-600 flex items-center justify-center font-black text-lg overflow-hidden border border-purple-500/20">
+                      <div className="relative h-12 w-12 rounded-2xl bg-[#17645F]/10 text-teal-600 flex items-center justify-center font-black text-lg overflow-hidden border border-teal-500/20">
                         {p.user?.name ? p.user.name.charAt(0) : "S"}
                       </div>
                       <div>
@@ -379,7 +379,7 @@ export default function RoommatesPage() {
                           <h3 className="font-extrabold text-sm text-[#183B38] dark:text-white">{p.user?.name || "Campus Student"}</h3>
                           {p.user?.isVerified && (
                             <span title="Verified Student ID" className="inline-flex items-center">
-                              <ShieldCheck size={15} className="text-purple-500 shrink-0" />
+                              <ShieldCheck size={15} className="text-teal-500 shrink-0" />
                             </span>
                           )}
                         </div>
@@ -408,7 +408,7 @@ export default function RoommatesPage() {
                       {p.matchReasons.map((m: string) => (
                         <span
                           key={m}
-                          className="inline-flex items-center gap-1 rounded-full bg-purple-500/10 px-2.5 py-0.5 text-[10px] font-black text-purple-600 dark:text-purple-400"
+                          className="inline-flex items-center gap-1 rounded-full bg-teal-500/10 px-2.5 py-0.5 text-[10px] font-black text-teal-600 dark:text-teal-400"
                         >
                           <Sparkles size={10} /> {m}
                         </span>
@@ -420,7 +420,7 @@ export default function RoommatesPage() {
                   <div className="grid grid-cols-2 gap-2 bg-slate-50 dark:bg-[#EFE5DA]/[0.03] p-3 rounded-2xl mb-3 text-xs">
                     <div>
                       <p className="text-[10px] text-gray-400 font-semibold uppercase">Budget</p>
-                      <p className="font-black text-purple-600 dark:text-purple-400">
+                      <p className="font-black text-teal-600 dark:text-teal-400">
                         ₹{p.budgetMin?.toLocaleString("en-IN")} - ₹{p.budgetMax?.toLocaleString("en-IN")}/mo
                       </p>
                     </div>
@@ -461,7 +461,7 @@ export default function RoommatesPage() {
                   <button
                     onClick={() => handleConnect(p.id)}
                     disabled={sendingId === p.id}
-                    className="flex items-center gap-1.5 px-4 py-2 bg-[#17645F] hover:bg-[#124F4B] text-white rounded-xl text-xs font-bold transition shadow-md shadow-purple-600/20"
+                    className="flex items-center gap-1.5 px-4 py-2 bg-[#17645F] hover:bg-[#124F4B] text-white rounded-xl text-xs font-bold transition shadow-md shadow-teal-600/20"
                   >
                     <MessageSquare size={13} />
                     {sendingId === p.id ? "Sending..." : "Send request"}
