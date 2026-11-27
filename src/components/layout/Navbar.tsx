@@ -147,7 +147,7 @@ export default function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-[#E4DCD3] bg-[#EFE5DA] text-[#183B38]">
+    <header className="sticky top-0 z-50 w-full border-b border-[#E4DCD3] bg-[#F3EEE8] text-[#183B38]">
       <div className="container mx-auto px-4">
         {/* Brand, service switcher and campus selector share one row */}
         <div className="flex min-w-0 items-center gap-2 border-b border-[#E4DCD3] py-2.5 sm:gap-3 lg:gap-5">
@@ -173,7 +173,7 @@ export default function Navbar() {
               className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0 focus-visible:rounded-xl focus-visible:outline-2 focus-visible:outline-[#FF6845]"
             >
               {CAMPUS_DIRECTORY.map((campus) => (
-                <option key={campus.id} value={campus.name} className="bg-[#EFE5DA] text-[#183B38]">
+                <option key={campus.id} value={campus.name} className="bg-[#F3EEE8] text-[#183B38]">
                   {campus.shortName}
                 </option>
               ))}
@@ -192,9 +192,9 @@ export default function Navbar() {
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={isLpuNews ? "Search LPU news, notices, placements, events..." : isTicketExperience ? "Search tickets, routes, dates, events..." : isRentExperience ? "Search rentals: laptops, cycles, furniture..." : "Search anything: products, books, rooms, services..."}
               aria-label="Search ExOwn listings"
-              className="h-12 w-full rounded-xl border border-[#E4DCD3] bg-[#EFE5DA] pl-12 pr-28 text-sm font-medium text-[#183B38] outline-none transition placeholder:text-[#82918B] focus:border-[#17645F] focus:ring-2 focus:ring-[#17645F]/10 sm:text-base"
+              className="h-12 w-full rounded-xl border border-[#E4DCD3] bg-[#F7F1E9] pl-12 pr-28 text-sm font-medium text-[#183B38] outline-none transition placeholder:text-[#82918B] focus:border-[#17645F] focus:ring-2 focus:ring-[#17645F]/10 sm:text-base"
             />
-            <button type="submit" className="absolute right-1.5 top-1.5 h-9 rounded-lg bg-[#17645F] px-5 text-xs font-bold text-[#F3EEE8] transition hover:bg-[#124F4B] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FF6845] active:scale-95">
+            <button type="submit" className="absolute right-1.5 top-1.5 h-9 rounded-lg bg-[#FF6845] px-5 text-xs font-bold text-[#102A28] transition hover:bg-[#E95736] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#17645F] active:scale-95">
               Search
             </button>
         </form>}
