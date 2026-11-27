@@ -142,7 +142,7 @@ export default function HeroBanner() {
             />
             <button
               type="submit"
-              className="absolute right-1 top-1 h-9 rounded-lg bg-primary px-4 text-xs font-black text-white transition hover:bg-primary-dark active:scale-95"
+              className="action-coral absolute right-1 top-1 h-9 rounded-lg px-4 text-xs font-black transition active:scale-95"
             >
               Search
             </button>
@@ -155,7 +155,7 @@ export default function HeroBanner() {
             </span>
             <Link
               href={!user ? "/login?redirect=/sell" : "/sell"}
-              className="flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 font-black text-white shadow-lg transition hover:bg-primary-dark active:scale-95"
+              className="action-coral flex items-center gap-1.5 rounded-xl px-4 py-2 font-black shadow-lg transition active:scale-95"
             >
               <Plus size={16} />
               + Sell Item
@@ -228,7 +228,7 @@ export default function HeroBanner() {
               <div className="mt-6 flex items-center justify-between">
                 <Link
                   href={heroSlides[currentSlide].href}
-                  className="inline-flex items-center gap-2 rounded-xl bg-[#F3EEE8] px-6 py-3 text-xs font-black text-gray-900 shadow-xl transition hover:bg-gray-100 hover:scale-105 active:scale-95"
+                  className="action-coral inline-flex items-center gap-2 rounded-xl px-6 py-3 text-xs font-black shadow-xl transition hover:scale-105 active:scale-95"
                 >
                   {heroSlides[currentSlide].cta}
                   <ArrowRight size={15} />
