@@ -63,7 +63,7 @@ const CATEGORY_DESCRIPTIONS: Record<string, string> = {
 export default function SellPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
+      <div className="min-h-screen bg-[#E6DACE] dark:bg-gray-950 flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
       </div>
     }>
@@ -325,26 +325,26 @@ function SellPageContent() {
   if (loading || !user) return null;
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20 dark:bg-[#0b0e14]">
+    <div className="min-h-screen bg-[#E6DACE] pb-20 dark:bg-[#0b0e14]">
       {/* Top Header */}
-      <div className="sticky top-0 z-40 border-b border-gray-200 bg-white/95 backdrop-blur dark:border-white/10 dark:bg-[#10141b]/95">
+      <div className="sticky top-0 z-40 border-b border-[#E4DCD3] bg-[#EFE5DA]/95 backdrop-blur dark:border-white/10 dark:bg-[#1B302D]/95">
         <div className="mx-auto flex h-16 max-w-4xl items-center justify-between px-4">
           <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={() => router.back()}
               aria-label="Cancel and go back"
-              className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-100 dark:border-white/10 dark:text-gray-400 dark:hover:bg-zinc-800"
+              className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#E4DCD3] text-gray-500 hover:bg-[#E1D3C5] dark:border-white/10 dark:text-gray-400 dark:hover:bg-zinc-800"
             >
               <X size={18} />
             </button>
-            <h1 className="text-base font-bold text-gray-900 dark:text-white">
+            <h1 className="text-base font-bold text-[#183B38] dark:text-white">
               Post a Listing
             </h1>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="hidden rounded-full bg-[#EAF2EF] px-2.5 py-1 text-[11px] font-bold text-[#1E5646] sm:inline-flex dark:bg-[#14251D] dark:text-[#9BC5B1]">
+            <span className="hidden rounded-full bg-[#EAF2EF] px-2.5 py-1 text-[11px] font-bold text-[#17645F] sm:inline-flex dark:bg-[#14251D] dark:text-[#9BC5B1]">
               Free listing
             </span>
             <span className="text-xs font-semibold tabular-nums text-gray-500 dark:text-gray-400">
@@ -358,8 +358,8 @@ function SellPageContent() {
           <div className="grid grid-cols-6 gap-1.5" aria-label="Listing progress">
             {["Type", "Category", "Subcategory", "Details", "Ad info", "Photos"].map((label, index) => (
               <div key={label} className="min-w-0">
-                <div className={`h-1.5 rounded-full transition-colors ${step > index ? "bg-[#1E5646]" : "bg-gray-200 dark:bg-zinc-800"}`} />
-                <span className={`mt-1.5 hidden truncate text-[10px] font-semibold sm:block ${step === index + 1 ? "text-[#1E5646] dark:text-[#9BC5B1]" : "text-gray-400"}`}>
+                <div className={`h-1.5 rounded-full transition-colors ${step > index ? "bg-[#17645F]" : "bg-gray-200 dark:bg-zinc-800"}`} />
+                <span className={`mt-1.5 hidden truncate text-[10px] font-semibold sm:block ${step === index + 1 ? "text-[#17645F] dark:text-[#9BC5B1]" : "text-gray-400"}`}>
                   {label}
                 </span>
               </div>
@@ -373,7 +373,7 @@ function SellPageContent() {
         {step === 1 && (
           <div className="space-y-6">
             <div>
-              <h2 className="text-xl font-bold tracking-tight text-gray-900 sm:text-2xl dark:text-white">
+              <h2 className="text-xl font-bold tracking-tight text-[#183B38] sm:text-2xl dark:text-white">
                 What would you like to post?
               </h2>
               <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
@@ -389,13 +389,13 @@ function SellPageContent() {
                 className={`flex flex-col items-start rounded-2xl border-2 p-5 text-left transition ${
                   listingMode === "SELL"
                     ? "border-primary bg-primary/5 shadow-sm dark:bg-primary/10"
-                    : "border-gray-200 bg-white hover:border-gray-300 dark:border-white/10 dark:bg-[#10141b] dark:hover:border-white/20"
+                    : "border-[#E4DCD3] bg-[#EFE5DA] hover:border-gray-300 dark:border-white/10 dark:bg-[#1B302D] dark:hover:border-white/20"
                 }`}
               >
                 <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400">
                   <ShoppingBag size={22} />
                 </div>
-                <span className="mt-3 text-base font-bold text-gray-900 dark:text-white">
+                <span className="mt-3 text-base font-bold text-[#183B38] dark:text-white">
                   Post an Item
                 </span>
                 <span className="mt-1 text-xs text-gray-500 dark:text-gray-400">
@@ -410,13 +410,13 @@ function SellPageContent() {
                 className={`flex flex-col items-start rounded-2xl border-2 p-5 text-left transition ${
                   listingMode === "RENT"
                     ? "border-primary bg-primary/5 shadow-sm dark:bg-primary/10"
-                    : "border-gray-200 bg-white hover:border-gray-300 dark:border-white/10 dark:bg-[#10141b] dark:hover:border-white/20"
+                    : "border-[#E4DCD3] bg-[#EFE5DA] hover:border-gray-300 dark:border-white/10 dark:bg-[#1B302D] dark:hover:border-white/20"
                 }`}
               >
                 <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400">
                   <Key size={22} />
                 </div>
-                <span className="mt-3 text-base font-bold text-gray-900 dark:text-white">
+                <span className="mt-3 text-base font-bold text-[#183B38] dark:text-white">
                   Rent Out
                 </span>
                 <span className="mt-1 text-xs text-gray-500 dark:text-gray-400">
@@ -431,13 +431,13 @@ function SellPageContent() {
                 className={`flex flex-col items-start rounded-2xl border-2 p-5 text-left transition ${
                   listingMode === "EXCHANGE"
                     ? "border-primary bg-primary/5 shadow-sm dark:bg-primary/10"
-                    : "border-gray-200 bg-white hover:border-gray-300 dark:border-white/10 dark:bg-[#10141b] dark:hover:border-white/20"
+                    : "border-[#E4DCD3] bg-[#EFE5DA] hover:border-gray-300 dark:border-white/10 dark:bg-[#1B302D] dark:hover:border-white/20"
                 }`}
               >
                 <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
                   <RefreshCw size={22} />
                 </div>
-                <span className="mt-3 text-base font-bold text-gray-900 dark:text-white">
+                <span className="mt-3 text-base font-bold text-[#183B38] dark:text-white">
                   Offer an Exchange
                 </span>
                 <span className="mt-1 text-xs text-gray-500 dark:text-gray-400">
@@ -452,13 +452,13 @@ function SellPageContent() {
                 className={`flex flex-col items-start rounded-2xl border-2 p-5 text-left transition ${
                   listingMode === "SERVICE"
                     ? "border-primary bg-primary/5 shadow-sm dark:bg-primary/10"
-                    : "border-gray-200 bg-white hover:border-gray-300 dark:border-white/10 dark:bg-[#10141b] dark:hover:border-white/20"
+                    : "border-[#E4DCD3] bg-[#EFE5DA] hover:border-gray-300 dark:border-white/10 dark:bg-[#1B302D] dark:hover:border-white/20"
                 }`}
               >
                 <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-purple-50 text-purple-600 dark:bg-purple-950/40 dark:text-purple-400">
                   <BriefcaseBusiness size={22} />
                 </div>
-                <span className="mt-3 text-base font-bold text-gray-900 dark:text-white">Offer a Service</span>
+                <span className="mt-3 text-base font-bold text-[#183B38] dark:text-white">Offer a Service</span>
                 <span className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                   Offer tutoring, repairs, design, printing or other student services.
                 </span>
@@ -468,13 +468,13 @@ function SellPageContent() {
               <button
                 type="button"
                 onClick={() => router.push("/requests")}
-                className="flex flex-col items-start rounded-2xl border-2 border-dashed border-gray-200 bg-white p-5 text-left transition hover:border-gray-300 dark:border-white/10 dark:bg-[#10141b] dark:hover:border-white/20"
+                className="flex flex-col items-start rounded-2xl border-2 border-dashed border-[#E4DCD3] bg-[#EFE5DA] p-5 text-left transition hover:border-gray-300 dark:border-white/10 dark:bg-[#1B302D] dark:hover:border-white/20"
               >
                 <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-purple-50 text-purple-600 dark:bg-purple-950/40 dark:text-purple-400">
                   <HelpCircle size={22} />
                 </div>
                 <div className="mt-3 flex items-center gap-1.5">
-                  <span className="text-base font-bold text-gray-900 dark:text-white">
+                  <span className="text-base font-bold text-[#183B38] dark:text-white">
                     Looking to Buy?
                   </span>
                   <span className="rounded bg-purple-100 px-1.5 py-0.5 text-[10px] font-bold text-purple-700 dark:bg-purple-950 dark:text-purple-300">
@@ -497,7 +497,7 @@ function SellPageContent() {
         {step === 2 && (
           <div className="space-y-6">
             <div>
-              <h2 className="text-xl font-bold tracking-tight text-gray-900 sm:text-2xl dark:text-white">
+              <h2 className="text-xl font-bold tracking-tight text-[#183B38] sm:text-2xl dark:text-white">
                 Category & Campus Location
               </h2>
               <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
@@ -506,7 +506,7 @@ function SellPageContent() {
             </div>
 
             {/* Campus Selector */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-[#10141b]">
+            <div className="rounded-2xl border border-[#E4DCD3] bg-[#EFE5DA] p-5 shadow-sm dark:border-white/10 dark:bg-[#1B302D]">
               <label className="block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-400 mb-3">
                 Select Campus
               </label>
@@ -521,7 +521,7 @@ function SellPageContent() {
             </div>
 
             {/* Category Grid */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-[#10141b]">
+            <div className="rounded-2xl border border-[#E4DCD3] bg-[#EFE5DA] p-5 shadow-sm dark:border-white/10 dark:bg-[#1B302D]">
               <label className="block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-400 mb-3">
                 What are you listing?
               </label>
@@ -530,7 +530,7 @@ function SellPageContent() {
                 value={categorySearch}
                 onChange={(event) => setCategorySearch(event.target.value)}
                 placeholder="Search categories..."
-                className="mb-4 w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 dark:border-white/10 dark:bg-zinc-900 dark:text-white"
+                className="mb-4 w-full rounded-xl border border-[#E4DCD3] bg-[#E6DACE] px-4 py-3 text-sm text-[#183B38] outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 dark:border-white/10 dark:bg-zinc-900 dark:text-white"
               />
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {CATEGORIES.filter((cat) => matchesSearch(categorySearch, [cat.name, cat.slug, CATEGORY_DESCRIPTIONS[cat.slug] || "", ...(SEARCH_ALIASES[cat.slug] || []), ...cat.subcategories.flatMap((sub) => [sub.name, sub.id, ...(SUBCATEGORY_ALIASES[sub.id] || [])])])).map((cat) => (
@@ -550,13 +550,13 @@ function SellPageContent() {
                     className={`flex min-h-[150px] flex-col items-start rounded-2xl border-2 p-5 text-left transition ${
                       selectedCategory?.id === cat.id
                         ? "border-primary bg-primary/5 shadow-sm dark:bg-primary/10"
-                        : "border-gray-200 bg-white hover:border-gray-300 dark:border-white/10 dark:bg-[#10141b] dark:hover:border-white/20"
+                        : "border-[#E4DCD3] bg-[#EFE5DA] hover:border-gray-300 dark:border-white/10 dark:bg-[#1B302D] dark:hover:border-white/20"
                     }`}
                   >
-                    <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#EAF2EF] text-[#1E5646] dark:bg-[#14251D] dark:text-[#9BC5B1]">
+                    <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#EAF2EF] text-[#17645F] dark:bg-[#14251D] dark:text-[#9BC5B1]">
                       <DynamicIcon name={cat.icon} size={22} />
                     </span>
-                    <span className="mt-3 text-sm font-bold text-gray-900 dark:text-white">{cat.name}</span>
+                    <span className="mt-3 text-sm font-bold text-[#183B38] dark:text-white">{cat.name}</span>
                     <span className="mt-1 text-xs leading-5 text-gray-500 dark:text-gray-400">
                       {CATEGORY_DESCRIPTIONS[cat.slug] || "Find the right listing type for your campus community."}
                     </span>
@@ -570,7 +570,7 @@ function SellPageContent() {
               <button
                 type="button"
                 onClick={() => setStep(1)}
-                className="flex items-center gap-1.5 text-xs font-bold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+                className="flex items-center gap-1.5 text-xs font-bold text-gray-600 hover:text-[#183B38] dark:text-gray-400 dark:hover:text-white"
               >
                 <ChevronLeft size={16} /> Back
               </button>
@@ -588,7 +588,7 @@ function SellPageContent() {
               <button
                 type="button"
                 onClick={() => setStep(2)}
-                className="mt-1 rounded-full p-2 text-gray-600 transition hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-zinc-800"
+                className="mt-1 rounded-full p-2 text-gray-600 transition hover:bg-[#E1D3C5] dark:text-gray-300 dark:hover:bg-zinc-800"
                 aria-label="Back to categories"
               >
                 <ChevronLeft size={20} />
@@ -597,7 +597,7 @@ function SellPageContent() {
                 <span className="inline-flex rounded-md bg-primary/10 px-2 py-1 text-[10px] font-extrabold uppercase tracking-wider text-primary">
                   {listingMode === "SELL" ? "SELLING" : listingMode === "RENT" ? "RENTING OUT" : listingMode === "EXCHANGE" ? "EXCHANGE" : "SERVICE"}
                 </span>
-                <h2 className="mt-2 text-xl font-bold tracking-tight text-gray-900 sm:text-2xl dark:text-white">
+                <h2 className="mt-2 text-xl font-bold tracking-tight text-[#183B38] sm:text-2xl dark:text-white">
                   {selectedCategory?.name || "Choose a category"}
                 </h2>
                 <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">What type of item or listing is it?</p>
@@ -623,7 +623,7 @@ function SellPageContent() {
               value={subcategorySearch}
               onChange={(event) => setSubcategorySearch(event.target.value)}
               placeholder="Search items..."
-              className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 dark:border-white/10 dark:bg-[#10141b] dark:text-white"
+              className="w-full rounded-xl border border-[#E4DCD3] bg-[#EFE5DA] px-4 py-3 text-sm text-[#183B38] outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 dark:border-white/10 dark:bg-[#1B302D] dark:text-white"
             />
 
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -642,9 +642,9 @@ function SellPageContent() {
                       setSelectedSubcategory(sub);
                       setStep(4);
                     }}
-                    className="group flex items-center justify-between rounded-xl border border-gray-200 bg-white p-4 text-left transition hover:border-primary/50 hover:bg-primary/5 disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/10 dark:bg-[#10141b] dark:hover:border-primary/40"
+                    className="group flex items-center justify-between rounded-xl border border-[#E4DCD3] bg-[#EFE5DA] p-4 text-left transition hover:border-primary/50 hover:bg-primary/5 disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/10 dark:bg-[#1B302D] dark:hover:border-primary/40"
                   >
-                    <span className="text-sm font-semibold text-gray-900 dark:text-white">{sub.name}</span>
+                    <span className="text-sm font-semibold text-[#183B38] dark:text-white">{sub.name}</span>
                     <ArrowRight size={16} className="text-gray-400 transition group-hover:translate-x-0.5 group-hover:text-primary" />
                   </button>
                 ))}
@@ -657,7 +657,7 @@ function SellPageContent() {
         {step === 4 && (
           <div className="space-y-6">
             <div>
-              <h2 className="text-xl font-bold tracking-tight text-gray-900 sm:text-2xl dark:text-white">
+              <h2 className="text-xl font-bold tracking-tight text-[#183B38] sm:text-2xl dark:text-white">
                 Item Specifications & Condition
               </h2>
               <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
@@ -665,7 +665,7 @@ function SellPageContent() {
               </p>
             </div>
 
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-[#10141b]">
+            <div className="rounded-2xl border border-[#E4DCD3] bg-[#EFE5DA] p-5 shadow-sm dark:border-white/10 dark:bg-[#1B302D]">
               <CategoryConditionForm
                 categoryName={selectedCategory?.name || ""}
                 subcategoryName={selectedSubcategory?.name || ""}
@@ -684,7 +684,7 @@ function SellPageContent() {
               <button
                 type="button"
                 onClick={() => setStep(3)}
-                className="flex items-center gap-1.5 text-xs font-bold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+                className="flex items-center gap-1.5 text-xs font-bold text-gray-600 hover:text-[#183B38] dark:text-gray-400 dark:hover:text-white"
               >
                 <ChevronLeft size={16} /> Back
               </button>
@@ -699,7 +699,7 @@ function SellPageContent() {
         {step === 5 && (
           <div className="space-y-6">
             <div>
-              <h2 className="text-xl font-bold tracking-tight text-gray-900 sm:text-2xl dark:text-white">
+              <h2 className="text-xl font-bold tracking-tight text-[#183B38] sm:text-2xl dark:text-white">
                 Listing Details & Pricing
               </h2>
               <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
@@ -707,7 +707,7 @@ function SellPageContent() {
               </p>
             </div>
 
-            <div className="space-y-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:p-7 dark:border-white/10 dark:bg-[#10141b]">
+            <div className="space-y-4 rounded-2xl border border-[#E4DCD3] bg-[#EFE5DA] p-5 shadow-sm sm:p-7 dark:border-white/10 dark:bg-[#1B302D]">
               {/* Title */}
               {selectedSubcategory?.id !== "other" && (
                 <div>
@@ -724,7 +724,7 @@ function SellPageContent() {
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder={selectedCategory?.slug === "tickets-events" ? "e.g. Concert ticket — 2 seated tickets" : "e.g. iPhone 13 128GB in good condition"}
-                    className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-900 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-zinc-900 dark:text-white"
+                    className="w-full rounded-xl border border-gray-300 bg-[#EFE5DA] px-4 py-2.5 text-sm font-medium text-[#183B38] outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-zinc-900 dark:text-white"
                   />
                 </div>
               )}
@@ -746,7 +746,7 @@ function SellPageContent() {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder={selectedCategory?.slug === "tickets-events" ? "Include event name, date, venue, ticket category/seat, number of tickets and the official transfer method. Do not include QR codes, barcodes, PNRs or booking references." : "Mention usage duration, working condition, included accessories, or reasons for parting with the item..."}
-                  className="w-full rounded-xl border border-gray-300 bg-white p-3 text-sm text-gray-900 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-zinc-900 dark:text-white"
+                  className="w-full rounded-xl border border-gray-300 bg-[#EFE5DA] p-3 text-sm text-[#183B38] outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-zinc-900 dark:text-white"
                 />
               </div>
 
@@ -757,11 +757,11 @@ function SellPageContent() {
                       type="checkbox"
                       checked={isTicketTransferAllowed}
                       onChange={(event) => setIsTicketTransferAllowed(event.target.checked)}
-                      className="mt-0.5 h-4 w-4 rounded border-[#B9CEC3] text-[#1E5646] focus:ring-[#1E5646]"
+                      className="mt-0.5 h-4 w-4 rounded border-[#B9CEC3] text-[#17645F] focus:ring-[#17645F]"
                     />
                     <span>
-                      <span className="block text-xs font-extrabold text-[#13221D] dark:text-[#E8F0EB]">I confirm this ticket is eligible for transfer or resale.</span>
-                      <span className="mt-1 block text-[11px] leading-5 text-[#4A5D56] dark:text-[#B4C5BC]">I checked the original organiser/provider rules and will use its approved transfer method. I will not list a train ticket or expose a live QR code, barcode, PNR or booking reference.</span>
+                      <span className="block text-xs font-extrabold text-[#183B38] dark:text-[#E8F0EB]">I confirm this ticket is eligible for transfer or resale.</span>
+                      <span className="mt-1 block text-[11px] leading-5 text-[#526663] dark:text-[#B4C5BC]">I checked the original organiser/provider rules and will use its approved transfer method. I will not list a train ticket or expose a live QR code, barcode, PNR or booking reference.</span>
                     </span>
                   </label>
                 </div>
@@ -782,7 +782,7 @@ function SellPageContent() {
                       value={price}
                       onChange={(e) => setPrice(e.target.value)}
                       placeholder="0"
-                      className="w-full rounded-xl border border-gray-300 bg-white py-2.5 pl-8 pr-4 text-base font-bold text-gray-900 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-zinc-900 dark:text-white"
+                      className="w-full rounded-xl border border-gray-300 bg-[#EFE5DA] py-2.5 pl-8 pr-4 text-base font-bold text-[#183B38] outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-zinc-900 dark:text-white"
                     />
                   </div>
                 </div>
@@ -825,7 +825,7 @@ function SellPageContent() {
                         className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition ${
                           exchangeCategories.includes(item)
                             ? "bg-emerald-600 text-white"
-                            : "bg-white border border-gray-200 text-gray-700 dark:bg-zinc-800 dark:border-white/10 dark:text-zinc-200"
+                            : "bg-[#EFE5DA] border border-[#E4DCD3] text-[#526663] dark:bg-zinc-800 dark:border-white/10 dark:text-zinc-200"
                         }`}
                       >
                         {item}
@@ -840,7 +840,7 @@ function SellPageContent() {
                       onChange={(e) => setExchangeCashAllowed(e.target.checked)}
                       className="h-4 w-4 rounded border-gray-300 text-primary"
                     />
-                    <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                    <span className="text-xs font-medium text-[#526663] dark:text-gray-300">
                       Open to trades with cash difference (e.g., item + cash adjustment)
                     </span>
                   </label>
@@ -848,8 +848,8 @@ function SellPageContent() {
               )}
 
               {/* Toggles (Negotiable, Urgent) */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3 border-t border-gray-100 dark:border-white/10">
-                <label className="flex items-center gap-2.5 rounded-xl border border-gray-200 bg-gray-50/50 p-3 cursor-pointer dark:border-white/10 dark:bg-zinc-900">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3 border-t border-[#E4DCD3] dark:border-white/10">
+                <label className="flex items-center gap-2.5 rounded-xl border border-[#E4DCD3] bg-[#E6DACE]/50 p-3 cursor-pointer dark:border-white/10 dark:bg-zinc-900">
                   <input
                     type="checkbox"
                     checked={isNegotiable}
@@ -866,7 +866,7 @@ function SellPageContent() {
                   </div>
                 </label>
 
-                <label className="flex items-center gap-2.5 rounded-xl border border-gray-200 bg-gray-50/50 p-3 cursor-pointer dark:border-white/10 dark:bg-zinc-900">
+                <label className="flex items-center gap-2.5 rounded-xl border border-[#E4DCD3] bg-[#E6DACE]/50 p-3 cursor-pointer dark:border-white/10 dark:bg-zinc-900">
                   <input
                     type="checkbox"
                     checked={isUrgent}
@@ -889,7 +889,7 @@ function SellPageContent() {
               <button
                 type="button"
                 onClick={() => setStep(4)}
-                className="flex items-center gap-1.5 text-xs font-bold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+                className="flex items-center gap-1.5 text-xs font-bold text-gray-600 hover:text-[#183B38] dark:text-gray-400 dark:hover:text-white"
               >
                 <ChevronLeft size={16} /> Back
               </button>
@@ -915,7 +915,7 @@ function SellPageContent() {
         {step === 6 && (
           <div className="space-y-6">
             <div>
-              <h2 className="text-xl font-bold tracking-tight text-gray-900 sm:text-2xl dark:text-white">
+              <h2 className="text-xl font-bold tracking-tight text-[#183B38] sm:text-2xl dark:text-white">
                 Photos & Publish
               </h2>
               <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
@@ -923,16 +923,16 @@ function SellPageContent() {
               </p>
             </div>
 
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:p-7 dark:border-white/10 dark:bg-[#10141b]">
+            <div className="rounded-2xl border border-[#E4DCD3] bg-[#EFE5DA] p-5 shadow-sm sm:p-7 dark:border-white/10 dark:bg-[#1B302D]">
               <div className="mb-4 flex items-center justify-between gap-3">
-                <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Photos</p>
-                <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-bold tabular-nums text-gray-600 dark:bg-zinc-800 dark:text-gray-300">{images.length} / 20</span>
+                <p className="text-sm font-semibold text-[#526663] dark:text-gray-300">Photos</p>
+                <span className="rounded-full bg-[#E1D3C5] px-2.5 py-1 text-xs font-bold tabular-nums text-gray-600 dark:bg-zinc-800 dark:text-gray-300">{images.length} / 20</span>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
                 {imageUrls.map((url, index) => (
                   <div
                     key={url}
-                    className="group relative aspect-square rounded-xl overflow-hidden border border-gray-200 dark:border-white/10 bg-gray-100 dark:bg-zinc-800"
+                    className="group relative aspect-square rounded-xl overflow-hidden border border-[#E4DCD3] dark:border-white/10 bg-[#E1D3C5] dark:bg-zinc-800"
                   >
                     <img src={url} alt="" className="h-full w-full object-cover" />
 
@@ -947,7 +947,7 @@ function SellPageContent() {
                         <button
                           type="button"
                           onClick={() => setCoverImage(index)}
-                          className="rounded-md bg-white px-2 py-1 text-[10px] font-bold text-gray-800 shadow hover:bg-gray-100"
+                          className="rounded-md bg-[#EFE5DA] px-2 py-1 text-[10px] font-bold text-gray-800 shadow hover:bg-[#E1D3C5]"
                         >
                           Make Cover
                         </button>
@@ -965,7 +965,7 @@ function SellPageContent() {
                 ))}
 
                 {images.length < 20 && (
-                  <label className="flex aspect-square cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50/50 text-gray-500 transition hover:border-primary hover:bg-primary/5 dark:border-white/10 dark:bg-zinc-900 dark:text-zinc-400">
+                  <label className="flex aspect-square cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-[#E6DACE]/50 text-gray-500 transition hover:border-primary hover:bg-primary/5 dark:border-white/10 dark:bg-zinc-900 dark:text-zinc-400">
                     <Upload size={24} className="mb-1 text-gray-400" />
                     <span className="text-xs font-semibold">Add photos</span>
                     <span className="text-[10px] text-gray-400">JPG, PNG or WEBP · 5MB max</span>
@@ -981,28 +981,28 @@ function SellPageContent() {
               </div>
 
               {/* Review Summary */}
-              <div className="rounded-xl border border-gray-100 bg-gray-50/70 p-4 text-xs dark:border-white/10 dark:bg-zinc-900/60">
-                <span className="font-bold text-gray-700 dark:text-gray-300 block mb-2">
+              <div className="rounded-xl border border-[#E4DCD3] bg-[#E6DACE]/70 p-4 text-xs dark:border-white/10 dark:bg-zinc-900/60">
+                <span className="font-bold text-[#526663] dark:text-gray-300 block mb-2">
                   Listing Summary
                 </span>
                 <div className="grid grid-cols-1 gap-2 text-gray-600 dark:text-gray-400 sm:grid-cols-2">
-                  <div>Title: <strong className="text-gray-900 dark:text-white">{title || customOtherTitle}</strong></div>
-                  <div>Price: <strong className="text-gray-900 dark:text-white">₹{price}{listingMode === "RENT" ? "/day" : ""}</strong></div>
-                  <div>Category: <strong className="text-gray-900 dark:text-white">{selectedCategory?.name} · {selectedSubcategory?.name}</strong></div>
-                  <div>Condition: <strong className="text-gray-900 dark:text-white">{finalCondition.replaceAll("_", " ")}</strong></div>
-                  <div>Format: <strong className="text-gray-900 dark:text-white">{listingMode}</strong></div>
-                  <div>Campus spot: <strong className="text-gray-900 dark:text-white">{pickupLocation}</strong></div>
+                  <div>Title: <strong className="text-[#183B38] dark:text-white">{title || customOtherTitle}</strong></div>
+                  <div>Price: <strong className="text-[#183B38] dark:text-white">₹{price}{listingMode === "RENT" ? "/day" : ""}</strong></div>
+                  <div>Category: <strong className="text-[#183B38] dark:text-white">{selectedCategory?.name} · {selectedSubcategory?.name}</strong></div>
+                  <div>Condition: <strong className="text-[#183B38] dark:text-white">{finalCondition.replaceAll("_", " ")}</strong></div>
+                  <div>Format: <strong className="text-[#183B38] dark:text-white">{listingMode}</strong></div>
+                  <div>Campus spot: <strong className="text-[#183B38] dark:text-white">{pickupLocation}</strong></div>
                 </div>
               </div>
 
               <div className="mt-4 rounded-xl border border-[#DCE8E2] bg-[#F4F8F6] p-4 dark:border-[#2A4136] dark:bg-[#14251D]/70">
                 <div className="flex items-start gap-3">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#E2EEE8] text-[#1E5646] dark:bg-[#20392E] dark:text-[#9BC5B1]">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#E2EEE8] text-[#17645F] dark:bg-[#20392E] dark:text-[#9BC5B1]">
                     <HelpCircle size={17} />
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-[#13221D] dark:text-[#E8F0EB]">Before you publish</p>
-                    <p className="mt-1 text-xs leading-5 text-[#4A5D56] dark:text-[#B4C5BC]">
+                    <p className="text-xs font-bold text-[#183B38] dark:text-[#E8F0EB]">Before you publish</p>
+                    <p className="mt-1 text-xs leading-5 text-[#526663] dark:text-[#B4C5BC]">
                       Your ExOwn profile and campus help buyers know who they are contacting. Your phone number stays private unless you choose to share it in chat. Listings may be reviewed before going live.
                     </p>
                   </div>
@@ -1013,7 +1013,7 @@ function SellPageContent() {
                 <button
                   type="button"
                   onClick={() => setStep(5)}
-                  className="rounded-xl border border-gray-200 px-5 py-3 text-xs font-bold text-gray-700 transition hover:bg-gray-50 dark:border-white/10 dark:bg-zinc-800 dark:text-zinc-200"
+                  className="rounded-xl border border-[#E4DCD3] px-5 py-3 text-xs font-bold text-[#526663] transition hover:bg-[#E6DACE] dark:border-white/10 dark:bg-zinc-800 dark:text-zinc-200"
                 >
                   <ChevronLeft size={14} className="inline mr-1" /> Back
                 </button>
@@ -1034,12 +1034,12 @@ function SellPageContent() {
       {/* Profile Completion Guidance Modal */}
       {showProfileModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 sm:p-7 max-w-md w-full border border-gray-200 dark:border-white/10 shadow-xl relative">
+          <div className="bg-[#EFE5DA] dark:bg-[#182D2A] rounded-2xl p-6 sm:p-7 max-w-md w-full border border-[#E4DCD3] dark:border-white/10 shadow-xl relative">
             <div className="w-12 h-12 bg-amber-100 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400 rounded-xl flex items-center justify-center mb-4">
               <AlertCircle size={24} />
             </div>
 
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1.5">
+            <h3 className="text-lg font-bold text-[#183B38] dark:text-white mb-1.5">
               Complete Your Student Profile
             </h3>
             <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed mb-5">
@@ -1057,7 +1057,7 @@ function SellPageContent() {
               <button
                 type="button"
                 onClick={() => setShowProfileModal(false)}
-                className="py-2.5 px-4 bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-gray-300 rounded-xl font-bold text-xs hover:bg-gray-200 dark:hover:bg-zinc-700 transition"
+                className="py-2.5 px-4 bg-[#E1D3C5] dark:bg-zinc-800 text-[#526663] dark:text-gray-300 rounded-xl font-bold text-xs hover:bg-gray-200 dark:hover:bg-zinc-700 transition"
               >
                 Dismiss
               </button>
