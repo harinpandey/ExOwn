@@ -36,6 +36,12 @@ function LoginContent() {
   const { user, loading } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [validationShake, setValidationShake] = useState(false);
+  const triggerValidationShake = () => {
+    setValidationShake(false);
+    window.requestAnimationFrame(() => setValidationShake(true));
+    window.setTimeout(() => setValidationShake(false), 320);
+  };
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [email, setEmail] = useState("");
   const [emailLinkSent, setEmailLinkSent] = useState(false);
@@ -362,11 +368,12 @@ function LoginContent() {
               autoComplete="email"
               inputMode="email"
               value={email}
-              onChange={(e) => { setEmail(e.target.value); setEmailLinkSent(false); setPasswordResetSent(false); }}
+              onChange={(e) => { setEmail(e.target.value); setEmailLinkSent(false); setPasswordResetSent(false); setValidationShake(false); }}
+              onInvalid={triggerValidationShake}
               placeholder="you@example.com"
               disabled={isLoading}
               required
-              className="w-full rounded-xl border border-[#DCE4DF] bg-white px-4 py-3.5 text-sm text-[#13221D] outline-none transition placeholder:text-[#9AA7A0] focus:border-[#1E5646] focus:ring-4 focus:ring-[#1E5646]/10 disabled:opacity-60 dark:border-[#34443B] dark:bg-[#17241C] dark:text-[#F1F5F2]"
+              className={`w-full rounded-xl border border-[#DCE4DF] bg-[#F7F1E9] px-4 py-3.5 text-sm text-[#13221D] outline-none transition placeholder:text-[#9AA7A0] focus:border-[#1E5646] focus:ring-4 focus:ring-[#1E5646]/10 disabled:opacity-60 dark:border-[#34443B] dark:bg-[#17241C] dark:text-[#F1F5F2] ${validationShake ? "motion-shake motion-invalid-flash" : ""}`}
             />
             <label htmlFor="password-sign-in" className="block pt-1 text-sm font-semibold text-[#34483D] dark:text-[#D9E3DC]">Password</label>
             <input
@@ -374,7 +381,8 @@ function LoginContent() {
               type="password"
               autoComplete={authMode === "signup" ? "new-password" : "current-password"}
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => { setPassword(e.target.value); setValidationShake(false); }}
+              onInvalid={triggerValidationShake}
               placeholder={authMode === "signup" ? "Create a password (6+ characters)" : "Enter your password"}
               disabled={isLoading}
               required
