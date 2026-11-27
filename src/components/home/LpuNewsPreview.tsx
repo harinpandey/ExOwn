@@ -46,7 +46,7 @@ export default async function LpuNewsPreview() {
                   <img src={article.imageUrl} alt="" className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]" />
                 </div>
               ) : (
-                <div className="flex aspect-[16/9] items-center justify-center bg-gradient-to-br from-blue-900 to-indigo-700 text-white">
+                <div className="flex aspect-[16/9] items-center justify-center bg-gradient-to-br from-[#17645F] to-[#183B38 text-white">
                   <Newspaper size={34} />
                 </div>
               )}
