@@ -60,7 +60,7 @@
   --accent: #3A9A91;
   --accent-hover: #4AAEA4;
   --accent-contrast: #F3EEE8;
-  --accent-coral: #FF795B;
+  --accent-coral: #FF6845;
   --accent-coral-contrast: #183B38;
   --surface-shadow: 0 1px 2px rgba(0, 0, 0, 0.18), 0 4px 12px rgba(0, 0, 0, 0.12);
   --surface-shadow-hover: 0 4px 14px rgba(0, 0, 0, 0.24);
@@ -243,7 +243,7 @@ body {
 }
 
 .premium-card:hover {
-  transform: none;
+  transform: translateY(-2px);
   box-shadow: var(--surface-shadow-hover);
   border-color: var(--border-subtle);
 }
@@ -304,6 +304,30 @@ body {
 }
 .dark :is([class*="border-[#E2E8E5]"], [class*="border-gray-100"], [class*="border-gray-200"], [class*="border-slate-200"]) {
   border-color: var(--border-subtle) !important;
+}
+.dark :is([class*="bg-[#EFE5DA]"], [class*="bg-[#E9DED2]"], [class*="bg-[#E6DACE]"], [class*="bg-[#E1D3C5]"], [class*="bg-[#F3EEE8]"]) {
+  background-color: var(--surface-soft) !important;
+}
+.dark :is([class*="text-[#183B38]"]) {
+  color: var(--foreground) !important;
+}
+.dark :is([class*="text-[#526663]"]) {
+  color: var(--muted-foreground) !important;
+}
+.dark :is([class*="border-[#E4DCD3]"], [class*="border-[#D9CBBE]"]) {
+  border-color: var(--border-subtle) !important;
+}
+.dark :is([class*="bg-[#17645F]"]) {
+  background-color: var(--accent) !important;
+}
+.dark :is([class*="text-[#17645F]"]) {
+  color: #91CDB0 !important;
+}
+.dark :is([class*="bg-[#FF6845]"]) {
+  background-color: var(--accent-coral) !important;
+}
+.dark :is([class*="text-[#B94A32]"]) {
+  color: #FF9A7F !important;
 }
 .dark :is([class*="bg-[#07090d]"], [class*="bg-[#090c12]"], [class*="bg-[#0c1017]"], [class*="bg-[#10141b]"], [class*="bg-[#161c25]"], [class*="bg-gray-950"], [class*="bg-gray-900"], [class*="bg-slate-900"], [class*="bg-zinc-900"]) {
   background-color: var(--surface) !important;
