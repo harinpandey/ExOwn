@@ -234,7 +234,7 @@ export default function ProductCard({
               type="button"
               disabled={isMutating}
               onClick={handleMarkSold}
-              className="flex items-center gap-1 rounded-md bg-[#FF6845] px-2 py-1 text-[10px] font-bold text-[#102A28] transition hover:bg-[#124F4B]"
+              className="flex items-center gap-1 rounded-md bg-[#17645F] px-2 py-1 text-[10px] font-bold text-[#F3EEE8] transition hover:bg-[#124F4B]"
             >
               <CheckCircle2 size={11} />
               Sold
@@ -243,7 +243,7 @@ export default function ProductCard({
               type="button"
               disabled={isMutating}
               onClick={handleArchive}
-              className="flex items-center gap-1 rounded-md bg-[#FF6845] px-2 py-1 text-[10px] font-bold text-[#102A28] transition hover:bg-[#893636]"
+              className="flex items-center gap-1 rounded-md bg-[#A64242] px-2 py-1 text-[10px] font-bold text-[#F3EEE8] transition hover:bg-[#893636]"
             >
               <Trash2 size={11} />
               Archive
