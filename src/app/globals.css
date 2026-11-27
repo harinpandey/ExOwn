@@ -714,6 +714,7 @@ a:focus-visible,
 }
 @keyframes exown-cta-anticipate {
   0% { transform: scale(0.98); }
+  37.5% { transform: scale(0.98); }
   100% { transform: scale(1.02); }
 }
 
@@ -811,4 +812,75 @@ textarea:invalid:focus {
   0% { opacity: 0; transform: translate(-5px, 5px) scale(0.75); }
   65% { opacity: 1; transform: translate(2px, -3px) scale(1.08); }
   100% { opacity: 1; transform: translate(0, 0) scale(1); }
+}
+
+
+/* Homepage visual hierarchy: one featured focal point, supporting section titles, compact metadata. */
+.exown-section-title {
+  font-size: clamp(1.25rem, 1.8vw, 1.5rem) !important;
+  line-height: 1.18 !important;
+  letter-spacing: -0.035em;
+}
+.exown-hero-title {
+  font-size: clamp(1.85rem, 3vw, 2.5rem) !important;
+  line-height: 1.04 !important;
+  letter-spacing: -0.04em;
+  max-width: 14ch;
+}
+.exown-hero-support {
+  font-size: clamp(0.875rem, 1.1vw, 1rem) !important;
+  line-height: 1.55 !important;
+  max-width: 42ch;
+}
+.exown-eyebrow {
+  font-size: 0.625rem !important;
+  line-height: 1rem !important;
+  letter-spacing: 0.14em;
+}
+.exown-meta {
+  font-size: 0.6875rem !important;
+  line-height: 1rem !important;
+}
+
+/* Keep the entire homepage legible when the user switches to dark mode.
+   Coral surfaces intentionally retain dark ink for contrast. */
+.dark .exown-home :is([class*="bg-[#F3EEE8"], [class*="bg-[#EFE5DA"], [class*="bg-[#E6DACE"], [class*="bg-[#E5EFEC"], [class*="bg-[#E9DED2"], [class*="bg-[#F7F1E9"]) {
+  background-color: var(--surface) !important;
+}
+.dark .exown-home [class*="border-[#E4DCD3"] {
+  border-color: var(--border-subtle) !important;
+}
+.dark .exown-home [class*="text-[#183B38"] {
+  color: var(--foreground) !important;
+}
+.dark .exown-home [class*="text-[#526663"] {
+  color: var(--muted-foreground) !important;
+}
+.dark .exown-home [class*="text-[#17645F"] {
+  color: #91CDB0 !important;
+}
+.dark .exown-home [class*="bg-[#FF6845]"][class*="text-[#183B38"] {
+  color: #183B38 !important;
+}
+
+/* Tactile hover: 60ms anticipation, then a restrained lift; motion is disabled by the global reduced-motion rule. */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .exown-primary-cta:hover,
+  [data-motion="primary-cta"]:hover {
+    animation: exown-cta-anticipate 160ms var(--motion-ease) both;
+    box-shadow: 0 8px 20px color-mix(in srgb, var(--motion-teal) 18%, transparent);
+  }
+}
+.motion-wishlist:active {
+  animation: exown-wishlist-arc 260ms var(--motion-ease) both;
+}
+@keyframes exown-wishlist-arc {
+  0% { transform: translate(0, 0) scale(1); }
+  48% { transform: translate(2px, -5px) scale(1.18) rotate(-9deg); }
+  76% { transform: translate(-1px, -2px) scale(1.08) rotate(4deg); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+.motion-invalid-flash {
+  border-color: #B42332 !important;
+  box-shadow: 0 0 0 2px rgba(180, 35, 50, 0.14) !important;
 }

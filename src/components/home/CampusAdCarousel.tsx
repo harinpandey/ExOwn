@@ -60,13 +60,13 @@ function AdCard({ ad, eager = false }: { ad: CampusAdSlide; eager?: boolean }) {
         </div>
 
         <div className="max-w-[76%]">
-          <h3 className="line-clamp-2 text-[23px] font-extrabold leading-[1.1] tracking-tight text-white sm:text-[27px]">
+          <h3 className="exown-hero-title line-clamp-2 font-extrabold leading-[1.1] tracking-tight text-white">
             {ad.title}
           </h3>
-          <p className="mt-2 line-clamp-2 text-xs font-medium leading-5 text-[#F3EEE8]/85 sm:text-[13px]">
+          <p className="exown-hero-support mt-2 line-clamp-2 font-medium leading-5 text-[#F3EEE8]/85">
             {ad.description}
           </p>
-          <span className="mt-4 inline-flex min-h-9 items-center gap-2 rounded-xl bg-[#FF6845] px-3.5 py-2 text-xs font-extrabold text-[#183B38] transition group-hover:bg-[#F45B38]">
+          <span className="exown-primary-cta mt-4 inline-flex min-h-9 items-center gap-2 rounded-xl bg-[#FF6845] px-3.5 py-2 text-xs font-extrabold text-[#183B38] transition group-hover:bg-[#F45B38]">
             {ad.cta}
             {isExternal ? <ExternalLink size={13} /> : <ArrowRight size={13} />}
           </span>
@@ -133,7 +133,7 @@ export default function CampusAdCarousel({ ads }: { ads: CampusAdSlide[] }) {
             <span className="h-2 w-2 rounded-full bg-[#17645F] dark:bg-[#91CDB0]" />
             Featured on ExOwn
           </div>
-          <h2 className="text-xl font-extrabold tracking-tight text-[#183B38] dark:text-[#E8F0EB] sm:text-2xl">
+          <h2 className="exown-section-title font-extrabold tracking-tight text-[#183B38] dark:text-[#E8F0EB]">
             Good things are happening on campus.
           </h2>
         </div>

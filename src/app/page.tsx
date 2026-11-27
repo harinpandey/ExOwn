@@ -48,7 +48,7 @@ const trustPillars = [
 
 export default function Home() {
   return (
-    <div className="pb-16 text-[#183B38]">
+    <div className="exown-home exown-shell pb-16">
       {/* 1. Visual Category Rail (Merchandising Top Bar) */}
       <VisualCategoryRail />
 
@@ -138,7 +138,7 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <div className="mb-8">
             <span className="inline-flex rounded-full bg-[#E5EFEC] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-[#17645F]">Campus Living</span>
-            <h2 className="mt-2 text-2xl font-extrabold tracking-tight text-[#183B38] sm:text-3xl">
+            <h2 className="exown-section-title mt-2 font-extrabold tracking-tight text-[#183B38]">
               Housing & Student Services
             </h2>
           </div>
