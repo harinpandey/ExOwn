@@ -34,8 +34,8 @@
   --foreground: #183B38;
   --muted: #E5EFEC;
   --muted-foreground: #526663;
-  --surface: #EFE5DA;
-  --surface-elevated: #E9DED2;
+  --surface: #F7F1E9;
+  --surface-elevated: #EDE2D6;
   --surface-soft: #E6DACE;
   --border-subtle: #E4DCD3;
   --accent: #17645F;
@@ -83,7 +83,7 @@ body {
 }
 
 /* ExOwn warm palette: avoid stark white surfaces across shared Tailwind utilities */
-.bg-white { background-color: #EFE5DA !important; }
+.bg-white { background-color: #F7F1E9 !important; }
 .hover\\:bg-white:hover { background-color: #E6DACE !important; }
 .text-white { color: #F3EEE8 !important; }
 .border-white { border-color: #D9CBBE !important; }
@@ -249,7 +249,7 @@ body {
 }
 
 /* ExOwn design system: warm, calm surfaces; deep teal actions; coral emphasis. */
-:root:not(.dark) :is(.bg-white, .bg-gray-50, .bg-slate-50, .bg-zinc-50, .bg-stone-50, .bg-neutral-50) {
+:root:not(.dark) :is(.bg-white, .bg-gray-50, .bg-slate-50, .bg-zinc-50, .bg-stone-50, .bg-neutral-50, [class*="bg-[#EFE5DA]"]) {
   background-color: var(--surface) !important;
 }
 :root:not(.dark) :is(.bg-gray-100, .bg-slate-100, .bg-zinc-100, .bg-stone-100, .bg-neutral-100) {
@@ -334,7 +334,7 @@ body {
   color: var(--foreground) !important;
   border-color: var(--border-subtle) !important;
 }
-[class~="bg-white"] { background-color: #EFE5DA !important; }
+[class~="bg-white"] { background-color: #F7F1E9 !important; }
 [class~="text-white"] { color: #F3EEE8 !important; }
 [class~="border-white"] { border-color: #D9CBBE !important; }
 
