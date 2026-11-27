@@ -536,3 +536,102 @@ a:focus-visible,
 .dark :is([class*="text-[#4a5d56]"], [class*="text-[#4A5D56]"]) {
   color: var(--muted-foreground) !important;
 }
+
+
+/* ExOwn 60–30–10 palette system
+   60% dominant: warm ivory canvas
+   30% secondary: teal-derived supporting surfaces + deep-teal UI
+   10% accent: coral reserved for primary actions and key emphasis
+   Contrast targets: teal/ivory 6.02:1; muted text/ivory 5.29:1;
+   coral/ink 5.68:1. Never use coral text directly on ivory (2.49:1).
+*/
+:root {
+  --dominant: #F3EEE8;
+  --secondary: #17645F;
+  --accent: #FF6845;
+
+  --background: var(--dominant);
+  --foreground: #183B38;
+  --muted-foreground: #526663;
+
+  /* Secondary-area tones are mixed from brand teal + ivory, not white. */
+  --surface: color-mix(in srgb, var(--secondary) 7%, var(--dominant));
+  --surface-elevated: color-mix(in srgb, var(--secondary) 10%, var(--dominant));
+  --surface-soft: color-mix(in srgb, var(--secondary) 14%, var(--dominant));
+  --muted: color-mix(in srgb, var(--secondary) 12%, var(--dominant));
+  --border-subtle: color-mix(in srgb, var(--secondary) 20%, var(--dominant));
+
+  --accent-hover: #124F4B;
+  --accent-contrast: #F3EEE8;
+  --accent-coral: var(--accent);
+  --accent-coral-contrast: #122321;
+  --cta-primary: var(--accent);
+  --cta-primary-contrast: #122321;
+}
+
+.dark {
+  --dominant: #122321;
+  --secondary: #17645F;
+  --accent: #FF6845;
+
+  --background: #122321;
+  --foreground: #F3EEE8;
+  --muted-foreground: #B8C9C4;
+  --surface: #1A302D;
+  --surface-elevated: #203B37;
+  --surface-soft: #1D3835;
+  --muted: #203B37;
+  --border-subtle: #34504C;
+
+  --accent-hover: #1D766F;
+  --accent-contrast: #F3EEE8;
+  --accent-coral: var(--accent);
+  --accent-coral-contrast: #122321;
+  --cta-primary: var(--accent);
+  --cta-primary-contrast: #122321;
+}
+
+/* Semantic controls: use coral sparingly for the most important next action. */
+.exown-primary-cta {
+  background: var(--cta-primary) !important;
+  color: var(--cta-primary-contrast) !important;
+  border: 1px solid var(--cta-primary) !important;
+  font-weight: 650;
+}
+.exown-primary-cta:hover {
+  filter: brightness(0.97);
+}
+.exown-primary-cta:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.exown-secondary-cta {
+  background: var(--secondary) !important;
+  color: #F3EEE8 !important;
+  border: 1px solid var(--secondary) !important;
+}
+.exown-secondary-cta:hover {
+  background: #124F4B !important;
+  border-color: #124F4B !important;
+}
+
+.exown-link {
+  color: var(--secondary);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--secondary) 45%, transparent);
+  text-underline-offset: 3px;
+}
+.dark .exown-link {
+  color: var(--accent);
+  text-decoration-color: var(--accent);
+}
+
+/* Coral surfaces always use ink text; coral-on-ivory text is too low contrast. */
+.exown-coral-surface {
+  background: var(--accent) !important;
+  color: #122321 !important;
+}
+.exown-coral-surface :is(p, span, strong, small, svg) {
+  color: inherit;
+}
