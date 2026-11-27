@@ -248,6 +248,59 @@ body {
   border-color: var(--border-subtle);
 }
 
+/* Site-wide palette audit correction: the old cool #F7F9F8 canvas was still visible on several routes. */
+:root:not(.dark) :is([class*="bg-[#F7F9F8]"], [class*="bg-[#FFFFFF]"], [class*="bg-[#ffffff]"], [class*="bg-[#FFF]"], [class*="bg-[#fff]"]) {
+  background-color: var(--background) !important;
+}
+:root:not(.dark) :is([class*="bg-[#E6F2EE]"], [class*="bg-[#EEF3F0]"], [class*="bg-[#E2E8E5]"], [class*="bg-[#F0F4F2]"]) {
+  background-color: var(--muted) !important;
+}
+/* Keep utility white text readable on warm neutral cards; invert it only on branded action surfaces. */
+[class~="text-white"] { color: var(--foreground) !important; }
+:root:not(.dark) :is([class*="bg-[#17645F]"], [class*="bg-primary"], [class*="bg-teal-"], [class*="bg-emerald-"], [class*="bg-green-"], [class*="bg-blue-"], [class*="bg-indigo-"], [class*="bg-violet-"], [class*="bg-purple-"], [class*="bg-cyan-"]).text-white,
+:root:not(.dark) :is([class*="bg-[#17645F]"], [class*="bg-primary"], [class*="bg-teal-"], [class*="bg-emerald-"], [class*="bg-green-"], [class*="bg-blue-"], [class*="bg-indigo-"], [class*="bg-violet-"], [class*="bg-purple-"], [class*="bg-cyan-"]) .text-white {
+  color: var(--accent-contrast) !important;
+}
+:root:not(.dark) :is([class*="bg-[#FF6845]"], [class*="bg-orange-"], [class*="bg-pink-"], [class*="bg-red-"]).text-white,
+:root:not(.dark) :is([class*="bg-[#FF6845]"], [class*="bg-orange-"], [class*="bg-pink-"], [class*="bg-red-"]) .text-white {
+  color: var(--accent-coral-contrast) !important;
+}
+/* Legacy accent utilities are normalized to ExOwn teal/coral in both themes. */
+:root:not(.dark) :is([class*="bg-teal-"], [class*="bg-emerald-"], [class*="bg-green-"], [class*="bg-blue-"], [class*="bg-indigo-"], [class*="bg-violet-"], [class*="bg-purple-"], [class*="bg-cyan-"]) {
+  background-color: var(--accent) !important;
+}
+:root:not(.dark) :is([class*="bg-orange-"], [class*="bg-pink-"], [class*="bg-red-"]) {
+  background-color: var(--accent-coral) !important;
+}
+.dark :is([class*="bg-[#F7F9F8]"], [class*="bg-[#FFFFFF]"], [class*="bg-[#ffffff]"], [class*="bg-[#FFF]"], [class*="bg-[#fff]"]) {
+  background-color: var(--surface) !important;
+}
+.dark :is([class*="bg-teal-"], [class*="bg-emerald-"], [class*="bg-green-"], [class*="bg-blue-"], [class*="bg-indigo-"], [class*="bg-violet-"], [class*="bg-purple-"], [class*="bg-cyan-"]) {
+  background-color: var(--accent) !important;
+}
+.dark :is([class*="bg-orange-"], [class*="bg-pink-"], [class*="bg-red-"]) {
+  background-color: var(--accent-coral) !important;
+}
+.dark :is([class*="bg-[#17645F]"], [class*="bg-primary"], [class*="bg-teal-"], [class*="bg-emerald-"], [class*="bg-green-"], [class*="bg-blue-"], [class*="bg-indigo-"], [class*="bg-violet-"], [class*="bg-purple-"], [class*="bg-cyan-"]).text-white,
+.dark :is([class*="bg-[#17645F]"], [class*="bg-primary"], [class*="bg-teal-"], [class*="bg-emerald-"], [class*="bg-green-"], [class*="bg-blue-"], [class*="bg-indigo-"], [class*="bg-violet-"], [class*="bg-purple-"], [class*="bg-cyan-"]) .text-white {
+  color: var(--accent-contrast) !important;
+}
+.dark :is([class*="bg-[#FF6845]"], [class*="bg-orange-"], [class*="bg-pink-"], [class*="bg-red-"]).text-white,
+.dark :is([class*="bg-[#FF6845]"], [class*="bg-orange-"], [class*="bg-pink-"], [class*="bg-red-"]) .text-white {
+  color: var(--accent-coral-contrast) !important;
+}
+button:disabled,
+[role="button"][aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+button:not(:disabled):focus-visible,
+a:focus-visible,
+[role="button"]:not([aria-disabled="true"]):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
 /* ExOwn design system: warm, calm surfaces; deep teal actions; coral emphasis. */
 :root:not(.dark) :is(.bg-white, .bg-gray-50, .bg-slate-50, .bg-zinc-50, .bg-stone-50, .bg-neutral-50, [class~="bg-[#EFE5DA]"]) {
   background-color: var(--surface) !important;
