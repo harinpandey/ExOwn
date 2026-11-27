@@ -904,7 +904,7 @@ textarea:invalid:focus {
 
 /* 60-30-10 refinement: coral is an action surface, never small text on light surfaces. */
 :root { --color-action: var(--brand-accent); --color-action-ink: var(--brand-accent-ink); }
-.dark { --surface-card: #1B302D; }
+.dark { --surface-card: #1B1916; }
 .action-coral {
   background: var(--brand-accent) !important;
   color: var(--brand-accent-ink) !important;
@@ -966,3 +966,10 @@ textarea:invalid:focus {
   color: #151413 !important;
   border-color: #D4AF37 !important;
 }
+
+/* Ensure descendants formerly using teal text remain legible on newly ink-colored feature panels. */
+[class~="bg-[#17645F]"] [class~="text-[#17645F]"],
+[class~="bg-[#124F4B]"] [class~="text-[#17645F]"],
+[class~="bg-[#183B38]"] [class~="text-[#17645F]"] { color: #D4AF37 !important; }
+.dark [class~="bg-[#17645F]"] [class~="text-[#17645F]"],
+.dark [class~="bg-[#124F4B]"] [class~="text-[#17645F]"] { color: #D4AF37 !important; }
