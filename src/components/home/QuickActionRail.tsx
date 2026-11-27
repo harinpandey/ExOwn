@@ -49,6 +49,7 @@ export default function QuickActionRail() {
             <Link
               key={action.label}
               href={action.href}
+              data-motion={action.label === "Post Something" ? "primary-cta" : undefined}
               className="group flex items-center gap-3 rounded-2xl border border-gray-200/80 bg-[#EFE5DA] p-3.5 shadow-xs transition hover:border-primary/50 hover:bg-[#E6DACE] hover:shadow-md dark:border-white/10 dark:bg-[#10141b] dark:hover:border-primary/50 dark:hover:bg-white/[0.04] active:scale-95"
             >
               <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl transition-transform group-hover:scale-105 ${action.tone}`}>
