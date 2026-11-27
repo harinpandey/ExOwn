@@ -157,7 +157,7 @@ export default function Navbar() {
 
           <ExperienceSwitcher />
 
-          <label className="relative ml-auto flex shrink-0 max-w-[34%] cursor-pointer items-center gap-1.5 rounded-xl border border-[#17645F] bg-[#17645F] px-2.5 py-2 text-left text-white transition hover:bg-[#124F4B] sm:max-w-[25%] sm:gap-2.5 sm:px-3">
+          <label className="relative ml-auto flex min-w-0 shrink max-w-[34%] cursor-pointer items-center gap-1.5 rounded-xl border border-[#17645F] bg-[#17645F] px-2.5 py-2 text-left text-white transition hover:bg-[#124F4B] sm:max-w-[25%] sm:gap-2.5 sm:px-3">
             <MapPin size={19} className="shrink-0 text-white" aria-hidden="true" />
             <span className="min-w-0">
               <span className="block text-[9px] font-bold uppercase tracking-[0.14em] text-white/75">Your campus</span>
@@ -182,7 +182,7 @@ export default function Navbar() {
         </div>
 
         {/* Single wide global search and essential actions */}
-        <div className="flex flex-col gap-3 py-3 sm:flex-row sm:items-center">
+        <div className="flex min-w-0 flex-col gap-3 py-3 sm:flex-row sm:flex-wrap sm:items-center">
         {!isLivingExperience && <form onSubmit={handleSearch} className="relative flex min-w-0 w-full flex-1">
             <Search size={18} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-white/45" />
             <input
@@ -200,7 +200,7 @@ export default function Navbar() {
         </form>}
 
         {/* Actions & Dropdowns */}
-        <div className="flex shrink-0 items-center justify-end gap-1.5 sm:ml-auto sm:gap-2">
+        <div className="flex min-w-0 max-w-full shrink flex-wrap items-center justify-end gap-1.5 sm:ml-auto sm:gap-2">
           {/* Chat Link */}
           {user && (
             <Link
