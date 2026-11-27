@@ -74,7 +74,7 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
             <ChevronRight size={13} className="shrink-0 text-gray-400" />
           </>
         )}
-        <span className="truncate max-w-[260px] font-medium text-gray-900 dark:text-gray-200">
+        <span className="truncate max-w-[260px] font-medium text-[#183B38] dark:text-gray-200">
           {product.title}
         </span>
       </nav>
@@ -87,17 +87,17 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
           <ImageGallery images={product.images} title={product.title} />
 
           {/* Description Section */}
-          <div className="rounded-2xl border border-gray-200 bg-white p-5 sm:p-7 shadow-sm dark:border-white/10 dark:bg-[#10141b]">
-            <h2 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+          <div className="rounded-2xl border border-[#E4DCD3] bg-[#EFE5DA] p-5 sm:p-7 shadow-sm dark:border-white/10 dark:bg-[#1B302D]">
+            <h2 className="text-lg font-bold text-[#183B38] dark:text-white flex items-center gap-2">
               <FileText size={18} className="text-gray-400" />
               Description
             </h2>
-            <div className="mt-4 text-sm leading-relaxed text-gray-700 dark:text-gray-300 whitespace-pre-line font-normal">
+            <div className="mt-4 text-sm leading-relaxed text-[#526663] dark:text-gray-300 whitespace-pre-line font-normal">
               {product.description || "No description provided by the seller."}
             </div>
 
             {/* Ad Meta Footer & Report Action */}
-            <div className="mt-8 pt-5 border-t border-gray-100 flex flex-wrap items-center justify-between gap-4 dark:border-white/10">
+            <div className="mt-8 pt-5 border-t border-[#E4DCD3] flex flex-wrap items-center justify-between gap-4 dark:border-white/10">
               <div className="flex items-center gap-3 text-xs text-gray-400 dark:text-gray-500">
                 <span>Ad ID: {product.id.slice(0, 8)}</span>
                 {postedDate && <span>• Posted {postedDate}</span>}
@@ -107,32 +107,32 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
           </div>
 
           {/* Listing Specifics / Specifications */}
-          <div className="rounded-2xl border border-gray-200 bg-white p-5 sm:p-7 shadow-sm dark:border-white/10 dark:bg-[#10141b]">
-            <h2 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+          <div className="rounded-2xl border border-[#E4DCD3] bg-[#EFE5DA] p-5 sm:p-7 shadow-sm dark:border-white/10 dark:bg-[#1B302D]">
+            <h2 className="text-lg font-bold text-[#183B38] dark:text-white flex items-center gap-2">
               <Layers size={18} className="text-gray-400" />
               Listing Details
             </h2>
 
             <dl className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-              <div className="rounded-xl bg-gray-50 p-3.5 dark:bg-zinc-800/60">
+              <div className="rounded-xl bg-[#E6DACE] p-3.5 dark:bg-zinc-800/60">
                 <dt className="text-gray-500 dark:text-gray-400 font-medium">Category</dt>
-                <dd className="mt-1 font-semibold text-gray-900 dark:text-white">
+                <dd className="mt-1 font-semibold text-[#183B38] dark:text-white">
                   {product.category?.name || "Uncategorized"}
                 </dd>
               </div>
 
               {formattedCondition && (
-                <div className="rounded-xl bg-gray-50 p-3.5 dark:bg-zinc-800/60">
+                <div className="rounded-xl bg-[#E6DACE] p-3.5 dark:bg-zinc-800/60">
                   <dt className="text-gray-500 dark:text-gray-400 font-medium">Condition</dt>
-                  <dd className="mt-1 font-semibold text-gray-900 dark:text-white">
+                  <dd className="mt-1 font-semibold text-[#183B38] dark:text-white">
                     {formattedCondition}
                   </dd>
                 </div>
               )}
 
-              <div className="rounded-xl bg-gray-50 p-3.5 dark:bg-zinc-800/60">
+              <div className="rounded-xl bg-[#E6DACE] p-3.5 dark:bg-zinc-800/60">
                 <dt className="text-gray-500 dark:text-gray-400 font-medium">Listing Format</dt>
-                <dd className="mt-1 font-semibold text-gray-900 dark:text-white">
+                <dd className="mt-1 font-semibold text-[#183B38] dark:text-white">
                   {product.listingType === "RENT"
                     ? "Rental"
                     : product.listingType === "SERVICE"
@@ -143,26 +143,26 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
                 </dd>
               </div>
 
-              <div className="rounded-xl bg-gray-50 p-3.5 dark:bg-zinc-800/60">
+              <div className="rounded-xl bg-[#E6DACE] p-3.5 dark:bg-zinc-800/60">
                 <dt className="text-gray-500 dark:text-gray-400 font-medium">Pickup Location</dt>
-                <dd className="mt-1 font-semibold text-gray-900 dark:text-white truncate">
+                <dd className="mt-1 font-semibold text-[#183B38] dark:text-white truncate">
                   {locationLabel}
                 </dd>
               </div>
 
               {product.brand && (
-                <div className="rounded-xl bg-gray-50 p-3.5 dark:bg-zinc-800/60">
+                <div className="rounded-xl bg-[#E6DACE] p-3.5 dark:bg-zinc-800/60">
                   <dt className="text-gray-500 dark:text-gray-400 font-medium">Brand</dt>
-                  <dd className="mt-1 font-semibold text-gray-900 dark:text-white">
+                  <dd className="mt-1 font-semibold text-[#183B38] dark:text-white">
                     {product.brand}
                   </dd>
                 </div>
               )}
 
               {product.purchaseYear && (
-                <div className="rounded-xl bg-gray-50 p-3.5 dark:bg-zinc-800/60">
+                <div className="rounded-xl bg-[#E6DACE] p-3.5 dark:bg-zinc-800/60">
                   <dt className="text-gray-500 dark:text-gray-400 font-medium">Purchase Year</dt>
-                  <dd className="mt-1 font-semibold text-gray-900 dark:text-white">
+                  <dd className="mt-1 font-semibold text-[#183B38] dark:text-white">
                     {product.purchaseYear}
                   </dd>
                 </div>
@@ -203,7 +203,7 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
           <SellerCard seller={seller} productId={product.id} />
 
           {/* Safe Meetup Guidelines */}
-          <div className="rounded-2xl border border-gray-200 bg-gray-50/80 p-5 shadow-sm dark:border-white/10 dark:bg-[#10141b]">
+          <div className="rounded-2xl border border-[#E4DCD3] bg-[#E6DACE]/80 p-5 shadow-sm dark:border-white/10 dark:bg-[#1B302D]">
             <h3 className="text-xs font-bold uppercase tracking-wider text-gray-800 dark:text-gray-200 flex items-center gap-2">
               <Shield size={16} className="text-primary" />
               Safe Meetup Guidance
@@ -228,10 +228,10 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
 
       {/* Similar Listings Section (Only rendered when real database results exist) */}
       {similarProducts.length > 0 && (
-        <section className="mt-16 pt-10 border-t border-gray-200 dark:border-white/10">
+        <section className="mt-16 pt-10 border-t border-[#E4DCD3] dark:border-white/10">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-xl font-bold tracking-tight text-gray-900 dark:text-white">
+              <h3 className="text-xl font-bold tracking-tight text-[#183B38] dark:text-white">
                 Similar Listings
               </h3>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
