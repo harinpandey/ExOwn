@@ -157,9 +157,9 @@ export default function PricingCard({ product, isOwner: serverIsOwner }: Pricing
     "Campus location not provided";
 
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:p-7 dark:border-white/10 dark:bg-[#10141b]">
+    <div className="rounded-2xl border border-[#E4DCD3] bg-[#EFE5DA] p-5 shadow-sm sm:p-7 dark:border-white/10 dark:bg-[#1B302D]">
       {/* 1. Header Badges: At most one type badge + optional availability */}
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 pb-4 dark:border-white/10">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E4DCD3] pb-4 dark:border-white/10">
         <div className="flex flex-wrap items-center gap-2">
           {isRental && (
             <span className="rounded-md bg-blue-50 px-2.5 py-1 text-xs font-bold uppercase tracking-wider text-blue-700 dark:bg-blue-950/40 dark:text-blue-300">
@@ -177,7 +177,7 @@ export default function PricingCard({ product, isOwner: serverIsOwner }: Pricing
             </span>
           )}
           {!isRental && !isService && !isExchangeOnly && (
-            <span className="rounded-md bg-gray-100 px-2.5 py-1 text-xs font-bold uppercase tracking-wider text-gray-700 dark:bg-zinc-800 dark:text-zinc-200">
+            <span className="rounded-md bg-[#E1D3C5] px-2.5 py-1 text-xs font-bold uppercase tracking-wider text-[#526663] dark:bg-zinc-800 dark:text-zinc-200">
               For Sale
             </span>
           )}
@@ -200,7 +200,7 @@ export default function PricingCard({ product, isOwner: serverIsOwner }: Pricing
       </div>
 
       {/* 2. Title */}
-      <h1 className="mt-4 text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl dark:text-white">
+      <h1 className="mt-4 text-2xl font-bold tracking-tight text-[#183B38] sm:text-3xl dark:text-white">
         {product.title}
       </h1>
 
@@ -208,7 +208,7 @@ export default function PricingCard({ product, isOwner: serverIsOwner }: Pricing
       <div className="mt-4 flex items-baseline gap-2">
         {!isExchangeOnly ? (
           <>
-            <span className="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl dark:text-white">
+            <span className="text-3xl font-extrabold tracking-tight text-[#183B38] sm:text-4xl dark:text-white">
               ₹{formattedPrice}
             </span>
             {isRental && (
@@ -232,7 +232,7 @@ export default function PricingCard({ product, isOwner: serverIsOwner }: Pricing
       {/* 4. Condition & Negotiation Highlights */}
       <div className="mt-4 flex flex-wrap items-center gap-2">
         {formattedCondition && (
-          <span className="rounded-md border border-gray-200 bg-gray-50 px-2.5 py-1 text-xs font-semibold text-gray-700 dark:border-white/10 dark:bg-zinc-800 dark:text-zinc-300">
+          <span className="rounded-md border border-[#E4DCD3] bg-[#E6DACE] px-2.5 py-1 text-xs font-semibold text-[#526663] dark:border-white/10 dark:bg-zinc-800 dark:text-zinc-300">
             Condition: {formattedCondition}
           </span>
         )}
@@ -251,7 +251,7 @@ export default function PricingCard({ product, isOwner: serverIsOwner }: Pricing
       </div>
 
       {/* 5. Location Row */}
-      <div className="mt-5 border-t border-gray-100 pt-4 dark:border-white/10">
+      <div className="mt-5 border-t border-[#E4DCD3] pt-4 dark:border-white/10">
         <div className="flex items-center gap-2 text-xs font-medium text-gray-600 dark:text-gray-300">
           <MapPin size={15} className="shrink-0 text-gray-400 dark:text-gray-500" />
           <span className="truncate">{locationLabel}</span>
@@ -261,7 +261,7 @@ export default function PricingCard({ product, isOwner: serverIsOwner }: Pricing
       {/* 6. Action CTAs */}
       <div className="mt-6 space-y-3">
         {isOwner ? (
-          <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center dark:border-white/10 dark:bg-zinc-800">
+          <div className="rounded-xl border border-[#E4DCD3] bg-[#E6DACE] p-4 text-center dark:border-white/10 dark:bg-zinc-800">
             <p className="text-xs font-semibold text-gray-600 dark:text-gray-300">
               {isPending
                 ? "Your listing has been submitted and is awaiting review. It will become available to buyers after approval."
@@ -285,7 +285,7 @@ export default function PricingCard({ product, isOwner: serverIsOwner }: Pricing
             </p>
             <Link
               href={`/search?category=${product.category?.slug || ""}`}
-              className="mt-3 inline-block rounded-lg bg-gray-900 px-4 py-2 text-xs font-bold text-white transition hover:bg-gray-800 dark:bg-white dark:text-gray-900"
+              className="mt-3 inline-block rounded-lg bg-gray-900 px-4 py-2 text-xs font-bold text-white transition hover:bg-gray-800 dark:bg-[#EFE5DA] dark:text-[#183B38]"
             >
               Browse Similar Listings
             </Link>
@@ -306,7 +306,7 @@ export default function PricingCard({ product, isOwner: serverIsOwner }: Pricing
               <button
                 type="button"
                 onClick={() => setIsRentModalOpen(true)}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 py-3.5 text-sm font-bold text-white shadow-sm transition hover:bg-blue-700 active:scale-[0.99]"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#17645F] py-3.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#124F4B] active:scale-[0.99]"
               >
                 <Calendar size={18} />
                 Rent Now
@@ -342,7 +342,7 @@ export default function PricingCard({ product, isOwner: serverIsOwner }: Pricing
                   }
                   setOfferMode(true);
                 }}
-                className="flex w-full items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white py-3 text-sm font-bold text-gray-800 transition hover:bg-gray-50 active:scale-[0.99] dark:border-white/10 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
+                className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#E4DCD3] bg-[#EFE5DA] py-3 text-sm font-bold text-gray-800 transition hover:bg-[#E6DACE] active:scale-[0.99] dark:border-white/10 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
               >
                 Make an Offer
               </button>
@@ -377,7 +377,7 @@ export default function PricingCard({ product, isOwner: serverIsOwner }: Pricing
                 type="button"
                 onClick={handleWishlist}
                 aria-label="Save this listing"
-                className="flex items-center justify-center gap-1.5 rounded-xl border border-gray-200 bg-white py-2.5 text-xs font-semibold text-gray-700 transition hover:bg-gray-50 dark:border-white/10 dark:bg-zinc-800 dark:text-zinc-200"
+                className="flex items-center justify-center gap-1.5 rounded-xl border border-[#E4DCD3] bg-[#EFE5DA] py-2.5 text-xs font-semibold text-[#526663] transition hover:bg-[#E6DACE] dark:border-white/10 dark:bg-zinc-800 dark:text-zinc-200"
               >
                 <Heart
                   size={15}
@@ -400,7 +400,7 @@ export default function PricingCard({ product, isOwner: serverIsOwner }: Pricing
                 className={`flex items-center justify-center gap-1.5 rounded-xl border py-2.5 text-xs font-semibold transition ${
                   isInCompare(product.id)
                     ? "border-primary bg-primary/10 text-primary"
-                    : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:bg-zinc-800 dark:text-zinc-200"
+                    : "border-[#E4DCD3] bg-[#EFE5DA] text-[#526663] hover:bg-[#E6DACE] dark:border-white/10 dark:bg-zinc-800 dark:text-zinc-200"
                 }`}
               >
                 <BarChart2 size={15} />
@@ -410,8 +410,8 @@ export default function PricingCard({ product, isOwner: serverIsOwner }: Pricing
           </>
         ) : (
           /* Inline Make Offer Form */
-          <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-white/10 dark:bg-zinc-800/60">
-            <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300">
+          <div className="rounded-xl border border-[#E4DCD3] bg-[#E6DACE] p-4 dark:border-white/10 dark:bg-zinc-800/60">
+            <label className="block text-xs font-bold uppercase tracking-wider text-[#526663] dark:text-gray-300">
               Your Offer Amount (₹)
             </label>
             <div className="relative mt-2">
@@ -421,7 +421,7 @@ export default function PricingCard({ product, isOwner: serverIsOwner }: Pricing
                 min="1"
                 value={offerAmount}
                 onChange={(e) => setOfferAmount(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 bg-white py-2 pl-8 pr-3 text-lg font-bold text-gray-900 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-zinc-900 dark:text-white"
+                className="w-full rounded-lg border border-gray-300 bg-[#EFE5DA] py-2 pl-8 pr-3 text-lg font-bold text-[#183B38] outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-zinc-900 dark:text-white"
                 placeholder="0"
               />
             </div>
@@ -437,7 +437,7 @@ export default function PricingCard({ product, isOwner: serverIsOwner }: Pricing
               <button
                 type="button"
                 onClick={() => setOfferMode(false)}
-                className="rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-xs font-bold text-gray-700 transition hover:bg-gray-100 dark:border-white/10 dark:bg-zinc-800 dark:text-zinc-300"
+                className="rounded-lg border border-[#E4DCD3] bg-[#EFE5DA] px-4 py-2.5 text-xs font-bold text-[#526663] transition hover:bg-[#E1D3C5] dark:border-white/10 dark:bg-zinc-800 dark:text-zinc-300"
               >
                 Cancel
               </button>
