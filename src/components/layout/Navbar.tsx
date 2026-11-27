@@ -194,7 +194,7 @@ export default function Navbar() {
               aria-label="Search ExOwn listings"
               className="h-12 w-full rounded-xl border border-[#E4DCD3] bg-[#EFE5DA] pl-12 pr-28 text-sm font-medium text-[#183B38] outline-none transition placeholder:text-[#82918B] focus:border-[#17645F] focus:ring-2 focus:ring-[#17645F]/10 sm:text-base"
             />
-            <button type="submit" className="absolute right-1.5 top-1.5 h-9 rounded-lg bg-[#17645F] px-5 text-xs font-bold text-white transition hover:bg-[#124F4B] active:scale-95">
+            <button type="submit" className="absolute right-1.5 top-1.5 h-9 rounded-lg bg-[#17645F] px-5 text-xs font-bold text-[#F3EEE8] transition hover:bg-[#124F4B] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FF6845] active:scale-95">
               Search
             </button>
         </form>}
@@ -208,7 +208,7 @@ export default function Navbar() {
               className="hidden items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold text-[#526663] transition hover:bg-[#E6DACE] hover:text-primary dark:text-white/65 dark:hover:bg-[#EFE5DA]/[0.06] dark:hover:text-primary sm:flex"
             >
               <MessageSquare size={18} />
-              <span className="hidden xl:inline">Chat</span>
+              <span className="hidden md:inline">Chat</span>
             </Link>
           )}
 
@@ -234,12 +234,14 @@ export default function Navbar() {
                 setIsNotificationsOpen((v) => !v);
                 setIsProfileOpen(false);
               }}
-              className="tap-target relative rounded-xl text-[#526663] transition hover:bg-[#E6DACE] hover:text-primary dark:text-white/65 dark:hover:bg-[#EFE5DA]/[0.06]"
-              aria-label="Open notifications"
+              className="tap-target relative h-11 w-11 shrink-0 rounded-xl border border-[#D9CBBE] bg-[#E6DACE] text-[#183B38] transition hover:border-[#17645F] hover:bg-[#DCCFC2] hover:text-[#124F4B] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#17645F] dark:border-[#34504C] dark:bg-[#1D3835] dark:text-[#F3EEE8] dark:hover:border-[#56817A] dark:hover:bg-[#25413D]"
+              aria-label={unreadCount > 0 ? `Open notifications, ${unreadCount} unread` : "Open notifications"}
+              aria-pressed={isNotificationsOpen}
+              title="Notifications"
             >
-              <Bell size={20} />
+              <Bell size={21} strokeWidth={2.25} aria-hidden="true" />
               {unreadCount > 0 && (
-                <span className="absolute right-1.5 top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-black text-white ring-2 ring-white dark:ring-[#07090d]">
+                <span className="motion-notification-badge absolute -right-1 -top-1 flex h-[19px] min-w-[19px] items-center justify-center rounded-full border-2 border-[#E6DACE] bg-[#FF6845] px-1 text-[10px] font-extrabold leading-none text-[#183B38] shadow-sm dark:border-[#1D3835] dark:bg-[#FF6845] dark:text-[#183B38]">
                   {unreadCount > 9 ? "9+" : unreadCount}
                 </span>
               )}
