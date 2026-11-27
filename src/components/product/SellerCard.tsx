@@ -28,8 +28,8 @@ export default function SellerCard({ seller, productId }: SellerCardProps) {
   const course = seller.profile?.course;
 
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-[#10141b]">
-      <div className="flex items-center justify-between border-b border-gray-100 pb-3 dark:border-white/10">
+    <div className="rounded-2xl border border-[#E4DCD3] bg-[#EFE5DA] p-5 shadow-sm dark:border-white/10 dark:bg-[#1B302D]">
+      <div className="flex items-center justify-between border-b border-[#E4DCD3] pb-3 dark:border-white/10">
         <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
           Seller Information
         </h3>
@@ -42,7 +42,7 @@ export default function SellerCard({ seller, productId }: SellerCardProps) {
       </div>
 
       <div className="mt-4 flex items-center gap-4">
-        <div className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gray-100 text-gray-600 dark:bg-zinc-800 dark:text-zinc-300">
+        <div className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#E1D3C5] text-gray-600 dark:bg-zinc-800 dark:text-zinc-300">
           {seller.image ? (
             <img src={seller.image} alt={seller.name || "Seller"} className="h-full w-full object-cover" />
           ) : (
@@ -51,7 +51,7 @@ export default function SellerCard({ seller, productId }: SellerCardProps) {
         </div>
 
         <div className="min-w-0 flex-1">
-          <h4 className="truncate text-base font-bold text-gray-900 dark:text-white">
+          <h4 className="truncate text-base font-bold text-[#183B38] dark:text-white">
             {seller.name || "Campus Member"}
           </h4>
 
@@ -81,7 +81,7 @@ export default function SellerCard({ seller, productId }: SellerCardProps) {
         </Link>
         <Link
           href={"/profile/" + seller.id}
-          className="flex items-center justify-center gap-1.5 rounded-xl border border-gray-200 bg-white py-2.5 text-xs font-bold text-gray-700 transition hover:bg-gray-50 dark:border-white/10 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
+          className="flex items-center justify-center gap-1.5 rounded-xl border border-[#E4DCD3] bg-[#EFE5DA] py-2.5 text-xs font-bold text-[#526663] transition hover:bg-[#E6DACE] dark:border-white/10 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
         >
           <ExternalLink size={14} />
           Profile
