@@ -132,7 +132,7 @@ export default async function SearchPage({
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 text-gray-900 transition-colors dark:text-white">
+    <div className="container mx-auto px-4 py-8 text-[#183B38] transition-colors dark:text-white">
       <SearchMomentsTrigger query={effectiveQuery} category={categorySlug} listingType={listingType} />
       <div className="flex flex-col gap-8 md:flex-row">
 
@@ -179,7 +179,7 @@ export default async function SearchPage({
                     className={`rounded-lg px-3.5 py-1.5 text-xs font-bold transition-all ${
                       isActive
                         ? "bg-primary text-white shadow-sm"
-                        : "border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:bg-white/[0.04] dark:text-white/70 dark:hover:bg-white/[0.08]"
+                        : "border border-[#E4DCD3] bg-[#EFE5DA] text-[#526663] hover:bg-[#E6DACE] dark:border-white/10 dark:bg-[#EFE5DA]/[0.04] dark:text-white/70 dark:hover:bg-[#EFE5DA]/[0.08]"
                     }`}
                   >
                     {mode.label}
@@ -202,12 +202,12 @@ export default async function SearchPage({
                 return (
                   <span
                     key={filter.param}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-gray-100 px-3 py-1.5 text-xs font-bold text-gray-700 dark:border-white/10 dark:bg-white/[0.04] dark:text-white/62"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-[#E4DCD3] bg-[#E1D3C5] px-3 py-1.5 text-xs font-bold text-[#526663] dark:border-white/10 dark:bg-[#EFE5DA]/[0.04] dark:text-white/62"
                   >
                     {filter.label}
                     <Link
                       href={searchStr ? `/search?${searchStr}` : "/search"}
-                      className="ml-1 text-gray-400 hover:text-gray-700 dark:hover:text-white"
+                      className="ml-1 text-gray-400 hover:text-[#526663] dark:hover:text-white"
                       aria-label={`Remove ${filter.label}`}
                     >
                       &times;
@@ -228,10 +228,10 @@ export default async function SearchPage({
 
           <div className="mb-6 flex flex-col justify-between items-start gap-4 sm:flex-row sm:items-center">
             <div className="text-sm font-semibold text-gray-600 dark:text-white/52">
-              Showing <span className="font-black text-gray-900 dark:text-white">{results.length}</span> results
+              Showing <span className="font-black text-[#183B38] dark:text-white">{results.length}</span> results
               {rawQuery && (
                 <span>
-                  {" "}for &ldquo;<span className="font-black text-gray-900 dark:text-white">{effectiveQuery}</span>&rdquo;
+                  {" "}for &ldquo;<span className="font-black text-[#183B38] dark:text-white">{effectiveQuery}</span>&rdquo;
                   {effectiveQuery.toLowerCase() !== rawQuery.toLowerCase() && (
                     <span className="ml-1 text-xs text-gray-400 dark:text-white/40">
                       (from &ldquo;{rawQuery}&rdquo;)
@@ -302,7 +302,7 @@ export default async function SearchPage({
                   query: { ...params, page: Math.max(1, page - 1).toString() },
                 }}
                 aria-disabled={page <= 1}
-                className={`rounded-xl border border-gray-200 px-5 py-3 text-sm font-bold text-gray-700 dark:border-white/10 dark:text-white ${page <= 1 ? "pointer-events-none opacity-40" : "hover:bg-gray-100 dark:hover:bg-white/[0.06]"}`}
+                className={`rounded-xl border border-[#E4DCD3] px-5 py-3 text-sm font-bold text-[#526663] dark:border-white/10 dark:text-white ${page <= 1 ? "pointer-events-none opacity-40" : "hover:bg-[#E1D3C5] dark:hover:bg-[#EFE5DA]/[0.06]"}`}
               >
                 &larr; Previous
               </Link>
@@ -313,7 +313,7 @@ export default async function SearchPage({
                   query: { ...params, page: (page + 1).toString() },
                 }}
                 aria-disabled={results.length < pageSize}
-                className={`rounded-xl border border-gray-200 px-5 py-3 text-sm font-bold text-gray-700 dark:border-white/10 dark:text-white ${results.length < pageSize ? "pointer-events-none opacity-40" : "hover:bg-gray-100 dark:hover:bg-white/[0.06]"}`}
+                className={`rounded-xl border border-[#E4DCD3] px-5 py-3 text-sm font-bold text-[#526663] dark:border-white/10 dark:text-white ${results.length < pageSize ? "pointer-events-none opacity-40" : "hover:bg-[#E1D3C5] dark:hover:bg-[#EFE5DA]/[0.06]"}`}
               >
                 Next &rarr;
               </Link>
