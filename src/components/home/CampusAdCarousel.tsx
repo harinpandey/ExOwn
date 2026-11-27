@@ -29,7 +29,7 @@ function AdCard({ ad, eager = false }: { ad: CampusAdSlide; eager?: boolean }) {
   const safeLink = getSafeLink(ad.linkUrl);
   const isExternal = safeLink.startsWith("https://") || safeLink.startsWith("http://");
   const content = (
-    <article className="group relative isolate flex h-[240px] w-[min(580px,88vw)] shrink-0 snap-start overflow-hidden rounded-[22px] border border-[#E2E8E5] bg-[#14231C] shadow-[0_2px_10px_rgba(19,34,29,0.07)] transition hover:-translate-y-0.5 hover:shadow-[0_8px_22px_rgba(19,34,29,0.12)] sm:h-[270px] sm:w-[min(580px,45vw)]">
+    <article className="group relative isolate flex h-[240px] w-[min(580px,88vw)] shrink-0 snap-start overflow-hidden rounded-[22px] border border-[#E4DCD3] bg-[#183B38] shadow-[0_2px_10px_rgba(19,34,29,0.07)] transition hover:-translate-y-0.5 hover:shadow-[0_8px_22px_rgba(19,34,29,0.12)] sm:h-[270px] sm:w-[min(580px,45vw)]">
       {ad.imageUrl ? (
         <img
           src={ad.imageUrl}
@@ -66,7 +66,7 @@ function AdCard({ ad, eager = false }: { ad: CampusAdSlide; eager?: boolean }) {
           <p className="mt-2 line-clamp-2 text-xs font-medium leading-5 text-white/80 sm:text-[13px]">
             {ad.description}
           </p>
-          <span className="mt-4 inline-flex min-h-9 items-center gap-2 rounded-xl bg-white px-3.5 py-2 text-xs font-extrabold text-[#1E5646] transition group-hover:bg-[#E6F2EE]">
+          <span className="mt-4 inline-flex min-h-9 items-center gap-2 rounded-xl bg-[#FF6845] px-3.5 py-2 text-xs font-extrabold text-[#183B38] transition group-hover:bg-[#F45B38]">
             {ad.cta}
             {isExternal ? <ExternalLink size={13} /> : <ArrowRight size={13} />}
           </span>
@@ -130,7 +130,7 @@ export default function CampusAdCarousel({ ads }: { ads: CampusAdSlide[] }) {
       <div className="mb-4 flex items-end justify-between gap-3">
         <div>
           <div className="mb-1 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.16em] text-[#4A5D56] dark:text-[#B4C5BC]">
-            <span className="h-2 w-2 rounded-full bg-[#1E5646] dark:bg-[#91CDB0]" />
+            <span className="h-2 w-2 rounded-full bg-[#17645F] dark:bg-[#91CDB0]" />
             Featured on ExOwn
           </div>
           <h2 className="text-xl font-extrabold tracking-tight text-[#13221D] dark:text-[#E8F0EB] sm:text-2xl">
@@ -143,7 +143,7 @@ export default function CampusAdCarousel({ ads }: { ads: CampusAdSlide[] }) {
             type="button"
             onClick={previous}
             aria-label="Previous campus ad"
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-[#E2E8E5] bg-white text-[#1E5646] transition hover:bg-[#E6F2EE] dark:border-[#2A4136] dark:bg-[#14231C] dark:text-[#91CDB0] dark:hover:bg-[#20362B]"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-[#E4DCD3] bg-white text-[#17645F] transition hover:bg-[#E5EFEC] dark:border-[#2A4136] dark:bg-[#183B38] dark:text-[#91CDB0] dark:hover:bg-[#20362B]"
           >
             <ArrowLeft size={16} />
           </button>
@@ -151,7 +151,7 @@ export default function CampusAdCarousel({ ads }: { ads: CampusAdSlide[] }) {
             type="button"
             onClick={next}
             aria-label="Next campus ad"
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-[#E2E8E5] bg-white text-[#1E5646] transition hover:bg-[#E6F2EE] dark:border-[#2A4136] dark:bg-[#14231C] dark:text-[#91CDB0] dark:hover:bg-[#20362B]"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-[#E4DCD3] bg-white text-[#17645F] transition hover:bg-[#E5EFEC] dark:border-[#2A4136] dark:bg-[#183B38] dark:text-[#91CDB0] dark:hover:bg-[#20362B]"
           >
             <ArrowRight size={16} />
           </button>
@@ -185,7 +185,7 @@ export default function CampusAdCarousel({ ads }: { ads: CampusAdSlide[] }) {
             onClick={() => scrollToIndex(index)}
             aria-label={`Show banner ${index + 1}`}
             aria-current={activeIndex === index ? "true" : undefined}
-            className={`h-2 rounded-full transition-all ${activeIndex === index ? "w-6 bg-[#1E5646] dark:bg-[#91CDB0]" : "w-2 bg-[#D5DFDA] hover:bg-[#9CB2A7] dark:bg-[#385347]"}`}
+            className={`h-2 rounded-full transition-all ${activeIndex === index ? "w-6 bg-[#17645F] dark:bg-[#91CDB0]" : "w-2 bg-[#D5DFDA] hover:bg-[#9CB2A7] dark:bg-[#385347]"}`}
           />
         ))}
       </div>
