@@ -7,35 +7,35 @@ const marketplaceActions = [
     subtext: "Used tech & essentials",
     href: "/search?listingType=SELL",
     icon: ShoppingBag,
-    tone: "from-blue-600 to-indigo-600 text-white",
+    tone: "bg-[#E5EFEC] text-[#17645F]",
   },
   {
     label: "Post Something",
     subtext: "List in 60 seconds",
     href: "/sell",
     icon: Plus,
-    tone: "from-orange-500 to-amber-600 text-white",
+    tone: "bg-[#FCE2D8] text-[#B94A32]",
   },
   {
     label: "Rentals",
     subtext: "Cycles, coolers & fridges",
     href: "/search?listingType=RENT",
     icon: RefreshCw,
-    tone: "from-emerald-600 to-teal-600 text-white",
+    tone: "bg-[#E5EFEC] text-[#17645F]",
   },
   {
     label: "Campus Housing",
     subtext: "PGs & student rooms",
     href: "/housing",
     icon: Building2,
-    tone: "from-purple-600 to-pink-600 text-white",
+    tone: "bg-[#E9DED2] text-[#17645F]",
   },
   {
     label: "Post a Request",
     subtext: "Ask peers for items",
     href: "/requests",
     icon: HelpCircle,
-    tone: "from-cyan-600 to-blue-700 text-white",
+    tone: "bg-[#FCE2D8] text-[#B94A32]",
   },
 ];
 
@@ -49,13 +49,13 @@ export default function QuickActionRail() {
             <Link
               key={action.label}
               href={action.href}
-              className="group flex items-center gap-3 rounded-2xl border border-gray-200/80 bg-white p-3.5 shadow-xs transition hover:border-primary/50 hover:bg-gray-50/80 hover:shadow-md dark:border-white/10 dark:bg-[#10141b] dark:hover:border-primary/50 dark:hover:bg-white/[0.04] active:scale-95"
+              className="group flex items-center gap-3 rounded-2xl border border-gray-200/80 bg-[#EFE5DA] p-3.5 shadow-xs transition hover:border-primary/50 hover:bg-[#E6DACE] hover:shadow-md dark:border-white/10 dark:bg-[#10141b] dark:hover:border-primary/50 dark:hover:bg-white/[0.04] active:scale-95"
             >
-              <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br shadow-xs transition-transform group-hover:scale-105 ${action.tone}`}>
+              <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl transition-transform group-hover:scale-105 ${action.tone}`}>
                 <Icon size={20} />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-black tracking-tight text-gray-900 group-hover:text-primary dark:text-white dark:group-hover:text-primary truncate">
+                <p className="text-xs font-black tracking-tight text-[#183B38] group-hover:text-primary dark:text-white dark:group-hover:text-primary truncate">
                   {action.label}
                 </p>
                 <p className="text-[10px] font-semibold text-gray-500 dark:text-gray-400 truncate">

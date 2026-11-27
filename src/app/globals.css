@@ -30,34 +30,38 @@
 
 :root {
   color-scheme: light;
-  --background: #F7F9F8;
-  --foreground: #13221D;
-  --muted: #E6F2EE;
-  --muted-foreground: #4A5D56;
-  --surface: #FFFFFF;
-  --surface-elevated: #FFFFFF;
-  --surface-soft: #F7F9F8;
-  --border-subtle: #E2E8E5;
-  --accent: #1E5646;
-  --accent-hover: #174536;
-  --accent-contrast: #FFFFFF;
+  --background: #F3EEE8;
+  --foreground: #183B38;
+  --muted: #E5EFEC;
+  --muted-foreground: #526663;
+  --surface: #F7F1E9;
+  --surface-elevated: #EDE2D6;
+  --surface-soft: #E6DACE;
+  --border-subtle: #E4DCD3;
+  --accent: #17645F;
+  --accent-hover: #124F4B;
+  --accent-contrast: #F3EEE8;
+  --accent-coral: #FF6845;
+  --accent-coral-contrast: #183B38;
   --surface-shadow: 0 1px 2px rgba(19, 34, 29, 0.035), 0 3px 10px rgba(19, 34, 29, 0.035);
   --surface-shadow-hover: 0 3px 8px rgba(19, 34, 29, 0.045), 0 8px 18px rgba(19, 34, 29, 0.055);
 }
 
 .dark {
   color-scheme: dark;
-  --background: #0E1713;
-  --foreground: #E8F0EB;
-  --muted: #20362B;
-  --muted-foreground: #B4C5BC;
-  --surface: #14231C;
-  --surface-elevated: #1A2D24;
-  --surface-soft: #101D17;
-  --border-subtle: #2A4136;
-  --accent: #2F8066;
-  --accent-hover: #3A9276;
-  --accent-contrast: #FFFFFF;
+  --background: #122321;
+  --foreground: #F3EEE8;
+  --muted: #1D3835;
+  --muted-foreground: #B8C9C4;
+  --surface: #1B302D;
+  --surface-elevated: #25413D;
+  --surface-soft: #172C29;
+  --border-subtle: #34504C;
+  --accent: #17645F;
+  --accent-hover: #1D766F;
+  --accent-contrast: #F3EEE8;
+  --accent-coral: #FF6845;
+  --accent-coral-contrast: #183B38;
   --surface-shadow: 0 1px 2px rgba(0, 0, 0, 0.18), 0 4px 12px rgba(0, 0, 0, 0.12);
   --surface-shadow-hover: 0 4px 14px rgba(0, 0, 0, 0.24);
 }
@@ -77,6 +81,12 @@ body {
   -webkit-tap-highlight-color: transparent;
   transition: background-color 180ms ease, color 180ms ease;
 }
+
+/* ExOwn warm palette: avoid stark white surfaces across shared Tailwind utilities */
+.bg-white { background-color: #F7F1E9 !important; }
+[class~="hover:bg-white"]:hover { background-color: #E6DACE !important; }
+.text-white { color: #F3EEE8 !important; }
+.border-white { border-color: #D9CBBE !important; }
 
 ::selection {
   background: var(--muted);
@@ -233,133 +243,167 @@ body {
 }
 
 .premium-card:hover {
-  transform: none;
+  transform: translateY(-2px);
   box-shadow: var(--surface-shadow-hover);
   border-color: var(--border-subtle);
 }
 
-/* Legacy neutral utility cleanup in the light theme only. */
-:root:not(.dark) :is(.bg-gray-50, .bg-slate-50, .bg-zinc-50, .bg-stone-50, .bg-neutral-50) {
-  background-color: #F7F9F8 !important;
+/* Site-wide palette audit correction: the old cool #F7F9F8 canvas was still visible on several routes. */
+:root:not(.dark) :is([class*="bg-[#F7F9F8]"], [class*="bg-[#FFFFFF]"], [class*="bg-[#ffffff]"], [class*="bg-[#FFF]"], [class*="bg-[#fff]"]) {
+  background-color: var(--background) !important;
 }
-
-:root:not(.dark) :is(.bg-gray-100, .bg-slate-100, .bg-zinc-100, .bg-stone-100, .bg-neutral-100) {
-  background-color: #EEF3F0 !important;
+:root:not(.dark) :is([class*="bg-[#E6F2EE]"], [class*="bg-[#EEF3F0]"], [class*="bg-[#E2E8E5]"], [class*="bg-[#F0F4F2]"]) {
+  background-color: var(--muted) !important;
 }
-
-:root:not(.dark) :is(.text-black, .text-gray-950, .text-gray-900, .text-gray-800, .text-slate-950, .text-slate-900, .text-slate-800, .text-zinc-950, .text-zinc-900, .text-neutral-900) {
-  color: #13221D !important;
+/* Keep utility white text readable on warm neutral cards; invert it only on branded action surfaces. */
+[class~="text-white"] { color: var(--foreground) !important; }
+:root:not(.dark) :is([class*="bg-[#17645F]"], [class*="bg-primary"], [class*="bg-teal-"], [class*="bg-emerald-"], [class*="bg-green-"], [class*="bg-blue-"], [class*="bg-indigo-"], [class*="bg-violet-"], [class*="bg-purple-"], [class*="bg-cyan-"]).text-white,
+:root:not(.dark) :is([class*="bg-[#17645F]"], [class*="bg-primary"], [class*="bg-teal-"], [class*="bg-emerald-"], [class*="bg-green-"], [class*="bg-blue-"], [class*="bg-indigo-"], [class*="bg-violet-"], [class*="bg-purple-"], [class*="bg-cyan-"]) .text-white {
+  color: var(--accent-contrast) !important;
 }
-
-:root:not(.dark) :is(.text-gray-700, .text-gray-600, .text-gray-500, .text-slate-700, .text-slate-600, .text-slate-500, .text-zinc-700, .text-zinc-600, .text-zinc-500) {
-  color: #4A5D56 !important;
+:root:not(.dark) :is([class*="bg-[#FF6845]"], [class*="bg-orange-"], [class*="bg-pink-"], [class*="bg-red-"]).text-white,
+:root:not(.dark) :is([class*="bg-[#FF6845]"], [class*="bg-orange-"], [class*="bg-pink-"], [class*="bg-red-"]) .text-white {
+  color: var(--accent-coral-contrast) !important;
 }
-
-:root:not(.dark) :is(.border-gray-100, .border-gray-200, .border-gray-300, .border-slate-100, .border-slate-200, .border-slate-300) {
-  border-color: #E2E8E5 !important;
+/* Legacy accent utilities are normalized to ExOwn teal/coral in both themes. */
+:root:not(.dark) :is([class*="bg-teal-"], [class*="bg-emerald-"], [class*="bg-green-"], [class*="bg-blue-"], [class*="bg-indigo-"], [class*="bg-violet-"], [class*="bg-purple-"], [class*="bg-cyan-"]) {
+  background-color: var(--accent) !important;
 }
-
-:root:not(.dark) :is(.bg-blue-500, .bg-blue-600, .bg-blue-700, .bg-indigo-500, .bg-indigo-600, .bg-indigo-700, .bg-violet-500, .bg-violet-600, .bg-violet-700, .bg-purple-500, .bg-purple-600, .bg-purple-700, .bg-cyan-500, .bg-cyan-600) {
-  background-color: #1E5646 !important;
-  color: #FFFFFF !important;
+:root:not(.dark) :is([class*="bg-orange-"], [class*="bg-pink-"], [class*="bg-red-"]) {
+  background-color: var(--accent-coral) !important;
 }
-
-:root:not(.dark) :is(.text-blue-800, .text-blue-700, .text-blue-600, .text-indigo-800, .text-indigo-700, .text-indigo-600, .text-violet-800, .text-violet-700, .text-violet-600, .text-purple-800, .text-purple-700, .text-purple-600, .text-cyan-800, .text-cyan-700, .text-cyan-600) {
-  color: #1E5646 !important;
-}
-
-:root:not(.dark) :is(.bg-blue-50, .bg-blue-100, .bg-indigo-50, .bg-indigo-100, .bg-violet-50, .bg-violet-100, .bg-purple-50, .bg-purple-100, .bg-cyan-50, .bg-cyan-100, .bg-emerald-50, .bg-emerald-100) {
-  background-color: #E6F2EE !important;
-}
-
-:root:not(.dark) :is(.border-blue-100, .border-blue-200, .border-indigo-100, .border-indigo-200, .border-violet-100, .border-violet-200, .border-purple-100, .border-purple-200, .border-cyan-100, .border-cyan-200) {
-  border-color: #E2E8E5 !important;
-}
-
-/* Make the specified warm-canvas palette adapt cleanly to dark mode. */
-.dark :is([class*="bg-white"], [class~="bg-white"]) {
+.dark :is([class*="bg-[#F7F9F8]"], [class*="bg-[#FFFFFF]"], [class*="bg-[#ffffff]"], [class*="bg-[#FFF]"], [class*="bg-[#fff]"]) {
   background-color: var(--surface) !important;
 }
-
-.dark :is([class*="bg-[#F7F9F8]"], [class*="bg-gray-50"], [class*="bg-slate-50"]) {
-  background-color: var(--surface-soft) !important;
+.dark :is([class*="bg-teal-"], [class*="bg-emerald-"], [class*="bg-green-"], [class*="bg-blue-"], [class*="bg-indigo-"], [class*="bg-violet-"], [class*="bg-purple-"], [class*="bg-cyan-"]) {
+  background-color: var(--accent) !important;
+}
+.dark :is([class*="bg-orange-"], [class*="bg-pink-"], [class*="bg-red-"]) {
+  background-color: var(--accent-coral) !important;
+}
+.dark :is([class*="bg-[#17645F]"], [class*="bg-primary"], [class*="bg-teal-"], [class*="bg-emerald-"], [class*="bg-green-"], [class*="bg-blue-"], [class*="bg-indigo-"], [class*="bg-violet-"], [class*="bg-purple-"], [class*="bg-cyan-"]).text-white,
+.dark :is([class*="bg-[#17645F]"], [class*="bg-primary"], [class*="bg-teal-"], [class*="bg-emerald-"], [class*="bg-green-"], [class*="bg-blue-"], [class*="bg-indigo-"], [class*="bg-violet-"], [class*="bg-purple-"], [class*="bg-cyan-"]) .text-white {
+  color: var(--accent-contrast) !important;
+}
+.dark :is([class*="bg-[#FF6845]"], [class*="bg-orange-"], [class*="bg-pink-"], [class*="bg-red-"]).text-white,
+.dark :is([class*="bg-[#FF6845]"], [class*="bg-orange-"], [class*="bg-pink-"], [class*="bg-red-"]) .text-white {
+  color: var(--accent-coral-contrast) !important;
+}
+button:disabled,
+[role="button"][aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+button:not(:disabled):focus-visible,
+a:focus-visible,
+[role="button"]:not([aria-disabled="true"]):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
 }
 
+/* ExOwn design system: warm, calm surfaces; deep teal actions; coral emphasis. */
+:root:not(.dark) :is(.bg-white, .bg-gray-50, .bg-slate-50, .bg-zinc-50, .bg-stone-50, .bg-neutral-50, [class~="bg-[#EFE5DA]"]) {
+  background-color: var(--surface) !important;
+}
+:root:not(.dark) :is(.bg-gray-100, .bg-slate-100, .bg-zinc-100, .bg-stone-100, .bg-neutral-100) {
+  background-color: var(--surface-soft) !important;
+}
+:root:not(.dark) :is(.bg-gray-200, .bg-slate-200, .bg-zinc-200, .bg-stone-200, .bg-neutral-200) {
+  background-color: #DCCFC2 !important;
+}
+:root:not(.dark) :is(.text-black, .text-gray-950, .text-gray-900, .text-gray-800, .text-slate-950, .text-slate-900, .text-slate-800, .text-zinc-950, .text-zinc-900, .text-neutral-900) {
+  color: var(--foreground) !important;
+}
+:root:not(.dark) :is(.text-gray-700, .text-gray-600, .text-gray-500, .text-slate-700, .text-slate-600, .text-slate-500, .text-zinc-700, .text-zinc-600, .text-zinc-500) {
+  color: var(--muted-foreground) !important;
+}
+:root:not(.dark) :is(.border-gray-100, .border-gray-200, .border-gray-300, .border-slate-100, .border-slate-200, .border-slate-300) {
+  border-color: var(--border-subtle) !important;
+}
+:root:not(.dark) :is(.bg-blue-500, .bg-blue-600, .bg-blue-700, .bg-indigo-500, .bg-indigo-600, .bg-indigo-700, .bg-violet-500, .bg-violet-600, .bg-violet-700, .bg-purple-500, .bg-purple-600, .bg-purple-700, .bg-cyan-500, .bg-cyan-600) {
+  background-color: var(--accent) !important;
+  color: var(--accent-contrast) !important;
+}
+:root:not(.dark) :is(.bg-orange-500, .bg-orange-600, .bg-pink-500, .bg-red-500) {
+  background-color: var(--accent-coral) !important;
+  color: var(--accent-coral-contrast) !important;
+}
+:root:not(.dark) :is(.text-blue-800, .text-blue-700, .text-blue-600, .text-indigo-800, .text-indigo-700, .text-indigo-600, .text-violet-800, .text-violet-700, .text-violet-600, .text-purple-800, .text-purple-700, .text-purple-600, .text-cyan-800, .text-cyan-700, .text-cyan-600) {
+  color: var(--accent) !important;
+}
+:root:not(.dark) :is(.bg-blue-50, .bg-blue-100, .bg-indigo-50, .bg-indigo-100, .bg-violet-50, .bg-violet-100, .bg-purple-50, .bg-purple-100, .bg-cyan-50, .bg-cyan-100, .bg-emerald-50, .bg-emerald-100) {
+  background-color: var(--muted) !important;
+}
+:root:not(.dark) :is(.border-blue-100, .border-blue-200, .border-indigo-100, .border-indigo-200, .border-violet-100, .border-violet-200, .border-purple-100, .border-purple-200, .border-cyan-100, .border-cyan-200) {
+  border-color: var(--border-subtle) !important;
+}
+.dark :is([class~="bg-white"], [class~="dark:bg-white"]) {
+  background-color: var(--surface) !important;
+}
+.dark :is([class*="bg-gray-50"], [class*="bg-slate-50"], [class*="bg-[#F7F9F8]"]) {
+  background-color: var(--surface-soft) !important;
+}
 .dark :is([class*="bg-[#E6F2EE]"], [class*="bg-[#EEF3F0]"], [class*="bg-emerald-50"], [class*="bg-green-50"]) {
   background-color: var(--muted) !important;
 }
-
 .dark :is([class*="bg-[#1E5646]"], [class*="bg-primary"]) {
   background-color: var(--accent) !important;
 }
-
 .dark :is([class*="text-[#13221D]"], [class*="text-gray-950"], [class*="text-gray-900"], [class*="text-gray-800"], [class*="text-slate-900"]) {
   color: var(--foreground) !important;
 }
-
 .dark :is([class*="text-[#4A5D56]"], [class*="text-gray-700"], [class*="text-gray-600"], [class*="text-gray-500"], [class*="text-slate-600"]) {
   color: var(--muted-foreground) !important;
 }
-
-.dark :is([class*="text-[#1E5646]"], [class*="text-primary"], [class*="text-emerald-700"], [class*="text-green-700"]) {
-  color: #91CDB0 !important;
-}
-
-.dark :is([class*="border-[#E2E8E5]"], [class*="border-[#DCE5E1]"], [class*="border-gray-100"], [class*="border-gray-200"], [class*="border-slate-200"]) {
+.dark :is([class*="border-[#E2E8E5]"], [class*="border-gray-100"], [class*="border-gray-200"], [class*="border-slate-200"]) {
   border-color: var(--border-subtle) !important;
 }
-
-.dark :is([class*="bg-[#FEF3C7]"], [class*="bg-amber-100"]) {
-  background-color: #493A1D !important;
-  border-color: #725A2D !important;
+.dark :is([class~="bg-[#EFE5DA]"], [class~="dark:bg-[#EFE5DA]"], [class~="bg-[#E9DED2]"], [class~="dark:bg-[#E9DED2]"], [class~="bg-[#E6DACE]"], [class~="dark:bg-[#E6DACE]"], [class~="bg-[#E1D3C5]"], [class~="dark:bg-[#E1D3C5]"], [class~="bg-[#F3EEE8]"], [class~="dark:bg-[#F3EEE8]"]) {
+  background-color: var(--surface-soft) !important;
 }
-
-.dark :is([class*="text-[#92400E]"], [class*="text-amber-800"]) {
-  color: #F2D28C !important;
+.dark :is([class*="text-[#183B38]"]) {
+  color: var(--foreground) !important;
 }
-
+.dark :is([class*="text-[#526663]"]) {
+  color: var(--muted-foreground) !important;
+}
+.dark :is([class*="border-[#E4DCD3]"], [class*="border-[#D9CBBE]"]) {
+  border-color: var(--border-subtle) !important;
+}
+.dark :is([class~="bg-[#17645F]"], [class~="dark:bg-[#17645F]"]) {
+  background-color: var(--accent) !important;
+}
+.dark :is([class*="text-[#17645F]"]) {
+  color: #91CDB0 !important;
+}
+.dark :is([class*="bg-[#FF6845]"]) {
+  background-color: var(--accent-coral) !important;
+}
+.dark :is([class*="text-[#B94A32]"]) {
+  color: #FF9A7F !important;
+}
 .dark :is([class*="bg-[#07090d]"], [class*="bg-[#090c12]"], [class*="bg-[#0c1017]"], [class*="bg-[#10141b]"], [class*="bg-[#161c25]"], [class*="bg-gray-950"], [class*="bg-gray-900"], [class*="bg-slate-900"], [class*="bg-zinc-900"]) {
   background-color: var(--surface) !important;
   color: var(--foreground) !important;
   border-color: var(--border-subtle) !important;
 }
+[class~="bg-white"] { background-color: #F7F1E9 !important; }
+[class~="text-white"] { color: #F3EEE8 !important; }
+[class~="border-white"] { border-color: #D9CBBE !important; }
 
-.dark [class*="bg-gradient-to-"] {
-  background-image: none !important;
-  background-color: var(--surface) !important;
-  color: var(--foreground) !important;
-  border-color: var(--border-subtle) !important;
-}
-
-.dark [class*="bg-gradient-to-"] :is(.text-white, [class*="text-white/"]) {
-  color: var(--foreground) !important;
-}
-
-:root:not(.dark) [class*="bg-gradient-to-"] {
-  background-image: none !important;
-  background-color: #FFFFFF !important;
-  color: #13221D !important;
-  border: 1px solid #E2E8E5;
-}
-
-:root:not(.dark) [class*="bg-gradient-to-"] :is(.text-white, .text-blue-50, .text-blue-100, .text-cyan-100, .text-cyan-200, .text-indigo-100, .text-indigo-200) {
-  color: #13221D !important;
-}
-
-[class*="shadow-"] {
-  box-shadow: var(--surface-shadow) !important;
-}
-
-[class*="drop-shadow"] {
-  filter: none !important;
-}
-
-.object-25d,
-.group:hover .object-25d,
-.object-25d:hover {
-  transform: none !important;
-  filter: none !important;
-}
+/* Replace translucent white glass with translucent warm ivory, preserving opacity. */
+[class*="bg-white/5"] { background-color: rgba(243, 238, 232, 0.05) !important; }
+[class*="bg-white/10"] { background-color: rgba(243, 238, 232, 0.10) !important; }
+[class*="bg-white/15"] { background-color: rgba(243, 238, 232, 0.15) !important; }
+[class*="bg-white/20"] { background-color: rgba(243, 238, 232, 0.20) !important; }
+[class*="bg-white/25"] { background-color: rgba(243, 238, 232, 0.25) !important; }
+[class*="bg-white/30"] { background-color: rgba(243, 238, 232, 0.30) !important; }
+[class*="bg-white/40"] { background-color: rgba(243, 238, 232, 0.40) !important; }
+[class*="bg-white/50"] { background-color: rgba(243, 238, 232, 0.50) !important; }
+[class*="bg-white/[0."] { background-color: rgba(243, 238, 232, 0.08) !important; }
+[class*="text-white/"] { color: #F3EEE8 !important; }
+[class*="border-white/"] { border-color: rgba(243, 238, 232, 0.24) !important; }
+[class*="ring-white/"] { --tw-ring-color: rgba(243, 238, 232, 0.24) !important; }
 
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -385,6 +429,37 @@ body {
 }
 
 
+/* Final site-wide overrides: warm every remaining cool canvas and keep text/buttons legible. */
+:root:not(.dark) :is([class*="bg-[#f7f8fc]"], [class*="bg-[#F7F9F8]"], [class*="bg-[#f7f9f8]"]) {
+  background-color: var(--background) !important;
+}
+.dark :is([class*="bg-[#f7f8fc]"], [class*="bg-[#F7F9F8]"], [class*="bg-[#f7f9f8]"]) {
+  background-color: var(--background) !important;
+}
+/* White text on a neutral/light surface was unreadable; branded buttons and image overlays retain ivory text. */
+:root:not(.dark) :is([class~="bg-white"], [class*="bg-[#F7F9F8]"], [class*="bg-[#f7f8fc]"], [class*="bg-[#F3EEE8]"], [class*="bg-[#F7F1E9]"]) .text-white,
+:root:not(.dark) :is([class~="bg-white"], [class*="bg-[#F7F9F8]"], [class*="bg-[#f7f8fc]"], [class*="bg-[#F3EEE8]"], [class*="bg-[#F7F1E9]"]).text-white {
+  color: var(--foreground) !important;
+}
+:root:not(.dark) :is([class~="bg-white"], [class*="bg-[#F7F9F8]"], [class*="bg-[#f7f8fc]"], [class*="bg-[#F3EEE8]"], [class*="bg-[#F7F1E9]"]) .text-white\/70,
+:root:not(.dark) :is([class~="bg-white"], [class*="bg-[#F7F9F8]"], [class*="bg-[#f7f8fc]"], [class*="bg-[#F3EEE8]"], [class*="bg-[#F7F1E9]"]) .text-white\/80 {
+  color: var(--muted-foreground) !important;
+}
+
+/* Final contrast/palette normalization for legacy arbitrary-value utilities. */
+:root:not(.dark) :is([class*="bg-[#fff"], [class*="bg-[#FFF"], [class*="bg-[#f8fafc"], [class*="bg-[#f9fafb"], [class*="bg-[#fafafa"]]) {
+  background-color: var(--surface) !important;
+}
+:root:not(.dark) :is([class*="bg-[#F1F5F3]"], [class*="bg-[#E9EFEC]"], [class*="bg-[#EEF3F0]"]) {
+  background-color: var(--muted) !important;
+}
+.dark :is([class*="bg-[#fff"], [class*="bg-[#FFF"], [class*="bg-[#f8fafc"], [class*="bg-[#f9fafb"], [class*="bg-[#fafafa"]]) {
+  background-color: var(--surface) !important;
+}
+:root:not(.dark) :is([class~="bg-white"], [class*="bg-[#f7f8fc]"], [class*="bg-[#F7F9F8]"], [class*="bg-[#F3EEE8]"], [class*="bg-[#F7F1E9]"], [class*="bg-[#EFE5DA]"], [class*="bg-[#E6DACE]"], [class*="bg-[#E1D3C5]"]).text-white {
+  color: var(--foreground) !important;
+}
+
 /* Keep image-led campus ads cinematic and readable in both themes. */
 .campus-ad-overlay {
   background-image: linear-gradient(
@@ -395,4 +470,69 @@ body {
   ) !important;
   background-color: transparent !important;
   border: 0 !important;
+}
+
+/* Branded button contrast and legacy accent normalization — keep these last in the cascade. */
+:root:not(.dark) :is([class*="bg-[#17645F]"], [class*="bg-primary"], [class*="bg-teal-"], [class*="bg-emerald-"], [class*="bg-green-"], [class*="bg-blue-"], [class*="bg-indigo-"], [class*="bg-violet-"], [class*="bg-purple-"], [class*="bg-cyan-"]).text-white,
+:root:not(.dark) :is([class*="bg-[#17645F]"], [class*="bg-primary"], [class*="bg-teal-"], [class*="bg-emerald-"], [class*="bg-green-"], [class*="bg-blue-"], [class*="bg-indigo-"], [class*="bg-violet-"], [class*="bg-purple-"], [class*="bg-cyan-"]) .text-white {
+  color: var(--accent-contrast) !important;
+}
+:root:not(.dark) :is([class*="bg-[#FF6845]"], [class*="bg-orange-"], [class*="bg-pink-"], [class*="bg-red-"]).text-white,
+:root:not(.dark) :is([class*="bg-[#FF6845]"], [class*="bg-orange-"], [class*="bg-pink-"], [class*="bg-red-"]) .text-white {
+  color: var(--accent-coral-contrast) !important;
+}
+:root:not(.dark) :is([class*="text-blue-"], [class*="text-indigo-"], [class*="text-violet-"], [class*="text-purple-"], [class*="text-cyan-"], [class*="text-teal-"], [class*="text-emerald-"], [class*="text-green-"]) {
+  color: var(--accent) !important;
+}
+:root:not(.dark) :is([class*="text-orange-"], [class*="text-pink-"]) {
+  color: #B94A32 !important;
+}
+.dark :is([class*="bg-[#F1F5F3]"], [class*="bg-[#E9EFEC]"], [class*="bg-[#EEF3F0]"]) {
+  background-color: var(--surface-soft) !important;
+}
+.dark :is([class*="text-blue-"], [class*="text-indigo-"], [class*="text-violet-"], [class*="text-purple-"], [class*="text-cyan-"], [class*="text-teal-"], [class*="text-emerald-"], [class*="text-green-"]) {
+  color: #91CDB0 !important;
+}
+.dark :is([class*="text-orange-"], [class*="text-pink-"]) {
+  color: #FF9A7F !important;
+}
+.dark :is([class*="bg-[#17645F]"], [class*="bg-primary"], [class*="bg-teal-"], [class*="bg-emerald-"], [class*="bg-green-"], [class*="bg-blue-"], [class*="bg-indigo-"], [class*="bg-violet-"], [class*="bg-purple-"], [class*="bg-cyan-"]).text-white,
+.dark :is([class*="bg-[#17645F]"], [class*="bg-primary"], [class*="bg-teal-"], [class*="bg-emerald-"], [class*="bg-green-"], [class*="bg-blue-"], [class*="bg-indigo-"], [class*="bg-violet-"], [class*="bg-purple-"], [class*="bg-cyan-"]) .text-white {
+  color: var(--accent-contrast) !important;
+}
+.dark :is([class*="bg-[#FF6845]"], [class*="bg-orange-"], [class*="bg-pink-"], [class*="bg-red-"]).text-white,
+.dark :is([class*="bg-[#FF6845]"], [class*="bg-orange-"], [class*="bg-pink-"], [class*="bg-red-"]) .text-white {
+  color: var(--accent-coral-contrast) !important;
+}
+
+/* Normalize the older Sage/Campus palette still used by legacy routes such as LPU News. */
+:root:not(.dark) :is([class*="bg-[#eaf2ef]"], [class*="bg-[#EAF2EF]"]) {
+  background-color: var(--muted) !important;
+}
+:root:not(.dark) :is([class*="border-[#e2e8e5]"], [class*="border-[#E2E8E5]"]) {
+  border-color: var(--border-subtle) !important;
+}
+:root:not(.dark) :is([class*="text-[#1e5646]"], [class*="text-[#1E5646]"]) {
+  color: var(--accent) !important;
+}
+:root:not(.dark) :is([class*="text-[#13221d]"], [class*="text-[#13221D]"]) {
+  color: var(--foreground) !important;
+}
+:root:not(.dark) :is([class*="text-[#4a5d56]"], [class*="text-[#4A5D56]"]) {
+  color: var(--muted-foreground) !important;
+}
+.dark :is([class*="bg-[#eaf2ef]"], [class*="bg-[#EAF2EF]"]) {
+  background-color: var(--muted) !important;
+}
+.dark :is([class*="border-[#e2e8e5]"], [class*="border-[#E2E8E5]"]) {
+  border-color: var(--border-subtle) !important;
+}
+.dark :is([class*="text-[#1e5646]"], [class*="text-[#1E5646]"]) {
+  color: #91CDB0 !important;
+}
+.dark :is([class*="text-[#13221d]"], [class*="text-[#13221D]"]) {
+  color: var(--foreground) !important;
+}
+.dark :is([class*="text-[#4a5d56]"], [class*="text-[#4A5D56]"]) {
+  color: var(--muted-foreground) !important;
 }

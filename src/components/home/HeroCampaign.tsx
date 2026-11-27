@@ -20,19 +20,19 @@ export default function HeroCampaign() {
     <section className="mx-auto max-w-7xl px-4 pb-6 pt-6 sm:pb-8 sm:pt-8">
       <div className="grid gap-4 lg:grid-cols-[1.55fr_0.95fr]">
         {/* Main hero: one spacious message, with no extra promo panel inside it. */}
-        <div className="flex min-h-[320px] flex-col items-start justify-center overflow-hidden rounded-3xl border border-[#E2E8E5] bg-white p-6 shadow-[0_2px_8px_rgba(19,34,29,0.04)] dark:border-[#2A4136] dark:bg-[#14231C] sm:min-h-[356px] sm:p-9 lg:p-11">
-          <span className="inline-flex items-center gap-2 rounded-full border border-[#E2E8E5] bg-[#F7F9F8] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-[#4A5D56] dark:border-[#2A4136] dark:bg-[#101D17] dark:text-[#B4C5BC]">
-            <Users size={13} className="text-[#1E5646] dark:text-[#91CDB0]" />
+        <div className="flex min-h-[320px] flex-col items-start justify-center overflow-hidden rounded-3xl border border-[#E4DCD3] bg-[#EFE5DA] p-6 shadow-[0_2px_8px_rgba(19,34,29,0.04)] dark:border-[#2A4136] dark:bg-[#14231C] sm:min-h-[356px] sm:p-9 lg:p-11">
+          <span className="inline-flex items-center gap-2 rounded-full border border-[#E4DCD3] bg-[#F3EEE8] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-[#526663] dark:border-[#2A4136] dark:bg-[#101D17] dark:text-[#B4C5BC]">
+            <Users size={13} className="text-[#17645F] dark:text-[#91CDB0]" />
             {campusObj.shortName} · Student marketplace
           </span>
 
-          <h1 className="mt-6 max-w-2xl text-[2.4rem] font-extrabold leading-[1.04] tracking-[-0.045em] text-[#13221D] dark:text-[#E8F0EB] sm:text-5xl lg:text-[56px]">
+          <h1 className="mt-6 max-w-2xl text-[2.4rem] font-extrabold leading-[1.04] tracking-[-0.045em] text-[#183B38] dark:text-[#E8F0EB] sm:text-5xl lg:text-[56px]">
             Good finds.
             <br />
-            <span className="text-[#1E5646] dark:text-[#91CDB0]">Better campus deals.</span>
+            <span className="text-[#17645F] dark:text-[#91CDB0]">Better campus deals.</span>
           </h1>
 
-          <p className="mt-5 max-w-xl text-sm leading-7 text-[#4A5D56] dark:text-[#B4C5BC] sm:text-base sm:leading-8">
+          <p className="mt-5 max-w-xl text-sm leading-7 text-[#526663] dark:text-[#B4C5BC] sm:text-base sm:leading-8">
             Buy, sell, rent and exchange the things student life needs — right within your campus community.
           </p>
 
@@ -51,17 +51,17 @@ export default function HeroCampaign() {
             </Link>
           </div>
 
-          <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-[#E2E8E5] pt-4 text-[11px] font-medium text-[#4A5D56] dark:border-[#2A4136] dark:text-[#B4C5BC] sm:text-xs">
+          <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-[#E4DCD3] pt-4 text-[11px] font-medium text-[#526663] dark:border-[#2A4136] dark:text-[#B4C5BC] sm:text-xs">
             <span className="inline-flex items-center gap-1.5">
-              <ShieldCheck size={14} className="text-[#1E5646] dark:text-[#91CDB0]" />
+              <ShieldCheck size={14} className="text-[#17645F] dark:text-[#91CDB0]" />
               Campus-focused community
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <Users size={14} className="text-[#1E5646] dark:text-[#91CDB0]" />
+              <Users size={14} className="text-[#17645F] dark:text-[#91CDB0]" />
               Student-to-student exchange
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <RefreshCw size={14} className="text-[#1E5646] dark:text-[#91CDB0]" />
+              <RefreshCw size={14} className="text-[#17645F] dark:text-[#91CDB0]" />
               Buy, sell, rent and exchange
             </span>
           </div>
@@ -71,34 +71,34 @@ export default function HeroCampaign() {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
           <Link
             href="/search?listingType=RENT"
-            className="group flex min-h-[154px] items-center justify-between gap-4 rounded-3xl border border-[#E2E8E5] bg-white p-5 shadow-[0_2px_8px_rgba(19,34,29,0.035)] transition hover:border-[#C8D6D0] hover:shadow-[0_4px_12px_rgba(19,34,29,0.055)] dark:border-[#2A4136] dark:bg-[#14231C] dark:hover:border-[#3C5D4D] lg:min-h-0"
+            className="group flex min-h-[154px] items-center justify-between gap-4 rounded-3xl border border-[#E4DCD3] bg-[#EFE5DA] p-5 shadow-[0_2px_8px_rgba(19,34,29,0.035)] transition hover:border-[#C8D6D0] hover:shadow-[0_4px_12px_rgba(19,34,29,0.055)] dark:border-[#2A4136] dark:bg-[#14231C] dark:hover:border-[#3C5D4D] lg:min-h-0"
           >
             <div className="relative z-10">
-              <span className="inline-flex rounded-full bg-[#E6F2EE] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-[#1E5646] dark:bg-[#20362B] dark:text-[#91CDB0]">Rent</span>
-              <h2 className="mt-3 text-lg font-bold text-[#13221D] dark:text-[#E8F0EB]">Rent it. Return it.</h2>
-              <p className="mt-1 text-xs leading-5 text-[#4A5D56] dark:text-[#B4C5BC]">Cycles, coolers and hostel essentials.</p>
+              <span className="inline-flex rounded-full bg-[#E5EFEC] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-[#17645F] dark:bg-[#20362B] dark:text-[#91CDB0]">Rent</span>
+              <h2 className="mt-3 text-lg font-bold text-[#183B38] dark:text-[#E8F0EB]">Rent it. Return it.</h2>
+              <p className="mt-1 text-xs leading-5 text-[#526663] dark:text-[#B4C5BC]">Cycles, coolers and hostel essentials.</p>
               <span className="marketplace-button-outline mt-4 inline-flex min-h-9 items-center gap-2 rounded-lg px-3 py-2 text-xs font-bold">
                 Browse rentals <ArrowRight size={13} />
               </span>
             </div>
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-[#F7F9F8] text-[#1E5646] dark:bg-[#20362B] dark:text-[#91CDB0]">
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-[#F3EEE8] text-[#17645F] dark:bg-[#20362B] dark:text-[#91CDB0]">
               <Bike size={31} strokeWidth={1.6} />
             </div>
           </Link>
 
           <Link
             href={!user ? "/login?redirect=/sell" : "/sell"}
-            className="group flex min-h-[154px] items-center justify-between gap-4 rounded-3xl border border-[#E2E8E5] bg-white p-5 shadow-[0_2px_8px_rgba(19,34,29,0.035)] transition hover:border-[#C8D6D0] hover:shadow-[0_4px_12px_rgba(19,34,29,0.055)] dark:border-[#2A4136] dark:bg-[#14231C] dark:hover:border-[#3C5D4D] lg:min-h-0"
+            className="group flex min-h-[154px] items-center justify-between gap-4 rounded-3xl border border-[#E4DCD3] bg-[#EFE5DA] p-5 shadow-[0_2px_8px_rgba(19,34,29,0.035)] transition hover:border-[#C8D6D0] hover:shadow-[0_4px_12px_rgba(19,34,29,0.055)] dark:border-[#2A4136] dark:bg-[#14231C] dark:hover:border-[#3C5D4D] lg:min-h-0"
           >
             <div className="relative z-10">
               <span className="inline-flex rounded-full bg-[#FEF3C7] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-[#92400E] dark:bg-[#493A1D] dark:text-[#F2D28C]">Make room</span>
-              <h2 className="mt-3 text-lg font-bold text-[#13221D] dark:text-[#E8F0EB]">Pass it on.</h2>
-              <p className="mt-1 text-xs leading-5 text-[#4A5D56] dark:text-[#B4C5BC]">Give useful things a second campus life.</p>
+              <h2 className="mt-3 text-lg font-bold text-[#183B38] dark:text-[#E8F0EB]">Pass it on.</h2>
+              <p className="mt-1 text-xs leading-5 text-[#526663] dark:text-[#B4C5BC]">Give useful things a second campus life.</p>
               <span className="marketplace-button-outline mt-4 inline-flex min-h-9 items-center gap-2 rounded-lg px-3 py-2 text-xs font-bold">
                 Start selling <ArrowRight size={13} />
               </span>
             </div>
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-[#E6F2EE] text-[#1E5646] dark:bg-[#20362B] dark:text-[#91CDB0]">
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-[#E5EFEC] text-[#17645F] dark:bg-[#20362B] dark:text-[#91CDB0]">
               <Package size={31} strokeWidth={1.6} />
             </div>
           </Link>

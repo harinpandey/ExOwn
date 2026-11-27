@@ -12,8 +12,8 @@ const middlePromos = [
     subtitle: "Lab coats, calculators & hostel essentials delivered directly to your hostel block.",
     cta: "Order Essentials",
     href: "/search?category=books-sports-hobbies",
-    gradient: "from-pink-600 via-purple-700 to-indigo-900",
-    badgeBg: "bg-pink-500 text-white",
+    gradient: "from-[#C85A3D] via-[#17645F] to-[#183B38]",
+    badgeBg: "bg-[#FF6845] text-[#183B38]",
   },
   {
     id: 2,
@@ -22,8 +22,8 @@ const middlePromos = [
     subtitle: "Gear up for inter-hostel tournaments with quality sports equipment.",
     cta: "Explore Gear",
     href: "/search?q=sports",
-    gradient: "from-amber-600 via-red-600 to-purple-900",
-    badgeBg: "bg-amber-400 text-black",
+    gradient: "from-[#FF6845] via-[#B94A32] to-[#183B38]",
+    badgeBg: "bg-[#FF6845] text-[#183B38]",
   },
   {
     id: 3,
@@ -32,8 +32,8 @@ const middlePromos = [
     subtitle: "Focus on semester exams with premium sound gear from verified campus sellers.",
     cta: "Shop Audio",
     href: "/search?q=headphones",
-    gradient: "from-blue-600 via-cyan-700 to-slate-900",
-    badgeBg: "bg-cyan-400 text-black",
+    gradient: "from-[#17645F] via-[#205B56] to-[#183B38]",
+    badgeBg: "bg-[#E5EFEC] text-[#17645F]",
   },
 ];
 
@@ -43,21 +43,21 @@ const promoCards = [
     discount: "Min. 60% Off",
     tagline: "Move natural on campus",
     href: "/search?q=shoes",
-    bgColor: "bg-gradient-to-t from-blue-600 to-indigo-800",
+    bgColor: "bg-gradient-to-t from-[#17645F] to-[#183B38]",
   },
   {
     title: "Hostel Water Purifiers",
     discount: "Starting ₹899",
     tagline: "Safe & pure drinking water",
     href: "/search?q=filter",
-    bgColor: "bg-gradient-to-t from-emerald-600 to-teal-800",
+    bgColor: "bg-gradient-to-t from-[#205B56] to-[#183B38]",
   },
   {
     title: "Study Lamps & Tables",
     discount: "From ₹199",
     tagline: "Night study essentials",
     href: "/search?category=furniture-hostel",
-    bgColor: "bg-gradient-to-t from-purple-600 to-pink-800",
+    bgColor: "bg-gradient-to-t from-[#C85A3D] to-[#17645F]",
   },
 ];
 
@@ -79,11 +79,11 @@ export default function MiddlePromoCarousel() {
           <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-red-500/20 text-red-500">
             <Flame size={16} />
           </span>
-          <h2 className="text-xl font-black tracking-tight text-gray-900 dark:text-white sm:text-2xl">
+          <h2 className="text-xl font-black tracking-tight text-[#183B38] dark:text-white sm:text-2xl">
             Special Campus Offers & Ads
           </h2>
         </div>
-        <span className="rounded-lg bg-white/10 px-3 py-1 text-[11px] font-black uppercase text-gray-500 dark:text-white/50">
+        <span className="rounded-lg bg-[#F3EEE8]/10 px-3 py-1 text-[11px] font-black uppercase text-gray-500 dark:text-white/50">
           Sponsored Deals
         </span>
       </div>
@@ -115,7 +115,7 @@ export default function MiddlePromoCarousel() {
                 <div className="mt-4">
                   <Link
                     href={promo.href}
-                    className="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-xs font-black text-gray-900 shadow-md transition hover:scale-105 active:scale-95"
+                    className="inline-flex items-center gap-2 rounded-xl bg-[#F3EEE8] px-5 py-2.5 text-xs font-black text-[#183B38] shadow-md transition hover:scale-105 active:scale-95"
                   >
                     {promo.cta} <ArrowRight size={14} />
                   </Link>
@@ -131,7 +131,7 @@ export default function MiddlePromoCarousel() {
                 key={idx}
                 onClick={() => setActiveSlide(idx)}
                 className={`h-2 rounded-full transition-all ${
-                  idx === activeSlide ? "w-6 bg-white" : "w-2 bg-white/40"
+                  idx === activeSlide ? "w-6 bg-[#F3EEE8]" : "w-2 bg-[#F3EEE8]/40"
                 }`}
                 aria-label={`Slide ${idx + 1}`}
               />

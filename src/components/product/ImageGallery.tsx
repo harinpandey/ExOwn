@@ -41,7 +41,7 @@ export default function ImageGallery({ images = [], title }: ImageGalleryProps) 
 
   if (validImages.length === 0) {
     return (
-      <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-gray-200 bg-gray-50 dark:border-white/10 dark:bg-zinc-900">
+      <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-[#E4DCD3] bg-[#E6DACE] dark:border-white/10 dark:bg-zinc-900">
         <div className="flex h-full w-full flex-col items-center justify-center gap-2 text-gray-400 dark:text-zinc-600">
           <ImageIcon size={44} strokeWidth={1.5} />
           <span className="text-xs font-semibold tracking-wide">No images provided for this listing</span>
@@ -56,7 +56,7 @@ export default function ImageGallery({ images = [], title }: ImageGalleryProps) 
   return (
     <div className="space-y-3">
       {/* Primary Image Viewport */}
-      <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-gray-200 bg-gray-100 shadow-sm dark:border-white/10 dark:bg-zinc-900">
+      <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-[#E4DCD3] bg-[#E1D3C5] shadow-sm dark:border-white/10 dark:bg-zinc-900">
         {imgLoading && !isCurrentFailed && (
           <div className="absolute inset-0 animate-pulse bg-gray-200 dark:bg-zinc-800" />
         )}
@@ -73,7 +73,7 @@ export default function ImageGallery({ images = [], title }: ImageGalleryProps) 
             }`}
           />
         ) : (
-          <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-gray-50 text-gray-400 dark:bg-zinc-900 dark:text-zinc-500">
+          <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-[#E6DACE] text-gray-400 dark:bg-zinc-900 dark:text-zinc-500">
             <ImageIcon size={40} strokeWidth={1.5} />
             <span className="text-xs font-semibold">Image unavailable</span>
           </div>
@@ -138,7 +138,7 @@ export default function ImageGallery({ images = [], title }: ImageGalleryProps) 
               className={`relative h-18 w-20 shrink-0 overflow-hidden rounded-xl border-2 transition ${
                 idx === activeIndex
                   ? "border-primary ring-2 ring-primary/20"
-                  : "border-gray-200 opacity-70 hover:opacity-100 dark:border-white/10"
+                  : "border-[#E4DCD3] opacity-70 hover:opacity-100 dark:border-white/10"
               }`}
             >
               <img
@@ -165,7 +165,7 @@ export default function ImageGallery({ images = [], title }: ImageGalleryProps) 
             type="button"
             onClick={() => setIsFullscreen(false)}
             aria-label="Close fullscreen"
-            className="absolute top-4 right-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20"
+            className="absolute top-4 right-4 flex h-10 w-10 items-center justify-center rounded-full bg-[#EFE5DA]/10 text-white transition hover:bg-[#EFE5DA]/20"
           >
             <X size={22} />
           </button>

@@ -163,7 +163,7 @@ export default function ProductCard({
   const displayImage = image?.trim();
 
   return (
-    <article className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-[#E2E8E5] bg-white shadow-[0_1px_3px_rgba(19,34,29,0.035)] transition hover:-translate-y-0.5 hover:border-[#C8D6D0] hover:shadow-[0_4px_14px_rgba(19,34,29,0.06)]">
+    <article className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-[#E4DCD3] bg-[#EFE5DA] shadow-[0_1px_3px_rgba(19,34,29,0.035)] transition hover:-translate-y-0.5 hover:border-[#C8D6D0] hover:shadow-[0_4px_14px_rgba(19,34,29,0.06)]">
       {/* 1. Media Section with Consistent Aspect Ratio */}
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#F1F5F3]">
         {displayImage && !imgError ? (
@@ -186,7 +186,7 @@ export default function ProductCard({
             />
           </>
         ) : (
-          <div className="flex h-full w-full flex-col items-center justify-center gap-1.5 bg-[#F1F5F3] text-[#4A5D56]">
+          <div className="flex h-full w-full flex-col items-center justify-center gap-1.5 bg-[#F1F5F3] text-[#526663]">
             <ImageIcon size={28} strokeWidth={1.5} />
             <span className="text-[11px] font-medium tracking-wide">No image available</span>
           </div>
@@ -210,12 +210,12 @@ export default function ProductCard({
           onClick={handleWishlistToggle}
           aria-label={wishlisted ? "Remove from saved" : "Save listing"}
           aria-pressed={wishlisted}
-          className="absolute right-2.5 top-2.5 z-30 flex h-9 w-9 items-center justify-center rounded-full border border-[#E2E8E5] bg-white text-[#4A5D56] shadow-[0_1px_3px_rgba(19,34,29,0.06)] transition hover:border-[#C8D6D0] hover:text-red-600 active:scale-95"
+          className="absolute right-2.5 top-2.5 z-30 flex h-9 w-9 items-center justify-center rounded-full border border-[#E4DCD3] bg-[#EFE5DA] text-[#526663] shadow-[0_1px_3px_rgba(19,34,29,0.06)] transition hover:border-[#C8D6D0] hover:text-red-600 active:scale-95"
         >
           <Heart
             size={16}
             fill={wishlisted ? "currentColor" : "none"}
-            className={wishlisted ? "text-red-500" : "text-[#4A5D56]"}
+            className={wishlisted ? "text-red-500" : "text-[#526663]"}
           />
         </button>
 
@@ -224,7 +224,7 @@ export default function ProductCard({
           <div className="absolute bottom-2.5 right-2.5 z-40 flex items-center gap-1">
             <Link
               href={`/product/edit/${id}`}
-              className="flex items-center gap-1 rounded-md border border-[#E2E8E5] bg-white px-2 py-1 text-[10px] font-bold text-[#13221D] transition hover:border-[#1E5646] hover:text-[#1E5646]"
+              className="flex items-center gap-1 rounded-md border border-[#E4DCD3] bg-[#EFE5DA] px-2 py-1 text-[10px] font-bold text-[#183B38] transition hover:border-[#17645F] hover:text-[#17645F]"
             >
               <Tag size={11} />
               Edit
@@ -233,7 +233,7 @@ export default function ProductCard({
               type="button"
               disabled={isMutating}
               onClick={handleMarkSold}
-              className="flex items-center gap-1 rounded-md bg-[#1E5646] px-2 py-1 text-[10px] font-bold text-white transition hover:bg-[#174536]"
+              className="flex items-center gap-1 rounded-md bg-[#17645F] px-2 py-1 text-[10px] font-bold text-white transition hover:bg-[#124F4B]"
             >
               <CheckCircle2 size={11} />
               Sold
@@ -255,7 +255,7 @@ export default function ProductCard({
       <div className="flex flex-1 flex-col p-3.5 sm:p-4">
         {/* Product Title */}
         <h3
-          className="line-clamp-2 min-h-[2.5rem] text-sm font-semibold leading-tight text-[#13221D] transition-colors group-hover:text-[#1E5646]"
+          className="line-clamp-2 min-h-[2.5rem] text-sm font-semibold leading-tight text-[#183B38] transition-colors group-hover:text-[#17645F]"
           title={title}
         >
           {title}
@@ -264,11 +264,11 @@ export default function ProductCard({
         {/* Price & Rent indicator */}
         <div className="mt-2 flex items-baseline justify-between gap-2">
           <div className="flex items-baseline gap-1">
-            <span className="text-lg font-extrabold tracking-tight text-[#13221D]">
+            <span className="text-lg font-extrabold tracking-tight text-[#183B38]">
               ₹{formattedPrice}
             </span>
             {listingType === "RENT" && (
-              <span className="text-[11px] font-medium text-[#4A5D56]">
+              <span className="text-[11px] font-medium text-[#526663]">
                 /day
               </span>
             )}
@@ -276,20 +276,20 @@ export default function ProductCard({
 
           {/* Condition Tag */}
           {formattedCondition && (
-            <span className="rounded-md bg-[#F7F9F8] px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-[#4A5D56]">
+            <span className="rounded-md bg-[#F3EEE8] px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-[#526663]">
               {formattedCondition}
             </span>
           )}
         </div>
 
         {/* Location & Time Footer */}
-        <div className="mt-auto border-t border-[#E2E8E5] pt-3 text-[11px] text-[#4A5D56]">
+        <div className="mt-auto border-t border-[#E4DCD3] pt-3 text-[11px] text-[#526663]">
           <div className="flex items-center justify-between gap-2">
             <div className="flex min-w-0 items-center gap-1">
-              <MapPin size={12} className="shrink-0 text-[#4A5D56]" />
+              <MapPin size={12} className="shrink-0 text-[#526663]" />
               <span className="truncate">{formattedLocation}</span>
             </div>
-            <span className="shrink-0 text-[10px] text-[#4A5D56]">
+            <span className="shrink-0 text-[10px] text-[#526663]">
               {formatDistanceToNow(new Date(createdAt), { addSuffix: true })}
             </span>
           </div>
@@ -327,13 +327,13 @@ function getSingleBadge({
   if (listingType === "RENT") {
     return {
       label: "For Rent",
-      className: "border-[#D3E7DE] bg-[#E6F2EE] text-[#1E5646]",
+      className: "border-[#D3E7DE] bg-[#E5EFEC] text-[#17645F]",
     };
   }
   if (listingType === "SERVICE") {
     return {
       label: "Service",
-      className: "border-[#D3E7DE] bg-[#E6F2EE] text-[#1E5646]",
+      className: "border-[#D3E7DE] bg-[#E5EFEC] text-[#17645F]",
     };
   }
 
@@ -356,7 +356,7 @@ function getSingleBadge({
     return {
       label: "Campus Verified",
       icon: <ShieldCheck size={11} className="shrink-0" />,
-      className: "border-[#D3E7DE] bg-[#E6F2EE] text-[#1E5646]",
+      className: "border-[#D3E7DE] bg-[#E5EFEC] text-[#17645F]",
     };
   }
 
