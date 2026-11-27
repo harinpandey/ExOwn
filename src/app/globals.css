@@ -471,3 +471,36 @@ a:focus-visible,
   background-color: transparent !important;
   border: 0 !important;
 }
+
+/* Branded button contrast and legacy accent normalization — keep these last in the cascade. */
+:root:not(.dark) :is([class*="bg-[#17645F]"], [class*="bg-primary"], [class*="bg-teal-"], [class*="bg-emerald-"], [class*="bg-green-"], [class*="bg-blue-"], [class*="bg-indigo-"], [class*="bg-violet-"], [class*="bg-purple-"], [class*="bg-cyan-"]).text-white,
+:root:not(.dark) :is([class*="bg-[#17645F]"], [class*="bg-primary"], [class*="bg-teal-"], [class*="bg-emerald-"], [class*="bg-green-"], [class*="bg-blue-"], [class*="bg-indigo-"], [class*="bg-violet-"], [class*="bg-purple-"], [class*="bg-cyan-"]) .text-white {
+  color: var(--accent-contrast) !important;
+}
+:root:not(.dark) :is([class*="bg-[#FF6845]"], [class*="bg-orange-"], [class*="bg-pink-"], [class*="bg-red-"]).text-white,
+:root:not(.dark) :is([class*="bg-[#FF6845]"], [class*="bg-orange-"], [class*="bg-pink-"], [class*="bg-red-"]) .text-white {
+  color: var(--accent-coral-contrast) !important;
+}
+:root:not(.dark) :is([class*="text-blue-"], [class*="text-indigo-"], [class*="text-violet-"], [class*="text-purple-"], [class*="text-cyan-"], [class*="text-teal-"], [class*="text-emerald-"], [class*="text-green-"]) {
+  color: var(--accent) !important;
+}
+:root:not(.dark) :is([class*="text-orange-"], [class*="text-pink-"]) {
+  color: #B94A32 !important;
+}
+.dark :is([class*="bg-[#F1F5F3]"], [class*="bg-[#E9EFEC]"], [class*="bg-[#EEF3F0]"]) {
+  background-color: var(--surface-soft) !important;
+}
+.dark :is([class*="text-blue-"], [class*="text-indigo-"], [class*="text-violet-"], [class*="text-purple-"], [class*="text-cyan-"], [class*="text-teal-"], [class*="text-emerald-"], [class*="text-green-"]) {
+  color: #91CDB0 !important;
+}
+.dark :is([class*="text-orange-"], [class*="text-pink-"]) {
+  color: #FF9A7F !important;
+}
+.dark :is([class*="bg-[#17645F]"], [class*="bg-primary"], [class*="bg-teal-"], [class*="bg-emerald-"], [class*="bg-green-"], [class*="bg-blue-"], [class*="bg-indigo-"], [class*="bg-violet-"], [class*="bg-purple-"], [class*="bg-cyan-"]).text-white,
+.dark :is([class*="bg-[#17645F]"], [class*="bg-primary"], [class*="bg-teal-"], [class*="bg-emerald-"], [class*="bg-green-"], [class*="bg-blue-"], [class*="bg-indigo-"], [class*="bg-violet-"], [class*="bg-purple-"], [class*="bg-cyan-"]) .text-white {
+  color: var(--accent-contrast) !important;
+}
+.dark :is([class*="bg-[#FF6845]"], [class*="bg-orange-"], [class*="bg-pink-"], [class*="bg-red-"]).text-white,
+.dark :is([class*="bg-[#FF6845]"], [class*="bg-orange-"], [class*="bg-pink-"], [class*="bg-red-"]) .text-white {
+  color: var(--accent-coral-contrast) !important;
+}
