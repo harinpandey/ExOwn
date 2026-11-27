@@ -35,25 +35,25 @@ const heroSlides = [
   {
     id: 1,
     badge: "💻 TECH & GADGETS",
-    badgeColor: "bg-blue-600 text-white",
+    badgeColor: "bg-[#17645F] text-[#F3EEE8]",
     title: "PRE-OWNED TECH FROM PEERS",
     subtitle: "Buy MacBooks, laptops, monitors & engineering gear directly from verified seniors.",
     cta: "Browse Tech",
     href: "/search?category=computers-laptops",
-    gradient: "from-blue-600 via-indigo-700 to-purple-900",
-    accentGlow: "rgba(59, 130, 246, 0.4)",
+    gradient: "from-[#17645F] via-[#205B56] to-[#183B38]",
+    accentGlow: "rgba(23, 100, 95, 0.32)",
     image: "/exown-logo.png",
     tag: "CAMPUS VERIFIED",
   },
   {
     id: 2,
     badge: "⚡ HOSTEL RENTALS",
-    badgeColor: "bg-amber-400 text-black",
+    badgeColor: "bg-[#FF6845] text-[#183B38]",
     title: "RENT SEMESTER ESSENTIALS",
     subtitle: "Rent coolers, cycles, appliances & mini-fridges on semester terms without buying outright.",
     cta: "Explore Rentals",
     href: "/search?listingType=RENT",
-    gradient: "from-amber-600 via-orange-600 to-red-800",
+    gradient: "from-[#FF6845] via-[#C85A3D] to-[#183B38]",
     accentGlow: "rgba(245, 158, 11, 0.4)",
     image: "/exown-icon.png",
     tag: "STUDENT-TO-STUDENT",
@@ -61,26 +61,26 @@ const heroSlides = [
   {
     id: 3,
     badge: "🏠 CAMPUS HOUSING & ROOMMATES",
-    badgeColor: "bg-emerald-500 text-white",
+    badgeColor: "bg-[#17645F] text-[#F3EEE8]",
     title: "CAMPUS LIVING MADE TRANSPARENT",
     subtitle: "Find verified PGs, student flats, and compatible batchmates near your university.",
     cta: "Browse Housing",
     href: "/search?category=properties",
-    gradient: "from-emerald-600 via-teal-700 to-cyan-900",
-    accentGlow: "rgba(168, 85, 247, 0.4)",
+    gradient: "from-[#17645F] via-[#205B56] to-[#183B38]",
+    accentGlow: "rgba(255, 104, 69, 0.24)",
     image: "/exown-icon.png",
     tag: "NO BROKERAGE",
   },
   {
     id: 4,
     badge: "📚 BOOK & NOTES EXCHANGE",
-    badgeColor: "bg-purple-500 text-white",
+    badgeColor: "bg-[#FF6845] text-[#183B38]",
     title: "CIRCULAR STUDY MATERIAL",
     subtitle: "Pass down semester textbooks, lab kits, calculators & notes to incoming batches.",
     cta: "Explore Exchange",
     href: "/search?exchange=true",
-    gradient: "from-purple-600 via-fuchsia-700 to-pink-900",
-    accentGlow: "rgba(168, 85, 247, 0.4)",
+    gradient: "from-[#C85A3D] via-[#17645F] to-[#183B38]",
+    accentGlow: "rgba(255, 104, 69, 0.24)",
     image: "/exown-logo.png",
     tag: "BUY, SELL & SWAP",
   },
@@ -126,11 +126,11 @@ export default function HeroBanner() {
   const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + heroSlides.length) % heroSlides.length);
 
   return (
-    <section className="relative overflow-hidden bg-slate-100 text-slate-900 transition-colors dark:bg-[#07090d] dark:text-white">
+    <section className="relative overflow-hidden bg-[#F3EEE8] text-[#183B38] transition-colors dark:bg-[#07090d] dark:text-white">
       <div className="container mx-auto px-4 pt-4 pb-6">
 
         {/* ── Top Search Bar Strip (Flipkart style header inline search) ── */}
-        <div className="mb-4 flex flex-col gap-3 rounded-2xl border border-gray-200 bg-white p-3 shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/5 sm:flex-row sm:items-center">
+        <div className="mb-4 flex flex-col gap-3 rounded-2xl border border-gray-200 bg-[#EFE5DA] p-3 shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/5 sm:flex-row sm:items-center">
           <form onSubmit={handleSearch} className="relative flex-1">
             <Search size={18} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-white/40" />
             <input
@@ -138,7 +138,7 @@ export default function HeroBanner() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search laptops, books, cycles, PG rooms, services..."
-              className="h-11 w-full rounded-xl border border-gray-200 bg-gray-50 pl-10 pr-24 text-sm font-semibold text-gray-900 placeholder-gray-400 outline-none transition focus:border-primary focus:bg-white dark:border-white/10 dark:bg-white/10 dark:text-white dark:placeholder-white/40 dark:focus:border-primary dark:focus:bg-white/15"
+              className="h-11 w-full rounded-xl border border-gray-200 bg-[#E6DACE] pl-10 pr-24 text-sm font-semibold text-gray-900 placeholder-gray-400 outline-none transition focus:border-primary focus:bg-[#EFE5DA] dark:border-white/10 dark:bg-white/10 dark:text-white dark:placeholder-white/40 dark:focus:border-primary dark:focus:bg-[#EFE5DA]/15"
             />
             <button
               type="submit"
@@ -228,7 +228,7 @@ export default function HeroBanner() {
               <div className="mt-6 flex items-center justify-between">
                 <Link
                   href={heroSlides[currentSlide].href}
-                  className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 text-xs font-black text-gray-900 shadow-xl transition hover:bg-gray-100 hover:scale-105 active:scale-95"
+                  className="inline-flex items-center gap-2 rounded-xl bg-[#F3EEE8] px-6 py-3 text-xs font-black text-gray-900 shadow-xl transition hover:bg-gray-100 hover:scale-105 active:scale-95"
                 >
                   {heroSlides[currentSlide].cta}
                   <ArrowRight size={15} />
@@ -328,7 +328,7 @@ export default function HeroBanner() {
         </div>
 
         {/* ── Flipkart-Style Rounded Sub-Category Strip (Like Screenshot 1) ── */}
-        <div className="mt-6 rounded-3xl border border-gray-200 bg-white p-3 shadow-sm backdrop-blur dark:border-white/10 dark:bg-[#10141b]/90">
+        <div className="mt-6 rounded-3xl border border-gray-200 bg-[#EFE5DA] p-3 shadow-sm backdrop-blur dark:border-white/10 dark:bg-[#10141b]/90">
           <div className="flex items-center justify-between px-3 pb-2 text-xs font-black uppercase tracking-wider text-gray-500 dark:text-white/50">
             <span>Explore Campus Categories</span>
             <Link href="/search" className="text-primary hover:underline">View All &rarr;</Link>
