@@ -188,13 +188,13 @@ export default function HeroBanner() {
                       <Laptop size={32} className="text-white drop-shadow" />
                     </div>
                     <div className="absolute bottom-6 right-16 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#17645F]/30 backdrop-blur-md shadow-2xl ring-1 ring-[#F3EEE8]/25 transform -rotate-12">
-                      <Headphones size={24} className="text-cyan-300 drop-shadow" />
+                      <Headphones size={24} className="text-[#91CDB0] drop-shadow" />
                     </div>
-                    <div className="absolute top-20 right-28 flex h-12 w-20 items-center justify-center rounded-2xl bg-amber-400/30 backdrop-blur-md shadow-2xl ring-1 ring-[#F3EEE8]/25 transform rotate-12">
-                      <BookOpen size={22} className="text-amber-200 drop-shadow" />
+                    <div className="absolute top-20 right-28 flex h-12 w-20 items-center justify-center rounded-2xl bg-[#FF6845]/25 backdrop-blur-md shadow-2xl ring-1 ring-[#F3EEE8]/25 transform rotate-12">
+                      <BookOpen size={22} className="text-[#FFB19D] drop-shadow" />
                     </div>
                     <div className="absolute bottom-16 right-2 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#FF6845]/25 backdrop-blur-md shadow-2xl ring-1 ring-[#F3EEE8]/25 transform -rotate-6">
-                      <Building2 size={22} className="text-purple-200 drop-shadow" />
+                      <Building2 size={22} className="text-[#FFB19D] drop-shadow" />
                     </div>
                   </div>
                 </div>
