@@ -44,7 +44,7 @@ export default function Footer() {
   // The global footer is informational only. Keep listing actions in the
   // section header so the same action is not repeated in every experience.
   return (
-    <footer className="border-t border-[#E2E8E5] bg-white pb-20 pt-14 text-[#13221D] md:pb-14">
+    <footer className="border-t border-[#E4DCD3] bg-[#EFE5DA] pb-20 pt-14 text-[#183B38] md:pb-14">
       <div className="container mx-auto px-4">
 
         {/* Main Grid */}
@@ -55,12 +55,12 @@ export default function Footer() {
             <Link href="/" aria-label="ExOwn home">
               <img src="/exown-logo.png" alt="ExOwn" className="h-8 w-auto" />
             </Link>
-            <p className="text-sm leading-6 text-[#4A5D56]">
+            <p className="text-sm leading-6 text-[#526663]">
               Exchange. Own. Repeat. The trusted campus marketplace for students.
             </p>
             <div className="space-y-2">
               {trustSignals.map((s) => (
-                <div key={s.label} className="flex items-center gap-2 text-xs font-semibold text-[#4A5D56]">
+                <div key={s.label} className="flex items-center gap-2 text-xs font-semibold text-[#526663]">
                   <s.icon size={14} className="text-primary" />
                   {s.label}
                 </div>
@@ -72,7 +72,7 @@ export default function Footer() {
                 target="_blank"
                 rel="noreferrer"
                 aria-label="ExOwn Website"
-                className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#E2E8E5] bg-white text-[#4A5D56] transition hover:border-[#1E5646] hover:text-[#1E5646]"
+                className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#E4DCD3] bg-[#EFE5DA] text-[#526663] transition hover:border-[#17645F] hover:text-[#17645F]"
               >
                 <Globe size={16} />
               </a>
@@ -81,13 +81,13 @@ export default function Footer() {
 
           {/* Marketplace */}
           <div>
-            <p className="mb-4 text-[10px] font-bold uppercase tracking-widest text-[#4A5D56]">Marketplace</p>
+            <p className="mb-4 text-[10px] font-bold uppercase tracking-widest text-[#526663]">Marketplace</p>
             <ul className="space-y-3">
               {marketplaceLinks.map((link) => (
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-sm font-medium text-[#4A5D56] transition hover:text-[#1E5646]"
+                    className="text-sm font-medium text-[#526663] transition hover:text-[#17645F]"
                   >
                     {link.label}
                   </Link>
@@ -98,13 +98,13 @@ export default function Footer() {
 
           {/* Categories */}
           <div>
-            <p className="mb-4 text-[10px] font-bold uppercase tracking-widest text-[#4A5D56]">Categories</p>
+            <p className="mb-4 text-[10px] font-bold uppercase tracking-widest text-[#526663]">Categories</p>
             <ul className="space-y-3">
               {categoryLinks.map((link) => (
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-sm font-medium text-[#4A5D56] transition hover:text-[#1E5646]"
+                    className="text-sm font-medium text-[#526663] transition hover:text-[#17645F]"
                   >
                     {link.label}
                   </Link>
@@ -115,13 +115,13 @@ export default function Footer() {
 
           {/* Company */}
           <div>
-            <p className="mb-4 text-[10px] font-bold uppercase tracking-widest text-[#4A5D56]">Company</p>
+            <p className="mb-4 text-[10px] font-bold uppercase tracking-widest text-[#526663]">Company</p>
             <ul className="space-y-3">
               {companyLinks.map((link) => (
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-sm font-medium text-[#4A5D56] transition hover:text-[#1E5646]"
+                    className="text-sm font-medium text-[#526663] transition hover:text-[#17645F]"
                   >
                     {link.label}
                   </Link>
@@ -132,13 +132,13 @@ export default function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-[#E2E8E5] pt-8 sm:flex-row">
-          <p className="text-xs font-medium text-[#4A5D56]">
+        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-[#E4DCD3] pt-8 sm:flex-row">
+          <p className="text-xs font-medium text-[#526663]">
             &copy; {new Date().getFullYear()} ExOwn Technologies. All rights reserved.
           </p>
-          <div className="flex flex-wrap items-center gap-4 text-xs font-semibold text-[#4A5D56]">
+          <div className="flex flex-wrap items-center gap-4 text-xs font-semibold text-[#526663]">
             <span>Made for students, by students</span>
-            <span className="h-1 w-1 rounded-full bg-gray-300 dark:bg-white/20" aria-hidden />
+            <span className="h-1 w-1 rounded-full bg-gray-300 dark:bg-[#EFE5DA]/20" aria-hidden />
             <span className="text-primary">Exchange. Own. Repeat.</span>
           </div>
         </div>
