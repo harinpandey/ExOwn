@@ -37,7 +37,7 @@ const VISUAL_CATEGORIES: CategoryMeta[] = [
 
 export default function VisualCategoryRail() {
   return (
-    <section className="border-b border-[#E4DCD3] bg-white" aria-label="Explore campus categories">
+    <section className="border-b border-[#E4DCD3] bg-[#EFE5DA]" aria-label="Explore campus categories">
       <div className="container mx-auto px-3 sm:px-4">
         <nav className="flex items-stretch gap-2 overflow-x-auto py-2 no-scrollbar sm:justify-between sm:gap-3" aria-label="Product categories">
           {VISUAL_CATEGORIES.map((category, index) => {
