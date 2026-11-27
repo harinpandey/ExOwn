@@ -163,7 +163,7 @@ export default function ProductCard({
   const displayImage = image?.trim();
 
   return (
-    <article className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-[#E4DCD3] bg-[#EFE5DA] shadow-[0_1px_3px_rgba(19,34,29,0.035)] transition hover:-translate-y-0.5 hover:border-[#C8D6D0] hover:shadow-[0_4px_14px_rgba(19,34,29,0.06)]">
+    <article className="motion-listing-card group relative flex h-full flex-col overflow-hidden rounded-2xl border border-[#E4DCD3] bg-[#EFE5DA] shadow-[0_1px_3px_rgba(19,34,29,0.035)] transition hover:border-[#C8D6D0] hover:shadow-[0_4px_14px_rgba(19,34,29,0.06)]">
       {/* 1. Media Section with Consistent Aspect Ratio */}
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#F1F5F3]">
         {displayImage && !imgError ? (
@@ -180,7 +180,7 @@ export default function ProductCard({
                 setImgLoading(false);
                 setImgError(true);
               }}
-              className={`h-full w-full object-cover transition-transform duration-300 group-hover:scale-105 ${
+              className={`motion-product-image h-full w-full object-cover transition-transform duration-300 group-hover:scale-105 ${
                 imgLoading ? "opacity-0" : "opacity-100"
               }`}
             />
@@ -210,7 +210,7 @@ export default function ProductCard({
           onClick={handleWishlistToggle}
           aria-label={wishlisted ? "Remove from saved" : "Save listing"}
           aria-pressed={wishlisted}
-          className="absolute right-2.5 top-2.5 z-30 flex h-9 w-9 items-center justify-center rounded-full border border-[#E4DCD3] bg-[#EFE5DA] text-[#526663] shadow-[0_1px_3px_rgba(19,34,29,0.06)] transition hover:border-[#C8D6D0] hover:text-red-600 active:scale-95"
+          className="motion-wishlist absolute right-2.5 top-2.5 z-30 flex h-9 w-9 items-center justify-center rounded-full border border-[#E4DCD3] bg-[#EFE5DA] text-[#526663] shadow-[0_1px_3px_rgba(19,34,29,0.06)] transition hover:border-[#C8D6D0] hover:text-red-600 active:scale-95"
         >
           <Heart
             size={16}
