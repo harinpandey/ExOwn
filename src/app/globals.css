@@ -57,8 +57,8 @@
   --surface-elevated: #25413D;
   --surface-soft: #172C29;
   --border-subtle: #34504C;
-  --accent: #3A9A91;
-  --accent-hover: #4AAEA4;
+  --accent: #17645F;
+  --accent-hover: #1D766F;
   --accent-contrast: #F3EEE8;
   --accent-coral: #FF6845;
   --accent-coral-contrast: #183B38;
@@ -444,6 +444,20 @@ a:focus-visible,
 :root:not(.dark) :is([class~="bg-white"], [class*="bg-[#F7F9F8]"], [class*="bg-[#f7f8fc]"], [class*="bg-[#F3EEE8]"], [class*="bg-[#F7F1E9]"]) .text-white\/70,
 :root:not(.dark) :is([class~="bg-white"], [class*="bg-[#F7F9F8]"], [class*="bg-[#f7f8fc]"], [class*="bg-[#F3EEE8]"], [class*="bg-[#F7F1E9]"]) .text-white\/80 {
   color: var(--muted-foreground) !important;
+}
+
+/* Final contrast/palette normalization for legacy arbitrary-value utilities. */
+:root:not(.dark) :is([class*="bg-[#fff"], [class*="bg-[#FFF"], [class*="bg-[#f8fafc"], [class*="bg-[#f9fafb"], [class*="bg-[#fafafa"]]) {
+  background-color: var(--surface) !important;
+}
+:root:not(.dark) :is([class*="bg-[#F1F5F3]"], [class*="bg-[#E9EFEC]"], [class*="bg-[#EEF3F0]"]) {
+  background-color: var(--muted) !important;
+}
+.dark :is([class*="bg-[#fff"], [class*="bg-[#FFF"], [class*="bg-[#f8fafc"], [class*="bg-[#f9fafb"], [class*="bg-[#fafafa"]]) {
+  background-color: var(--surface) !important;
+}
+:root:not(.dark) :is([class~="bg-white"], [class*="bg-[#f7f8fc]"], [class*="bg-[#F7F9F8]"], [class*="bg-[#F3EEE8]"], [class*="bg-[#F7F1E9]"], [class*="bg-[#EFE5DA]"], [class*="bg-[#E6DACE]"], [class*="bg-[#E1D3C5]"]).text-white {
+  color: var(--foreground) !important;
 }
 
 /* Keep image-led campus ads cinematic and readable in both themes. */
