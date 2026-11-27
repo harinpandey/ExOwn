@@ -257,7 +257,7 @@ export default function Navbar() {
                     <div className="flex items-center gap-2">
                       <h3 className="text-sm font-black text-[#183B38] dark:text-white">Notifications</h3>
                       {unreadCount > 0 && (
-                        <span className="rounded-full bg-blue-500/10 px-2 py-0.5 text-[10px] font-bold text-blue-600 dark:bg-blue-400/10 dark:text-blue-400">
+                        <span className="rounded-full bg-[#17645F]/10 px-2 py-0.5 text-[10px] font-bold text-[#17645F] dark:bg-blue-400/10 dark:text-blue-400">
                           {unreadCount} new
                         </span>
                       )}
@@ -285,13 +285,13 @@ export default function Navbar() {
                           className={`group relative block cursor-pointer rounded-xl p-3 text-xs transition ${
                             n.isRead || n.read
                               ? "bg-[#E6DACE] text-gray-600 dark:bg-[#EFE5DA]/[0.02] dark:text-white/60"
-                              : "border border-primary/20 bg-blue-50/60 text-[#183B38] font-bold dark:bg-primary/10 dark:text-white"
+                              : "border border-primary/20 bg-[#E5EFEC]/60 text-[#183B38] font-bold dark:bg-primary/10 dark:text-white"
                           }`}
                         >
                           <div className="flex items-start justify-between gap-2">
                             <p className="font-bold line-clamp-1">{n.title}</p>
                             {!n.isRead && !n.read && (
-                              <span className="h-2 w-2 shrink-0 rounded-full bg-blue-600" />
+                              <span className="h-2 w-2 shrink-0 rounded-full bg-[#17645F]" />
                             )}
                           </div>
                           <p className="mt-0.5 text-[11px] font-normal text-gray-500 line-clamp-2 dark:text-white/50">
