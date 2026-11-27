@@ -44,7 +44,7 @@ export default function Footer() {
   // The global footer is informational only. Keep listing actions in the
   // section header so the same action is not repeated in every experience.
   return (
-    <footer className="border-t border-[#E4DCD3] bg-[#EFE5DA] pb-20 pt-14 text-[#183B38] md:pb-14">
+    <footer className="border-t border-[#17645F] bg-[#17645F] pb-20 pt-14 text-[#F3EEE8] md:pb-14">
       <div className="container mx-auto px-4">
 
         {/* Main Grid */}
@@ -55,7 +55,7 @@ export default function Footer() {
             <Link href="/" aria-label="ExOwn home">
               <img src="/exown-logo.png" alt="ExOwn" className="h-8 w-auto" />
             </Link>
-            <p className="text-sm leading-6 text-[#526663]">
+            <p className="text-sm leading-6 text-[#F3EEE8]/75">
               Exchange. Own. Repeat. The trusted campus marketplace for students.
             </p>
             <div className="space-y-2">
@@ -72,7 +72,7 @@ export default function Footer() {
                 target="_blank"
                 rel="noreferrer"
                 aria-label="ExOwn Website"
-                className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#E4DCD3] bg-[#EFE5DA] text-[#526663] transition hover:border-[#17645F] hover:text-[#17645F]"
+                className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#E4DCD3] bg-[#EFE5DA] text-[#526663] transition hover:border-[#FF6845] hover:text-[#FFB19D]"
               >
                 <Globe size={16} />
               </a>
