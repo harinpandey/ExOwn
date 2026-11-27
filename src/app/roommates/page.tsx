@@ -163,12 +163,12 @@ export default function RoommatesPage() {
     <div className="min-h-screen bg-[#f7f8fc] px-4 py-8 transition-colors dark:bg-[#090c12] sm:px-6">
       <div className="mx-auto max-w-7xl space-y-6">
         {/* Banner Hero */}
-        <div className="relative overflow-hidden rounded-3xl border border-gray-200 bg-white p-6 text-gray-950 shadow-sm dark:border-white/10 dark:bg-[#10141b] dark:text-white sm:p-10">
+        <div className="relative overflow-hidden rounded-3xl border border-[#E4DCD3] bg-[#EFE5DA] p-6 text-[#183B38] shadow-sm dark:border-white/10 dark:bg-[#1B302D] dark:text-white sm:p-10">
           <div className="relative z-10 max-w-2xl space-y-3">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-violet-50 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide text-violet-700 dark:bg-violet-500/10 dark:text-violet-300">
               <Users size={14} /> Student Roommate Finder
             </span>
-            <h1 className="text-2xl font-black leading-tight tracking-tight text-gray-950 dark:text-white sm:text-4xl">
+            <h1 className="text-2xl font-black leading-tight tracking-tight text-[#183B38] dark:text-white sm:text-4xl">
               Find compatible roommates at {campusObj?.name || "your campus"}
             </h1>
             <p className="text-sm font-medium leading-7 text-gray-600 dark:text-gray-400">
@@ -184,7 +184,7 @@ export default function RoommatesPage() {
                   placeholder="Search by course, interests, bio keywords..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full rounded-2xl bg-white dark:bg-gray-900 pl-10 pr-4 py-3 text-xs sm:text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-400 shadow-sm"
+                  className="w-full rounded-2xl bg-[#EFE5DA] dark:bg-[#182D2A] pl-10 pr-4 py-3 text-xs sm:text-sm text-[#183B38] dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-400 shadow-sm"
                 />
                 {searchQuery && (
                   <button
@@ -195,7 +195,7 @@ export default function RoommatesPage() {
                   </button>
                 )}
               </div>
-              <div className="flex items-center gap-2 rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-700 dark:border-white/10 dark:bg-white/[0.04] dark:text-gray-200">
+              <div className="flex items-center gap-2 rounded-2xl border border-[#E4DCD3] bg-[#E6DACE] px-4 py-3 text-[#526663] dark:border-white/10 dark:bg-[#EFE5DA]/[0.04] dark:text-gray-200">
                 <MapPin size={16} className="text-amber-300" />
                 <span className="text-xs font-bold">{campusObj?.name || selectedCampus || "Selected campus"}</span>
               </div>
@@ -204,10 +204,10 @@ export default function RoommatesPage() {
         </div>
 
         {user && (requestsLoading || receivedRequests.length > 0) && (
-          <section className="rounded-3xl border border-gray-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-[#10141b]">
+          <section className="rounded-3xl border border-[#E4DCD3] bg-[#EFE5DA] p-5 shadow-sm dark:border-white/10 dark:bg-[#1B302D]">
             <div className="mb-4 flex items-center justify-between gap-3">
               <div>
-                <h2 className="text-base font-black text-gray-900 dark:text-white">Requests to you</h2>
+                <h2 className="text-base font-black text-[#183B38] dark:text-white">Requests to you</h2>
                 <p className="mt-1 text-xs text-gray-500 dark:text-white/50">Roommate interests sent to your campus profile.</p>
               </div>
               {receivedRequests.filter((item) => item.status === "PENDING").length > 0 && (
@@ -218,11 +218,11 @@ export default function RoommatesPage() {
             </div>
 
             {requestsLoading ? (
-              <div className="h-20 animate-pulse rounded-2xl bg-gray-100 dark:bg-white/[0.04]" />
+              <div className="h-20 animate-pulse rounded-2xl bg-[#E1D3C5] dark:bg-[#EFE5DA]/[0.04]" />
             ) : (
               <div className="grid gap-3 md:grid-cols-2">
                 {receivedRequests.map((request) => (
-                  <article key={request.id} className="rounded-2xl border border-gray-200 p-4 dark:border-white/10">
+                  <article key={request.id} className="rounded-2xl border border-[#E4DCD3] p-4 dark:border-white/10">
                     <div className="flex items-start gap-3">
                       <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-purple-500/10 text-sm font-black text-purple-600 dark:text-purple-300">
                         {request.sender?.image ? (
@@ -232,14 +232,14 @@ export default function RoommatesPage() {
                         )}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-black text-gray-900 dark:text-white">{request.sender?.name || "Campus member"}</p>
+                        <p className="truncate text-sm font-black text-[#183B38] dark:text-white">{request.sender?.name || "Campus member"}</p>
                         <p className="mt-0.5 truncate text-[11px] text-gray-500 dark:text-white/50">
                           {[request.sender?.profile?.collegeName, request.sender?.profile?.course, request.sender?.profile?.year].filter(Boolean).join(" • ") || "ExOwn member"}
                         </p>
                         {request.message && <p className="mt-2 text-xs text-gray-600 dark:text-white/70">{request.message}</p>}
                         <p className="mt-2 text-[10px] text-gray-400">{new Date(request.createdAt).toLocaleDateString()}</p>
                       </div>
-                      <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold ${request.status === "PENDING" ? "bg-amber-500/10 text-amber-600" : request.status === "ACCEPTED" ? "bg-emerald-500/10 text-emerald-600" : "bg-gray-500/10 text-gray-500"}`}>
+                      <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold ${request.status === "PENDING" ? "bg-amber-500/10 text-amber-600" : request.status === "ACCEPTED" ? "bg-emerald-500/10 text-emerald-600" : "bg-[#E6DACE]0/10 text-gray-500"}`}>
                         {request.status.toLowerCase()}
                       </span>
                     </div>
@@ -249,7 +249,7 @@ export default function RoommatesPage() {
                           type="button"
                           disabled={updatingRequestId === request.id}
                           onClick={() => handleRequestStatus(request.id, "DECLINED")}
-                          className="rounded-xl border border-gray-200 px-3 py-2 text-[11px] font-bold text-gray-600 hover:bg-gray-50 disabled:opacity-50 dark:border-white/10 dark:text-white/70 dark:hover:bg-white/5"
+                          className="rounded-xl border border-[#E4DCD3] px-3 py-2 text-[11px] font-bold text-gray-600 hover:bg-[#E6DACE] disabled:opacity-50 dark:border-white/10 dark:text-white/70 dark:hover:bg-[#EFE5DA]/5"
                         >
                           Decline
                         </button>
@@ -257,7 +257,7 @@ export default function RoommatesPage() {
                           type="button"
                           disabled={updatingRequestId === request.id}
                           onClick={() => handleRequestStatus(request.id, "ACCEPTED")}
-                          className="rounded-xl bg-purple-600 px-3 py-2 text-[11px] font-bold text-white hover:bg-purple-700 disabled:opacity-50"
+                          className="rounded-xl bg-[#17645F] px-3 py-2 text-[11px] font-bold text-white hover:bg-[#124F4B] disabled:opacity-50"
                         >
                           {updatingRequestId === request.id ? "Saving..." : "Accept"}
                         </button>
@@ -271,10 +271,10 @@ export default function RoommatesPage() {
         )}
 
         {/* Filter Toolbar */}
-        <div className="grid grid-cols-1 gap-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-[#10141b] md:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 rounded-2xl border border-[#E4DCD3] bg-[#EFE5DA] p-5 shadow-sm dark:border-white/10 dark:bg-[#1B302D] md:grid-cols-4">
           {/* Budget Range */}
           <div>
-            <div className="flex justify-between text-xs font-bold text-gray-700 dark:text-white/80 mb-1.5">
+            <div className="flex justify-between text-xs font-bold text-[#526663] dark:text-white/80 mb-1.5">
               <span>Max Budget</span>
               <span className="text-purple-600 dark:text-purple-400">₹{maxBudget.toLocaleString("en-IN")}/mo</span>
             </div>
@@ -291,7 +291,7 @@ export default function RoommatesPage() {
 
           {/* Gender Preference */}
           <div>
-            <h4 className="text-xs font-bold text-gray-700 dark:text-white/80 mb-1.5">Roommate Gender</h4>
+            <h4 className="text-xs font-bold text-[#526663] dark:text-white/80 mb-1.5">Roommate Gender</h4>
             <div className="grid grid-cols-3 gap-1">
               {[
                 { id: "ANY", label: "Any" },
@@ -303,8 +303,8 @@ export default function RoommatesPage() {
                   onClick={() => setGenderPref(g.id)}
                   className={`py-1.5 text-[11px] font-bold rounded-xl border transition ${
                     genderPref === g.id
-                      ? "bg-purple-600 text-white border-purple-600"
-                      : "border-gray-200 dark:border-white/10 text-gray-600 dark:text-white/70"
+                      ? "bg-[#17645F] text-white border-[#17645F]"
+                      : "border-[#E4DCD3] dark:border-white/10 text-gray-600 dark:text-white/70"
                   }`}
                 >
                   {g.label}
@@ -315,7 +315,7 @@ export default function RoommatesPage() {
 
           {/* Room Type */}
           <div>
-            <h4 className="text-xs font-bold text-gray-700 dark:text-white/80 mb-1.5">Room Type</h4>
+            <h4 className="text-xs font-bold text-[#526663] dark:text-white/80 mb-1.5">Room Type</h4>
             <div className="grid grid-cols-3 gap-1">
               {[
                 { id: "ANY", label: "Any" },
@@ -327,8 +327,8 @@ export default function RoommatesPage() {
                   onClick={() => setRoomTypePref(r.id)}
                   className={`py-1.5 text-[11px] font-bold rounded-xl border transition ${
                     roomTypePref === r.id
-                      ? "bg-purple-600 text-white border-purple-600"
-                      : "border-gray-200 dark:border-white/10 text-gray-600 dark:text-white/70"
+                      ? "bg-[#17645F] text-white border-[#17645F]"
+                      : "border-[#E4DCD3] dark:border-white/10 text-gray-600 dark:text-white/70"
                   }`}
                 >
                   {r.label}
@@ -346,7 +346,7 @@ export default function RoommatesPage() {
                 setRoomTypePref("ANY");
                 setSearchQuery("");
               }}
-              className="w-full py-2.5 bg-gray-100 dark:bg-white/[0.05] hover:bg-gray-200 dark:hover:bg-white/[0.08] text-gray-700 dark:text-white text-xs font-bold rounded-xl transition"
+              className="w-full py-2.5 bg-[#E1D3C5] dark:bg-[#EFE5DA]/[0.05] hover:bg-gray-200 dark:hover:bg-[#EFE5DA]/[0.08] text-[#526663] dark:text-white text-xs font-bold rounded-xl transition"
             >
               Reset Filters
             </button>
@@ -357,7 +357,7 @@ export default function RoommatesPage() {
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="h-72 rounded-3xl bg-gray-200 dark:bg-white/5 animate-pulse" />
+              <div key={i} className="h-72 rounded-3xl bg-gray-200 dark:bg-[#EFE5DA]/5 animate-pulse" />
             ))}
           </div>
         ) : filteredProfiles.length > 0 ? (
@@ -365,18 +365,18 @@ export default function RoommatesPage() {
             {filteredProfiles.map((p) => (
               <article
                 key={p.id}
-                className="group relative flex flex-col justify-between rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-violet-500/40 hover:shadow-lg dark:border-white/10 dark:bg-[#10141b]"
+                className="group relative flex flex-col justify-between rounded-2xl border border-[#E4DCD3] bg-[#EFE5DA] p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-violet-500/40 hover:shadow-lg dark:border-white/10 dark:bg-[#1B302D]"
               >
                 <div>
                   {/* Top Peer Info */}
                   <div className="flex items-start justify-between gap-3 mb-3">
                     <div className="flex items-center gap-3">
-                      <div className="relative h-12 w-12 rounded-2xl bg-purple-600/10 text-purple-600 flex items-center justify-center font-black text-lg overflow-hidden border border-purple-500/20">
+                      <div className="relative h-12 w-12 rounded-2xl bg-[#17645F]/10 text-purple-600 flex items-center justify-center font-black text-lg overflow-hidden border border-purple-500/20">
                         {p.user?.name ? p.user.name.charAt(0) : "S"}
                       </div>
                       <div>
                         <div className="flex items-center gap-1.5">
-                          <h3 className="font-extrabold text-sm text-gray-900 dark:text-white">{p.user?.name || "Campus Student"}</h3>
+                          <h3 className="font-extrabold text-sm text-[#183B38] dark:text-white">{p.user?.name || "Campus Student"}</h3>
                           {p.user?.isVerified && (
                             <span title="Verified Student ID" className="inline-flex items-center">
                               <ShieldCheck size={15} className="text-purple-500 shrink-0" />
@@ -417,7 +417,7 @@ export default function RoommatesPage() {
                   )}
 
                   {/* Budget & Room type row */}
-                  <div className="grid grid-cols-2 gap-2 bg-slate-50 dark:bg-white/[0.03] p-3 rounded-2xl mb-3 text-xs">
+                  <div className="grid grid-cols-2 gap-2 bg-slate-50 dark:bg-[#EFE5DA]/[0.03] p-3 rounded-2xl mb-3 text-xs">
                     <div>
                       <p className="text-[10px] text-gray-400 font-semibold uppercase">Budget</p>
                       <p className="font-black text-purple-600 dark:text-purple-400">
@@ -443,7 +443,7 @@ export default function RoommatesPage() {
                       {p.interests.map((tag: string) => (
                         <span
                           key={tag}
-                          className="rounded-lg bg-gray-100 dark:bg-white/[0.05] px-2 py-0.5 text-[10px] font-bold text-gray-600 dark:text-white/70"
+                          className="rounded-lg bg-[#E1D3C5] dark:bg-[#EFE5DA]/[0.05] px-2 py-0.5 text-[10px] font-bold text-gray-600 dark:text-white/70"
                         >
                           #{tag}
                         </span>
@@ -453,7 +453,7 @@ export default function RoommatesPage() {
                 </div>
 
                 {/* Connect Action Footer */}
-                <div className="mt-4 border-t border-gray-100 dark:border-white/[0.06] pt-3 flex items-center justify-between">
+                <div className="mt-4 border-t border-[#E4DCD3] dark:border-white/[0.06] pt-3 flex items-center justify-between">
                   <span className="flex items-center gap-1 text-[11px] font-semibold text-gray-400">
                     <Lock size={12} className="text-emerald-500" /> Contact Protected
                   </span>
@@ -461,7 +461,7 @@ export default function RoommatesPage() {
                   <button
                     onClick={() => handleConnect(p.id)}
                     disabled={sendingId === p.id}
-                    className="flex items-center gap-1.5 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold transition shadow-md shadow-purple-600/20"
+                    className="flex items-center gap-1.5 px-4 py-2 bg-[#17645F] hover:bg-[#124F4B] text-white rounded-xl text-xs font-bold transition shadow-md shadow-purple-600/20"
                   >
                     <MessageSquare size={13} />
                     {sendingId === p.id ? "Sending..." : "Send request"}
@@ -471,9 +471,9 @@ export default function RoommatesPage() {
             ))}
           </div>
         ) : (
-          <div className="rounded-2xl border border-gray-200 bg-white p-10 text-center shadow-sm dark:border-white/10 dark:bg-[#10141b] sm:p-12">
+          <div className="rounded-2xl border border-[#E4DCD3] bg-[#EFE5DA] p-10 text-center shadow-sm dark:border-white/10 dark:bg-[#1B302D] sm:p-12">
             <Users size={40} className="mx-auto text-gray-400 mb-3" />
-            <h3 className="text-base font-black text-gray-950 dark:text-white">No roommate profiles found</h3>
+            <h3 className="text-base font-black text-[#183B38] dark:text-white">No roommate profiles found</h3>
             <p className="text-xs text-gray-500 max-w-sm mx-auto mt-1 mb-4">
               Try increasing your budget or changing the room and gender preferences. New campus-visible profiles will appear here when students publish them.
             </p>
@@ -484,7 +484,7 @@ export default function RoommatesPage() {
                 setRoomTypePref("ANY");
                 setSearchQuery("");
               }}
-              className="px-4 py-2 bg-purple-600 text-white rounded-xl text-xs font-bold"
+              className="px-4 py-2 bg-[#17645F] text-white rounded-xl text-xs font-bold"
             >
               Reset Filters
             </button>
@@ -504,24 +504,24 @@ export default function RoommatesPage() {
             role="dialog"
             aria-modal="true"
             aria-labelledby="roommate-report-title"
-            className="w-full max-w-lg rounded-2xl border border-gray-200 bg-white p-6 shadow-2xl dark:border-white/10 dark:bg-[#10141b]"
+            className="w-full max-w-lg rounded-2xl border border-[#E4DCD3] bg-[#EFE5DA] p-6 shadow-2xl dark:border-white/10 dark:bg-[#1B302D]"
           >
             <div className="flex items-start justify-between gap-4">
               <div>
-                <h2 id="roommate-report-title" className="text-lg font-black text-gray-900 dark:text-white">Report profile</h2>
+                <h2 id="roommate-report-title" className="text-lg font-black text-[#183B38] dark:text-white">Report profile</h2>
                 <p className="mt-1 text-xs text-gray-500 dark:text-white/55">Your report about {reportingProfile.name} will be sent to ExOwn moderators.</p>
               </div>
-              <button type="button" disabled={isReporting} onClick={() => setReportingProfile(null)} className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 disabled:opacity-50 dark:hover:bg-white/10" aria-label="Close report form">
+              <button type="button" disabled={isReporting} onClick={() => setReportingProfile(null)} className="rounded-lg p-2 text-gray-500 hover:bg-[#E1D3C5] disabled:opacity-50 dark:hover:bg-[#EFE5DA]/10" aria-label="Close report form">
                 <X size={18} />
               </button>
             </div>
 
-            <label className="mt-5 block text-xs font-bold text-gray-700 dark:text-white/80">
+            <label className="mt-5 block text-xs font-bold text-[#526663] dark:text-white/80">
               Reason
               <select
                 value={reportReason}
                 onChange={(event) => setReportReason(event.target.value as typeof reportReason)}
-                className="mt-2 w-full rounded-xl border border-gray-200 bg-white px-3 py-3 text-sm text-gray-900 outline-none focus:border-primary dark:border-white/10 dark:bg-[#07090d] dark:text-white"
+                className="mt-2 w-full rounded-xl border border-[#E4DCD3] bg-[#EFE5DA] px-3 py-3 text-sm text-[#183B38] outline-none focus:border-primary dark:border-white/10 dark:bg-[#07090d] dark:text-white"
               >
                 <option value="SPAM">Spam or misleading activity</option>
                 <option value="ABUSIVE_CONTENT">Abusive or inappropriate content</option>
@@ -530,7 +530,7 @@ export default function RoommatesPage() {
               </select>
             </label>
 
-            <label className="mt-4 block text-xs font-bold text-gray-700 dark:text-white/80">
+            <label className="mt-4 block text-xs font-bold text-[#526663] dark:text-white/80">
               Additional details (optional)
               <textarea
                 value={reportDescription}
@@ -538,12 +538,12 @@ export default function RoommatesPage() {
                 maxLength={1000}
                 rows={3}
                 placeholder="Share details that may help our moderators review this report."
-                className="mt-2 w-full resize-y rounded-xl border border-gray-200 bg-white px-3 py-3 text-sm text-gray-900 outline-none focus:border-primary dark:border-white/10 dark:bg-[#07090d] dark:text-white"
+                className="mt-2 w-full resize-y rounded-xl border border-[#E4DCD3] bg-[#EFE5DA] px-3 py-3 text-sm text-[#183B38] outline-none focus:border-primary dark:border-white/10 dark:bg-[#07090d] dark:text-white"
               />
             </label>
 
             <div className="mt-5 flex justify-end gap-2">
-              <button type="button" disabled={isReporting} onClick={() => setReportingProfile(null)} className="rounded-xl border border-gray-200 px-4 py-2.5 text-xs font-bold text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-white/10 dark:text-white dark:hover:bg-white/5">Cancel</button>
+              <button type="button" disabled={isReporting} onClick={() => setReportingProfile(null)} className="rounded-xl border border-[#E4DCD3] px-4 py-2.5 text-xs font-bold text-[#526663] hover:bg-[#E6DACE] disabled:opacity-50 dark:border-white/10 dark:text-white dark:hover:bg-[#EFE5DA]/5">Cancel</button>
               <button type="button" disabled={isReporting} onClick={submitRoommateReport} className="rounded-xl bg-red-600 px-4 py-2.5 text-xs font-bold text-white hover:bg-red-700 disabled:cursor-wait disabled:opacity-60">{isReporting ? "Submitting..." : "Submit report"}</button>
             </div>
           </section>
