@@ -161,7 +161,7 @@ export default function HousingPage() {
                   placeholder="Search by locality, area, PG name or landmark..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full rounded-2xl bg-[#EFE5DA] dark:bg-[#182D2A] pl-10 pr-4 py-3 text-xs sm:text-sm text-[#183B38] dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#17645F]/400 shadow-sm"
+                  className="w-full rounded-2xl bg-[#EFE5DA] dark:bg-[#182D2A] pl-10 pr-4 py-3 text-xs sm:text-sm text-[#183B38] dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#17645F]/40 shadow-sm"
                 />
                 {searchQuery && (
                   <button
@@ -172,7 +172,7 @@ export default function HousingPage() {
                   </button>
                 )}
               </div>
-              <div className="flex items-center gap-2 rounded-2xl border border-[#E4DCD3] bg-[#E6DACE] px-4 py-3 text-[#526663] dark:border-white/10 dark:bg-[#EFE5DA]/[0.04] dark:text-gray-200">
+              <div className="flex items-center gap-2 rounded-2xl border border-[#E4DCD3] bg-[#E6DACE] px-4 py-3 text-[#526663] dark:border-white/10 dark:bg-[#F3EEE8]/[0.04] dark:text-gray-200">
                 <MapPin size={16} className="text-amber-300" />
                 <span className="text-xs font-bold">{campusObj?.name || selectedCampus || "Selected campus"}</span>
               </div>
@@ -426,7 +426,7 @@ export default function HousingPage() {
                       </div>
 
                       {/* Rent details */}
-                      <div className="mt-3 flex items-baseline gap-2 bg-slate-50 dark:bg-[#EFE5DA]/[0.03] p-3 rounded-2xl">
+                      <div className="mt-3 flex items-baseline gap-2 bg-slate-50 dark:bg-[#F3EEE8]/[0.03] p-3 rounded-2xl">
                         <div>
                           <span className="text-xl font-black text-teal-600 dark:text-teal-400">
                             ₹{item.monthlyRent.toLocaleString("en-IN")}
@@ -446,7 +446,7 @@ export default function HousingPage() {
                           {item.amenities.slice(0, 4).map((a: string) => (
                             <span
                               key={a}
-                              className="rounded-lg bg-[#E1D3C5] dark:bg-[#EFE5DA]/[0.05] px-2 py-0.5 text-[10px] font-bold text-gray-600 dark:text-white/70"
+                              className="rounded-lg bg-[#E1D3C5] dark:bg-[#F3EEE8]/[0.05] px-2 py-0.5 text-[10px] font-bold text-gray-600 dark:text-white/70"
                             >
                               ✓ {a}
                             </span>
