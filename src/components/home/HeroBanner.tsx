@@ -269,7 +269,7 @@ export default function HeroBanner() {
                   key={idx}
                   onClick={() => setCurrentSlide(idx)}
                   className={`h-2 rounded-full transition-all ${
-                    idx === currentSlide ? "w-7 bg-white" : "w-2 bg-[#F3EEE8]/35 hover:bg-[#F3EEE8]/65"
+                    idx === currentSlide ? "w-7 bg-[#F3EEE8]" : "w-2 bg-[#F3EEE8]/35 hover:bg-[#F3EEE8]/65"
                   }`}
                   aria-label={`Go to slide ${idx + 1}`}
                 />
@@ -282,7 +282,7 @@ export default function HeroBanner() {
             {/* Promo Card 1 */}
             <Link
               href="/search?sort=trending"
-              className="group relative flex flex-1 flex-col justify-between overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-indigo-900 via-purple-900 to-black p-5 transition hover:scale-[1.02] hover:border-primary/40 shadow-xl"
+              className="group relative flex flex-1 flex-col justify-between overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#17645F] via-[#205B56] to-[#183B38] p-5 transition hover:scale-[1.02] hover:border-primary/40 shadow-xl"
             >
               <div className="flex items-start justify-between">
                 <span className="rounded-md bg-yellow-400 px-2 py-0.5 text-[9px] font-black uppercase text-black">
