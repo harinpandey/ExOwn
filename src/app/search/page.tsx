@@ -179,7 +179,7 @@ export default async function SearchPage({
                     className={`rounded-lg px-3.5 py-1.5 text-xs font-bold transition-all ${
                       isActive
                         ? "bg-primary text-white shadow-sm"
-                        : "border border-[#E4DCD3] bg-[#EFE5DA] text-[#526663] hover:bg-[#E6DACE] dark:border-white/10 dark:bg-[#EFE5DA]/[0.04] dark:text-white/70 dark:hover:bg-[#EFE5DA]/[0.08]"
+                        : "border border-[#E4DCD3] bg-[#EFE5DA] text-[#526663] hover:bg-[#E6DACE] dark:border-white/10 dark:bg-[#F3EEE8]/[0.04] dark:text-white/70 dark:hover:bg-[#F3EEE8]/[0.08]"
                     }`}
                   >
                     {mode.label}
@@ -202,7 +202,7 @@ export default async function SearchPage({
                 return (
                   <span
                     key={filter.param}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-[#E4DCD3] bg-[#E1D3C5] px-3 py-1.5 text-xs font-bold text-[#526663] dark:border-white/10 dark:bg-[#EFE5DA]/[0.04] dark:text-white/62"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-[#E4DCD3] bg-[#E1D3C5] px-3 py-1.5 text-xs font-bold text-[#526663] dark:border-white/10 dark:bg-[#F3EEE8]/[0.04] dark:text-white/62"
                   >
                     {filter.label}
                     <Link
@@ -302,7 +302,7 @@ export default async function SearchPage({
                   query: { ...params, page: Math.max(1, page - 1).toString() },
                 }}
                 aria-disabled={page <= 1}
-                className={`rounded-xl border border-[#E4DCD3] px-5 py-3 text-sm font-bold text-[#526663] dark:border-white/10 dark:text-white ${page <= 1 ? "pointer-events-none opacity-40" : "hover:bg-[#E1D3C5] dark:hover:bg-[#EFE5DA]/[0.06]"}`}
+                className={`rounded-xl border border-[#E4DCD3] px-5 py-3 text-sm font-bold text-[#526663] dark:border-white/10 dark:text-white ${page <= 1 ? "pointer-events-none opacity-40" : "hover:bg-[#E1D3C5] dark:hover:bg-[#F3EEE8]/[0.06]"}`}
               >
                 &larr; Previous
               </Link>
@@ -313,7 +313,7 @@ export default async function SearchPage({
                   query: { ...params, page: (page + 1).toString() },
                 }}
                 aria-disabled={results.length < pageSize}
-                className={`rounded-xl border border-[#E4DCD3] px-5 py-3 text-sm font-bold text-[#526663] dark:border-white/10 dark:text-white ${results.length < pageSize ? "pointer-events-none opacity-40" : "hover:bg-[#E1D3C5] dark:hover:bg-[#EFE5DA]/[0.06]"}`}
+                className={`rounded-xl border border-[#E4DCD3] px-5 py-3 text-sm font-bold text-[#526663] dark:border-white/10 dark:text-white ${results.length < pageSize ? "pointer-events-none opacity-40" : "hover:bg-[#E1D3C5] dark:hover:bg-[#F3EEE8]/[0.06]"}`}
               >
                 Next &rarr;
               </Link>
