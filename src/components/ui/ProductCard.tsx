@@ -180,7 +180,7 @@ export default function ProductCard({
                 setImgLoading(false);
                 setImgError(true);
               }}
-              className={`motion-product-image h-full w-full object-cover transition-transform duration-300 group-hover:scale-105 ${
+              className={`motion-product-image h-full w-full object-cover transition-transform duration-300  ${
                 imgLoading ? "opacity-0" : "opacity-100"
               }`}
             />
@@ -196,6 +196,7 @@ export default function ProductCard({
         {singleBadge && (
           <div className="absolute left-2.5 top-2.5 z-20">
             <span
+              data-motion={isVerified ? "seller-badge" : undefined}
               className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[10px] font-bold tracking-wide ${singleBadge.className}`}
             >
               {singleBadge.icon}
